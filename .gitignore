@@ -1,0 +1,46 @@
+# Este repositório publica o LIVRO: as páginas do GitBook, os notebooks
+# prontos e os dados que eles baixam. As fontes que geram esse material
+# ficam de fora, de propósito: aluno não deve conseguir regenerar slides
+# nem notebooks a partir daqui.
+#
+# Os arquivos abaixo continuam existindo na máquina do professor. Eles só
+# não sobem para o GitHub.
+
+# Fontes das aulas: planos, slides em YAML, notebooks-fonte e geradores de figura
+aulas/
+
+# Ferramentas de autoria
+.claude/
+guias/
+tools/
+CLAUDE.md
+aulas.txt
+
+# Scripts que geram os datasets e treinam os modelos
+data/scripts/
+
+# Ambiente Python (o repositório do livro não precisa rodar nada)
+pyproject.toml
+uv.lock
+.python-version
+.venv/
+__pycache__/
+*.pyc
+
+# Nunca publicar
+*.pptx
+*-gabarito.ipynb
+*-LOCAL.ipynb
+refs/
+
+# Saídas de build e QA
+render/
+*.pdf
+.ipynb_checkpoints/
+
+# Arquivos de bloqueio do Office
+~$*
+
+# Sistema
+.DS_Store
+Thumbs.db

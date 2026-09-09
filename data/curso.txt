@@ -1,0 +1,2796 @@
+### Antes de começar > Passo a passo
+1. Na página da aula, clique no botão **"Abrir no Colab"**, na seção
+   Materiais. O notebook abre no seu navegador, em modo de leitura.
+2. No menu, vá em **Arquivo → Salvar uma cópia no Drive**. Isso cria uma
+   cópia sua, editável, guardada no seu Google Drive.
+3. Feche a aba original (a de leitura) e continue só na cópia nova: ela
+   abre numa aba separada.
+4. Rode as células de cima para baixo. Para rodar uma célula, clique nela e
+   aperte `Shift + Enter`, ou clique no botão de play que aparece à
+   esquerda da célula.
+
+### Antes de começar > Se algo der errado
+Se uma célula der um erro que não faz sentido — por exemplo, dizendo que
+uma variável não existe, mesmo depois de você ter rodado a célula que a
+cria — o ambiente provavelmente ficou com um estado antigo na memória.
+
+Vá em **Ambiente de execução → Reiniciar sessão**, depois rode todas as
+células de novo, começando pela primeira. Isso resolve a maioria dos
+problemas.
+
+### Antes de começar > Onde ficam seus arquivos
+O Colab salva sua cópia automaticamente no Google Drive, dentro da pasta
+"Colab Notebooks". Você pode voltar a ela a qualquer momento pelo
+drive.google.com.
+
+### Aula 13 — Modelos de Fundação > De 787 mil para 494 milhões
+Na Aula 11 você treinou um modelo de 787.584 pesos, em 40 minutos de
+processador. Ele continua texto e escreve com a grafia de 1899. É um
+modelo de verdade, e é pequeno.
+
+O modelo de hoje tem 627 vezes o tamanho do seu. Ele se chama
+**Qwen2.5-0.5B-Instruct**, é aberto, e cabe em uma pasta de 1 gigabyte.
+
+Ele já tem sucessor: a família Qwen3 saiu em 2025, com um modelo de 0,6
+bilhão no mesmo papel, e outros vão sair depois dela. O curso fica na
+versão 2.5 porque medimos todos os números desta página nela. Trocar
+de modelo é mudar uma linha, e o resto do código continua igual. Essa é
+uma das graças de usar a biblioteca padrão.
+
+Um **modelo de fundação** (*foundation model*) é um modelo grande, treinado
+uma vez em muito texto, que serve de base para muitas tarefas diferentes
+sem precisar de treino novo. "Fundação" no sentido de alicerce: você
+constrói em cima.
+
+### Aula 13 — Modelos de Fundação > As três etapas
+O que separa um continuador de texto de um assistente são duas etapas de
+treino a mais, e nenhuma delas usa técnica nova.
+
+| Etapa | O que faz | Onde você viu |
+|---|---|---|
+| Pré-treino | prever o próximo token, em trilhões de tokens | Aula 11 |
+| Ajuste por instrução | treinar em pares de pergunta e resposta boa | é a mesma perda |
+| Ajuste por preferência | treinar com pessoas comparando duas respostas | é o mesmo gradiente |
+
+O `-Instruct` no nome do modelo quer dizer exatamente isso: ele passou
+pelas três. A versão sem o sufixo passou só pela primeira, e se comporta
+como o seu modelo da Aula 12.
+
+### Aula 13 — Modelos de Fundação > Rodar: três linhas
+A biblioteca `transformers` já vem no Colab. Na primeira vez ela baixa 1
+gigabyte do Hugging Face, que é o repositório público onde quase todo
+modelo aberto mora. Não há cadastro, chave nem cobrança.
+
+**Sobre a paciência**
+
+No processador, esse modelo gera cerca de 1 a 4 tokens por segundo. Uma
+resposta de 100 tokens leva de meio minuto a um minuto e meio. Ligar a GPU
+T4 gratuita do Colab (Ambiente de execução, Alterar o tipo de ambiente de
+execução) deixa isso dezenas de vezes mais rápido. Sem GPU funciona igual,
+só devagar.
+
+### Aula 13 — Modelos de Fundação > Não existe conversa
+Este é o ponto que muda a forma de pensar. Quando você manda uma mensagem
+para um modelo, não existe conversa nenhuma. Existe um texto só, com
+marcadores, e o modelo continua esse texto exatamente como na Aula 12.
+
+Os "papéis" (`system`, `user`, `assistant`) são **tokens especiais** que o
+modelo aprendeu no ajuste por instrução. Nada mais. O molde termina em
+`<|im_start|>assistant`, e o modelo faz a única coisa que sabe: continua.
+
+É por isso que a chamada é assim:
+
+Cada modelo tem o seu molde, com marcadores diferentes. O
+`apply_chat_template` usa o molde certo para o modelo que você carregou.
+
+### Aula 13 — Modelos de Fundação > O prompt é o único controle que você tem
+Você não vai treinar esse modelo. O que você controla é o texto que entra
+antes da pergunta. Três peças, nesta ordem:
+
+| Peça | O que faz |
+|---|---|
+| Papel | quem o modelo deve ser, e para quem ele fala |
+| Contexto | o que ele precisa saber e não sabe |
+| Tarefa e formato | o que fazer, e em que forma entregar |
+
+Veja a diferença na mesma pergunta:
+
+Duas coisas para reparar, e as duas são honestas.
+
+**A primeira**: definir o papel encurtou a resposta e trocou o jargão por
+exemplo concreto. Funcionou.
+
+**A segunda**: o terceiro prompt pedia "exatamente três itens, cada um com
+no máximo quinze palavras". O modelo não obedeceu. Um modelo de 0,5
+bilhão de pesos segue instruções de conteúdo razoavelmente bem, e
+instruções de formato mal. Modelos maiores obedecem; esse não.
+
+### Aula 13 — Modelos de Fundação > Poucos exemplos valem mais que muita explicação
+Quando o formato importa, mostrar funciona melhor que mandar. Coloque dois
+ou três exemplos no próprio prompt:
+
+Isso se chama **few-shot** (poucos exemplos), e o nome contrasta com
+**zero-shot**, que é pedir sem exemplo nenhum. Repare que nada foi
+treinado: os exemplos são só texto, e a única coisa que eles fazem é
+tornar o padrão óbvio para a continuação.
+
+### Aula 13 — Modelos de Fundação > Os parâmetros: já conhecidos
+Tudo o que a Aula 12 ensinou continua valendo, com os mesmos nomes.
+
+| Parâmetro | O que faz |
+|---|---|
+| `temperature` | divide os logits: baixa concentra, alta espalha |
+| `top_p` | fica com os mais prováveis até somarem p |
+| `max_new_tokens` | quantos tokens gerar antes de parar |
+| `do_sample=False` | desliga o sorteio: sempre o mais provável |
+
+Uma regra prática: para extrair informação de um texto, use
+`do_sample=False` e tenha respostas reproduzíveis. Para gerar variação,
+suba a temperatura e aceite que cada chamada devolve outra coisa.
+
+### Aula 13 — Modelos de Fundação > Ele não sabe dizer "não sei"
+Agora a parte que importa no trabalho. Pergunte um fato que dá para
+conferir:
+
+Ele respondeu 10, depois 3, depois 3. Nenhuma vez respondeu "não sei", e
+nenhuma vez hesitou. Não é aleatoriedade: é o que a Aula 12 já explicou.
+O modelo estima qual token é provável, e "10" é um número provável depois
+de "Dom Casmurro tem". Verdadeiro e falso não são categorias que existam
+ali dentro.
+
+Volte à figura dos três prompts e leia de novo a segunda resposta. Ele diz
+que a função logit "é a inversa da função logarítmica". Você sabe da Aula
+3 que ela é a inversa da sigmoide, e conseguiu ver o erro na hora.
+
+Guarde essa sensação. **Você só pega o erro em assunto que já conhece.**
+
+**Erro do dia**
+
+Pedir conta a um modelo de linguagem. Ele prevê tokens, e o token que vem
+depois de "17 × 24 =" é o que costuma vir em textos parecidos, não o
+resultado da multiplicação. Modelos grandes acertam contas pequenas de
+tanto terem visto, e erram as grandes com a mesma confiança. Se precisa de
+conta, use uma calculadora, e deixe o modelo escrever o texto em volta.
+
+### Aula 13 — Modelos de Fundação > Aberto ou por API
+Existem dois caminhos para usar um modelo de fundação, e a escolha é de
+projeto, não de gosto.
+
+| | Modelo aberto (o de hoje) | Modelo por API |
+|---|---|---|
+| Onde roda | na sua máquina ou no seu servidor | no servidor de outra empresa |
+| Custo | processamento seu, e nada por pergunta | por token, e cresce com o uso |
+| Privacidade | o dado não sai de casa | o dado sai de casa |
+| Qualidade | boa nos grandes, limitada nos pequenos | hoje, a melhor disponível |
+| Controle | você escolhe a versão, e ela não muda | a versão muda quando a empresa quiser |
+
+O critério que decide na prática costuma ser um só: se o dado não pode
+sair da empresa, o modelo aberto deixa de ser opção e passa a ser
+requisito.
+
+### Aula 13 — Modelos de Fundação > Cola da aula
+| Conceito | O que significa |
+|---|---|
+| Modelo de fundação | Modelo grande, treinado uma vez, que serve de base para muitas tarefas |
+| Hugging Face | O repositório público de onde vêm os modelos abertos |
+| Molde de conversa | O texto com marcadores que traduz mensagens em um texto só |
+| Papéis | `system`, `user` e `assistant`: tokens especiais, nada mais |
+| Prompt de sistema | O texto que define quem o modelo é antes da conversa |
+| Zero-shot | Pedir sem exemplo nenhum |
+| Few-shot | Colocar dois ou três exemplos dentro do prompt |
+| `do_sample=False` | Sempre o token mais provável: resposta reproduzível |
+
+### Aula 13 — Modelos de Fundação > Materiais
+- Slides desta aula: `slides.pptx`
+- Notebook: [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/aulas/13-modelos-de-fundacao/aula-13.ipynb)
+
+### Aula 13 — Modelos de Fundação > Para ir além
+- Qwen2.5-0.5B-Instruct no Hugging Face: a página do modelo, com a licença e os detalhes de treino. O sucessor, Qwen3-0.6B, roda com o mesmo código.
+- Documentação do `transformers`: o guia oficial de conversas, com todos os parâmetros de geração.
+- Guia de Engenharia de Prompt: as técnicas de prompt organizadas, em português.
+- Glossário: para revisar qualquer termo novo desta aula.
+
+### Aula 9 — Do Texto aos Números > O que um LLM faz
+Um modelo de linguagem grande faz **uma** coisa: recebe um pedaço de texto
+e devolve as probabilidades do que vem em seguida. Só isso. Conversar,
+resumir, traduzir e programar são tudo consequência de repetir essa
+resposta muitas vezes.
+
+Comece pelo que é fácil de conferir. Aqui estão as continuações de
+"minha mãe" nas 90 vezes em que a expressão aparece nos livros de Machado
+de Assis:
+
+Repare que não existe resposta certa. Existem 63 continuações diferentes, e
+a mais provável aparece em menos de uma vez a cada dez. É por isso que a
+saída do modelo é uma **distribuição de probabilidade**, exatamente como a
+softmax da Aula 8 produzia para as dez categorias de roupa. Só que aqui as
+categorias são todas as continuações possíveis.
+
+### Aula 9 — Do Texto aos Números > O material da obra
+Nas próximas quatro aulas você constrói um modelo desses do zero. Ele vai
+ser pequeno (787.584 pesos, contra centenas de bilhões dos modelos
+comerciais) e vai treinar no processador do seu computador, sem placa de
+vídeo.
+
+O texto que ele vai ler é toda a prosa de Machado de Assis: onze obras,
+3.676.878 caracteres, 623.120 palavras. Está em domínio público, e o
+arquivo mora em `data/machado.txt`.
+
+**O detalhe que vai voltar em todas as aulas**
+
+Esses livros são de 1880 a 1908, com a grafia da época: "elle", "cousa",
+"difficil", "pharmacia". O modelo vai aprender a escrever assim, porque é
+o que ele viu. Guarde essa observação. Ela é a coisa mais importante que
+este curso tem a dizer sobre modelos de linguagem.
+
+### Aula 9 — Do Texto aos Números > A unidade errada, duas vezes
+Antes de qualquer conta, uma decisão: qual é a peça mínima que o modelo
+manipula?
+
+**Palavra inteira** parece o óbvio, e não funciona. O corpus tem 50.390
+palavras diferentes, e essa é só a contagem de Machado. Pior: na primeira
+palavra que o modelo nunca viu, ele não tem entrada nenhuma para usar.
+Nomes próprios, erros de digitação e palavras novas quebram tudo.
+
+**Letra** resolve o vocabulário: são 118 caracteres diferentes, e nada
+fica de fora. Mas a frase acima vira 26 peças em vez de 7. Como o custo do
+modelo cresce com o número de peças, você paga quase quatro vezes mais
+para dizer a mesma coisa.
+
+### Aula 9 — Do Texto aos Números > O meio-termo: BPE
+A solução usada por todos os modelos modernos se chama **codificação por
+pares de bytes** (*byte pair encoding*, ou BPE). A regra cabe em uma frase:
+
+> Encontre o par de peças vizinhas mais comum no texto, junte as duas numa
+> peça nova, e repita.
+
+Faça à mão, com o texto `banana banana banana`:
+
+| Passo | Par mais comum | Como cada `banana` fica |
+|---|---|---|
+| 0 | | `b` `a` `n` `a` `n` `a` |
+| 1 | `a`+`n`, 6 vezes | `b` `an` `an` `a` |
+| 2 | `b`+`an`, 3 vezes | `ban` `an` `a` |
+| 3 | `ban`+`an`, 3 vezes | `banan` `a` |
+
+Em três passos, `banana` saiu de seis peças para duas. Nenhum linguista
+escolheu essas peças: elas saíram da contagem.
+
+Num texto minúsculo como esse, vários pares empatam (`na` também aparece 6
+vezes no passo 1) e o programa desempata por uma regra fixa. Em texto de
+verdade o empate no topo quase nunca acontece.
+
+Rodando isso no corpus inteiro até chegar a 1.024 peças, é isto o que sai:
+
+Leia as três colunas na ordem. No começo o algoritmo junta o que é comum
+em qualquer texto em português (`ra`, `os`, `qu`). No fim, já sobrou
+espaço para palavras inteiras que Machado usa muito (`fazer`, `sei`,
+`filha`). O vocabulário é um retrato do corpus.
+
+### Aula 9 — Do Texto aos Números > Bytes, para nada ficar de fora
+Um detalhe que parece técnico e não é. O BPE não começa das letras: começa
+dos **bytes**. Todo texto do mundo, em qualquer língua, é uma sequência de
+bytes, e existem exatamente 256 valores possíveis.
+
+A consequência: o vocabulário inicial tem 256 peças e cobre tudo. O
+modelo nunca encontra um caractere que ele não saiba representar. Um
+emoji, um ideograma chinês ou um nome próprio esquisito viram vários
+bytes, e o modelo processa sem reclamar.
+
+Um efeito colateral divertido: `ã` ocupa dois bytes em UTF-8, então no
+começo do treino ele é duas peças. A fusão número 268 junta os dois. O
+algoritmo aprendeu a letra `ã` sozinho, contando.
+
+$$\text{vocabulário} = 256 \text{ bytes} + 768 \text{ fusões} = 1024$$
+
+| Símbolo | Significado |
+|---|---|
+| 256 | os valores possíveis de um byte, a base de tudo |
+| 768 | quantas vezes você mandou juntar o par mais comum |
+| 1024 | o tamanho final da tabela, escolhido por você |
+
+Exemplo: com 768 fusões, o corpus de 3.676.878 caracteres vira 1.484.827
+tokens. São 2,48 caracteres por token.
+
+### Aula 9 — Do Texto aos Números > Codificar e decodificar
+Com a tabela pronta, converter texto em números é mecânico:
+
+Uma regra que não tem exceção: **codificar e decodificar têm que usar a
+mesma tabela de fusões**. Se você treinar o modelo com uma tabela e usar
+outra na hora de conversar com ele, os números vão significar outra coisa,
+e a saída vira lixo.
+
+Os dois gráficos contam a mesma escolha por dois lados. Por letra, o
+vocabulário é minúsculo mas o texto fica longo. Por palavra, o texto fica
+curto mas o vocabulário explode. O BPE não vence em nenhum dos dois, e é
+aceitável nos dois.
+
+### Aula 9 — Do Texto aos Números > Do texto para o lote de treino
+Falta uma peça: como esses números viram exemplos de treino.
+
+A tarefa é prever o próximo token. Então o exemplo é simplesmente a mesma
+sequência, andada uma casa:
+
+Repare no detalhe que faz a coisa toda ser barata: uma janela de 8 tokens
+não dá **um** exemplo de treino. Dá 7. O modelo prevê o token 2 olhando o
+1, prevê o 3 olhando o 1 e o 2, e assim por diante, tudo na mesma passada.
+
+Com janelas de 128 tokens e lotes de 32, cada passo de treino corrige os
+pesos usando 4.096 previsões de uma vez.
+
+O tamanho da janela tem nome: **janela de contexto**. É o quanto o modelo
+consegue olhar para trás. A sua vai ser de 128 tokens, uns 300 caracteres.
+Os modelos comerciais estão na casa das centenas de milhares.
+
+**Erro do dia**
+
+Treinar o tokenizador de novo antes de usar o modelo. Cada treino de BPE
+sorteia empates de um jeito, e a tabela sai diferente. O tokenizador é
+parte do modelo: salve os dois juntos, sempre. Nesta aula, o arquivo é
+`data/machado_bpe.json`.
+
+### Aula 9 — Do Texto aos Números > Cola da aula
+| Conceito | O que significa |
+|---|---|
+| Modelo de linguagem | Devolve a probabilidade de cada continuação possível |
+| Corpus | O monte de texto usado para treinar |
+| Token | A peça mínima que o modelo manipula |
+| Tokenizador | O programa que converte texto em tokens e de volta |
+| BPE | Juntar o par de peças mais comum, repetidas vezes |
+| Vocabulário | Quantos tokens diferentes existem na tabela |
+| Janela de contexto | Quantos tokens o modelo enxerga de uma vez |
+| Entrada e alvo | A mesma sequência, com uma casa de diferença |
+
+### Aula 9 — Do Texto aos Números > Materiais
+- Slides desta aula: `slides.pptx`
+- Notebook: [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/aulas/09-tokenizacao/aula-09.ipynb)
+- Corpus: `machado.txt`
+- Tokenizador pronto: `machado_bpe.json`
+
+### Aula 9 — Do Texto aos Números > Para ir além
+- Tiktokenizer: cole qualquer texto e veja como o tokenizador do GPT o corta, token por token.
+- Machado de Assis no Project Gutenberg: as obras completas de onde saiu o corpus.
+- Let's build the GPT Tokenizer (Andrej Karpathy): duas horas construindo o mesmo BPE desta aula, com todos os detalhes que ficaram de fora. Em inglês.
+- Glossário: para revisar qualquer termo novo desta aula.
+
+### Aula 10 — Atenção > O problema
+Leia esta frase e complete a última palavra:
+
+Você completou sem esforço, porque leu a frase inteira e reteve as quatro
+palavras que importam. O modelo precisa fazer o mesmo, e tem duas saídas
+ruins pela frente.
+
+**Saída ruim 1: olhar só as últimas palavras.** Barato, e perde tudo o que
+está longe. Foi assim que os modelos funcionavam antes de 2017.
+
+**Saída ruim 2: somar todas as palavras anteriores por igual.** Aí "de",
+"uma" e "para" pesam tanto quanto "Capitú". A informação some no meio da
+média.
+
+A resposta é uma terceira coisa: deixar cada posição **escolher** para onde
+olhar, com pesos que o treino ajusta. Isso se chama **atenção**
+(*attention*).
+
+### Aula 10 — Atenção > Antes: a palavra vira um vetor
+Cada token da Aula 9 é um número inteiro, e número inteiro não serve para
+fazer conta de parecença. O primeiro passo do modelo é trocar cada token
+por uma linha de uma tabela:
+
+Essa tabela se chama **embutimento** (*embedding*). São 131.072 pesos, que
+o treino ajusta como quaisquer outros. Depois dela, o token 600 deixou de
+ser "o número 600" e virou um ponto num espaço de 128 dimensões, onde
+palavras parecidas ficam perto.
+
+### Aula 10 — Atenção > Os três papéis
+A atenção dá três vetores a cada palavra, obtidos multiplicando o vetor da
+palavra por três tabelas de pesos diferentes:
+
+Pense numa biblioteca. Você chega com uma **pergunta** (o Q da posição
+atual). Cada livro tem uma **etiqueta** na lombada (o K de cada palavra
+anterior). Você compara a sua pergunta com todas as etiquetas, escolhe os
+livros mais parecidos, e lê o **conteúdo** deles (o V).
+
+A diferença para a biblioteca de verdade: aqui você não escolhe um livro
+só. Você lê todos, em proporções diferentes.
+
+### Aula 10 — Atenção > Medir parecença: o produto escalar
+Como comparar uma pergunta com uma etiqueta, se as duas são listas de
+números? Multiplicando casa com casa e somando. É o **produto escalar**, a
+mesma conta da convolução da Aula 8.
+
+$$q \cdot k = \sum_{i=1}^{d} q_i k_i$$
+
+| Símbolo | Significado |
+|---|---|
+| `q` | o vetor pergunta da posição que está prevendo |
+| `k` | o vetor etiqueta de uma das palavras anteriores |
+| `d` | quantos números tem cada vetor |
+
+Exemplo: com `q = (0, 2, 0, 0)` e `k = (0, 2, 0, 0)`, o produto é
+`0 + 4 + 0 + 0 = 4`. Com `k = (1, 0, 0, 0)`, o produto é `0`. Números
+apontando para o mesmo lado dão produto alto; perpendiculares dão zero.
+
+### Aula 10 — Atenção > A fórmula inteira
+$$\text{Atenção}(Q, K, V) = \text{softmax}\!\left(\frac{Q K^{\top}}{\sqrt{d}}\right) V$$
+
+| Símbolo | Significado |
+|---|---|
+| `Q K^T` | todos os produtos escalares de todas as perguntas com todas as etiquetas |
+| `√d` | a raiz da dimensão, que segura o tamanho dos números |
+| `softmax` | transforma os números em pesos que somam 1 |
+
+Exemplo completo, com três palavras e `d = 4`. A palavra "dorme" pergunta,
+e as três palavras respondem:
+
+Os produtos deram 0, 4 e 2. Divididos por `√4 = 2`, viram 0, 2 e 1.
+Passando pela softmax, viram 9%, 67% e 24%. São os mesmos três números da
+softmax da Aula 8, de propósito: é a mesma conta.
+
+A saída da posição "dorme" é a soma dos três vetores `V`, cada um pesado
+pelo seu número. Ela ficou com 67% do conteúdo de "gato".
+
+**Por que dividir pela raiz de d?** Quanto mais dimensões, maiores os
+produtos escalares, só por haver mais parcelas na soma. Números grandes
+fazem a softmax virar tudo-ou-nada: 99,9% em uma palavra e quase zero nas
+outras. A divisão mantém a distribuição espalhada, e com isso o gradiente
+continua existindo.
+
+### Aula 10 — Atenção > A máscara: não vale olhar a resposta
+Existe um problema que o desenho acima esconde. Se cada posição olha todas
+as outras, a posição 3 olha a posição 4, que é justamente a palavra que ela
+deveria prever.
+
+A correção é a **máscara causal**: antes da softmax, troque por menos
+infinito todos os produtos que apontam para o futuro. A softmax de menos
+infinito é zero, então esses pesos somem.
+
+O nome "causal" vem daí: a informação só corre do passado para o futuro,
+nunca ao contrário.
+
+**Erro do dia**
+
+Esquecer a máscara. O modelo treina lindamente, a perda cai para quase
+zero, e você comemora. Na hora de gerar texto, ele não tem mais o futuro
+para copiar, e a saída vira lixo. É o erro mais frustrante desta aula,
+porque o sintoma aparece longe da causa.
+
+### Aula 10 — Atenção > Quatro cabeças, quatro olhares
+Uma atenção só tem que decidir tudo com um conjunto de pesos. Na prática,
+o modelo roda várias em paralelo, cada uma com sua própria tabela de Q, K e
+V, e junta os resultados no fim. Cada uma se chama **cabeça** (*head*).
+
+O nosso modelo tem 4 cabeças por camada. Como o vetor tem 128 números,
+cada cabeça trabalha com 32. O custo total é o mesmo de uma cabeça de 128,
+e o que se ganha é a variedade:
+
+Agora olhe de perto duas delas, na frase "A casa de Capitú tinha uma janela
+para a rua":
+
+Duas coisas para reparar. Primeira: o canto de cima à direita é todo
+branco. É a máscara funcionando, no modelo de verdade. Segunda: "Capitú"
+aparece cortado em quatro tokens (`·C`, `ap`, `it`, `ú`), porque um
+vocabulário de 1.024 não tem espaço para nomes próprios. Os pedaços de uma
+palavra costumam se olhar entre si, e é isso que remonta a palavra.
+
+Dá para medir o que cada camada faz. Numa frase de 34 tokens, a média de
+quão longe cada cabeça olha:
+
+| Camada | Distância média | Peso na palavra anterior |
+|---|---|---|
+| 1 | 5,5 tokens | 17% |
+| 2 | 2,8 tokens | 33% |
+| 3 | 2,2 tokens | 39% |
+| 4 | 2,8 tokens | 31% |
+
+A primeira camada espalha o peso por toda a frase. As de cima ficam bem
+mais locais, com um terço do peso na palavra imediatamente anterior.
+Ninguém programou essa divisão de trabalho: ela sai do treino.
+
+### Aula 10 — Atenção > A posição: RoPE
+Falta um detalhe que passa despercebido. Na fórmula da atenção, nada diz
+onde cada palavra está. Embaralhe as palavras da frase e os produtos
+escalares dão exatamente o mesmo resultado.
+
+A solução moderna se chama **RoPE** (*rotary position embedding*): antes de
+calcular os produtos, gire o vetor de cada palavra por um ângulo
+proporcional à posição dela.
+
+O efeito é exatamente o que se quer: o produto escalar passa a depender da
+**distância** entre as duas palavras, e não da posição absoluta de cada
+uma. O modelo trata igual uma frase que aparece no começo e no fim do
+texto.
+
+### Aula 10 — Atenção > O preço da janela
+Uma conta que explica muita notícia. Para uma janela de `n` tokens, a
+atenção calcula `n × n` produtos escalares. Dobrar a janela quadruplica o
+custo.
+
+| Janela | Produtos por cabeça |
+|---|---|
+| 128 (o nosso) | 16.384 |
+| 1.000 | 1 milhão |
+| 100.000 | 10 bilhões |
+
+É por isso que janela grande é caro, e por que cada modelo novo anuncia a
+janela dele como se fosse uma conquista. É.
+
+### Aula 10 — Atenção > Cola da aula
+| Conceito | O que significa |
+|---|---|
+| Embutimento | A tabela que troca cada token por um vetor de 128 números |
+| Atenção | Cada posição escolhe para onde olhar, com pesos aprendidos |
+| Q (pergunta) | O que esta posição está procurando |
+| K (etiqueta) | O que cada posição anterior tem a oferecer |
+| V (conteúdo) | O que ela entrega, se for escolhida |
+| Produto escalar | Multiplicar casa com casa e somar: mede parecença |
+| Máscara causal | Zera tudo que aponta para o futuro, antes da softmax |
+| Cabeça | Uma atenção independente; o modelo roda várias em paralelo |
+| RoPE | A posição entra como um giro no vetor |
+
+### Aula 10 — Atenção > Materiais
+- Slides desta aula: `slides.pptx`
+- Notebook: [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/aulas/10-atencao/aula-10.ipynb)
+- Modelo treinado: `mini_llm.pt`
+
+### Aula 10 — Atenção > Para ir além
+- Attention Is All You Need: o artigo de 2017 que apresentou o transformer. Difícil, mas vale ver o desenho da página 3.
+- The Illustrated Transformer: a explicação visual mais conhecida, com animações de cada passo.
+- Attention in transformers, step-by-step (3Blue1Brown): a conta desta aula, animada. Em inglês, com legendas.
+- Glossário: para revisar qualquer termo novo desta aula.
+
+### Aula 11 — O Transformer e o Treino > Todas as peças já existem
+Esta aula não tem quase nada de novo, e vale começar por aí:
+
+| Peça | De onde veio |
+|---|---|
+| Tokenizador | Aula 9 |
+| Atenção com máscara | Aula 10 |
+| Camada densa com ativação | Aula 7 |
+| Normalização | Aula 7 |
+| Gradiente descendente | Aula 1 |
+| Entropia cruzada e softmax | Aulas 3 e 8 |
+
+O que falta é a montagem: em que ordem colocar as peças, e como treinar
+sem que nada exploda.
+
+### Aula 11 — O Transformer e o Treino > O bloco transformer
+Um **transformer** é um bloco repetido várias vezes. Cada bloco tem duas
+metades, e as duas seguem o mesmo desenho: normaliza, faz alguma coisa,
+soma de volta.
+
+Duas linhas. Repare no `x +` das duas: é o **atalho** (conexão residual).
+A entrada inteira atravessa o bloco por fora, e o modelo soma ela ao
+que saiu.
+
+**Para que serve o atalho.** Sem ele, o gradiente da Aula 1 precisa
+atravessar todas as camadas para chegar à primeira, e vai encolhendo pelo
+caminho. Com ele, existe um caminho direto da saída até qualquer camada.
+Foi essa ideia, de 2015, que permitiu redes com dezenas de camadas.
+
+Uma segunda leitura, mais intuitiva: cada bloco não reescreve o vetor da
+palavra. Ele **acrescenta** alguma coisa ao que já estava lá.
+
+### Aula 11 — O Transformer e o Treino > As duas peças modernas
+O desenho de 2017 usava LayerNorm e ReLU. Os modelos de hoje trocaram as
+duas por versões mais baratas ou mais expressivas.
+
+**RMSNorm** põe cada vetor num tamanho padrão, dividindo pela raiz da
+média dos quadrados:
+
+$$\hat{x}_i = \frac{x_i}{\sqrt{\frac{1}{d}\sum_{j=1}^{d} x_j^2}} \cdot g_i$$
+
+| Símbolo | Significado |
+|---|---|
+| `xᵢ` | um dos 128 números do vetor |
+| a raiz | o "tamanho" médio do vetor |
+| `gᵢ` | um peso por dimensão, que o treino ajusta |
+
+Exemplo com 4 números: `(3, 4, 0, 0)`. A média dos quadrados é
+`(9+16+0+0)/4 = 6,25`, e a raiz é 2,5. O vetor normalizado é
+`(1,2, 1,6, 0, 0)`. É a normalização da Aula 7, sem a subtração da média.
+
+**SwiGLU** troca a dobra da ReLU por duas coisas ao mesmo tempo:
+
+São dois caminhos que saem do mesmo `x`. Um deles passa pela SiLU e vira
+uma **porta**: perto de zero fecha, perto de um deixa passar. O outro
+carrega o conteúdo. A multiplicação entre os dois deixa a rede decidir,
+por dimensão e por palavra, o que vale a pena seguir adiante.
+
+O preço são três tabelas de pesos em vez de duas. Vale a pena, e por isso
+Llama, Qwen e quase todo modelo aberto de hoje usa SwiGLU.
+
+### Aula 11 — O Transformer e o Treino > O modelo inteiro
+A última linha merece explicação. A tabela de entrada troca token por
+vetor; a cabeça de saída faz o contrário, troca vetor por pontuação de
+cada token. Usar a **mesma** tabela nos dois sentidos economiza 131.072
+pesos e costuma melhorar o resultado, porque a tabela recebe gradiente
+das duas pontas.
+
+Isso costuma surpreender. A atenção é o que dá nome ao artigo e o que
+todo mundo explica, mas o modelo gasta mais pesos nas camadas densas que
+vêm depois dela.
+
+### Aula 11 — O Transformer e o Treino > A perda: entropia cruzada com 1.024 categorias
+É a mesma perda da Aula 8, só que agora as categorias são os 1.024 tokens
+do vocabulário, e a previsão acontece em cada uma das 128 posições da
+janela.
+
+$$\text{perda} = -\frac{1}{n}\sum_{i=1}^{n} \log P(\text{token certo}_i)$$
+
+| Símbolo | Significado |
+|---|---|
+| `n` | quantas previsões o lote tem: 32 × 128 = 4.096 |
+| `P(token certo)` | a probabilidade que o modelo deu ao token que de fato veio |
+| `log` | o logaritmo, que castiga com força quem erra com confiança |
+
+Antes de qualquer treino, o modelo chuta igual entre os 1.024 tokens.
+Então a probabilidade do token certo é `1/1024`, e a perda tem que dar
+`ln(1024) = 6,93`. O nosso deu 6,95 no passo 0, o que confirma que a
+montagem está certa.
+
+**Um teste que vale ouro**
+
+Sempre confira a perda no passo 0 contra `ln(vocabulário)`. Se der muito
+diferente, tem erro de montagem ou de inicialização, e é muito mais fácil
+achar agora do que depois de duas horas de treino.
+
+### Aula 11 — O Transformer e o Treino > Perplexidade: a perda em português
+Perda de 3,46 não diz nada a ninguém. Tire a exponencial e ela vira um
+número com significado:
+
+$$\text{perplexidade} = e^{\text{perda}}$$
+
+| Valor | Significa |
+|---|---|
+| perda 6,93 | perplexidade 1.024: o modelo não sabe nada |
+| perda 3,46 | perplexidade 31,8: ele está escolhendo entre uns 32 candidatos |
+| perda 0 | perplexidade 1: ele acerta sempre, o que só acontece se decorou |
+
+Perplexidade é "entre quantos tokens o modelo está efetivamente na
+dúvida". Sair de 1.024 para 31,8 quer dizer que o modelo eliminou 97% dos
+candidatos antes de escolher.
+
+### Aula 11 — O Transformer e o Treino > O laço de treino
+Seis linhas, e todas já apareceram no curso. Duas merecem comentário.
+
+**AdamW** é o otimizador. Ele é o gradiente descendente da Aula 1 com duas
+melhorias: guarda uma média dos gradientes recentes (o que suaviza o
+caminho) e dá passos maiores nas direções em que o gradiente é
+consistentemente pequeno.
+
+**O corte de gradiente** (`clip_grad_norm_`) limita o tamanho do passo
+quando um lote sai muito fora do normal. Sem ele, um único lote estranho
+pode jogar os pesos para longe e estragar horas de treino.
+
+### Aula 11 — O Transformer e o Treino > O tamanho do passo muda ao longo do treino
+No começo os pesos são aleatórios, e passo grande em direção errada só faz
+estrago: por isso o **aquecimento**, com a taxa subindo do zero nos
+primeiros 200 passos. No fim, o modelo está perto de um bom lugar e passo
+grande faz ele passar do ponto: por isso o **resfriamento**, com a taxa
+descendo até quase zero.
+
+### Aula 11 — O Transformer e o Treino > O treino de verdade
+Repare no formato: a perda despenca no começo e depois vai ficando cada
+vez mais difícil melhorar. Sair de 6,95 para 4,0 custou uns poucos
+minutos. Sair de 4,0 para 3,46 custou o resto das quatro dezenas.
+
+Essa curva explica por que treinar modelos grandes é caro. Cada ponto a
+menos custa mais que o anterior, e não existe atalho.
+
+E veja o que sai do modelo em cada momento:
+
+No passo 0 é ruído. Em 200 passos já existem palavras curtas e vírgulas em
+lugares plausíveis. Em 1.000 aparecem frases inteiras erradas mas
+gramaticais. No fim, ele escreve com a grafia de 1899, porque foi isso que
+leu.
+
+**Erro do dia**
+
+Julgar o modelo pela perda de treino. No nosso, ela terminou em 2,96
+enquanto a de validação parou em 3,46. Essa diferença é o modelo decorando
+trechos do corpus. Enquanto as duas caem juntas, tudo bem. Quando a de
+validação começa a subir, pare o treino: o que vem depois é decoreba.
+
+### Aula 11 — O Transformer e o Treino > O que muda quando o modelo é grande
+O nosso tem 787.584 pesos e leu 3,7 milhões de caracteres. Um modelo
+comercial tem centenas de bilhões de pesos e leu trilhões de tokens. A
+arquitetura, essa, é a mesma que você acabou de montar.
+
+| Peça | O nosso | Um comercial |
+|---|---|---|
+| Camadas | 4 | 60 a 120 |
+| Dimensão | 128 | 4.000 a 16.000 |
+| Cabeças | 4 | 32 a 128 |
+| Janela | 128 tokens | centenas de milhares |
+| Treino | 40 minutos, um processador | meses, milhares de placas |
+
+Nada nessa tabela é uma ideia nova. É a mesma ideia, com mais dinheiro.
+
+### Aula 11 — O Transformer e o Treino > Cola da aula
+| Conceito | O que significa |
+|---|---|
+| Transformer | Um bloco (norma, atenção, MLP) repetido várias vezes |
+| Atalho (residual) | Soma a entrada à saída de cada metade do bloco |
+| RMSNorm | Põe cada vetor num tamanho padrão |
+| SwiGLU | Camada densa com uma porta que decide o que passa |
+| Pesos amarrados | A mesma tabela serve de entrada e de saída |
+| Entropia cruzada | A perda: castiga quem erra com confiança |
+| Perplexidade | `e` elevado à perda: entre quantos tokens o modelo hesita |
+| AdamW | O otimizador padrão para modelos de linguagem |
+| Corte de gradiente | Limita o passo quando um lote sai fora do normal |
+| Aquecimento e resfriamento | A taxa sobe no começo e desce no fim |
+
+### Aula 11 — O Transformer e o Treino > Materiais
+- Slides desta aula: `slides.pptx`
+- Notebook: [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/aulas/11-transformer-treino/aula-11.ipynb)
+- Modelo treinado: `mini_llm.pt`
+
+### Aula 11 — O Transformer e o Treino > Para ir além
+- nanoGPT, de Andrej Karpathy: o repositório que inspirou o modelo desta aula, com 300 linhas de PyTorch.
+- Let's build GPT, from scratch: duas horas de vídeo montando a mesma coisa, linha por linha.
+- Transformers, the tech behind LLMs (3Blue1Brown): o modelo inteiro, do token à previsão, em animação. Em inglês, com legendas.
+- Glossário: para revisar qualquer termo novo desta aula.
+
+### Aula 12 — Geração e Limites > O modelo não devolve uma palavra
+Este é o mal-entendido mais comum sobre modelos de linguagem, e vale
+desfazer com um gráfico. Dê ao modelo treinado na Aula 11 o começo "Não
+sei se a senhora" e olhe o que ele produz:
+
+Nenhuma continuação chega a 11%. As dez melhores juntas dão 42%, e o resto
+da probabilidade está espalhado por mais de mil tokens.
+
+Escolher **qual** desses 1.024 vai para a tela é um problema separado, que
+nada tem a ver com o treino. Ele tem nome: **amostragem** (*sampling*), e é
+o assunto da primeira metade desta aula.
+
+### Aula 12 — Geração e Limites > Duas escolhas ruins
+**Sempre o mais provável.** Chama-se decodificação gulosa (*greedy*). É
+determinística e parece segura, e o resultado é ruim: o texto entra em
+laço, repetindo a mesma frase. Um modelo que só escolhe o topo acaba num
+lugar de onde o topo aponta de volta para si.
+
+**Sortear direto da distribuição.** O oposto: cada token tem exatamente a
+chance que o modelo deu. O problema está na cauda. Nesta posição, os
+tokens fora dos 40 melhores somam 33% da probabilidade, espalhados por
+984 candidatos. Um a um eles são improváveis, mas juntos dão uma chance em
+três de o modelo escolher algo que ele mesmo considera ruim.
+
+A saída é ficar no meio, e existem três controles para isso.
+
+### Aula 12 — Geração e Limites > Controle 1: a temperatura
+Antes da softmax, divida todos os números por `T`.
+
+$$P_j = \frac{e^{z_j / T}}{\sum_{k} e^{z_k / T}}$$
+
+| Símbolo | Significado |
+|---|---|
+| `zⱼ` | o número cru (o *logit*) que o modelo deu ao token `j` |
+| `T` | a temperatura, um número positivo que você escolhe |
+| `Pⱼ` | a probabilidade final desse token |
+
+Exemplo com três logits: 4, 2 e 0.
+
+| Temperatura | Os logits viram | As probabilidades ficam |
+|---|---|---|
+| `T = 0,5` | 8, 4, 0 | 98%, 2%, 0% |
+| `T = 1` | 4, 2, 0 | 87%, 12%, 2% |
+| `T = 2` | 2, 1, 0 | 67%, 24%, 9% |
+
+A última linha é a mesma conta das Aulas 8 e 10, com os mesmos três
+números. Repare no que a temperatura fez: ela não mudou a ordem dos
+candidatos, só a distância entre eles.
+
+Guarde a leitura em português:
+
+| Temperatura | O que acontece |
+|---|---|
+| perto de 0 | vira a escolha gulosa: sempre o mesmo texto |
+| 0,7 a 0,9 | o padrão da maioria das ferramentas |
+| acima de 1,2 | o modelo passa a considerar tokens que ele mesmo acha improváveis |
+
+### Aula 12 — Geração e Limites > Controles 2 e 3: cortar a cauda
+A temperatura reescala tudo, inclusive o lixo. Os outros dois controles
+simplesmente eliminam candidatos antes do sorteio.
+
+**Top-k**: fique com os `k` mais prováveis e zere o resto. Com `k = 40`,
+os outros 984 tokens deixam de existir, e com eles vai embora aquele um
+terço de risco. Simples, e sempre corta o mesmo
+tanto, mesmo quando o modelo está muito seguro.
+
+**Top-p** (ou núcleo, *nucleus*): pegue os mais prováveis até que a soma
+deles passe de `p`. Com `p = 0,9`, no exemplo do começo desta aula, isso
+daria 145 tokens; numa posição onde o modelo está certo do que vem, daria
+dois ou três. É a versão que se adapta.
+
+### Aula 12 — Geração e Limites > Os quatro textos
+Mesmo modelo, mesmo início, quatro jeitos de escolher:
+
+Leia com atenção. Na temperatura 0,3 aparece "disse elle, disse elle": é a
+repetição chegando. Na 1,5 aparecem palavras que não existem. A 0,8 é a que
+lê melhor, e é por isso que ela é o padrão em quase toda ferramenta.
+
+### Aula 12 — Geração e Limites > Autorregressão: o erro vira entrada
+Uma palavra sobre o mecanismo. Gerar texto é repetir o mesmo passo:
+
+1. Passe o texto atual pelo modelo.
+2. Pegue os 1.024 números da última posição.
+3. Aplique temperatura e corte.
+4. Sorteie um token.
+5. Cole ele no fim do texto e volte ao passo 1.
+
+Isso se chama **geração autorregressiva**, e tem uma consequência que
+explica muito. O token sorteado no passo 4 vira entrada do passo 1
+seguinte. Se ele foi ruim, o modelo não tem como voltar atrás: ele agora
+precisa continuar coerentemente a partir do erro.
+
+É por isso que temperatura alta não produz "criatividade". Ela produz um
+erro que contamina tudo o que vem depois.
+
+**Erro do dia**
+
+Subir a temperatura achando que isso deixa o modelo mais criativo. O que
+sobe é a chance de ele escolher um token que ele mesmo considera
+improvável, e a partir dali o texto tem que se justificar sozinho. Se você
+quer outra resposta, mude o começo, não a temperatura.
+
+### Aula 12 — Geração e Limites > Ele copia ou inventa?
+É a pergunta que a turma sempre faz, e dá para medir. Pegue 200 tokens
+gerados pelo modelo e procure, para cada posição, o maior trecho que
+aparece **literalmente** no corpus de Machado:
+
+A média é 1,85 palavras. O modelo não guarda o texto: ele guarda uma
+estatística sobre o texto, em 787.584 números. Reconstruir uma frase
+inteira de Machado a partir disso é impossível, e produzir uma frase nova
+que soa como Machado é exatamente o que ele faz.
+
+Modelos grandes, treinados em textos que aparecem muitas vezes na
+internet, conseguem reproduzir trechos longos. É um problema real de
+direito autoral, e a causa é a repetição no corpus, não a arquitetura.
+
+### Aula 12 — Geração e Limites > Por que o modelo alucina
+Agora a parte que importa fora da sala de aula. Nosso modelo escreve
+frases confiantes sobre coisas que nunca existiram, e não há nada de
+errado com ele. Ele está fazendo exatamente o que o treino pediu.
+
+| O que ele tem | O que ele não tem |
+|---|---|
+| Uma estimativa de qual token é provável | Qualquer noção de verdadeiro e falso |
+| 787.584 pesos ajustados por gradiente | Um lugar para consultar um fato |
+| Uma janela de 128 tokens | Memória do que disse antes disso |
+| A estatística do corpus | Uma marcação do que veio de onde |
+
+"Alucinação" é um nome ruim, porque sugere defeito. Uma frase falsa e
+fluente e uma frase verdadeira e fluente têm exatamente a mesma natureza
+para o modelo: as duas são sequências prováveis. Ele não tem como
+distinguir, porque nunca teve.
+
+### Aula 12 — Geração e Limites > O modelo é o corpus
+Repare no que o nosso escreve: "elle", "cousa", "mettia", "pharmacia". Ele
+escreve a grafia de 1899 porque leu 3,7 milhões de caracteres de 1899, e
+nada mais.
+
+Essa é a lição que vale para qualquer modelo de linguagem, e para qualquer
+tamanho. Um modelo treinado em fóruns escreve como fórum. Um modelo
+treinado em texto majoritariamente em inglês responde melhor em inglês. Um
+modelo treinado em textos que carregam um preconceito reproduz esse
+preconceito, com a mesma fluência com que reproduz a gramática.
+
+Não existe modelo neutro. Existe corpus, e o modelo é o que ele diz.
+
+### Aula 12 — Geração e Limites > O que a escala compra
+As perplexidades vêm de conjuntos de teste diferentes, então valem como
+ordem de grandeza. O que a figura mostra é o formato da coisa: cada corte
+na dúvida custa ordens de grandeza mais treino que o anterior.
+
+E o que se ganha com isso não é só "menos dúvida". Com escala aparecem
+comportamentos que o modelo pequeno não tem: seguir uma instrução, manter
+o assunto por páginas, fazer uma conta de várias etapas.
+
+### Aula 12 — Geração e Limites > O que falta para virar um assistente
+Nosso modelo continua texto. Ele não responde perguntas, e isso não é
+questão de tamanho: é questão de treino. Entre o modelo que você montou e
+um assistente existem duas etapas a mais:
+
+| Etapa | O que faz |
+|---|---|
+| Pré-treino | o que fizemos: prever o próximo token, em muito texto |
+| Ajuste por instrução | treinar em pares de pergunta e resposta boa |
+| Ajuste por preferência | treinar com pessoas comparando duas respostas |
+
+A segunda etapa é o que ensina o formato "alguém perguntou, agora
+responda". A terceira é o que ensina qual resposta as pessoas preferem. As
+duas usam o mesmo gradiente descendente da Aula 1, sobre os mesmos pesos.
+
+### Aula 12 — Geração e Limites > Cola da aula
+| Conceito | O que significa |
+|---|---|
+| Logit | O número cru que o modelo dá a um token, antes da softmax |
+| Amostragem | A regra para escolher um token entre os 1.024 |
+| Gulosa | Escolher sempre o mais provável: entra em repetição |
+| Temperatura | Divide os logits: baixa concentra, alta espalha |
+| Top-k | Fica só com os k mais prováveis |
+| Top-p | Fica com os mais prováveis até somarem p |
+| Autorregressiva | Cada token gerado vira entrada do passo seguinte |
+| Alucinação | Frase provável e falsa: o modelo não distingue as duas |
+| Ajuste por instrução | O treino extra que transforma um continuador em assistente |
+
+### Aula 12 — Geração e Limites > Materiais
+- Slides desta aula: `slides.pptx`
+- Notebook: [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/aulas/12-geracao-limites/aula-12.ipynb)
+- Modelo treinado: `mini_llm.pt`
+
+### Aula 12 — Geração e Limites > Para ir além
+- The Curious Case of Neural Text Degeneration: o artigo que apresentou o top-p, com exemplos de texto degenerado que valem mais que a matemática.
+- Extracting Training Data from Large Language Models: quanto um modelo grande consegue reproduzir do que leu, medido.
+- Deep Dive into LLMs like ChatGPT (Andrej Karpathy): três horas sobre o que existe depois do pré-treino, incluindo as etapas que este curso só menciona. Em inglês.
+- Glossário: para revisar qualquer termo novo desta aula.
+
+### Aula 1 — Regressão Linear Simples > Para que serve
+Você chama um carro por aplicativo. Antes de aceitar a corrida, o app já
+mostra o preço. Como ele sabe isso antes mesmo de você sair de casa?
+
+Ele não sabe o futuro. Ele olha para o passado: milhares de corridas
+anteriores, cada uma com sua distância e seu preço final. Nesses dados
+existe um padrão. Corridas mais longas custam mais. O aplicativo usa esse
+padrão para prever o preço da sua corrida antes de ela acontecer.
+
+Regressão linear é a ferramenta mais simples para encontrar esse padrão.
+Ela desenha uma reta no meio dos seus dados e usa essa reta para prever.
+Esta aula usa exatamente esse exemplo, o preço de uma corrida, para
+ensinar a matemática por trás de qualquer modelo de previsão.
+
+Veja como fica quando você coloca a distância e o preço de 200 corridas
+num gráfico:
+
+Os pontos não formam uma reta perfeita. O trânsito, o horário e outros
+fatores empurram cada corrida um pouco para cima ou para baixo. Mas dá
+para ver uma tendência clara: quanto maior a distância, maior o preço. É
+essa tendência que a regressão linear captura.
+
+### Aula 1 — Regressão Linear Simples > A reta que prevê o preço
+Uma reta de regressão é uma regra simples: você entra com a distância, ela
+devolve o preço previsto.
+
+O preço previsto é a bandeirada (o valor cobrado mesmo numa corrida de 0
+km) mais o preço por quilômetro, multiplicado pela distância.
+
+$$\text{preço} = w_0 + w_1 \cdot \text{distância}$$
+
+| Símbolo | Significado |
+|---|---|
+| `preço` | o preço previsto pela reta, em reais |
+| `distância` | a distância da corrida, em km |
+| `w₀` | a bandeirada: o preço previsto para uma corrida de 0 km |
+| `w₁` | o preço por km: quanto o preço sobe para cada km a mais |
+
+Exemplo: se `w₀ = 5` e `w₁ = 2,20`, uma corrida de 8 km custa `5 + 2,20 ×
+8 = 22,60` reais.
+
+Repare que `w₁` é o único número que decide o quanto o preço reage à
+distância. Se `w₁` dobrasse, cada km rodado custaria o dobro. A reta
+ficaria bem mais inclinada, e corridas longas ficariam
+desproporcionalmente mais caras.
+
+`w₀` e `w₁` (lê-se "peso zero" e "peso um") se chamam **coeficientes** ou
+**pesos** do modelo. Encontrar a melhor reta é, na prática, encontrar os
+melhores valores para esses dois números. O nome "peso" (do inglês
+*weight*) é o mesmo usado em modelos bem maiores: cada conexão de uma
+rede neural tem um peso, e a ideia continua sendo esta.
+
+### Aula 1 — Regressão Linear Simples > O erro de cada previsão
+Nenhuma reta acerta todas as 200 corridas. Os pontos não estão exatamente
+alinhados. A diferença entre o preço real de uma corrida e o preço que a
+reta previu para ela se chama **resíduo** (também chamado de *erro*).
+
+$$\text{resíduo} = \text{preço real} - \text{preço previsto}$$
+
+| Símbolo | Significado |
+|---|---|
+| `preço real` | o preço que a corrida realmente teve |
+| `preço previsto` | o preço que a reta calculou para essa mesma corrida |
+
+Exemplo: uma corrida de 8 km custou R$ 25,00, e a reta previu R$ 22,60.
+O resíduo dessa corrida é 25,00 − 22,60 = R$ 2,40.
+
+A mesma conta, escrita com símbolos:
+
+$$e_i = y_i - \hat{y}_i$$
+
+| Símbolo | Significado |
+|---|---|
+| `i` | o número da corrida: 1 para a primeira, 2 para a segunda... |
+| `eᵢ` | o resíduo da corrida `i` |
+| `yᵢ` | o preço real da corrida `i` |
+| `ŷᵢ` | o preço previsto para a corrida `i` (lê-se "y chapéu") |
+
+No exemplo acima, `y₁ = 25,00`, `ŷ₁ = 22,60` e `e₁ = 2,40`. Esses três
+símbolos voltam em todas as fórmulas de erro desta página.
+
+Um resíduo positivo significa que a reta previu um preço menor que o
+real. Um resíduo negativo significa que ela previu um preço maior.
+Visualmente, o resíduo é a distância vertical entre o ponto e a reta:
+
+Uma reta boa não é a que acerta uma corrida perfeitamente. É a que erra
+pouco, na média, em todas as corridas ao mesmo tempo.
+
+### Aula 1 — Regressão Linear Simples > Encontrando a melhor reta: o erro quadrático médio
+Para comparar retas diferentes, você precisa de um único número que
+resuma o quanto uma reta erra. O mais usado é o **erro quadrático médio**
+(*mean squared error*, ou MSE): a média dos resíduos, cada um elevado ao
+quadrado.
+
+$$\text{MSE} = \frac{1}{n}\sum_{i=1}^{n}(y_i - \hat{y}_i)^2$$
+
+| Símbolo | Significado |
+|---|---|
+| `n` | o número de corridas |
+| `yᵢ` | o preço real da corrida `i` |
+| `ŷᵢ` | o preço que a reta previu para a corrida `i` (lê-se "y chapéu") |
+
+Por que elevar ao quadrado, e não só somar os erros? Por dois motivos.
+Primeiro, um resíduo pode ser negativo (a reta previu preço maior que o
+real) ou positivo (previu menor). Se você só somasse, um erro positivo
+cancelaria um negativo, e a soma poderia dar zero mesmo com a reta
+errando bastante. Elevar ao quadrado remove esse problema, porque todo
+número ao quadrado é positivo. Segundo, o quadrado penaliza mais os erros
+grandes: errar R$ 2 em uma corrida conta 4; errar R$ 10 conta 100. Vinte
+e cinco vezes mais, não só cinco.
+
+Exemplo com 3 corridas, cujos resíduos foram R$ 1, R$ -2 e R$ 3: elevando
+cada um ao quadrado, você tem 1, 4 e 9. A média é (1+4+9)/3 = 4,67. O MSE
+dessas três corridas é 4,67, em reais ao quadrado. Uma unidade estranha,
+que é justamente o motivo de existirem as outras métricas desta página.
+
+Quanto menor o MSE, melhor a reta. Veja três retas candidatas para os
+mesmos dados, cada uma com seu MSE:
+
+### Aula 1 — Regressão Linear Simples > Existe um atalho: mínimos quadrados
+Para uma reta simples como esta, existe uma fórmula que calcula os
+melhores `w₀` e `w₁` direto, sem precisar tentar valor por valor. Ela se
+chama **mínimos quadrados** (*ordinary least squares*).
+
+$$w_1 = \frac{\sum_{i=1}^{n}(x_i - \bar{x})(y_i - \bar{y})}{\sum_{i=1}^{n}(x_i - \bar{x})^2} \qquad w_0 = \bar{y} - w_1 \bar{x}$$
+
+| Símbolo | Significado |
+|---|---|
+| `xᵢ`, `yᵢ` | a distância e o preço da corrida `i` |
+| `x̄` | a média de todas as distâncias |
+| `ȳ` | a média de todos os preços |
+
+Este guia não deduz de onde essa fórmula vem. O importante aqui é saber
+que ela existe e o que ela calcula, não como alguém a inventou.
+
+Exemplo com 3 corridas de brinquedo, com distâncias 1, 2 e 3 km e preços
+R$ 6, R$ 9 e R$ 15: a distância média é `x̄ = 2` e o preço médio é
+`ȳ = 10`. Aplicando a fórmula, `w₁ = 4,5` e `w₀ = 1`. A melhor reta para
+este mini-exemplo é `preço = 1 + 4,5 × distância`.
+
+Repare que os resíduos dessa reta (0,50, -1,00 e 0,50) somam zero. Isso
+não é coincidência: a reta de mínimos quadrados sempre produz resíduos
+que somam exatamente zero. É uma boa forma de conferir uma conta feita à
+mão.
+
+Se essa fórmula resolve o problema direto, por que aprender outro jeito
+de chegar à mesma resposta? Porque essa fórmula fechada só existe para
+casos simples como este. Modelos maiores, como as redes neurais, não têm
+uma fórmula assim. Para eles sobra um caminho só: ajustar os pesos aos
+poucos, na tentativa guiada que vem agora.
+
+### Aula 1 — Regressão Linear Simples > Gradiente descendente: descendo a serra na neblina
+Imagine que você está numa serra, de noite, com neblina fechada. Você não
+enxerga o vale lá embaixo, mas consegue sentir com os pés se o chão desce
+para a esquerda ou para a direita. A estratégia mais simples para chegar
+ao fundo do vale é: sinta a inclinação do chão onde você está, dê um
+passo na direção que desce, e repita.
+
+O **gradiente descendente** faz exatamente isso, mas em vez de um vale de
+terra, o "terreno" é o MSE. Em vez de posição geográfica, você está
+"andando" sobre os valores possíveis de `w₀` e `w₁`. A inclinação do
+terreno em cada ponto tem um nome técnico: **gradiente**. Ele aponta para
+onde o erro cresce mais rápido, e por isso você anda na direção
+contrária a ele.
+
+O terreno existe, e dá para desenhá-lo
+
+Essa serra não é só uma figura de linguagem. Para enxergá-la, congele
+`w₀` no valor que os mínimos quadrados dão (4,63) e mexa só em `w₁`. Cada
+valor de `w₁` dá uma reta diferente, e cada reta tem o seu MSE. Marque
+`w₁` no eixo horizontal e o MSE no eixo vertical, e o terreno aparece:
+
+Repare em três coisas. A curva tem um fundo, e é ali que mora o melhor
+`w₁`. À esquerda do fundo ela desce, à direita ela sobe. E a inclinação
+do chão em cada ponto já diz para que lado andar: onde a curva desce,
+aumentar `w₁` diminui o erro.
+
+A inclinação tem nome: derivada
+
+A **derivada** de uma curva em um ponto é a inclinação dela ali. Pense
+numa placa de estrada avisando "10% de inclinação": a cada 100 metros
+andados para a frente, a estrada sobe 10 metros. A conta aqui é a mesma.
+Ande um tiquinho para a frente e veja o quanto o erro subiu.
+
+$$\text{inclinação} \approx \frac{\text{MSE}(w_1 + h) - \text{MSE}(w_1)}{h}$$
+
+| Símbolo | Significado |
+|---|---|
+| `h` | o tiquinho andado: um avanço pequeno no valor de `w₁` |
+| `MSE(w₁)` | o erro com o `w₁` de agora |
+| `MSE(w₁ + h)` | o erro depois de andar esse tiquinho |
+| `≈` | "quase igual": a conta fica exata quando `h` encolhe até quase zero |
+
+Exemplo, partindo de `w₁ = 3,20` com um avanço de `h = 0,05`: o erro sai
+de 56,75 para 62,38. A subida foi 5,63, e 5,63 ÷ 0,05 = 112,7. A
+inclinação naquele ponto é 112,7. Ela é positiva, então aumentar `w₁`
+aumenta o erro, e o caminho para baixo é o contrário.
+
+A animação mostra o que acontece quando o avanço encolhe. A reta amarela
+liga dois pontos da curva, e tem nome: **secante**. Quanto menor o
+avanço, mais ela cola na reta tracejada, aquela que toca a curva em um
+ponto só: a **tangente**. A derivada é a inclinação dessa tangente.
+
+Ninguém precisa calcular derivada à mão neste curso. Quem faz essa conta
+é o computador. O que você precisa levar é o significado do número: para
+que lado o erro cresce, e o quão rápido.
+
+O gradiente: uma inclinação para cada peso
+
+A curva de antes tinha um peso só, porque `w₀` ficou congelado. No treino
+de verdade os dois pesos se mexem, e aí não existe uma inclinação só.
+Existe uma para cada peso: o quanto o erro muda se você mexer só em `w₀`,
+e o quanto ele muda se você mexer só em `w₁`. Essa lista de inclinações é
+o **gradiente**.
+
+$$\nabla \text{MSE} = \left( \frac{\partial \text{MSE}}{\partial w_0} \; , \; \frac{\partial \text{MSE}}{\partial w_1} \right)$$
+
+| Símbolo | Significado |
+|---|---|
+| `∇` | nabla: o símbolo do gradiente, a lista de todas as inclinações |
+| `∂MSE/∂w₀` | a inclinação do erro quando só `w₀` se mexe |
+| `∂MSE/∂w₁` | a inclinação do erro quando só `w₁` se mexe |
+
+O símbolo `∂` é a derivada quando existe mais de um peso. Ele quer dizer:
+mexa só neste peso aqui e segure os outros parados. A conta continua sendo
+a mesma de antes, subida dividida por avanço, feita uma vez por peso.
+
+Volte para a serra. Andar só para o norte tem uma inclinação, andar só
+para o leste tem outra, e o gradiente é esse par. Ele aponta para onde o
+erro cresce mais rápido, e é por isso que o modelo anda no sentido
+contrário.
+
+Exemplo com duas corridas de brinquedo (2 km por R$ 9 e 5 km por R$ 15) e
+o chute `w₀ = 0`, `w₁ = 2`. As previsões são R$ 4 e R$ 10, então os dois
+resíduos valem R$ 5. O gradiente nesse ponto é `(−10 ; −35)`. Os dois
+números são negativos, o que significa que subir os dois pesos reduz o
+erro.
+
+A regra de atualização
+
+$$w_{t+1} = w_t - \alpha \cdot \frac{\partial \text{MSE}}{\partial w}$$
+
+| Símbolo | Significado |
+|---|---|
+| `t` | o número do passo: `t = 0` é o chute inicial |
+| `wₜ` | o valor do peso no passo `t` |
+| `wₜ₊₁` | o valor que esse peso passa a ter no passo seguinte |
+| `α` | a taxa de aprendizado (*learning rate*): o tamanho do passo |
+| `∂MSE/∂w` | a inclinação do erro naquele ponto, para aquele peso |
+
+O sinal de menos é o coração da fórmula. Se a inclinação é positiva, o
+erro cresce para a frente, então o peso anda para trás. Se é negativa, o
+peso anda para a frente.
+
+O `t` é só um contador de passos. A fórmula é uma receita para repetir:
+você calcula o peso do passo seguinte a partir do peso de agora, e usa
+esse resultado como ponto de partida da próxima volta. Cada peso tem a sua
+própria linha, com a sua própria inclinação.
+
+Veja dois passos calculados à mão, com as mesmas duas corridas de
+brinquedo, taxa de aprendizado `α = 0,01`, e o chute inicial `w₀ = 0`,
+`w₁ = 2`:
+
+| Passo | `w₀` | `w₁` | MSE |
+|---|---|---|---|
+| `t = 0` (chute inicial) | 0,00 | 2,00 | 25,00 |
+| `t = 1` | 0,10 | 2,35 | 13,78 |
+| `t = 2` | 0,17 | 2,59 | 8,43 |
+
+A cada passo, o MSE cai. A reta está melhorando sozinha, sem que ninguém
+diga qual deveria ser o próximo chute. Rodando esse mesmo processo
+dezenas de vezes, ele se aproxima cada vez mais da resposta que a fórmula
+de mínimos quadrados dá direto.
+
+Na curva do erro, esse processo vira uma bolinha escorregando para o
+fundo. Repare que os passos encolhem sozinhos: perto do fundo o chão fica
+plano, a inclinação diminui, e o passo diminui junto.
+
+Com os dois pesos ao mesmo tempo
+
+Congelar `w₀` foi só para caber num desenho. No treino de verdade os dois
+pesos mudam juntos, e o terreno deixa de ser uma curva. Com dois pesos
+ele vira uma superfície, uma bacia de verdade:
+
+A regra de atualização não muda quando os dois pesos andam juntos. Você a
+aplica duas vezes por passo, uma para cada peso, cada uma com a sua
+inclinação.
+
+Essa mesma bacia, vista de cima, vira um mapa. Cada tom de cinza é um
+valor de MSE, e a linha vermelha é o caminho que o gradiente descendente
+percorre, passo a passo, até chegar perto do fundo, a região mais clara,
+onde o erro é menor.
+
+A taxa de aprendizado
+
+O tamanho do passo, `α`, decide se o gradiente descendente funciona bem,
+devagar, ou nem funciona:
+
+- **Taxa pequena demais.** Cada passo é curto. O modelo até melhora, mas
+  leva muito mais tempo, e muito mais passos, para chegar perto da
+  melhor reta.
+- **Taxa boa.** Os passos são grandes o suficiente para andar rápido, mas
+  pequenos o suficiente para não passar do ponto certo.
+- **Taxa grande demais.** Cada passo é tão largo que ultrapassa o fundo
+  da bacia e cai do outro lado, cada vez mais alto. O erro, em vez de
+  cair, cresce sem parar.
+
+**Erro do dia**
+
+É comum, na primeira vez que se usa gradiente descendente, escolher uma
+taxa de aprendizado grande demais para "o modelo aprender mais rápido",
+e ver o erro, em vez de diminuir, virar um número gigante ou `nan` ("não
+é um número", o jeito do Python de dizer que a conta explodiu). Se isso
+acontecer, a correção quase sempre é a mesma: diminua a taxa de
+aprendizado, muitas vezes por um fator de 10, e rode de novo.
+
+### Aula 1 — Regressão Linear Simples > Métricas de regressão
+Depois de treinar um modelo, você precisa de números que digam, em
+linguagem simples, o quanto ele erra. Cada métrica conta uma parte da
+história. Vamos calcular as quatro para o mesmo mini-exemplo de antes (as
+3 corridas de brinquedo, com resíduos 0,50, -1,00 e 0,50).
+
+MAE: o erro médio, em reais
+
+O **erro absoluto médio** (*mean absolute error*) é a média do tamanho
+dos erros, ignorando se cada um é para cima ou para baixo.
+
+$$\text{MAE} = \frac{1}{n}\sum_{i=1}^{n}|y_i - \hat{y}_i|$$
+
+| Símbolo | Significado |
+|---|---|
+| barras verticais | valor absoluto: transforma um número negativo em positivo |
+| `n`, `yᵢ`, `ŷᵢ` | os mesmos símbolos do MSE (número de corridas, preço real, preço previsto) |
+
+As barras verticais em torno de `yᵢ - ŷᵢ` deixam um número já positivo
+como está, e transformam um número negativo em positivo.
+
+No mini-exemplo: (0,50 + 1,00 + 0,50)/3 = 0,67. Em média, a reta erra
+R$ 0,67 por corrida, na mesma unidade do preço, fácil de explicar para
+qualquer pessoa.
+
+MSE e RMSE: penalizando os erros grandes
+
+Você já viu o MSE (a média dos erros ao quadrado). No mini-exemplo:
+(0,25 + 1,00 + 0,25)/3 = 0,50. O problema do MSE é a unidade: "reais ao
+quadrado" não significa nada no mundo real.
+
+A **raiz do erro quadrático médio** (*root mean squared error*, RMSE)
+resolve isso. É só a raiz quadrada do MSE, o que devolve a métrica para
+a unidade original.
+
+$$\text{RMSE} = \sqrt{\text{MSE}}$$
+
+| Símbolo | Significado |
+|---|---|
+| raiz quadrada | devolve o MSE para a unidade original (reais) |
+
+No mini-exemplo: a raiz quadrada de 0,50 é 0,71. O RMSE fica bem perto do
+MAE neste caso. Isso muda quando existe um erro muito fora do padrão.
+
+R²: quanto da bagunça a reta explica
+
+O **R²** (lê-se "r ao quadrado", também chamado de coeficiente de
+determinação) responde a uma pergunta diferente: de toda a variação que
+existe nos preços, quanto a reta consegue explicar?
+
+$$R^2 = 1 - \frac{\sum_{i=1}^{n}(y_i - \hat{y}_i)^2}{\sum_{i=1}^{n}(y_i - \bar{y})^2}$$
+
+| Símbolo | Significado |
+|---|---|
+| `ȳ` | o preço médio, sem usar a reta |
+| numerador | soma dos erros da reta ao quadrado |
+| denominador | soma dos desvios em torno de `ȳ` |
+
+O numerador é a soma dos erros da reta ao quadrado: o tanto que a reta
+erra. O denominador é a soma dos desvios em torno da média `ȳ`, sem usar
+a reta: o tanto que os preços variam sozinhos.
+
+`R²` varia de 0 a 1 (às vezes pode ficar negativo, para uma reta muito
+ruim). Perto de 1 significa que a reta explica quase toda a variação.
+Perto de 0 significa que ela não ajuda muito mais do que simplesmente
+chutar a média para todo mundo.
+
+No mini-exemplo, a soma dos erros ao quadrado é 0,25 + 1,00 + 0,25 = 1,5,
+e a soma dos desvios em torno da média (10) é
+(6-10)² + (9-10)² + (15-10)² = 16 + 1 + 25 = 42. Então
+`R² = 1 - 1,5/42 = 0,96`. Essa reta explica 96% da variação dos preços
+nesse mini-exemplo, um ajuste muito bom.
+
+Quando uma métrica engana
+
+MAE e RMSE quase sempre andam juntos, até aparecer uma corrida fora do
+padrão. Uma única corrida com um preço muito estranho (uma tarifa
+dinâmica disparada, por exemplo) pesa pouco no MAE, mas pesa muito no
+RMSE, porque a conta eleva esse erro ao quadrado antes de somá-lo à
+média.
+
+Por isso, quando o RMSE de um modelo está bem mais alto que o MAE, isso é
+um sinal de que existem alguns erros grandes escondidos na média. Vale a
+pena investigar quais corridas eles são.
+
+### Aula 1 — Regressão Linear Simples > Cola da aula
+| Conceito | O que significa |
+|---|---|
+| `w₀`, `w₁` | bandeirada e preço por km |
+| Resíduo (`eᵢ`) | preço real menos preço previsto, corrida por corrida |
+| MSE | média dos resíduos ao quadrado |
+| Mínimos quadrados | fórmula que calcula a melhor reta direto, sem tentativa e erro |
+| Inclinação (derivada) | o quanto o erro muda quando você mexe um tiquinho no peso |
+| Gradiente | a lista das inclinações, uma por peso do modelo |
+| Gradiente descendente | ajusta os coeficientes aos poucos, na direção que reduz o erro |
+| Taxa de aprendizado (`α`) | tamanho do passo do gradiente descendente |
+| MAE | erro médio, na mesma unidade do preço |
+| RMSE | como o MAE, mas penaliza mais os erros grandes |
+| R² | fração da variação dos preços que a reta explica (0 a 1) |
+
+### Aula 1 — Regressão Linear Simples > Materiais
+- Slides desta aula: `slides.pptx`
+- Notebook: [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/aulas/01-regressao-linear-simples/aula-01.ipynb)
+- Dataset: `corridas_app.csv`
+
+Se ainda não sabe como abrir o notebook, veja
+Antes de começar primeiro.
+
+### Aula 1 — Regressão Linear Simples > Para ir além
+- Documentação da `LinearRegression` no scikit-learn: a classe que você vai usar no notebook desta aula.
+- Gradient descent, how neural networks learn (3Blue1Brown): a serra na neblina, animada. Em inglês, com legendas em português.
+- Regressão linear, visualmente (MLU-Explain): arraste os pontos e veja a reta e o erro mudarem na hora.
+- Machine Learning Crash Course (Google): curso gratuito em português, com o mesmo caminho desta aula e exercícios interativos.
+- Glossário: para revisar qualquer termo novo desta aula.
+
+### Aula 2 — Regressão Múltipla > Para que serve
+Você quer alugar um apartamento e abre um site de imóveis. Dois anúncios
+têm exatamente 70 m². Um pede R$ 2.400 e o outro pede R$ 3.500. A área é a
+mesma, então o preço não vem só dela.
+
+Vem também do número de quartos, da idade do prédio e, principalmente, do
+bairro. Na Aula 1 a reta usava uma informação só. Aqui você aprende a usar
+todas as informações ao mesmo tempo, que é como qualquer modelo de verdade
+funciona.
+
+O dataset desta aula tem 300 apartamentos, com quatro informações sobre
+cada um: área, quartos, idade e bairro.
+
+### Aula 2 — Regressão Múltipla > Uma variável não basta
+Comece pelo que você já sabe fazer: uma reta com a área.
+
+A reta acompanha a tendência, e o `R²` dá 0,71. Não é ruim. Mas repare na
+espessura da nuvem: para uma mesma área existem aluguéis bem diferentes. É
+essa faixa vertical que as outras informações vão explicar.
+
+### Aula 2 — Regressão Múltipla > A fórmula com várias variáveis
+O modelo continua sendo uma soma. Cada informação entra multiplicada pelo
+seu próprio peso.
+
+$$\hat{y} = w_0 + w_1 x_1 + w_2 x_2 + \dots + w_p x_p$$
+
+| Símbolo | Significado |
+|---|---|
+| `ŷ` | o aluguel previsto, em reais |
+| `p` | quantas informações (variáveis) o modelo usa |
+| `x₁, x₂...` | as informações do apartamento: área, quartos, idade |
+| `w₁, w₂...` | o peso de cada informação |
+| `w₀` | o valor base, quando todas as informações valem zero |
+
+Escrever `x₁ + x₂ + ...` cansa quando o modelo tem muitas variáveis. A
+forma compacta usa o mesmo somatório da Aula 1:
+
+$$\hat{y} = w_0 + \sum_{j=1}^{p} w_j x_j$$
+
+| Símbolo | Significado |
+|---|---|
+| `j` | o número da variável: 1 para a área, 2 para os quartos... |
+| `Σ` | "some para todas as variáveis, de `j = 1` até `j = p`" |
+
+Exemplo com três variáveis, usando os pesos que o modelo desta aula
+encontrou. Para um apartamento de 70 m², com 2 quartos e 10 anos, no
+Centro: `442 + 25,10 × 70 + 220,10 × 2 + (−11,60) × 10 = 2.521` reais.
+
+### Aula 2 — Regressão Múltipla > Nada muda no treino
+Esta é a boa notícia. A função de perda continua sendo o MSE, e o
+gradiente descendente continua fazendo o mesmo. A única diferença é o
+tamanho do gradiente: em vez de duas inclinações, agora ele tem uma para
+cada peso.
+
+$$\nabla \text{MSE} = \left( \frac{\partial \text{MSE}}{\partial w_0} , \frac{\partial \text{MSE}}{\partial w_1} , \dots , \frac{\partial \text{MSE}}{\partial w_p} \right)$$
+
+| Símbolo | Significado |
+|---|---|
+| `∂MSE/∂wⱼ` | a inclinação do erro quando só o peso `wⱼ` se mexe |
+| `p` | o número de variáveis do modelo |
+
+A regra de atualização também é a mesma, aplicada a cada peso, passo a
+passo:
+
+$$w_{t+1} = w_t - \alpha \cdot \frac{\partial \text{MSE}}{\partial w}$$
+
+| Símbolo | Significado |
+|---|---|
+| `t` | o número do passo |
+| `α` | a taxa de aprendizado, o tamanho do passo |
+
+Com duas variáveis, a reta vira um plano. Com três ou mais ninguém
+consegue desenhar, mas a conta é idêntica.
+
+### Aula 2 — Regressão Múltipla > O bairro não é um número
+Área, quartos e idade são números. O bairro é um nome: Centro, Jardins ou
+Vila Nova. E ele importa muito.
+
+A tentação é numerar: Centro = 1, Jardins = 2, Vila Nova = 3. Não faça
+isso. O modelo trataria esses números como quantidade, e passaria a
+acreditar em duas bobagens. Que Vila Nova é "três vezes" o Centro. E que a
+distância entre Centro e Jardins é a mesma que entre Jardins e Vila Nova.
+
+O jeito certo é criar uma coluna nova para cada bairro, com 0 ou 1. Essas
+colunas se chamam **variáveis indicadoras** (*dummy variables*).
+
+| Bairro do anúncio | `bairro_Jardins` | `bairro_Vila Nova` |
+|---|---|---|
+| Centro | 0 | 0 |
+| Jardins | 1 | 0 |
+| Vila Nova | 0 | 1 |
+
+Repare que existem três bairros e só duas colunas. O Centro é a
+**categoria de referência**: ele aparece quando as duas colunas valem
+zero. Sempre sobra uma categoria de fora, e é isso que você quer. Se
+criasse as três colunas, uma delas seria adivinhável a partir das outras
+duas, e o modelo ficaria com infinitas soluções equivalentes.
+
+Com as duas colunas novas, o modelo fica assim:
+
+$$\hat{y} = w_0 + w_1 \text{área} + w_2 \text{quartos} + w_3 \text{idade} + w_4 \text{jardins} + w_5 \text{vila}$$
+
+| Símbolo | Significado |
+|---|---|
+| `jardins` | vale 1 se o apartamento é no Jardins, 0 se não é |
+| `vila` | vale 1 se o apartamento é na Vila Nova, 0 se não é |
+| `w₄, w₅` | quanto cada bairro soma ou tira, em relação ao Centro |
+
+Exemplo: o mesmo apartamento de 70 m², 2 quartos e 10 anos custa R$ 2.521
+no Centro. No Jardins, a coluna `jardins` passa a valer 1, e o aluguel
+previsto sobe para `2.521 + 828 = 3.349` reais.
+
+### Aula 2 — Regressão Múltipla > Lendo os coeficientes
+Cada coeficiente responde a uma pergunta muito específica: quanto muda o
+aluguel se esta variável subir uma unidade **e todas as outras ficarem
+paradas**?
+
+Traduzindo o gráfico para frases:
+
+| Coeficiente | Valor | Lê-se assim |
+|---|---|---|
+| área | +25,10 | cada m² a mais soma R$ 25,10 no aluguel |
+| quartos | +220,10 | um quarto a mais soma R$ 220,10, na mesma área |
+| idade | −11,60 | cada ano de prédio tira R$ 11,60 |
+| Jardins | +827,60 | o mesmo apartamento no Jardins custa R$ 827,60 a mais que no Centro |
+| Vila Nova | −303,20 | e na Vila Nova custa R$ 303,20 a menos que no Centro |
+
+O `w₀` de 442 reais é o valor base: o que o modelo prevê para um
+apartamento de 0 m², 0 quartos, novo, no Centro. Esse apartamento não
+existe. Isso é normal, e não invalida o modelo. O papel de `w₀` é ajustar
+a altura de todo o resto.
+
+**Erro do dia**
+
+Olhar para o gráfico acima e concluir que "o bairro é a variável mais
+importante, porque a barra é maior". As barras estão em unidades
+diferentes. Uma delas é o efeito de **um metro quadrado**, a outra é o
+efeito de **mudar de bairro**. Vinte metros quadrados a mais valem
+R$ 502, quase tanto quanto trocar o Centro pelo Jardins. Coeficiente
+grande não significa variável importante: significa que a unidade daquela
+variável é pequena.
+
+### Aula 2 — Regressão Múltipla > Por que um coeficiente muda quando outro entra
+Este é o ponto mais difícil da aula, e vale a pena ir devagar.
+
+Sozinha, a área tem coeficiente 29,70. No modelo completo, ela cai para
+25,10. A área não mudou. A pergunta é que mudou.
+
+Quando a área é a única variável, ela leva o crédito por tudo que anda
+junto com ela. Apartamentos maiores costumam ter mais quartos: neste
+dataset, a correlação entre área e quartos é de 0,82. Sem a coluna de
+quartos no modelo, o efeito dos quartos se esconde dentro do coeficiente
+da área.
+
+Quando os quartos entram, cada um fica com a sua parte. Por isso o
+coeficiente da área diminui. Ele passou a significar "o efeito de mais um
+metro quadrado, **no mesmo número de quartos**".
+
+O mesmo raciocínio explica um número estranho deste dataset. A Vila Nova
+tem a maior área média (76,5 m²) e o menor aluguel médio (R$ 2.286). Isso
+não é contradição. O coeficiente da Vila Nova compara apartamentos de
+mesma área, e aí o bairro sai devendo.
+
+### Aula 2 — Regressão Múltipla > Quanto mais variáveis, melhor?
+Existe uma armadilha aqui. Toda variável nova, por pior que seja, faz o
+`R²` subir ou ficar igual. Ele nunca cai.
+
+A defesa contra isso é o **R² ajustado**, que desconta do `R²` o preço de
+cada variável nova.
+
+$$R^2_{\text{aj}} = 1 - (1 - R^2) \cdot \frac{n - 1}{n - p - 1}$$
+
+| Símbolo | Significado |
+|---|---|
+| `n` | quantos apartamentos existem na tabela |
+| `p` | quantas variáveis o modelo usa |
+| `R²` | o R² comum, aquele da Aula 1 |
+
+Exemplo com o modelo completo: `n = 300`, `p = 5` e `R² = 0,937`. A conta
+dá `R²` ajustado de 0,936. A diferença é pequena porque as cinco variáveis
+são boas. Encha o modelo de colunas sorteadas e a diferença cresce.
+
+A regra prática: se você adicionou uma variável e o `R²` ajustado caiu,
+essa variável não estava pagando o próprio custo.
+
+### Aula 2 — Regressão Múltipla > O gráfico que você olha antes de confiar
+Depois de treinar, faça um gráfico dos resíduos contra os valores
+previstos. Ele custa dez segundos e diz muito.
+
+O que você espera: pontos espalhados em torno do zero, sem desenho nenhum.
+Isso significa que o modelo errou de forma parecida em toda a faixa de
+preços.
+
+O que acende o alarme: um funil (o erro cresce com o preço previsto), uma
+curva (falta uma variável ou a relação não é reta), ou pontos muito longe
+do zero (candidatos a investigar um a um).
+
+### Aula 2 — Regressão Múltipla > Cola da aula
+| Conceito | O que significa |
+|---|---|
+| Regressão múltipla | uma soma de várias informações, cada uma com o seu peso |
+| Coeficiente `wⱼ` | quanto muda a previsão se `xⱼ` sobe 1, com o resto parado |
+| Variável indicadora | coluna de 0 ou 1 que representa uma categoria |
+| Categoria de referência | a categoria que fica de fora e vive dentro do `w₀` |
+| Colinearidade | duas variáveis que andam juntas e dividem o crédito |
+| `R²` ajustado | o `R²` descontando o custo de cada variável nova |
+| Resíduo contra previsto | o gráfico de diagnóstico que você olha antes de confiar |
+
+### Aula 2 — Regressão Múltipla > Materiais
+- Slides desta aula: `slides.pptx`
+- Notebook: [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/aulas/02-regressao-multipla/aula-02.ipynb)
+- Dataset: `alugueis.csv`
+
+Se ainda não sabe como abrir o notebook, veja
+Antes de começar primeiro.
+
+### Aula 2 — Regressão Múltipla > Para ir além
+- `pandas.get_dummies`: a função que cria as variáveis indicadoras em uma linha.
+- An Introduction to Statistical Learning: o livro gratuito de referência. O capítulo 3 cobre esta aula com mais profundidade, em inglês.
+- Glossário: para revisar qualquer termo novo desta aula.
+
+### Aula 3 — Regressão Logística > Para que serve
+Uma empresa de streaming quer saber quem está prestes a cancelar. Não
+adianta descobrir depois: quando o cliente cancela, ele já foi. A pergunta
+útil é outra. Quem, entre os clientes de hoje, tem mais chance de cancelar
+no mês que vem?
+
+Essa pergunta não pede um número como preço ou aluguel. Ela pede uma
+resposta de duas opções: cancela ou não cancela. Chamamos isso de
+**classificação**, e o modelo mais simples para resolver é a **regressão
+logística**.
+
+O dataset desta aula tem 400 clientes, com quatro informações sobre cada
+um: tempo de casa, valor mensal, chamados ao suporte e plano. A coluna
+`cancelou` vale 1 para quem cancelou e 0 para quem ficou. No total, 36%
+cancelaram.
+
+### Aula 3 — Regressão Logística > Por que a reta não serve
+A tentação é usar a regressão da Aula 1, com 0 e 1 no lugar do preço. Veja
+o que acontece.
+
+A reta não tem freio. Para quem nunca ligou para o suporte, ela prevê um
+valor negativo. Para quem ligou seis vezes, prevê mais que 1. Probabilidade
+negativa não existe, e probabilidade acima de 100% também não.
+
+Precisamos de uma função que aceite qualquer número na entrada e devolva
+sempre algo entre 0 e 1.
+
+### Aula 3 — Regressão Logística > A função sigmoide
+Essa função existe, tem formato de S, e se chama **sigmoide**.
+
+$$\sigma(z) = \frac{1}{1 + e^{-z}}$$
+
+| Símbolo | Significado |
+|---|---|
+| `σ` | a letra grega sigma minúscula, o nome da função |
+| `z` | qualquer número, positivo ou negativo, que entra na função |
+| `e` | o número de Euler, aproximadamente 2,718 |
+| `σ(z)` | o resultado, sempre entre 0 e 1: uma probabilidade |
+
+Três exemplos para pegar o jeito. Com `z = 0`, a conta dá `1/(1+1) = 0,5`.
+Com `z = 2`, dá 0,88. Com `z = −2`, dá 0,12. Números bem grandes chegam
+perto de 1 sem nunca encostar, e bem negativos chegam perto de 0 pelo
+mesmo motivo.
+
+Por que essa curva, e não qualquer outra em formato de S? Duas razões
+honestas. A primeira é conveniência: a derivada dela é simples, e o
+gradiente descendente da Aula 1 agradece. A segunda é a que importa para
+você: com essa curva, cada coeficiente ganha uma leitura em chances de
+aposta, que aparece daqui a pouco. Outras curvas em S existem, e não têm
+essa leitura.
+
+### Aula 3 — Regressão Logística > O modelo logístico
+Agora junte as duas peças. A soma de sempre produz o `z`, e a sigmoide
+transforma esse `z` em probabilidade.
+
+$$P(\text{cancelar}) = \sigma(z) \qquad \text{com} \qquad z = w_0 + w_1 x_1 + \dots + w_p x_p$$
+
+| Símbolo | Significado |
+|---|---|
+| `P(cancelar)` | a probabilidade de o cliente cancelar, de 0 a 1 |
+| `z` | a mesma soma da Aula 2, sem nenhuma novidade |
+| `xⱼ`, `wⱼ` | a informação do cliente e o peso dela |
+
+A parte de dentro é idêntica à regressão múltipla. O que muda é a casca:
+antes o resultado da soma era a previsão; agora ele passa pela sigmoide e
+vira probabilidade.
+
+O treino também segue a mesma receita: uma função de perda e gradiente
+descendente. A perda deixa de ser o MSE e passa a ser a *log loss*, que
+pune com força quem erra com muita confiança. A ideia de descer a serra
+não muda em nada.
+
+Veja a curva ajustada usando só os chamados ao suporte:
+
+### Aula 3 — Regressão Logística > Interpretando os coeficientes
+Estes são os pesos que o modelo desta aula encontrou:
+
+| Variável | Coeficiente | Direção |
+|---|---|---|
+| tempo de casa (meses) | −0,079 | mais tempo de casa, menos risco |
+| valor mensal (R$) | +0,011 | mais caro, mais risco |
+| chamados ao suporte | +0,996 | cada chamado aumenta bastante o risco |
+| plano Padrão (vs. Básico) | −0,184 | risco um pouco menor |
+| plano Premium (vs. Básico) | −0,505 | risco bem menor |
+
+O sinal você já sabe ler: positivo empurra a probabilidade para cima,
+negativo puxa para baixo. O tamanho é que engana. O coeficiente não soma
+probabilidade, porque a sigmoide não é reta. Ele soma no `z`, e o efeito
+no fim depende de onde o cliente já estava.
+
+Existe uma leitura exata, e ela usa **chances** (*odds*), no sentido de
+aposta: 3 para 1, 1 para 2.
+
+$$\frac{p}{1 - p} = e^{z}$$
+
+| Símbolo | Significado |
+|---|---|
+| `p` | a probabilidade de cancelar |
+| `1 − p` | a probabilidade de ficar |
+| `p / (1 − p)` | a chance: quantas vezes cancelar é mais provável que ficar |
+
+Com essa forma, cada coeficiente ganha uma tradução simples. Somar 1 na
+variável `xⱼ` multiplica a chance por `e` elevado a `wⱼ`.
+
+Exemplo com os chamados ao suporte, cujo coeficiente é 0,996. O número `e`
+elevado a 0,996 dá 2,71. Ou seja: cada chamado a mais **multiplica por
+2,7 a chance de o cliente cancelar**, com tudo o mais parado. Para o tempo
+de casa, `e` elevado a −0,079 dá 0,92: cada mês a mais multiplica a chance
+por 0,92, que é o mesmo que reduzir 8%.
+
+Dois clientes de verdade, calculados com esse modelo:
+
+| Cliente | Perfil | Probabilidade |
+|---|---|---|
+| Em risco | 6 meses de casa, R$ 130, 3 chamados, Premium | 0,95 |
+| Tranquilo | 36 meses de casa, R$ 40, 0 chamados, Básico | 0,05 |
+
+### Aula 3 — Regressão Logística > Da probabilidade à decisão
+O modelo devolve uma probabilidade, mas a equipe de retenção precisa de
+uma lista de nomes. Alguém tem que decidir onde cortar. Esse ponto de
+corte se chama **limiar** (*threshold*).
+
+O limiar padrão é 0,5, mas ele não tem nada de sagrado. Ele só é o padrão
+porque é o meio. Escolher o limiar é uma decisão de negócio, e a próxima
+seção mostra o que se ganha e o que se perde ao mexer nele.
+
+### Aula 3 — Regressão Logística > A matriz de confusão
+Antes das métricas, o quadro que gera todas elas. Com o limiar em 0,5, os
+400 clientes se distribuem assim:
+
+| Caixa | Quantos | O que aconteceu |
+|---|---|---|
+| Verdadeiro positivo (VP) | 81 | o modelo avisou e o cliente cancelou |
+| Falso positivo (FP) | 37 | o modelo avisou e o cliente ficou |
+| Falso negativo (FN) | 64 | o modelo não avisou e o cliente cancelou |
+| Verdadeiro negativo (VN) | 218 | o modelo não avisou e o cliente ficou |
+
+Os dois erros custam coisas diferentes. Um falso positivo gasta um cupom
+de desconto com quem ia ficar de qualquer jeito. Um falso negativo perde o
+cliente. Qual dos dois dói mais é uma pergunta da empresa, não da
+estatística.
+
+### Aula 3 — Regressão Logística > As quatro métricas
+Acurácia: a fração de acertos
+
+$$\text{acurácia} = \frac{VP + VN}{VP + VN + FP + FN}$$
+
+| Símbolo | Significado |
+|---|---|
+| numerador | os acertos: avisou e cancelou, ou não avisou e ficou |
+| denominador | todos os clientes |
+
+No nosso caso: `(81 + 218) / 400 = 0,75`. O modelo acerta 75% das vezes.
+
+**Erro do dia**
+
+Comemorar uma acurácia de 75% sem olhar mais nada. Neste dataset, 64% dos
+clientes não cancelaram. Um modelo preguiçoso que responde "ninguém
+cancela" para todo mundo acerta 64% e não serve para nada. A acurácia
+sozinha não distingue esse modelo do seu. Sempre compare a acurácia com a
+taxa da classe mais comum, e sempre olhe as outras métricas.
+
+Precisão e recall
+
+$$\text{precisão} = \frac{VP}{VP + FP} \qquad \text{recall} = \frac{VP}{VP + FN}$$
+
+| Símbolo | Significado |
+|---|---|
+| precisão | dos clientes que o modelo apontou, quantos realmente cancelaram |
+| recall | dos clientes que cancelaram, quantos o modelo conseguiu apontar |
+| `VP`, `FP`, `FN` | as caixas da matriz de confusão |
+
+No nosso caso: precisão de `81 / 118 = 0,69` e recall de `81 / 145 = 0,56`.
+Traduzindo: quando o modelo aponta alguém, ele acerta 69% das vezes; e ele
+pega 56% de todos os cancelamentos que aconteceram.
+
+Repare que as duas respondem a perguntas diferentes. Precisão é sobre a
+lista que você gerou. Recall é sobre o problema inteiro que existe lá
+fora.
+
+F1: as duas num número só
+
+$$F_1 = 2 \cdot \frac{\text{precisão} \cdot \text{recall}}{\text{precisão} + \text{recall}}$$
+
+| Símbolo | Significado |
+|---|---|
+| `F₁` | a média harmônica entre precisão e recall |
+| média harmônica | um tipo de média que puxa o resultado para o menor dos dois |
+
+No nosso caso: `F₁ = 0,62`. O valor fica sempre entre a precisão e o
+recall, e mais perto do pior dos dois. É por isso que ele serve como
+número único: para o F1 subir, os dois precisam ir bem.
+
+### Aula 3 — Regressão Logística > Escolhendo o limiar
+Agora junte tudo. Baixar o limiar significa avisar mais gente, o que pega
+mais cancelamentos (recall sobe) e erra mais alarmes (precisão cai).
+
+Compare os dois limiares no mesmo modelo:
+
+| Limiar | Acurácia | Precisão | Recall | F1 | Lista de risco |
+|---|---|---|---|---|---|
+| 0,50 | 0,75 | 0,69 | 0,56 | 0,62 | 118 clientes |
+| 0,30 | 0,72 | 0,58 | 0,84 | 0,68 | 212 clientes |
+
+Baixar o limiar para 0,30 derrubou a acurácia e a precisão, e mesmo assim
+foi a melhor escolha para este problema. Com 0,30, o modelo pega 84% dos
+cancelamentos em vez de 56%. Se o cupom de desconto é barato e perder
+cliente é caro, essa troca compensa.
+
+A pergunta não é "qual limiar é o correto". É "qual erro custa mais caro
+para nós".
+
+### Aula 3 — Regressão Logística > Cola da aula
+| Conceito | O que significa |
+|---|---|
+| Classificação | prever uma categoria em vez de um número |
+| Sigmoide | função em S que transforma qualquer número em algo entre 0 e 1 |
+| `z` | a soma de sempre, `w₀ + w₁x₁ + ...`, antes da sigmoide |
+| Chance (*odds*) | `p / (1 − p)`: quantas vezes cancelar é mais provável que ficar |
+| `e` elevado a `wⱼ` | o fator que multiplica a chance quando `xⱼ` sobe 1 |
+| Limiar | o ponto de corte que transforma probabilidade em decisão |
+| Matriz de confusão | as quatro caixas: VP, FP, FN, VN |
+| Acurácia | fração de acertos, enganosa quando uma classe domina a outra |
+| Precisão | dos apontados, quantos eram de verdade |
+| Recall | dos que eram de verdade, quantos o modelo apontou |
+| F1 | um número só, que só sobe se precisão e recall subirem |
+
+### Aula 3 — Regressão Logística > Materiais
+- Slides desta aula: `slides.pptx`
+- Notebook: [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/aulas/03-regressao-logistica/aula-03.ipynb)
+- Dataset: `assinaturas.csv`
+
+Se ainda não sabe como abrir o notebook, veja
+Antes de começar primeiro.
+
+### Aula 3 — Regressão Logística > Para ir além
+- `LogisticRegression` no scikit-learn: a classe usada no notebook desta aula.
+- Curva ROC e AUC: o jeito de resumir num gráfico só o desempenho em todos os limiares de uma vez.
+- Regressão logística, visualmente (MLU-Explain): a sigmoide e o limiar, interativos.
+- Precisão e recall, visualmente (MLU-Explain): mova o limiar e veja as quatro caixas se redistribuírem.
+- Glossário: para revisar qualquer termo novo desta aula.
+
+### Bem-vindo > Como o curso funciona
+Cada aula tem três materiais, sempre juntos:
+
+- **Esta página do GitBook**, com a teoria completa, para ler antes ou
+  depois da aula.
+- **Um slide de apoio**, usado durante a aula ao vivo.
+- **Um notebook do Google Colab**, onde você roda o código e faz os
+  exercícios.
+
+Antes da primeira aula, leia Antes de começar. Leva
+dois minutos e evita perder tempo de aula com configuração.
+
+A única aula fora desse formato é a Aula 6,
+que a turma constrói no VS Code, no próprio computador, seguindo o README
+do projeto em vez de slides.
+
+### Bem-vindo > O caminho do curso
+| Módulo | O que você aprende |
+|---|---|
+| Modelos Lineares | Prever um número ou uma categoria a partir de dados, e entender por que o modelo decide o que decide |
+| Séries Temporais | Prever o futuro de algo que muda com o tempo |
+| Sistemas de Classificação e Previsão | Juntar um classificador e um modelo de previsão num sistema só |
+| Redes Neurais | Como uma rede neural aprende, do neurônio à imagem |
+| LLM do Zero | Construir um modelo de linguagem, peça por peça, em PyTorch |
+| IA Generativa | Usar um modelo pronto, e construir uma aplicação em cima dele |
+
+Todo termo técnico novo entra no Glossário, que cresce ao
+longo do curso: sempre que uma aula usa uma palavra difícil pela primeira
+vez, ela aparece lá.
+
+### Aula 7 — Fundamentos de Redes Neurais > Para que serve
+O Clube do Café torra os próprios grãos. Cada torra tem dois botões: a
+temperatura do tambor e o tempo. Errar qualquer um dos dois estraga o lote.
+
+Quente demais queima. Frio demais deixa o grão verde. Rápido demais não
+desenvolve o açúcar. Devagar demais amarga. O ponto bom fica numa faixa no
+meio, e é isso que o gráfico mostra:
+
+Olhe para essa figura e tente traçar uma reta que separe os triângulos dos
+círculos. Não existe. É essa impossibilidade que abre o assunto de hoje.
+
+### Aula 7 — Fundamentos de Redes Neurais > Por que a reta não basta
+Vamos provar. Treine uma regressão logística nesses dados, do jeito da
+Aula 3, e olhe o que ela decide.
+
+A regressão logística acertou 71,8% das torras. Parece razoável até você
+comparar com o modelo preguiçoso da Aula 3: como 71,8% das torras são
+ruins, responder "ruim" para todo mundo dá exatamente os mesmos 71,8%.
+
+Ela não aprendeu nada. E não é culpa dela: a fronteira que ela sabe
+desenhar é uma reta, e nenhuma reta separa o dentro do fora de uma ilha.
+
+A rede neural da direita, com duas camadas de 16 neurônios, chega a 91,8%.
+A diferença não está no esforço nem nos dados. Está no formato da
+fronteira que cada modelo consegue desenhar.
+
+### Aula 7 — Fundamentos de Redes Neurais > O que é um neurônio
+Aqui está a boa notícia: você já sabe o que é.
+
+$$a = f(w_0 + w_1 x_1 + w_2 x_2)$$
+
+| Símbolo | Significado |
+|---|---|
+| `x₁`, `x₂` | as entradas: temperatura e tempo |
+| `w₁`, `w₂` | os pesos, iguais aos das aulas de regressão |
+| `w₀` | o viés (*bias*), o mesmo termo independente de sempre |
+| `f` | a função de ativação: a dobra |
+| `a` | a saída do neurônio, que vira entrada do próximo |
+
+Compare com a regressão logística da Aula 3: `P = σ(w₀ + w₁x₁ + w₂x₂)`. É a
+mesma conta. **Um neurônio com ativação sigmoide é uma regressão
+logística.** Uma rede neural é um monte deles, empilhados.
+
+Exemplo com números: se `w₀ = −3`, `w₁ = 0,02`, `w₂ = 0,1`, uma torra de
+205 °C e 11 minutos dá `−3 + 4,10 + 1,10 = 2,20` antes da ativação.
+
+### Aula 7 — Fundamentos de Redes Neurais > A dobra: funções de ativação
+Se a ativação não existisse, empilhar camadas não adiantaria nada. Somar
+retas dá reta, e você voltaria ao problema do começo.
+
+$$\text{ReLU}(z) = \max(0, z)$$
+
+| Símbolo | Significado |
+|---|---|
+| `z` | o resultado da soma, antes da ativação |
+| `max(0, z)` | devolve `z` se ele é positivo, e 0 se é negativo |
+
+Exemplo: `ReLU(2,20) = 2,20`. `ReLU(−1,4) = 0`.
+
+Não parece grande coisa, mas é o suficiente. Cada neurônio com ReLU
+introduz uma dobra na fronteira. Com dobras suficientes, a fronteira
+contorna qualquer formato. Repare no salto entre 2 e 8 neurônios: é ali
+que a fronteira deixa de ser uma reta.
+
+Onde usar cada uma, na prática:
+
+| Onde | Ativação | Por quê |
+|---|---|---|
+| Camadas do meio | ReLU | rápida, e é a dobra que cria o formato |
+| Saída, para sim ou não | sigmoide | devolve probabilidade entre 0 e 1 |
+| Saída, para um número | nenhuma | o valor sai como está |
+
+### Aula 7 — Fundamentos de Redes Neurais > A rede inteira, em cinco linhas
+Lendo de cima para baixo: entram 2 números, viram 16, viram 16 de novo, e
+saem como 1 probabilidade. `Dense` quer dizer que **todo** neurônio da
+camada recebe **todas** as saídas da camada anterior.
+
+Essa rede tem 337 pesos. Você pode contar: 2×16+16 na primeira camada,
+16×16+16 na segunda, 16×1+1 na saída. Cada um deles é um número que o
+treino vai ajustar, exatamente como ajustava os dois pesos da Aula 1.
+
+### Aula 7 — Fundamentos de Redes Neurais > Como ela aprende (é a Aula 1 de novo)
+Nada de novo aqui, e vale dizer isso em voz alta:
+
+| Peça | Na Aula 1 | Agora |
+|---|---|---|
+| O que ajusta | 2 pesos | 337 pesos |
+| Função de perda | MSE | log loss (a da Aula 3) |
+| Como ajusta | gradiente descendente | gradiente descendente |
+| A regra | `w ← w − α · inclinação` | a mesma, para cada peso |
+
+A perda usada para sim ou não é a **entropia cruzada binária**, que a Aula
+3 já usava com outro nome:
+
+$$\text{perda} = -\frac{1}{n}\sum_{i=1}^{n}\left[y_i \log(\hat{y}_i) + (1 - y_i)\log(1 - \hat{y}_i)\right]$$
+
+| Símbolo | Significado |
+|---|---|
+| `yᵢ` | o rótulo real da torra `i`: 1 para boa, 0 para ruim |
+| `ŷᵢ` | a probabilidade que a rede deu |
+| `log` | o logaritmo, que castiga com força quem erra com confiança |
+
+Exemplo: se a rede diz 0,9 para uma torra boa, a parcela dela é
+`−log(0,9) = 0,105`. Se ela diz 0,1 para a mesma torra boa, a parcela vira
+`−log(0,1) = 2,303`. Vinte e duas vezes pior.
+
+A única novidade técnica é o nome do cálculo que distribui a culpa entre as
+camadas: **retropropagação** (*backpropagation*). Ela responde "o quanto
+cada um dos 337 pesos contribuiu para o erro" aplicando a regra da cadeia
+de trás para frente. O Keras faz isso sozinho, e neste curso você não vai
+implementá-la à mão.
+
+### Aula 7 — Fundamentos de Redes Neurais > Época, lote e a curva de treino
+Três palavras que aparecem em toda saída de treino:
+
+| Palavra | O que é |
+|---|---|
+| Lote (*batch*) | quantos exemplos entram por vez antes de ajustar os pesos |
+| Época (*epoch*) | uma passada completa por todos os exemplos |
+| Passo | um ajuste dos pesos, feito uma vez por lote |
+
+Com 600 torras e lote de 32, uma época tem 19 passos. Em 120 épocas, são
+2.280 ajustes.
+
+Repare que existem duas linhas em cada gráfico. A de treino usa as torras
+que a rede viu; a de validação usa 25% que ela nunca viu. Enquanto as duas
+caem juntas, está tudo bem.
+
+**Erro do dia**
+
+Treinar sem normalizar as entradas. Aqui a temperatura vai a 235 e o tempo
+a 17: uma escala é catorze vezes a outra. A rede até aprende, mas devagar e
+mal, porque o gradiente fica dominado pela variável de número maior. A
+correção é uma linha, antes do treino: subtraia a média e divida pelo
+desvio padrão de cada coluna. Faça isso **sempre** em rede neural.
+
+### Aula 7 — Fundamentos de Redes Neurais > Quando a rede não é a resposta
+A rede venceu por 20 pontos aqui, mas isso não é regra.
+
+| Situação | O que costuma ganhar |
+|---|---|
+| Fronteira reta, poucas variáveis | regressão logística, que é mais simples de explicar |
+| Tabelas grandes, muitas colunas | árvores e florestas, que quase sempre batem redes |
+| Imagem, áudio, texto | redes, com folga |
+| Poucos dados (centenas de linhas) | modelos simples: rede grande decora |
+
+A rede tem uma desvantagem que importa: ela não te dá um coeficiente para
+interpretar. Na Aula 2 você lia "cada m² soma R$ 25". Aqui não existe frase
+equivalente. Você ganhou formato e perdeu explicação.
+
+### Aula 7 — Fundamentos de Redes Neurais > Cola da aula
+| Conceito | O que significa |
+|---|---|
+| Neurônio | a soma de pesos, seguida de uma ativação |
+| Ativação | a dobra que permite fronteiras que não são retas |
+| ReLU | negativo vira zero, positivo passa direto |
+| Camada densa | todos os neurônios recebem todas as entradas |
+| Retropropagação | o cálculo que distribui a culpa do erro entre os pesos |
+| Época | uma passada por todos os exemplos |
+| Lote | quantos exemplos entram antes de cada ajuste |
+| Normalizar | pôr as colunas na mesma escala, antes de treinar |
+| Curva de treino | o gráfico que você olha antes de acreditar no modelo |
+
+### Aula 7 — Fundamentos de Redes Neurais > Materiais
+- Slides desta aula: `slides.pptx`
+- Notebook: [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/aulas/07-redes-neurais-densas/aula-07.ipynb)
+- Dataset: `torra_cafe.csv`
+
+### Aula 7 — Fundamentos de Redes Neurais > Para ir além
+- Guia do Keras Sequential: a documentação oficial, com exemplos curtos.
+- Playground de redes neurais: desenhe fronteiras no navegador, mexendo em camadas e ativações com o mouse.
+- But what is a neural network? (3Blue1Brown): o vídeo que mais gente usou para entender o neurônio pela primeira vez. Em inglês, com legendas.
+- Glossário: para revisar qualquer termo novo desta aula.
+
+### Aula 8 — Redes Convolucionais > Para que serve
+Um brechó online recebe milhares de fotos por semana. Alguém precisa
+etiquetar cada peça: isso é camiseta, isso é bota, isso é bolsa. Uma
+pessoa leva três segundos por foto e erra pouco. O problema é a escala.
+
+Vamos construir o etiquetador. As fotos são as do Fashion-MNIST, um
+conjunto público de 70.000 fotos de roupa em dez categorias:
+
+### Aula 8 — Redes Convolucionais > A foto por dentro
+Antes de qualquer modelo, olhe o que existe ali de verdade.
+
+Uma foto de 28 por 28 é uma tabela de 784 números. Nada além disso. O que
+você chama de "bico do tênis" é uma região onde alguns números vizinhos
+são altos ao mesmo tempo.
+
+Guarde a palavra **vizinhos**. É nela que a aula inteira se apoia.
+
+### Aula 8 — Redes Convolucionais > Por que a rede da Aula 7 é ruim nisso
+A rede densa espera uma linha de números, não uma tabela. Para alimentá-la,
+você achata (*flatten*) a foto: pega as 28 linhas e emenda uma na outra,
+formando uma fila de 784 entradas.
+
+Aí está o problema. Depois de achatar, o pixel que ficava logo acima de
+outro vai parar 28 casas adiante na fila. Para a rede, os dois viraram
+entradas quaisquer, tão relacionadas quanto duas colunas de uma planilha.
+A vizinhança sumiu.
+
+**O teste do embaralhamento**
+
+Escolha uma ordem aleatória e embaralhe os 784 pixels de todas as fotos,
+sempre com a mesma ordem. Uma pessoa não reconhece mais nada. A rede densa
+aprende exatamente igual, porque para ela a ordem nunca significou nada.
+
+Essa rede não é inútil. Treinada nas 60.000 fotos, ela acerta 87,6%. Mas
+gasta 101.770 pesos para chegar lá, quase todos na primeira camada, que
+liga cada um dos 784 pixels a cada um dos 128 neurônios.
+
+### Aula 8 — Redes Convolucionais > A janela que passeia
+A convolução resolve o problema de um jeito quase bobo. Em vez de olhar a
+foto inteira de uma vez, você olha um quadradinho de 3 por 3 por vez, e
+faz sempre a mesma conta.
+
+Esse quadradinho de nove pesos é o **filtro** (*kernel*). Cada resultado é
+a soma de nove multiplicações:
+
+$$s_{i,j} = \sum_{a=0}^{2}\sum_{b=0}^{2} k_{a,b} \cdot x_{i+a,\,j+b}$$
+
+| Símbolo | Significado |
+|---|---|
+| `x` | a foto, com `xᵢⱼ` sendo o pixel da linha `i`, coluna `j` |
+| `k` | o filtro, com os nove pesos `k₀₀` até `k₂₂` |
+| `sᵢⱼ` | o número que sai quando a janela para na posição `i`, `j` |
+| `a`, `b` | percorrem as três linhas e as três colunas do filtro |
+
+Exemplo, com a janela parada em cima de uma borda:
+
+A imagem da esquerda é escura de um lado e clara do outro. O filtro tem
+uma coluna de `−1`, uma de `0` e uma de `+1`. Na janela em destaque, cada
+linha contribui com `(−1×0) + (0×0) + (1×1) = 1`, e as três linhas somam
+3. Nas janelas que ficam inteiras dentro do lado escuro, tudo dá zero.
+
+Esse filtro só reage onde a imagem muda. Ele encontra bordas verticais.
+
+Agora rode o mesmo filtro numa foto de verdade, uma janela por vez, até
+cobrir tudo:
+
+O resultado é uma imagem nova, chamada **mapa de ativação**: um mapa de
+onde aquele detalhe aparece.
+
+### Aula 8 — Redes Convolucionais > Três ideias em uma
+A convolução parece um detalhe técnico, mas ela muda três coisas de uma
+vez:
+
+| Ideia | O que significa |
+|---|---|
+| Vizinhança | cada conta usa só pixels que estão juntos, então "estar perto" volta a valer |
+| Peso compartilhado | os mesmos 9 pesos servem para a foto toda, em vez de 9 pesos por posição |
+| Mesmo detalhe em qualquer lugar | se a peça sair do centro, o filtro a encontra do mesmo jeito |
+
+O peso compartilhado é o que deixa a rede pequena. Uma camada com 16
+filtros de 3×3 tem 160 pesos ao todo, e olha 784 pixels. A primeira camada
+da rede densa tinha 100.480 para o mesmo trabalho.
+
+### Aula 8 — Redes Convolucionais > Pooling: encolher sem perder o que importa
+Depois de cada convolução, a rede encolhe a imagem. O jeito mais comum é o
+**pooling máximo** (*max pooling*): divida em quadrados de 2 por 2 e
+guarde só o maior número de cada um.
+
+Duas coisas acontecem. A imagem fica com um quarto do tamanho, o que
+deixa tudo mais rápido. E a resposta passa a ser "achei essa borda por
+aqui", em vez de "achei essa borda no pixel 14". Essa imprecisão é
+proposital, e é ela que faz a rede aguentar a peça sair do lugar.
+
+### Aula 8 — Redes Convolucionais > Os filtros que ela aprende sozinha
+Você não escolhe os nove pesos de cada filtro. Eles são pesos como
+quaisquer outros, e o gradiente descendente da Aula 1 os ajusta durante o
+treino. A rede decide sozinha quais detalhes vale a pena procurar.
+
+Repare que eles não fazem a mesma coisa. Uns reagem no corpo da bolsa,
+outros só na borda de cima. Ninguém programou isso.
+
+### Aula 8 — Redes Convolucionais > A rede convolucional inteira
+O `1` no final de `shape=(28, 28, 1)` é o **canal**: quantos números tem
+cada pixel. Foto em tons de cinza tem um. Foto colorida tem três, um para
+vermelho, um para verde e um para azul.
+
+| Camada | O que sai dela | Pesos |
+|---|---|---|
+| `Conv2D(16, 3)` | 16 mapas de 26×26 | 160 |
+| `MaxPooling2D(2)` | 16 mapas de 13×13 | 0 |
+| `Conv2D(32, 3)` | 32 mapas de 11×11 | 4.640 |
+| `MaxPooling2D(2)` | 32 mapas de 5×5 | 0 |
+| `Flatten` | uma fila de 800 números | 0 |
+| `Dense(64)` | 64 números | 51.264 |
+| `Dense(10, softmax)` | 10 probabilidades | 650 |
+
+São 56.714 pesos, contra 101.770 da densa. E olhe onde eles estão: as duas
+camadas de convolução, que fazem o trabalho de enxergar, usam 4.800. Todo
+o resto está na parte densa do final, que só junta as pistas e vota.
+
+Ler a tabela de cima para baixo conta a história: a imagem vai encolhendo
+e o número de mapas vai crescendo. No começo a rede procura bordas. No
+fim, ela procura combinações de bordas.
+
+### Aula 8 — Redes Convolucionais > A saída: dez probabilidades
+Nas aulas anteriores a resposta era sim ou não, e a sigmoide dava conta.
+Aqui são dez categorias. A função que resolve isso é a **softmax**: ela
+recebe dez números soltos e devolve dez probabilidades que somam 1.
+
+$$P_j = \frac{e^{z_j}}{\sum_{k=1}^{10} e^{z_k}}$$
+
+| Símbolo | Significado |
+|---|---|
+| `zⱼ` | o número cru que a última camada produziu para a categoria `j` |
+| `e` | o número de Euler, 2,718 |
+| `Pⱼ` | a probabilidade final da categoria `j` |
+| o denominador | a soma de todas as dez parcelas, que força o total a dar 1 |
+
+Exemplo com três categorias, para caber na conta. Os números crus foram 2,
+1 e 0. Elevando `e` a cada um: 7,39, 2,72 e 1,00. A soma é 11,11. As
+probabilidades ficam 0,67, 0,24 e 0,09. A maior ganha, e a resposta é a
+primeira categoria.
+
+### Aula 8 — Redes Convolucionais > O resultado
+Mesmas 60.000 fotos, mesmas 8 épocas de treino, mesmo otimizador:
+
+Dois pontos e meio parece pouco. Em 10.000 fotos, são 260 peças
+etiquetadas certo que antes iam erradas.
+
+### Aula 8 — Redes Convolucionais > Por que ela ganha: o teste do deslocamento
+O número de acerto não explica nada sozinho. Aqui está o teste que
+explica. Pegue as mesmas fotos de teste e empurre cada uma alguns pixels
+para o lado. A peça é a mesma, só mudou de lugar.
+
+| Deslocamento | Densa | Convolucional |
+|---|---|---|
+| nenhum | 87,6% | 90,2% |
+| 1 pixel | 80,4% | 86,8% |
+| 2 pixels | 51,5% | 76,0% |
+| 4 pixels | 13,6% | 33,6% |
+
+A densa aprendeu "o pixel 350 costuma ser escuro em foto de calça". Mude a
+peça de lugar e essa regra morre. A convolucional aprendeu "existe uma
+borda vertical em algum canto", e a regra sobrevive.
+
+As duas pioram, e isso também é honesto: nenhuma das duas viu foto
+deslocada durante o treino. A diferença está na velocidade da queda.
+
+### Aula 8 — Redes Convolucionais > Onde ela erra
+Acerto médio esconde tudo. A matriz de confusão mostra o que aconteceu com
+cada categoria:
+
+| Como ler | O que dizer |
+|---|---|
+| Calça: 98,0% | silhueta única, ninguém confunde |
+| Camisa: 65,7% | a pior de todas, de longe |
+| Camisa virou camiseta | 132 vezes |
+| Casaco virou pulôver | 80 vezes |
+
+Todo o erro se concentra num canto só: camisa, camiseta, pulôver e casaco.
+São quatro peças de tronco, todas com dois braços e uma gola, em 28 por 28
+pixels e sem cor. Uma pessoa erraria as mesmas.
+
+Isso muda a conversa com o cliente. Em vez de "o modelo tem 90%", você diz
+"o modelo é confiável em oito categorias e precisa de revisão humana em
+quatro". A segunda frase é útil, e só a matriz de confusão te dá ela.
+
+**Erro do dia**
+
+Esquecer o canal. A `Conv2D` espera um bloco de formato `(n, 28, 28, 1)`,
+e o Keras entrega as fotos como `(n, 28, 28)`. O erro que aparece fala de
+dimensões incompatíveis e assusta. A correção é uma linha:
+`x_treino.reshape(-1, 28, 28, 1)`. O `-1` quer dizer "descubra quantas
+fotos são".
+
+### Aula 8 — Redes Convolucionais > Quando a convolução não serve
+| Situação | O que usar |
+|---|---|
+| Imagem, som, vídeo | convolução, com folga |
+| Planilha com colunas independentes | árvores, ou a regressão das aulas 2 e 3 |
+| Texto | modelos de atenção, não convolução |
+| Menos de mil imagens | aproveitar uma rede já treinada por outra pessoa |
+
+Vale registrar o custo. Um modelo de imagem sério não treina em oito
+épocas num notebook. Ele usa milhões de fotos, placas de vídeo e dias de
+processamento. O que você treina em sala é a versão pequena da mesma
+ideia, e ela funciona pelo mesmo motivo.
+
+### Aula 8 — Redes Convolucionais > Cola da aula
+| Conceito | O que significa |
+|---|---|
+| Achatar (flatten) | enfileirar a tabela de pixels, perdendo a vizinhança |
+| Filtro (kernel) | um quadradinho de nove pesos que a rede aprende |
+| Convolução | passar o mesmo filtro por toda a imagem, janela por janela |
+| Mapa de ativação | a imagem que sai do filtro, mostrando onde ele reagiu |
+| Peso compartilhado | os mesmos pesos servem para a imagem inteira |
+| Pooling | encolher pela metade guardando o maior de cada quadrado |
+| Canal | quantos números tem cada pixel: 1 em cinza, 3 em cor |
+| Softmax | transforma números soltos em probabilidades que somam 1 |
+| Matriz de confusão | a tabela que mostra qual categoria virou qual |
+
+### Aula 8 — Redes Convolucionais > Materiais
+- Slides desta aula: `slides.pptx`
+- Notebook: [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/aulas/08-redes-convolucionais/aula-08.ipynb)
+- Dados: o Fashion-MNIST vem dentro do Keras, com `keras.datasets.fashion_mnist.load_data()`. Não há arquivo para baixar.
+
+### Aula 8 — Redes Convolucionais > Para ir além
+- Fashion-MNIST no GitHub: a origem do conjunto, com a licença e a descrição das dez categorias.
+- Convolutions, de Victor Powell: mexa nos nove pesos de um filtro e veja o efeito na hora, no navegador.
+- CNN Explainer: uma rede convolucional inteira rodando no navegador. Clique em cada camada e veja o filtro passear.
+- Glossário: para revisar qualquer termo novo desta aula.
+
+### Aula 4 — Conceitos de Séries Temporais > Para que serve
+Uma cafeteria perto de escritórios abre todo dia e precisa decidir quanto
+comprar de leite, quantos pães encomendar e quantas pessoas escalar. Errar
+para cima é desperdício. Errar para baixo é cliente indo embora.
+
+A pergunta é simples: quanto vamos vender amanhã? A diferença para as
+aulas anteriores é que agora a ordem dos dados importa. O que aconteceu
+ontem ajuda a explicar hoje, e uma linha da tabela não pode trocar de
+lugar com outra.
+
+Isso é uma **série temporal**: uma sequência de valores medidos ao longo
+do tempo, em intervalos regulares. Vendas por dia, acessos por hora,
+temperatura por minuto.
+
+O dataset desta aula tem 1.096 dias de vendas, de janeiro de 2022 a
+dezembro de 2024.
+
+### Aula 4 — Conceitos de Séries Temporais > As três peças de qualquer série
+Toda série temporal pode ser lida como uma soma de peças. As três que
+importam nesta aula:
+
+- **Tendência**: para onde o negócio caminha no longo prazo. Aqui, para
+  cima: a venda média foi de R$ 938 por dia em 2022 para R$ 1.267 em 2024.
+- **Sazonalidade**: um padrão que se repete em intervalos fixos. Esta
+  série tem duas. Uma semanal (sábado vende mais que segunda) e uma anual
+  (o inverno vende mais café que o verão: R$ 1.222 contra R$ 976 por dia).
+- **Resto**: o que sobra depois de tirar as duas primeiras. Parte é ruído
+  puro, parte é evento (um feriado, uma chuva forte, uma obra na rua).
+
+Ampliando doze semanas, dá para ver as três peças separadas:
+
+Repare no último painel. Aqueles dois mergulhos fundos não são ruído: são
+feriados, quando os escritórios fecham e a cafeteria vende R$ 719 em vez
+dos R$ 1.109 de um dia comum.
+
+### Aula 4 — Conceitos de Séries Temporais > A média móvel
+Como se separa a tendência do resto? A ferramenta mais simples é a **média
+móvel**: em vez de olhar o valor de cada dia, você olha a média dos
+últimos dias.
+
+$$\text{MM}_k(t) = \frac{1}{k}\sum_{i=0}^{k-1} y_{t-i}$$
+
+| Símbolo | Significado |
+|---|---|
+| `k` | o tamanho da janela: quantos dias entram na média |
+| `t` | o dia que você está olhando |
+| `yₜ₋ᵢ` | o valor de `i` dias atrás |
+| `MMₖ(t)` | a média móvel de `k` dias, no dia `t` |
+
+Exemplo com uma janela de 3 dias. Se as vendas foram R$ 900, R$ 1.100 e
+R$ 1.000, a média móvel do terceiro dia é `(900 + 1.100 + 1.000) / 3 =
+1.000`.
+
+A janela decide o que você enxerga. Uma janela de 7 dias apaga a diferença
+entre os dias da semana e deixa o mês aparecer. Uma de 30 dias apaga
+também o mês e deixa só o rumo do ano.
+
+Uma janela de 7 dias é a escolha natural aqui, porque a sazonalidade
+principal é semanal. A regra vale em geral: use uma janela do tamanho do
+ciclo que você quer apagar.
+
+### Aula 4 — Conceitos de Séries Temporais > O padrão semanal
+Vale olhar a sazonalidade semanal de frente. Basta tirar a média de cada
+dia da semana ao longo dos três anos.
+
+| Dia | Venda média |
+|---|---|
+| Segunda | R$ 953 |
+| Terça | R$ 1.025 |
+| Quarta | R$ 1.027 |
+| Quinta | R$ 1.070 |
+| Sexta | R$ 1.128 |
+| Sábado | R$ 1.287 |
+| Domingo | R$ 1.216 |
+
+Esse desenho é estável, e é exatamente por isso que ele serve para prever.
+Um padrão que se repete há três anos provavelmente se repete na semana que
+vem.
+
+### Aula 4 — Conceitos de Séries Temporais > A regra de ouro: o corte é no tempo
+Aqui mora o erro mais caro do assunto inteiro.
+
+Nas aulas anteriores, separar treino e teste era sorteio: pegue 80% das
+linhas ao acaso para treinar e 20% para testar. Em série temporal isso
+está **errado**. Sortear linhas significa treinar com dados de dezembro
+para prever novembro, e ninguém prevê o passado.
+
+O corte é sempre no tempo. O treino é tudo até uma data, e o teste é o que
+vem depois.
+
+**Erro do dia**
+
+Usar `train_test_split` do scikit-learn numa série temporal, com o
+`shuffle` no valor padrão. O código roda, as métricas saem ótimas, e o
+resultado não vale nada: o modelo viu o futuro durante o treino. Isso se
+chama **vazamento de dados** (*data leakage*), e o sintoma é sempre o
+mesmo. Um desempenho excelente no teste que não se repete na vida real.
+
+### Aula 4 — Conceitos de Séries Temporais > Três previsões sem modelo nenhum
+Antes de treinar qualquer coisa, faça as previsões mais burras possíveis.
+Elas são a régua: um modelo que não vence essas três não está pagando o
+próprio trabalho.
+
+| Previsão de referência | Regra |
+|---|---|
+| Ingênua (*naïve*) | amanhã vai ser igual a hoje |
+| Média móvel | amanhã vai ser a média dos últimos 7 dias |
+| Sazonal ingênua | amanhã vai ser igual ao mesmo dia da semana passada |
+
+As três, escritas como fórmula:
+
+$$\hat{y}_{t+1} = y_t \qquad \hat{y}_{t+1} = \frac{1}{7}\sum_{i=0}^{6} y_{t-i} \qquad \hat{y}_{t+1} = y_{t-6}$$
+
+| Símbolo | Significado |
+|---|---|
+| `ŷₜ₊₁` | a previsão para o dia seguinte |
+| `yₜ` | o valor observado hoje |
+| `yₜ₋₆` | o valor de seis dias atrás, o mesmo dia da semana passada |
+
+Exemplo: no sábado a cafeteria vendeu R$ 1.300. Para o domingo, a ingênua
+prevê os mesmos R$ 1.300. A sazonal ingênua prevê o que o domingo passado
+vendeu.
+
+Nos últimos 28 dias, guardados como teste:
+
+| Previsão | MAE | RMSE | MAPE |
+|---|---|---|---|
+| Ingênua | R$ 121,28 | R$ 156,45 | 10,3% |
+| Média de 7 dias | R$ 115,93 | R$ 154,73 | 10,4% |
+| Sazonal ingênua | R$ 63,78 | R$ 110,80 | 6,0% |
+
+A sazonal ingênua erra quase metade das outras duas, e não usa modelo
+nenhum: ela só repete a última semana. Qualquer modelo desta série tem que
+começar batendo R$ 63,78 de MAE.
+
+### Aula 4 — Conceitos de Séries Temporais > MAPE: o erro em porcentagem
+MAE e RMSE você já conhece da Aula 1. Em séries temporais aparece uma
+terceira, que troca reais por porcentagem.
+
+$$\text{MAPE} = \frac{100}{n}\sum_{t=1}^{n}\left|\frac{y_t - \hat{y}_t}{y_t}\right|$$
+
+| Símbolo | Significado |
+|---|---|
+| `yₜ` | o valor real no dia `t` |
+| `ŷₜ` | o valor previsto para o dia `t` |
+| barras verticais | valor absoluto: o erro sempre conta positivo |
+| resultado | o erro médio em porcentagem do valor real |
+
+Exemplo: um erro de R$ 60 num dia de R$ 1.200 é 5%. O mesmo erro de R$ 60
+num dia de R$ 600 é 10%. O MAPE conta o segundo como pior, e é isso que o
+torna útil para comparar períodos de movimento diferente.
+
+O cuidado com o MAPE: ele explode quando o valor real chega perto de zero.
+Numa série que passa por zero, use MAE.
+
+### Aula 4 — Conceitos de Séries Temporais > Cola da aula
+| Conceito | O que significa |
+|---|---|
+| Série temporal | valores medidos ao longo do tempo, em que a ordem importa |
+| Tendência | para onde a série caminha no longo prazo |
+| Sazonalidade | padrão que se repete em intervalo fixo (semana, ano) |
+| Média móvel | média dos últimos `k` valores, usada para suavizar |
+| Corte no tempo | treino é o passado, teste é o futuro. Nunca sorteio |
+| Vazamento de dados | quando o modelo enxerga o futuro durante o treino |
+| Previsão ingênua | amanhã é igual a hoje |
+| Sazonal ingênua | amanhã é igual ao mesmo dia da semana passada |
+| MAPE | o erro médio em porcentagem do valor real |
+
+### Aula 4 — Conceitos de Séries Temporais > Materiais
+- Slides desta aula: `slides.pptx`
+- Notebook: [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/aulas/04-series-temporais-conceitos/aula-04.ipynb)
+- Dataset: `vendas_cafeteria.csv`
+
+Se ainda não sabe como abrir o notebook, veja
+Antes de começar primeiro.
+
+### Aula 4 — Conceitos de Séries Temporais > Para ir além
+- `rolling` no pandas: a função que calcula médias móveis em uma linha.
+- Forecasting: Principles and Practice: o livro gratuito de Hyndman e Athanasopoulos, referência da área. O capítulo 2 é esta aula inteira, em inglês.
+- Glossário: para revisar qualquer termo novo desta aula.
+
+### Aula 5 — Séries Temporais com Prophet > Para que serve
+Na aula passada, a melhor previsão para a cafeteria era repetir a semana
+anterior. Ela erra R$ 63,78 por dia, em média, e não custa nada. É a
+régua.
+
+O problema é que ela não sabe nada. Não sabe que o negócio cresce, que
+julho vende mais que janeiro, nem que no Natal a rua fica vazia. Ela só
+copia.
+
+Esta aula troca a cópia por um modelo que estima cada uma dessas peças
+separadamente. O **Prophet** é uma biblioteca feita para isso, criada por
+uma equipe da Meta, e pensada para séries de negócio: vendas, acessos,
+pedidos. É a ferramenta que resolve a maior parte dos casos reais sem
+exigir doutorado em estatística.
+
+### Aula 5 — Séries Temporais com Prophet > O que o Prophet faz
+A ideia é a mesma da Aula 4, agora escrita como modelo.
+
+$$y(t) = g(t) + s(t) + h(t) + \varepsilon_t$$
+
+| Símbolo | Significado |
+|---|---|
+| `y(t)` | o valor da série no dia `t` |
+| `g(t)` | a tendência: para onde o negócio caminha |
+| `s(t)` | as sazonalidades: o padrão da semana e o do ano |
+| `h(t)` | os feriados e eventos especiais |
+| `εₜ` | o resto, o que nenhuma das peças explica |
+
+Exemplo, para uma quarta-feira de julho de 2025: a tendência dá R$ 1.320,
+a sazonalidade semanal tira R$ 15, a anual soma R$ 110 e não há feriado. A
+previsão é `1.320 − 15 + 110 = 1.415` reais.
+
+Repare que é uma soma, como todos os modelos do curso. A diferença é que
+cada parcela agora é uma função do tempo, e não um peso vezes uma coluna.
+
+### Aula 5 — Séries Temporais com Prophet > O formato que ele exige
+O Prophet só aceita a tabela com duas colunas, e com estes nomes exatos:
+
+| Coluna | O que é |
+|---|---|
+| `ds` | a data (*datestamp*) |
+| `y` | o valor que você quer prever |
+
+Renomear as colunas é o primeiro passo de qualquer projeto com Prophet, e
+é onde mais gente trava na primeira vez.
+
+### Aula 5 — Séries Temporais com Prophet > Três linhas para treinar e prever
+`make_future_dataframe` cria a tabela de datas que você quer prever,
+incluindo o histórico. `predict` devolve uma tabela com uma linha por dia
+e várias colunas, das quais três importam agora: `yhat` (a previsão),
+`yhat_lower` e `yhat_upper` (as bordas do intervalo de incerteza).
+
+### Aula 5 — Séries Temporais com Prophet > As peças que ele estimou sozinho
+A parte mais útil do Prophet não é a previsão: é poder abrir o modelo e
+olhar cada peça separada.
+
+Compare com o que você já sabia da aula passada. A tendência sobe. O
+sábado é o melhor dia e a segunda é o pior. O meio do ano vende mais que o
+começo. O modelo chegou nisso sozinho, sem ninguém contar.
+
+Esse quadro é o que você leva para uma reunião. Ele responde perguntas de
+negócio ("o crescimento continua?", "vale abrir aos domingos?") melhor do
+que qualquer número único de previsão.
+
+### Aula 5 — Séries Temporais com Prophet > Feriados: o que o modelo não adivinha
+Uma coisa o Prophet não descobre sozinho: o calendário. Ele não sabe que
+25 de dezembro é diferente dos outros dias.
+
+Para ensinar o calendário, você entrega uma tabela de feriados:
+
+Essa lista pode ir além do calendário oficial. Promoções, greves, jogos
+importantes, qualquer data que a sua série "sente" entra ali.
+
+### Aula 5 — Séries Temporais com Prophet > O resultado contra a régua
+Agora o teste que importa, nos mesmos 28 dias escondidos da aula passada:
+
+| Previsão | MAE | RMSE | MAPE |
+|---|---|---|---|
+| Ingênua | R$ 121,28 | R$ 156,45 | 10,3% |
+| Média de 7 dias | R$ 115,93 | R$ 154,73 | 10,4% |
+| Sazonal ingênua (a régua) | R$ 63,78 | R$ 110,80 | 6,0% |
+| Prophet, sem feriados | R$ 64,54 | R$ 92,91 | 5,7% |
+| Prophet, com feriados | R$ 43,73 | R$ 60,22 | 3,5% |
+
+Leia a tabela com atenção, porque ela guarda a lição da aula. O Prophet
+recém-instalado, sem nenhum ajuste, **empata** com a previsão que só copia
+a semana anterior. O que faz ele ganhar é a lista de feriados, que não vem
+do modelo: vem de você, que conhece o negócio.
+
+O RMSE conta uma parte adicional da história. Mesmo empatado no MAE, o
+Prophet sem feriados já tem RMSE bem menor (R$ 92,91 contra R$ 110,80).
+Ele erra parecido na média, mas erra menos nos dias ruins.
+
+**Erro do dia**
+
+Rodar o Prophet, ver um gráfico bonito com faixa de incerteza e concluir
+que o modelo é bom, sem nunca comparar com a régua. Um gráfico de previsão
+sempre parece convincente. A régua é o que separa um modelo útil de um
+enfeite caro.
+
+### Aula 5 — Séries Temporais com Prophet > O intervalo de incerteza
+Toda linha de `yhat` vem acompanhada de `yhat_lower` e `yhat_upper`. Eles
+formam a faixa em torno da previsão, e por padrão cobrem 80% dos casos.
+
+A faixa soma duas incertezas. Uma é o barulho do dia a dia, que não some
+nunca: dois sábados de julho não vendem exatamente o mesmo. A outra é a
+dúvida sobre para onde a tendência vai, e essa cresce com o horizonte.
+
+Nesta série, a primeira domina. A tendência é tão regular que a dúvida
+sobre ela pesa pouco, e por isso a faixa quase não abre, mesmo prevendo
+seis meses à frente. Em uma série com tendência instável, a faixa abriria
+bem mais.
+
+Duas leituras práticas. A primeira: a faixa não é garantia. No nosso
+teste, 75% dos dias caíram dentro dela, com a faixa prometendo 80%. É o
+esperado, e serve de aviso: um dia em cada cinco fica de fora.
+
+A segunda, mais importante: a faixa só conhece o que já aconteceu. Ela não
+tem como prever um concorrente novo na esquina, uma greve de ônibus ou uma
+obra na rua. O risco de prever seis meses à frente vem desses eventos,
+não da largura da faixa.
+
+Use a faixa para conversar sobre risco. "A previsão é R$ 1.200, mas pode
+ficar entre R$ 1.130 e R$ 1.280" é uma frase muito mais útil para quem vai
+comprar leite do que um número solto.
+
+### Aula 5 — Séries Temporais com Prophet > Quando a tendência dobra
+O Prophet não obriga a tendência a ser uma reta. Ele permite que ela mude
+de inclinação em alguns pontos, chamados **pontos de mudança**
+(*changepoints*).
+
+Esse é o motivo de o Prophet lidar bem com negócios que mudam de patamar.
+Uma loja que abriu uma filial, um site que ganhou tráfego depois de uma
+campanha: a tendência dobra, e o modelo acompanha.
+
+O cuidado é o oposto. Se você deixar o modelo dobrar demais, ele começa a
+seguir o ruído e a previsão fica instável. O parâmetro
+`changepoint_prior_scale` controla essa liberdade: quanto maior, mais o
+modelo aceita dobrar.
+
+### Aula 5 — Séries Temporais com Prophet > Quando o Prophet não é a resposta
+Ele resolve a maioria dos casos de negócio, mas não todos.
+
+| Situação | Por quê |
+|---|---|
+| Séries muito curtas | com menos de dois ciclos completos, não há sazonalidade para estimar |
+| Dados de alta frequência com muita estrutura | séries de segundos ou de mercado financeiro pedem outras ferramentas |
+| Quando outras variáveis explicam mais que o tempo | se preço e promoção mandam mais que o calendário, um modelo de regressão pode servir melhor |
+
+### Aula 5 — Séries Temporais com Prophet > Cola da aula
+| Conceito | O que significa |
+|---|---|
+| `ds` e `y` | os dois nomes de coluna que o Prophet exige |
+| `fit` | treina o modelo no passado |
+| `make_future_dataframe` | cria a tabela de datas a prever |
+| `predict` | devolve `yhat`, `yhat_lower` e `yhat_upper` |
+| Componentes | tendência, sazonalidades e feriados, cada um em um gráfico |
+| `holidays` | a tabela de datas especiais que você entrega ao modelo |
+| Intervalo de incerteza | a faixa que cobre 80% dos casos, e não conhece eventos novos |
+| Ponto de mudança | onde a tendência tem permissão para dobrar |
+| A régua | as previsões de referência da Aula 4, que o modelo tem que vencer |
+
+### Aula 5 — Séries Temporais com Prophet > Materiais
+- Slides desta aula: `slides.pptx`
+- Notebook: [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/aulas/05-series-temporais-prophet/aula-05.ipynb)
+- Dataset: `vendas_cafeteria.csv`
+
+O notebook desta aula instala o Prophet na primeira célula, com
+`pip install prophet`. É a única aula do curso que instala biblioteca:
+todas as outras usam só o que já vem no Colab.
+
+### Aula 5 — Séries Temporais com Prophet > Para ir além
+- Documentação do Prophet: o guia oficial, com exemplos em Python e R.
+- Validação cruzada no Prophet: como testar em várias janelas de tempo em vez de uma só.
+- Forecasting: Principles and Practice: os capítulos 5 e 7 explicam as previsões de referência e os modelos de regressão no tempo, em inglês.
+- Glossário: para revisar qualquer termo novo desta aula.
+
+### Aula 6 — Um Sistema de Ponta a Ponta > Para que serve
+Nas cinco aulas anteriores você treinou modelos em notebooks. O notebook é
+ótimo para aprender e para experimentar, mas ninguém entrega um notebook
+para a equipe de atendimento.
+
+Um modelo só vira útil quando alguém que não sabe programar consegue fazer
+uma pergunta e receber uma resposta. É disso que esta aula trata: o
+caminho do modelo até a decisão.
+
+O negócio da vez é o **Clube do Café**, uma assinatura mensal de café em
+grãos. Ele tem duas perguntas, e você já sabe responder as duas:
+
+| Pergunta | Modelo | Aula |
+|---|---|---|
+| Quais assinantes correm risco de cancelar? | Regressão logística | Aula 3 |
+| Quanto o clube vai faturar no próximo mês? | Prophet | Aula 5 |
+
+O que muda hoje é o entorno. As duas respostas vão morar na mesma tela, e
+a tela vai rodar no seu computador.
+
+### Aula 6 — Um Sistema de Ponta a Ponta > O modelo é uma peça, não o sistema
+Esta é a ideia que organiza a aula inteira.
+
+Repare que o modelo ocupa uma caixa das quatro. Nos projetos reais essa
+proporção se mantém: a maior parte do trabalho está em levar dados até o
+modelo e em levar a resposta do modelo até quem decide.
+
+O sistema desta aula tem quatro arquivos, e cada um faz uma coisa só.
+
+| Arquivo | Responsabilidade |
+|---|---|
+| `dados/clientes.csv` e `dados/vendas.csv` | o que já aconteceu |
+| `modelos.py` | carrega, treina e prevê. Não sabe nada de tela |
+| `app.py` | desenha a tela. Não sabe nada de modelo |
+| `requirements.txt` | as quatro bibliotecas que o sistema usa |
+
+Essa separação não é frescura. Quando a previsão sai errada, você sabe em
+que arquivo procurar. Quando a tela precisa de um botão novo, você mexe em
+um arquivo só.
+
+### Aula 6 — Um Sistema de Ponta a Ponta > Antes da aula: deixe a máquina pronta
+A instalação é a parte mais chata e a mais fácil de resolver com
+antecedência. Faça isso antes, com calma.
+
+Você precisa de **Python 3.10 ou mais novo** e do **VS Code**. Para
+conferir a versão do Python, abra o terminal e digite `python --version`
+(no macOS e no Linux, às vezes é `python3 --version`).
+
+Depois baixe a pasta do sistema, crie o ambiente virtual e instale as
+bibliotecas:
+
+No Windows, ative com `.venv\Scripts\activate`. No macOS e no Linux, com
+`source .venv/bin/activate`. Deu certo quando aparece `(.venv)` no começo
+da linha.
+
+A instalação leva de dois a cinco minutos. O Prophet é o mais demorado.
+
+**Erro do dia**
+
+Rodar `pip install` sem o ambiente virtual ativo, e depois `streamlit`
+responder `command not found`. O sintoma é sempre esse, e a causa quase
+sempre é a mesma: a linha do terminal não começa com `(.venv)`. Ative o
+ambiente e repita. Em aula, esse é o problema número um.
+
+### Aula 6 — Um Sistema de Ponta a Ponta > Os dois modelos, em oito funções
+O `modelos.py` inteiro cabe numa tela. Ele tem oito funções curtas, e
+nenhuma delas faz mais de uma coisa.
+
+| Função | O que faz |
+|---|---|
+| `carregar_clientes` | lê o CSV de assinantes |
+| `carregar_vendas` | lê o CSV de receita diária |
+| `preparar_tabela` | transforma o plano em colunas de 0 e 1 |
+| `treinar_classificador` | ajusta a regressão logística |
+| `calcular_risco` | devolve a probabilidade de cancelar de cada cliente |
+| `risco_de_um_cliente` | faz o mesmo para um cliente digitado na tela |
+| `treinar_previsor` | ajusta o Prophet, com a lista de feriados |
+| `prever` | devolve a previsão dos próximos dias |
+
+Nada aqui é novo. É o mesmo código das Aulas 3 e 5, agora com nome, guardado
+num arquivo em vez de espalhado por células de notebook.
+
+Uma linha merece atenção, porque ela resolve um problema clássico:
+
+Quando a tela manda um cliente só, o `get_dummies` cria colunas para o
+plano daquele cliente, e só. O `reindex` põe as colunas na mesma ordem do
+treino e preenche com zero o que faltar. Sem essa linha, o modelo recebe as
+colunas trocadas e devolve um número sem sentido.
+
+### Aula 6 — Um Sistema de Ponta a Ponta > O limiar é uma decisão de operação
+O classificador devolve uma probabilidade. Quem transforma probabilidade em
+lista de ligações é o limiar, e no painel ele é um controle deslizante.
+
+Com os 400 assinantes do Clube do Café:
+
+| Limiar | Clientes na lista | Receita mensal em risco | Da lista, cancelaram de fato |
+|---|---|---|---|
+| 0,40 | 168 | R$ 13.265 | 61% |
+| 0,50 | 119 | R$ 9.748 | 67% |
+
+Suba o limiar e a lista encolhe, mas fica mais certeira. Desça e você
+alcança mais gente que ia cancelar, ao custo de ligar para quem ia ficar.
+
+Por isso o limiar mora na tela, e não escondido no código. Quem decide o
+tamanho da operação é a pessoa que vai fazer as ligações, não o modelo.
+
+### Aula 6 — Um Sistema de Ponta a Ponta > A previsão que o painel mostra
+O segundo modelo é o Prophet da Aula 5, treinado nos 731 dias de receita do
+clube, com a lista de feriados.
+
+O painel resume isso em três números: R$ 89.853 previstos para os próximos
+30 dias, R$ 2.995 por dia em média, e R$ 84.475 no pior caso da faixa. O
+terceiro é o que interessa para quem vai assumir um compromisso de compra.
+
+### Aula 6 — Um Sistema de Ponta a Ponta > A tela, em seis comandos
+O `app.py` usa seis comandos do Streamlit. Seis. É todo o vocabulário que
+esta aula precisa.
+
+| Comando | O que faz |
+|---|---|
+| `st.title` e `st.subheader` | escrevem títulos |
+| `st.tabs` | cria as abas |
+| `st.slider` e `st.selectbox` | pedem um número e uma opção |
+| `st.metric` | mostra um número grande, com rótulo |
+| `st.dataframe` | mostra uma tabela |
+| `st.line_chart` | desenha um gráfico de linha |
+
+O Streamlit funciona de um jeito diferente do que você talvez espere: toda
+vez que alguém mexe num controle, ele **roda o arquivo inteiro de novo**,
+de cima para baixo. É isso que faz a tela reagir sem você escrever nada de
+interface.
+
+Isso traz um problema óbvio: treinar os dois modelos a cada clique deixaria
+o painel lento. A solução é uma linha:
+
+Com ela, o Streamlit guarda o resultado e só executa a função na primeira
+vez. Os cliques seguintes reaproveitam os modelos já treinados.
+
+### Aula 6 — Um Sistema de Ponta a Ponta > O que este sistema ainda não é
+O painel funciona, mas ele não está pronto para uma empresa depender dele.
+Vale saber a diferença.
+
+| O que falta | Por quê |
+|---|---|
+| Retreinar sozinho | os modelos aprenderam com os dados de hoje. Daqui a três meses, o mundo mudou |
+| Guardar o que previu | sem registro, você nunca descobre se as previsões estavam certas |
+| Monitorar a entrada | se o CSV chegar com uma coluna a menos, o painel quebra na cara do usuário |
+| Rodar em algum lugar | hoje ele roda na sua máquina. Para a equipe usar, precisa de um servidor |
+| Controlar quem vê | a lista tem nome de cliente e valor de contrato |
+
+Nenhum desses itens é difícil sozinho. Juntos, eles são a diferença entre
+um protótipo e um produto, e é neles que mora a maior parte do trabalho de
+quem faz sistemas de dados.
+
+### Aula 6 — Um Sistema de Ponta a Ponta > Cola da aula
+| Conceito | O que significa |
+|---|---|
+| Ambiente virtual (`.venv`) | uma caixa de bibliotecas só deste projeto |
+| `requirements.txt` | a lista de bibliotecas, para qualquer máquina repetir |
+| Separação de arquivos | `modelos.py` pensa, `app.py` mostra |
+| `streamlit run app.py` | o comando que sobe o painel |
+| Reexecução | a cada clique, o Streamlit roda o arquivo inteiro de novo |
+| `@st.cache_resource` | guarda o modelo treinado entre uma execução e outra |
+| Limiar na tela | quem decide o tamanho da operação é quem opera |
+| Protótipo x produto | falta retreino, registro, monitoramento e servidor |
+
+### Aula 6 — Um Sistema de Ponta a Ponta > Materiais
+- **O roteiro da aula**: `sistema/README.md`. Esta é a única aula sem slides: o próprio README do projeto guia a aula inteira, do setup ao último desafio.
+- O sistema completo: `sistema/`
+- Notebook de apoio: [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/aulas/06-sistema-ml/aula-06.ipynb)
+- Dados: `clube_cafe_clientes.csv` e `clube_cafe_vendas.csv`
+
+Para baixar o sistema sem instalar o Git, use o botão verde `Code` do
+GitHub e escolha `Download ZIP`. Descompacte e abra a pasta
+`aulas/06-sistema-ml/sistema` no VS Code.
+
+### Aula 6 — Um Sistema de Ponta a Ponta > Para ir além
+- Documentação do Streamlit: a lista completa de comandos, com exemplo de cada um.
+- Streamlit Community Cloud: publica o painel na internet a partir de um repositório do GitHub, de graça.
+- Primeiros passos com Streamlit: o tutorial oficial, que constrói um painel do zero em meia hora.
+- Glossário: para revisar qualquer termo novo desta aula.
