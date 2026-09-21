@@ -2,14 +2,20 @@
 
 Material do Nanodegree de Inteligência Artificial e Machine Learning.
 
-O conteúdo é publicado como livro no GitBook, sincronizado a partir da
-pasta [`docs/`](docs/README.md). Comece pelo [Roadmap](docs/README.md).
+O livro inteiro está em **[`index.html`](index.html)**: catorze aulas numa
+página só, com busca, menu e tema claro ou escuro. Baixe o repositório e
+abra esse arquivo no navegador, ou leia online se o professor publicou o
+site. Não precisa instalar nada.
+
+As páginas também podem ser lidas uma a uma, em Markdown, dentro de
+[`docs/`](docs/README.md). Comece pelo [Roadmap](docs/README.md).
 
 ## O que tem aqui
 
 | Pasta | O que é |
 |---|---|
-| [`docs/`](docs/README.md) | as páginas do livro, e as imagens delas |
+| [`index.html`](index.html) | o livro completo, para abrir no navegador |
+| [`docs/`](docs/README.md) | as páginas do livro em Markdown, e as imagens delas |
 | [`notebooks/`](notebooks/) | um notebook por aula, para abrir no Google Colab |
 | [`data/`](data/README.md) | os datasets e o modelo treinado que os notebooks usam |
 | [`projeto-aula-06/`](projeto-aula-06/) | o sistema que a Aula 6 constrói, para rodar no VS Code |

@@ -43,7 +43,7 @@ essa tendência que a regressão linear captura.
 Uma reta de regressão é uma regra simples: você entra com a distância, ela
 devolve o preço previsto.
 
-O preço previsto é a bandeirada (o valor cobrado mesmo numa corrida de 0
+O preço previsto é a taxa fixa (o valor cobrado mesmo numa corrida de 0
 km) mais o preço por quilômetro, multiplicado pela distância.
 
 $$\text{preço} = w_0 + w_1 \cdot \text{distância}$$
@@ -52,7 +52,7 @@ $$\text{preço} = w_0 + w_1 \cdot \text{distância}$$
 |---|---|
 | `preço` | o preço previsto pela reta, em reais |
 | `distância` | a distância da corrida, em km |
-| `w₀` | a bandeirada: o preço previsto para uma corrida de 0 km |
+| `w₀` | a taxa fixa: o preço previsto para uma corrida de 0 km |
 | `w₁` | o preço por km: quanto o preço sobe para cada km a mais |
 
 Exemplo: se `w₀ = 5` e `w₁ = 2,20`, uma corrida de 8 km custa `5 + 2,20 ×
@@ -87,16 +87,16 @@ O resíduo dessa corrida é 25,00 − 22,60 = R$ 2,40.
 
 A mesma conta, escrita com símbolos:
 
-$$e_i = y_i - \hat{y}_i$$
+$$arepsilon_i = y_i - \hat{y}_i$$
 
 | Símbolo | Significado |
 |---|---|
 | `i` | o número da corrida: 1 para a primeira, 2 para a segunda... |
-| `eᵢ` | o resíduo da corrida `i` |
+| `εᵢ` | o resíduo da corrida `i` (lê-se "épsilon i") |
 | `yᵢ` | o preço real da corrida `i` |
 | `ŷᵢ` | o preço previsto para a corrida `i` (lê-se "y chapéu") |
 
-No exemplo acima, `y₁ = 25,00`, `ŷ₁ = 22,60` e `e₁ = 2,40`. Esses três
+No exemplo acima, `y₁ = 25,00`, `ŷ₁ = 22,60` e `ε₁ = 2,40`. Esses três
 símbolos voltam em todas as fórmulas de erro desta página.
 
 Um resíduo positivo significa que a reta previu um preço menor que o
@@ -172,10 +172,9 @@ mão.
 {% endhint %}
 
 Se essa fórmula resolve o problema direto, por que aprender outro jeito
-de chegar à mesma resposta? Porque essa fórmula fechada só existe para
-casos simples como este. Modelos maiores, como as redes neurais, não têm
-uma fórmula assim. Para eles sobra um caminho só: ajustar os pesos aos
-poucos, na tentativa guiada que vem agora.
+de chegar à mesma resposta? Porque ela é a exceção, não a regra. A
+próxima seção mostra o método que funciona quando ela não existe, que é
+quase sempre.
 
 ## Gradiente descendente: descendo a serra na neblina
 
@@ -191,6 +190,27 @@ terra, o "terreno" é o MSE. Em vez de posição geográfica, você está
 terreno em cada ponto tem um nome técnico: **gradiente**. Ele aponta para
 onde o erro cresce mais rápido, e por isso você anda na direção
 contrária a ele.
+
+### Por que não usar sempre o atalho
+
+A fórmula dos mínimos quadrados dá a resposta exata de primeira, sem
+passo nenhum. Parece sempre melhor que descer a serra tateando no
+escuro. E é, para uma reta com dois pesos.
+
+O problema é que ela não escala. Aquela fórmula existe porque alguém
+conseguiu resolver a conta no papel, e isso só dá certo em modelos
+pequenos. Uma rede neural tem milhões de pesos amarrados uns nos outros,
+e ninguém nunca resolveu essa conta no papel. Para ela não existe fórmula
+fechada, e provavelmente nunca vai existir.
+
+O gradiente descendente não precisa resolver conta nenhuma. Ele precisa
+saber uma coisa só: de onde estou, para que lado o erro diminui? Essa
+pergunta tem resposta em qualquer modelo, de qualquer tamanho.
+
+É por isso que esta seção é a mais importante da aula. O mesmo método que
+ajusta a reta das corridas treina a rede que reconhece imagens na Aula 8
+e o modelo de linguagem que você constrói na Aula 11. Muda o tamanho do
+modelo. A ideia é esta.
 
 ### O terreno existe, e dá para desenhá-lo
 
@@ -208,10 +228,17 @@ aumentar `w₁` diminui o erro.
 
 ### A inclinação tem nome: derivada
 
-A **derivada** de uma curva em um ponto é a inclinação dela ali. Pense
-numa placa de estrada avisando "10% de inclinação": a cada 100 metros
-andados para a frente, a estrada sobe 10 metros. A conta aqui é a mesma.
-Ande um tiquinho para a frente e veja o quanto o erro subiu.
+Você está parado num ponto da curva e precisa decidir uma coisa só: para
+que lado andar. A **derivada** responde exatamente isso. Ela olha o peso
+onde você está e diz o que acontece com o erro se você aumentar esse peso
+um tiquinho.
+
+Pense numa placa de estrada avisando "10% de inclinação": a cada 100
+metros andados para a frente, a estrada sobe 10 metros. Aqui, "andar para
+a frente" é aumentar o peso, e "subir" é o erro aumentar.
+
+A conta é a mesma da placa. Ande um tiquinho para a frente e veja o
+quanto o erro subiu.
 
 $$\text{inclinação} \approx \frac{\text{MSE}(w_1 + h) - \text{MSE}(w_1)}{h}$$
 
@@ -226,6 +253,20 @@ Exemplo, partindo de `w₁ = 3,20` com um avanço de `h = 0,05`: o erro sai
 de 56,75 para 62,38. A subida foi 5,63, e 5,63 ÷ 0,05 = 112,7. A
 inclinação naquele ponto é 112,7. Ela é positiva, então aumentar `w₁`
 aumenta o erro, e o caminho para baixo é o contrário.
+
+**Como ler o número que sai.** Ele carrega duas informações ao mesmo
+tempo, e o modelo usa as duas:
+
+| O que a derivada diz | O que o modelo faz com isso |
+|---|---|
+| **Sinal positivo**: aumentar o peso aumenta o erro | anda para o outro lado, diminuindo o peso |
+| **Sinal negativo**: aumentar o peso diminui o erro | anda para a frente, aumentando o peso |
+| **Número grande**: ladeira íngreme, o erro muda rápido ali | dá um passo maior |
+| **Número perto de zero**: chão plano, o erro quase não muda | dá um passo curto: o fundo está perto |
+
+É por isso que a derivada é a peça que faltava. Sem ela, você saberia o
+erro do lugar onde está e mais nada, e teria que testar valores no
+escuro, um por um. Com ela, você sabe para onde ir antes de dar o passo.
 
 A animação mostra o que acontece quando o avanço encolhe. A reta amarela
 liga dois pontos da curva, e tem nome: **secante**. Quanto menor o
@@ -310,6 +351,30 @@ fundo. Repare que os passos encolhem sozinhos: perto do fundo o chão fica
 plano, a inclinação diminui, e o passo diminui junto.
 
 <figure><img src="../assets/aula-01/descida_1d.gif" alt="Animação de um ponto descendo a curva de erro; a cada passo aparece a reta tangente e os valores de w1, da inclinação e do erro"><figcaption>Cada passo anda contra a inclinação. Perto do fundo, os passos ficam curtos.</figcaption></figure>
+
+### O algoritmo, do começo ao fim
+
+Junte as peças e o gradiente descendente inteiro cabe em cinco passos:
+
+1. **Chute qualquer valor** para `w₀` e `w₁`. Zero serve. O chute não
+   precisa ser bom, e quase nunca é.
+2. **Calcule o erro** (o MSE) com os pesos que você tem agora.
+3. **Calcule a inclinação** do erro para cada peso. É a conta da seção
+   anterior, feita uma vez por peso.
+4. **Ande contra a inclinação**: aplique a regra de atualização, uma vez
+   para cada peso.
+5. **Volte ao passo 2** e repita.
+
+Quando parar? Quando o erro parar de cair de forma perceptível. Perto do
+fundo a inclinação chega perto de zero, os passos encolhem sozinhos, e
+mais uma volta quase não muda nada. Na prática você também define um
+número máximo de voltas, para o programa não rodar para sempre.
+
+Repare no que o algoritmo **não** faz. Ele nunca testa todos os valores
+possíveis de `w₀` e `w₁`. Ele nunca precisa enxergar o terreno inteiro.
+Ele olha só para o chão embaixo dos próprios pés, e essa modéstia é o que
+faz o método funcionar tanto num modelo de dois pesos quanto num de
+bilhões.
 
 ### Com os dois pesos ao mesmo tempo
 
@@ -404,21 +469,45 @@ MAE neste caso. Isso muda quando existe um erro muito fora do padrão.
 
 ### MAPE: o erro em porcentagem
 
-MAE e RMSE saem em reais. Isso é bom para explicar, e ruim para comparar:
-errar R$ 2 numa corrida de R$ 10 e numa de R$ 50 é a mesma coisa? O **erro
-percentual absoluto médio** (*mean absolute percentage error*, MAPE)
-responde que não.
+Nas 200 corridas, o MAE do modelo dá R$ 1,61. Agora responda: isso é
+muito?
+
+Depende da corrida. Errar R$ 1,61 numa corrida de R$ 8 é errar um quinto
+do preço, e o cliente percebe na hora. Errar os mesmos R$ 1,61 numa
+corrida de R$ 50 é errar pouco mais de 3%, e ninguém reclama. O mesmo
+erro em reais não vale a mesma coisa nas duas.
+
+O **erro percentual absoluto médio** (*mean absolute percentage error*,
+MAPE) resolve isso com uma ideia só: antes de tirar a média, transforme o
+erro de cada corrida em porcentagem do preço daquela corrida.
+
+Faça isso corrida por corrida, no mini-exemplo de três:
+
+| Corrida | Preço real | Previsto | Resíduo | Em % do preço real |
+|---|---|---|---|---|
+| 1 | R$ 6,00 | R$ 5,50 | +R$ 0,50 | 0,50 ÷ 6,00 = 8,3% |
+| 2 | R$ 9,00 | R$ 10,00 | −R$ 1,00 | 1,00 ÷ 9,00 = 11,1% |
+| 3 | R$ 15,00 | R$ 14,50 | +R$ 0,50 | 0,50 ÷ 15,00 = 3,3% |
+
+A última coluna joga fora o sinal: errar R$ 1 para cima ou para baixo
+conta igual. A média dessas três porcentagens é
+(8,3 + 11,1 + 3,3) ÷ 3 = **7,6%**. Esse é o MAPE.
+
+A fórmula diz isso mesmo, em símbolos:
 
 $$\text{MAPE} = \frac{100}{n}\sum_{i=1}^{n}\left|\frac{y_i - \hat{y}_i}{y_i}\right|$$
 
 | Símbolo | Significado |
 |---|---|
-| `yᵢ - ŷᵢ` | o resíduo da corrida `i`, o mesmo de sempre |
+| `yᵢ - ŷᵢ` | o resíduo da corrida `i`: quanto o modelo errou, em reais |
 | dividido por `yᵢ` | o resíduo vira uma fração do preço daquela corrida |
+| as barras verticais | valor absoluto: jogam fora o sinal do resíduo |
 | `100` | transforma a fração em porcentagem |
+| `n` | o número de corridas |
 
-No mini-exemplo (resíduos de 0,50, 1,00 e 0,50 sobre preços de R$ 6, R$ 9 e
-R$ 15): as frações são 8,3%, 11,1% e 3,3%, e a média é **7,6%**.
+Leia a fórmula de dentro para fora e ela vira a tabela: pegue o resíduo,
+divida pelo preço real, tire o sinal, some em todas as corridas, divida
+pelo número de corridas e multiplique por 100.
 
 Nas 200 corridas, o MAPE do modelo dá **11,2%**. Repare que ele conta uma
 história bem diferente do `R²` de 0,96 da próxima seção. As duas estão
@@ -603,16 +692,17 @@ colega. Onde travar, é ali que falta entender: volte à seção.
 
 1. Por que elevar o erro ao quadrado, em vez de só somar os erros?
 2. O sinal da inclinação diz o quê sobre para que lado mexer o peso?
-3. Se o RMSE está bem acima do MAE, o que isso revela sobre os erros?
-4. Por que o MAE quase não muda entre corridas curtas e longas, e o MAPE muda quatro vezes?
-5. Por que a faixa da média encolhe com mais dados, e a faixa de uma corrida não?
+3. Por que não usar a fórmula dos mínimos quadrados para tudo, já que ela dá a resposta exata de primeira?
+4. Se o RMSE está bem acima do MAE, o que isso revela sobre os erros?
+5. Por que o MAE quase não muda entre corridas curtas e longas, e o MAPE muda quatro vezes?
+6. Por que a faixa da média encolhe com mais dados, e a faixa de uma corrida não?
 
 ## Cola da aula
 
 | Conceito | O que significa |
 |---|---|
-| `w₀`, `w₁` | bandeirada e preço por km |
-| Resíduo (`eᵢ`) | preço real menos preço previsto, corrida por corrida |
+| `w₀`, `w₁` | taxa fixa e preço por km |
+| Resíduo (`εᵢ`) | preço real menos preço previsto, corrida por corrida |
 | MSE | média dos resíduos ao quadrado |
 | Mínimos quadrados | fórmula que calcula a melhor reta direto, sem tentativa e erro |
 | Inclinação (derivada) | o quanto o erro muda quando você mexe um tiquinho no peso |

@@ -16,10 +16,10 @@ nesta página do que voltar a reler uma aula inteira.
 | Dataset | A tabela de dados usada para treinar ou testar um modelo |
 | Regressão linear | Um modelo que prevê um número desenhando uma reta (ou um plano, com mais variáveis) no meio dos dados |
 | Coeficiente | Um dos números que a regressão ajusta para desenhar a melhor reta (`w₀`, `w₁`, ...); também chamado de peso |
-| Resíduo | A diferença entre o valor real e o valor previsto pelo modelo, para um exemplo |
+| Resíduo (`εᵢ`) | A diferença entre o valor real e o valor previsto pelo modelo, para um exemplo |
 | Função de perda (*loss function*) | A fórmula que resume o quanto um modelo erra, num único número |
 | MSE (erro quadrático médio) | A média dos resíduos elevados ao quadrado. A função de perda mais comum em regressão |
-| Derivada (inclinação) | O quanto uma curva sobe ou desce em um ponto: a subida dividida pelo avanço, com o avanço quase zero |
+| Derivada (inclinação) | O quanto uma curva sobe ou desce em um ponto: a subida dividida pelo avanço, com o avanço quase zero. Diz para que lado mexer um peso para o erro cair, e o quão rápido |
 | Reta tangente | A reta que encosta na curva em um único ponto. A inclinação dela é a derivada naquele ponto |
 | Gradiente | A inclinação da função de perda, uma para cada peso do modelo. Aponta para onde o erro cresce mais rápido |
 | Gradiente descendente | A técnica de ajustar os coeficientes aos poucos, sempre na direção que reduz o erro |
@@ -66,7 +66,7 @@ nesta página do que voltar a reler uma aula inteira.
 | Vazamento de dados (*data leakage*) | Quando o modelo enxerga, no treino, informação que não teria na hora de prever |
 | Previsão ingênua (*naïve*) | Prever que amanhã será igual a hoje |
 | Sazonal ingênua | Prever que amanhã será igual ao mesmo dia do ciclo anterior |
-| MAPE | Erro médio em porcentagem do valor real |
+| MAPE | O erro de cada exemplo vira porcentagem do valor daquele exemplo, e o MAPE é a média dessas porcentagens |
 | Erro padrão residual (`s`) | O tamanho típico de um resíduo, em unidades do alvo |
 | Intervalo de predição | A faixa em que cai **uma** observação nova: `ŷ ± 2s` |
 | Intervalo de confiança | A faixa em que cai a **média**; encolhe com mais dados |
