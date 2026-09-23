@@ -57,7 +57,7 @@ O primeiro passo é prático. Você não coloca o documento inteiro no prompt:
 não cabe na janela de contexto, e mesmo se coubesse, encheria de texto
 irrelevante.
 
-<figure><img src="../assets/aula-14/pedacos.png" alt="À esquerda um histograma dos tamanhos dos 161 pedaços, com mediana em 678 caracteres; à direita um pedaço mostrado por inteiro"><figcaption>Uma seção do material por pedaço. O título da seção fica junto, e ajuda na busca.</figcaption></figure>
+<figure><img src="../assets/aula-14/pedacos.png" alt="Histograma dos 187 pedaços do curso, com mediana de 763 caracteres, ao lado de um exemplo de trecho"><figcaption>Uma seção por pedaço; o título acompanha o texto na busca.</figcaption></figure>
 
 O tamanho do pedaço é a primeira decisão do projeto, e ela tem um
 compromisso claro:
@@ -68,8 +68,8 @@ compromisso claro:
 | Pequeno demais | a frase perde o contexto e vira ambígua |
 | Do tamanho de uma seção | costuma funcionar, e é o que usamos aqui |
 
-Aqui foram 161 pedaços, um por seção das páginas do curso, com mediana de
-678 caracteres.
+Aqui foram 187 pedaços, um por seção das páginas do curso, com mediana de
+763 caracteres.
 
 ## Transformar texto em vetor
 
@@ -104,7 +104,7 @@ Esse número tem nome: **similaridade do cosseno**. Com vetores de tamanho
 
 ## A busca
 
-Com todos os 161 pedaços virados em vetor, buscar é uma multiplicação de
+Com todos os 187 pedaços virados em vetor, buscar é uma multiplicação de
 matriz e um `topk`:
 
 ```python
@@ -117,7 +117,7 @@ melhores = torch.topk(notas, 3)
 
 Num projeto grande, com milhões de pedaços, essa multiplicação vira lenta
 e você guarda os vetores numa **base vetorial**, que é um banco de dados
-especializado em achar vizinhos rápido. Com 161 pedaços, uma matriz
+especializado em achar vizinhos rápido. Com 187 pedaços, uma matriz
 resolve.
 
 {% hint style="info" %}
@@ -219,29 +219,6 @@ Vale olhar para trás. Em catorze aulas, você:
 | IA generativa | uma aplicação sobre um modelo de fundação |
 
 Nenhuma dessas coisas é mágica, e você sabe disso porque montou todas.
-
-## Explique sem olhar
-
-O teste mais honesto de que você entendeu é tentar explicar sem ler.
-Feche esta página e responda em voz alta, como se explicasse para um
-colega. Onde travar, é ali que falta entender: volte à seção.
-
-1. Por que não treinar o modelo com o seu documento?
-2. Como a busca acha um trecho que não repete nenhuma palavra da pergunta?
-3. Na pergunta da perplexidade, o que falhou: a busca ou a leitura? Como você sabe?
-
-## Cola da aula
-
-| Conceito | O que significa |
-|---|---|
-| RAG | Buscar trechos do seu documento e colar no prompt antes de perguntar |
-| Pedaço (*chunk*) | Um pedaço do documento, do tamanho de uma seção |
-| Embutimento de frase | O vetor de um texto inteiro: a média dos vetores dos tokens |
-| Similaridade do cosseno | O produto escalar de dois vetores de tamanho 1 |
-| Base vetorial | Banco de dados que acha vizinhos rápido, para milhões de pedaços |
-| Prompt aumentado | O prompt com os trechos buscados colados dentro |
-| Busca híbrida | Buscar por palavra e por vetor, e juntar os resultados |
-| Avaliação | O conjunto de perguntas com resposta conhecida, que diz se melhorou |
 
 ## Materiais
 

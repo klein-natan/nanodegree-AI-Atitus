@@ -309,31 +309,6 @@ arquitetura, essa, é a mesma que você acabou de montar.
 
 Nada nessa tabela é uma ideia nova. É a mesma ideia, com mais dinheiro.
 
-## Explique sem olhar
-
-O teste mais honesto de que você entendeu é tentar explicar sem ler.
-Feche esta página e responda em voz alta, como se explicasse para um
-colega. Onde travar, é ali que falta entender: volte à seção.
-
-1. Para que serve o atalho num bloco transformer?
-2. Por que a perda no passo 0 tem que dar ln(1024)?
-3. O que uma perplexidade de 31,8 significa, em português?
-
-## Cola da aula
-
-| Conceito | O que significa |
-|---|---|
-| Transformer | Um bloco (norma, atenção, MLP) repetido várias vezes |
-| Atalho (residual) | Soma a entrada à saída de cada metade do bloco |
-| RMSNorm | Põe cada vetor num tamanho padrão |
-| SwiGLU | Camada densa com uma porta que decide o que passa |
-| Pesos amarrados | A mesma tabela serve de entrada e de saída |
-| Entropia cruzada | A perda: castiga quem erra com confiança |
-| Perplexidade | `e` elevado à perda: entre quantos tokens o modelo hesita |
-| AdamW | O otimizador padrão para modelos de linguagem |
-| Corte de gradiente | Limita o passo quando um lote sai fora do normal |
-| Aquecimento e resfriamento | A taxa sobe no começo e desce no fim |
-
 ## Materiais
 
 - **Notebook desta aula, no Google Colab:** [![Abrir no Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-11-transformer-e-treino.ipynb)

@@ -30,6 +30,12 @@ um: tempo de casa, valor mensal, chamados ao suporte e plano. A coluna
 `cancelou` vale 1 para quem cancelou e 0 para quem ficou. No total, 36%
 cancelaram.
 
+Isso é um **desbalanceamento de classes**: há 255 clientes que ficaram e
+145 que cancelaram. Não é extremo, mas já permite que um modelo que sempre
+responde "ficou" pareça bom pela acurácia. Por isso, além da porcentagem
+total de acertos, vamos medir quantos cancelamentos ele encontra e quantos
+alarmes são corretos.
+
 ## Por que a reta não serve
 
 A tentação é usar a regressão da Aula 1, com 0 e 1 no lugar do preço. Veja
@@ -226,6 +232,21 @@ No nosso caso: `F₁ = 0,62`. O valor fica sempre entre a precisão e o
 recall, e mais perto do pior dos dois. É por isso que ele serve como
 número único: para o F1 subir, os dois precisam ir bem.
 
+## Validação cruzada: medir antes de escolher
+
+Medir o modelo nos mesmos clientes usados para treiná-lo produz resultados
+otimistas. Reserve uma parte como **teste**, sem usá-la para escolher o
+modelo. No restante, a **validação cruzada** divide o treino em partes
+chamadas dobras: treina em algumas, mede na que ficou de fora e repete até
+que cada dobra tenha servido como validação. A média mostra se o resultado
+é estável. Como uma classe é menor, usamos dobras **estratificadas**, que
+preservam aproximadamente a proporção de cancelamentos em cada parte.
+
+Essa técnica será usada na Aula 4 para escolher hiperparâmetros. Depois
+da escolha, o teste reservado dá uma avaliação final. Os números das
+figuras de limiar a seguir foram calculados na base inteira para explicar as métricas;
+não são estimativas de desempenho em clientes novos.
+
 ## Escolhendo o limiar
 
 Agora junte tudo. Baixar o limiar significa avisar mais gente, o que pega
@@ -253,14 +274,17 @@ para nós".
 A tabela acima compara dois limiares. Existem infinitos. A **curva ROC**
 mostra todos ao mesmo tempo.
 
-Ela é um gráfico de dois números, e os dois você já calculou:
+Ela é um gráfico de dois números. **TPR** vem de *true positive rate*,
+taxa de verdadeiros positivos: entre os que cancelaram, a fração que o
+modelo encontrou. É o recall. **FPR** vem de *false positive rate*, taxa
+de falsos positivos: entre os que ficaram, a fração acusada por engano.
 
 $$\text{TPR} = \frac{VP}{VP + FN} \qquad \text{FPR} = \frac{FP}{FP + VN}$$
 
 | Símbolo | Significado |
 |---|---|
-| TPR | dos que cancelaram, quantos o modelo pegou. É o recall |
-| FPR | dos que ficaram, quantos o modelo acusou à toa |
+| TPR (taxa de verdadeiros positivos) | dos que cancelaram, quantos o modelo pegou. É o recall |
+| FPR (taxa de falsos positivos) | dos que ficaram, quantos o modelo acusou à toa |
 | `VP`, `FP`, `FN`, `VN` | as quatro caixas da matriz de confusão |
 
 Exemplo, com o limiar em 0,50: o modelo pega 56% dos cancelamentos (TPR)
@@ -460,40 +484,6 @@ pouco otimistas. Medimos a diferença: separando 30% dos clientes, a AUC
 cai de 0,83 no treino para 0,80 no teste. Pequena aqui, e a Aula 2 mostra
 por que ela nem sempre é.
 {% endhint %}
-
-## Explique sem olhar
-
-O teste mais honesto de que você entendeu é tentar explicar sem ler.
-Feche esta página e responda em voz alta, como se explicasse para um
-colega. Onde travar, é ali que falta entender: volte à seção.
-
-1. O que a sigmoide faz com um número que a reta jogaria acima de 1?
-2. Por que 75% de acurácia pode ser um resultado ruim neste dataset?
-3. O que acontece com precisão e recall quando você baixa o limiar, e por quê?
-4. O que a AUC mede, e o que ela é incapaz de enxergar?
-5. Como você descobre, em dois minutos, se as probabilidades do seu modelo são honestas?
-
-## Cola da aula
-
-| Conceito | O que significa |
-|---|---|
-| Classificação | prever uma categoria em vez de um número |
-| Sigmoide | função em S que transforma qualquer número em algo entre 0 e 1 |
-| `z` | a soma de sempre, `w₀ + w₁x₁ + ...`, antes da sigmoide |
-| Chance (*odds*) | `p / (1 − p)`: quantas vezes cancelar é mais provável que ficar |
-| `e` elevado a `wⱼ` | o fator que multiplica a chance quando `xⱼ` sobe 1 |
-| Limiar | o ponto de corte que transforma probabilidade em decisão |
-| Matriz de confusão | as quatro caixas: VP, FP, FN, VN |
-| Acurácia | fração de acertos, enganosa quando uma classe domina a outra |
-| Precisão | dos apontados, quantos eram de verdade |
-| Recall | dos que eram de verdade, quantos o modelo apontou |
-| F1 | um número só, que só sobe se precisão e recall subirem |
-| TPR e FPR | dos que saíram quantos peguei; dos que ficaram quantos acusei |
-| Curva ROC | todos os limiares num gráfico só |
-| AUC | a chance de o modelo ordenar certo um par sorteado |
-| Calibração | a probabilidade prometida acontece na frequência prometida |
-| Brier | o MSE da probabilidade: mede calibração num número |
-| Limiar por custo | escolher o corte pela razão entre o custo dos dois erros |
 
 ## Materiais
 

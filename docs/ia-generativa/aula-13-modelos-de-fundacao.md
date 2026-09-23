@@ -209,29 +209,6 @@ O critério que decide na prática costuma ser um só: se o dado não pode
 sair da empresa, o modelo aberto deixa de ser opção e passa a ser
 requisito.
 
-## Explique sem olhar
-
-O teste mais honesto de que você entendeu é tentar explicar sem ler.
-Feche esta página e responda em voz alta, como se explicasse para um
-colega. Onde travar, é ali que falta entender: volte à seção.
-
-1. O que o molde de conversa faz com a lista de mensagens?
-2. Que duas etapas de treino separam um continuador de texto de um assistente?
-3. Por que você só pega o erro do modelo em assunto que já conhece?
-
-## Cola da aula
-
-| Conceito | O que significa |
-|---|---|
-| Modelo de fundação | Modelo grande, treinado uma vez, que serve de base para muitas tarefas |
-| Hugging Face | O repositório público de onde vêm os modelos abertos |
-| Molde de conversa | O texto com marcadores que traduz mensagens em um texto só |
-| Papéis | `system`, `user` e `assistant`: tokens especiais, nada mais |
-| Prompt de sistema | O texto que define quem o modelo é antes da conversa |
-| Zero-shot | Pedir sem exemplo nenhum |
-| Few-shot | Colocar dois ou três exemplos dentro do prompt |
-| `do_sample=False` | Sempre o token mais provável: resposta reproduzível |
-
 ## Materiais
 
 - **Notebook desta aula, no Google Colab:** [![Abrir no Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-13-modelos-de-fundacao.ipynb)

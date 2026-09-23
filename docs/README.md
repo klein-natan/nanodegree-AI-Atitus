@@ -63,7 +63,7 @@ Antes da primeira aula, leia [Antes de começar](antes-de-comecar.md). Leva
 dois minutos e evita perder tempo de aula com configuração.
 
 A única aula fora desse formato é a
-[Aula 6](sistemas-de-ml/aula-06-sistema-ponta-a-ponta.md), que a turma
+[Aula 4](sistemas-de-ml/aula-04-sistema-ponta-a-ponta.md), que a turma
 constrói no VS Code, no próprio computador, seguindo o README do projeto em
 vez de slides.
 
@@ -72,8 +72,8 @@ vez de slides.
 ```mermaid
 flowchart LR
     Z[Fundamentos] --> A[Modelos Lineares]
-    A --> B[Séries Temporais]
-    B --> C["Sistema de Classificação<br/>e Previsão"]
+    A --> B["Sistema de ML"]
+    B --> C[Séries Temporais]
     C --> D[Redes Neurais]
     D --> E["LLM do Zero<br/>(construindo um GPT)"]
     E --> F[IA Generativa]
@@ -83,8 +83,8 @@ flowchart LR
 |---|---|
 | [Fundamentos](fundamentos/contexto-historico.md) | De onde veio a IA, e o que separa um modelo de um produto |
 | [Modelos Lineares](modelos-lineares/README.md) | Prever um número ou uma categoria a partir de dados, e entender por que o modelo decide o que decide |
+| [Sistemas de ML](sistemas-de-ml/README.md) | Ajustar um classificador com validação cruzada e Optuna e usá-lo num painel |
 | [Séries Temporais](series-temporais/README.md) | Prever o futuro de algo que muda com o tempo |
-| [Sistemas de Classificação e Previsão](sistemas-de-ml/README.md) | Juntar um classificador e um modelo de previsão num sistema só |
 | [Redes Neurais](redes-neurais/README.md) | Como uma rede neural aprende, do neurônio à imagem |
 | [LLM do Zero](llm-do-zero/README.md) | Construir um modelo de linguagem, peça por peça, em PyTorch |
 | [IA Generativa](ia-generativa/README.md) | Usar um modelo pronto, e construir uma aplicação em cima dele |

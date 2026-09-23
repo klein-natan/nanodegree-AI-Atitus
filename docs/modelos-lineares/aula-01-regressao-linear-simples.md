@@ -684,39 +684,6 @@ média das distâncias. Prever uma corrida de 60 km com dados que vão até
 25 km é possível, e a fórmula avisa que a incerteza cresce. Fora da faixa
 dos dados, ela deixa de avisar direito: ali não há informação nenhuma.
 
-## Explique sem olhar
-
-O teste mais honesto de que você entendeu é tentar explicar sem ler.
-Feche esta página e responda em voz alta, como se explicasse para um
-colega. Onde travar, é ali que falta entender: volte à seção.
-
-1. Por que elevar o erro ao quadrado, em vez de só somar os erros?
-2. O sinal da inclinação diz o quê sobre para que lado mexer o peso?
-3. Por que não usar a fórmula dos mínimos quadrados para tudo, já que ela dá a resposta exata de primeira?
-4. Se o RMSE está bem acima do MAE, o que isso revela sobre os erros?
-5. Por que o MAE quase não muda entre corridas curtas e longas, e o MAPE muda quatro vezes?
-6. Por que a faixa da média encolhe com mais dados, e a faixa de uma corrida não?
-
-## Cola da aula
-
-| Conceito | O que significa |
-|---|---|
-| `w₀`, `w₁` | taxa fixa e preço por km |
-| Resíduo (`εᵢ`) | preço real menos preço previsto, corrida por corrida |
-| MSE | média dos resíduos ao quadrado |
-| Mínimos quadrados | fórmula que calcula a melhor reta direto, sem tentativa e erro |
-| Inclinação (derivada) | o quanto o erro muda quando você mexe um tiquinho no peso |
-| Gradiente | a lista das inclinações, uma por peso do modelo |
-| Gradiente descendente | ajusta os coeficientes aos poucos, na direção que reduz o erro |
-| Taxa de aprendizado (`α`) | tamanho do passo do gradiente descendente |
-| MAE | erro médio, na mesma unidade do preço |
-| RMSE | como o MAE, mas penaliza mais os erros grandes |
-| R² | fração da variação dos preços que a reta explica (0 a 1) |
-| MAPE | erro médio em porcentagem do preço real |
-| `s` (resíduo típico) | o tamanho médio de um resíduo, em reais |
-| Intervalo de predição | a faixa onde cai **uma** corrida: `ŷ ± 2s` |
-| Intervalo de confiança | a faixa onde cai a **média**, bem mais estreita |
-
 ## Materiais
 
 - **Notebook desta aula, no Google Colab:** [![Abrir no Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-01-regressao-linear-simples.ipynb)

@@ -2,7 +2,7 @@
 description: Tendência, sazonalidades, feriados e incerteza estimados pelo Prophet
 ---
 
-# Aula 5 — Séries Temporais com Prophet
+# Aula 6 — Séries Temporais com Prophet
 
 {% hint style="info" %}
 **O que você leva desta aula**
@@ -31,7 +31,7 @@ exigir doutorado em estatística.
 
 ## O que o Prophet faz
 
-A ideia é a mesma da Aula 4, agora escrita como modelo.
+A ideia é a mesma da Aula 5, agora escrita como modelo.
 
 $$y(t) = g(t) + s(t) + h(t) + \varepsilon_t$$
 
@@ -87,7 +87,7 @@ e várias colunas, das quais três importam agora: `yhat` (a previsão),
 A parte mais útil do Prophet não é a previsão: é poder abrir o modelo e
 olhar cada peça separada.
 
-<figure><img src="../assets/aula-05/componentes_prophet.png" alt="Quatro painéis mostrando a tendência crescente, os tombos dos feriados, o perfil semanal em barras e a onda anual estimados pelo Prophet"><figcaption>As mesmas três peças da Aula 4, agora estimadas por conta própria.</figcaption></figure>
+<figure><img src="../assets/aula-05/componentes_prophet.png" alt="Quatro painéis mostrando a tendência crescente, os tombos dos feriados, o perfil semanal em barras e a onda anual estimados pelo Prophet"><figcaption>As mesmas três peças da Aula 5, agora estimadas por conta própria.</figcaption></figure>
 
 Compare com o que você já sabia da aula passada. A tendência sobe. O
 sábado é o melhor dia e a segunda é o pior. O meio do ano vende mais que o
@@ -210,39 +210,14 @@ Ele resolve a maioria dos casos de negócio, mas não todos.
 | Dados de alta frequência com muita estrutura | séries de segundos ou de mercado financeiro pedem outras ferramentas |
 | Quando outras variáveis explicam mais que o tempo | se preço e promoção mandam mais que o calendário, um modelo de regressão pode servir melhor |
 
-## Explique sem olhar
-
-O teste mais honesto de que você entendeu é tentar explicar sem ler.
-Feche esta página e responda em voz alta, como se explicasse para um
-colega. Onde travar, é ali que falta entender: volte à seção.
-
-1. Por que o Prophet sem feriados empata com a sazonal ingênua?
-2. Que duas incertezas a faixa soma, e qual delas domina nesta série?
-3. O que a faixa de incerteza não tem como prever?
-
-## Cola da aula
-
-| Conceito | O que significa |
-|---|---|
-| `ds` e `y` | os dois nomes de coluna que o Prophet exige |
-| `fit` | treina o modelo no passado |
-| `make_future_dataframe` | cria a tabela de datas a prever |
-| `predict` | devolve `yhat`, `yhat_lower` e `yhat_upper` |
-| Componentes | tendência, sazonalidades e feriados, cada um em um gráfico |
-| `holidays` | a tabela de datas especiais que você entrega ao modelo |
-| Intervalo de incerteza | a faixa que cobre 80% dos casos, e não conhece eventos novos |
-| Ponto de mudança | onde a tendência tem permissão para dobrar |
-| A régua | as previsões de referência da Aula 4, que o modelo tem que vencer |
-
 ## Materiais
 
-- **Notebook desta aula, no Google Colab:** [![Abrir no Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-05-series-temporais-prophet.ipynb)
+- **Notebook desta aula, no Google Colab:** [![Abrir no Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-06-series-temporais-prophet.ipynb)
 - Slides desta aula: entregues em sala.
 - Dataset: [`vendas_cafeteria.csv`](https://github.com/klein-natan/nanodegree-AI-Atitus/blob/main/data/vendas_cafeteria.csv)
 
 O notebook desta aula instala o Prophet na primeira célula, com
-`pip install prophet`. É a única aula do curso que instala biblioteca:
-todas as outras usam só o que já vem no Colab.
+`pip install prophet`. A Aula 4 também instala o Optuna no Colab.
 
 ## Para ir além
 

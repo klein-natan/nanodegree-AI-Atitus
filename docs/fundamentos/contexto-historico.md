@@ -199,29 +199,6 @@ A pergunta de Turing continua aberta, e hoje ela tem uma versão mais útil:
 que tipo de inteligência queremos construir, e para servir a que tipo de
 sociedade?
 
-## Cola
-
-| Conceito | O que significa |
-|---|---|
-| Teste de Turing | trocar "a máquina pensa?" por "você percebe que não é gente?" |
-| Dartmouth (1956) | a conferência que batizou a área |
-| Perceptron | o primeiro neurônio artificial: entradas, pesos, uma resposta |
-| IA simbólica | resolver por regras escritas à mão; trava fora do laboratório |
-| Inverno da IA | período de descrédito e corte de financiamento (1973 e 1987) |
-| Sistemas especialistas | uma tarefa só, com conhecimento humano numa base de regras |
-| Retropropagação | o jeito de ajustar pesos a partir do erro |
-| Aprendizado de máquina | dar exemplos em vez de escrever as regras |
-| Os três ingredientes | algoritmos, dados e GPUs, chegando juntos |
-| Era generativa | de 2020 em diante: o modelo produz texto, imagem, código e áudio |
-
-## Explique sem olhar
-
-1. Por que Turing trocou a pergunta "a máquina pode pensar?" por outra?
-2. O que ELIZA ensinou, e por que a lição vale hoje?
-3. Qual é a diferença de método entre programação tradicional e aprendizado de máquina?
-4. Por que a IA não decolou nos anos 1980, se a retropropagação já existia?
-5. Cite os três ingredientes da virada dos anos 2000, e diga o que acontece se faltar um.
-
 ## Para ir além
 
 - [ELIZA, funcionando no navegador](https://www.masswerk.at/elizabot/): converse cinco minutos com o programa de 1966 e veja quanto tempo leva para você perceber o truque.

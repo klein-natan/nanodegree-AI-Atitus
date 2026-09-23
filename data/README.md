@@ -114,7 +114,7 @@ A série foi montada somando `tendência + sazonalidade semanal +
 sazonalidade anual + efeito de feriado + ruído`. A tendência sobe R$ 0,45
 por dia, sábado é o melhor dia da semana, julho é o melhor mês, e feriado
 derruba a venda em cerca de R$ 380. Cada peça existe para ser reconhecida
-na Aula 4 e reencontrada pelo Prophet na Aula 5.
+na Aula 5 e reencontrada pelo Prophet na Aula 6.
 
 Para regenerar (produz o arquivo byte a byte idêntico):
 
@@ -122,17 +122,17 @@ Para regenerar (produz o arquivo byte a byte idêntico):
 uv run python data/scripts/gerar_vendas_cafeteria.py
 ```
 
-## clube_cafe_clientes.csv e clube_cafe_vendas.csv
+## clube_cafe_clientes.csv
 
 | | |
 |---|---|
-| **Origem** | Sintéticos, gerados por [`scripts/gerar_clube_cafe.py`](scripts/gerar_clube_cafe.py) (seed fixa = 42, reprodutível) |
-| **Usados em** | Módulo Sistemas de Classificação e Previsão — Aula 6 |
-| **Linhas** | 400 assinantes e 731 dias de receita |
+| **Origem** | Sintético, com semente fixa |
+| **Usado em** | Módulo Sistemas de ML — Aula 4 |
+| **Linhas** | 400 assinantes: 146 cancelaram e 254 ficaram |
 
-São duas tabelas do mesmo negócio fictício, o Clube do Café, uma assinatura
-mensal de café em grãos. O sistema da Aula 6 responde uma pergunta com cada
-uma delas.
+O Clube do Café é uma assinatura mensal fictícia. A Aula 4 usa esta tabela
+para treinar um classificador de risco de cancelamento. O desbalanceamento
+é moderado: 36,5% cancelaram.
 
 `clube_cafe_clientes.csv`:
 
@@ -145,25 +145,8 @@ uma delas.
 | `plano` | texto | — | `Degustação`, `Clássico` ou `Premium` |
 | `cancelou` | inteiro | 0 ou 1 | 1 se o assinante cancelou |
 
-`clube_cafe_vendas.csv`:
-
-| Coluna | Tipo | Unidade | Descrição |
-|---|---|---|---|
-| `data` | texto (AAAA-MM-DD) | dia | a data daquele dia |
-| `receita` | decimal | reais (R$) | receita do clube naquele dia |
-| `feriado` | inteiro | 0 ou 1 | 1 quando o dia é feriado nacional |
-
-As duas seguem o mesmo molde das aulas anteriores, de propósito: quem
-chegou até a Aula 6 reconhece as colunas sem reaprender nada. O gerador
-também copia os dois arquivos para
-`aulas/06-sistema-ml/sistema/dados/`, porque aquela pasta é o projeto que
-os alunos abrem no VS Code e precisa rodar sem internet.
-
-Para regenerar (produz os arquivos byte a byte idênticos):
-
-```bash
-uv run python data/scripts/gerar_clube_cafe.py
-```
+O projeto em `projeto-aula-04/dados/` contém uma cópia para rodar sem
+download.
 
 ## torra_cafe.csv
 
@@ -280,9 +263,9 @@ uv run python data/scripts/treinar_mini_llm.py
 
 | | |
 |---|---|
-| **Origem** | As próprias páginas de `docs/`, juntadas por [`scripts/juntar_curso.py`](scripts/juntar_curso.py) |
+| **Origem** | As páginas de `docs/`, reunidas por `data/scripts/juntar_curso.py` |
 | **Usado em** | Módulo IA Generativa, Aula 14 (Uma Aplicação de Verdade) |
-| **Tamanho** | 161 pedaços, mediana de 678 caracteres |
+| **Tamanho** | 187 pedaços, mediana de 763 caracteres |
 
 O material do curso num arquivo só, para o assistente da Aula 14 responder
 perguntas sobre ele. Cada pedaço é uma seção de uma página, começa com
@@ -295,7 +278,7 @@ conteúdo e conseguem julgar se a resposta do assistente está certa.
 Regere sempre que uma página mudar:
 
 ```bash
-uv run python data/scripts/juntar_curso.py
+python data/scripts/juntar_curso.py
 ```
 
 ## Dataset novo

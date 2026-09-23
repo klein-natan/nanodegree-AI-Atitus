@@ -2,7 +2,7 @@
 description: Tendência, sazonalidade e ruído, e as previsões simples que todo modelo precisa vencer
 ---
 
-# Aula 4 — Conceitos de Séries Temporais
+# Aula 5 — Conceitos de Séries Temporais
 
 {% hint style="info" %}
 **O que você leva desta aula**
@@ -190,33 +190,9 @@ torna útil para comparar períodos de movimento diferente.
 O cuidado com o MAPE: ele explode quando o valor real chega perto de zero.
 Numa série que passa por zero, use MAE.
 
-## Explique sem olhar
-
-O teste mais honesto de que você entendeu é tentar explicar sem ler.
-Feche esta página e responda em voz alta, como se explicasse para um
-colega. Onde travar, é ali que falta entender: volte à seção.
-
-1. Por que sortear linhas para o teste está errado numa série temporal?
-2. Por que a sazonal ingênua erra quase metade da ingênua, sem usar modelo nenhum?
-3. Qual janela de média móvel apaga o padrão semanal, e por quê?
-
-## Cola da aula
-
-| Conceito | O que significa |
-|---|---|
-| Série temporal | valores medidos ao longo do tempo, em que a ordem importa |
-| Tendência | para onde a série caminha no longo prazo |
-| Sazonalidade | padrão que se repete em intervalo fixo (semana, ano) |
-| Média móvel | média dos últimos `k` valores, usada para suavizar |
-| Corte no tempo | treino é o passado, teste é o futuro. Nunca sorteio |
-| Vazamento de dados | quando o modelo enxerga o futuro durante o treino |
-| Previsão ingênua | amanhã é igual a hoje |
-| Sazonal ingênua | amanhã é igual ao mesmo dia da semana passada |
-| MAPE | o erro médio em porcentagem do valor real |
-
 ## Materiais
 
-- **Notebook desta aula, no Google Colab:** [![Abrir no Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-04-conceitos-series-temporais.ipynb)
+- **Notebook desta aula, no Google Colab:** [![Abrir no Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-05-conceitos-series-temporais.ipynb)
 - Slides desta aula: entregues em sala.
 - Dataset: [`vendas_cafeteria.csv`](https://github.com/klein-natan/nanodegree-AI-Atitus/blob/main/data/vendas_cafeteria.csv)
 

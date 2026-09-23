@@ -40,7 +40,10 @@ nesta página do que voltar a reler uma aula inteira.
 | Ridge (penalidade L2) | Regularização que cobra `Σw²`. Encolhe os coeficientes grandes e não zera nenhum |
 | Lasso (penalidade L1) | Regularização que cobra a soma dos coeficientes sem o sinal. Zera os coeficientes inúteis e tira a coluna do modelo |
 | ElasticNet | Mistura de Ridge e Lasso, com `l1_ratio` (ρ) decidindo a proporção entre as duas |
-| Validação cruzada | Testar vários valores de `α` em pedaços diferentes do treino e ficar com o melhor. É o que as versões `CV` fazem sozinhas |
+| Validação cruzada | Dividir o treino em dobras, alternar qual fica para validação e calcular a média da métrica; ajuda a escolher hiperparâmetros sem usar o teste final |
+| Desbalanceamento de classes | Quando uma categoria aparece menos que outra; acurácia sozinha pode esconder falhas na classe menor |
+| Hiperparâmetro | Escolha feita antes do treino, como `C` ou `class_weight` na regressão logística |
+| Optuna | Biblioteca que testa combinações de hiperparâmetros e procura a melhor pela métrica escolhida |
 | Padronização (`StandardScaler`) | Deixar cada coluna com média 0 e desvio 1, para que o freio da regularização não dependa da unidade |
 | Classificação | Prever uma categoria (cancela ou não cancela) em vez de um número |
 | Regressão logística | O modelo que passa a soma dos pesos por uma sigmoide e devolve uma probabilidade |

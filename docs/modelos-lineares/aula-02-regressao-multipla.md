@@ -460,37 +460,6 @@ O que acende o alarme: um funil (o erro cresce com o preço previsto), uma
 curva (falta uma variável ou a relação não é reta), ou pontos muito longe
 do zero (candidatos a investigar um a um).
 
-## Explique sem olhar
-
-O teste mais honesto de que você entendeu é tentar explicar sem ler.
-Feche esta página e responda em voz alta, como se explicasse para um
-colega. Onde travar, é ali que falta entender: volte à seção.
-
-1. Por que numerar os bairros como 1, 2 e 3 estraga o modelo?
-2. Por que o coeficiente da área diminui quando os quartos entram?
-3. Por que o R² nunca cai quando entra uma coluna, e o que o R² ajustado faz a respeito?
-4. Por que o Ridge nunca zera um coeficiente e o Lasso zera?
-5. Por que regularizar sem padronizar faz o modelo escolher errado o que cortar?
-
-## Cola da aula
-
-| Conceito | O que significa |
-|---|---|
-| Regressão múltipla | uma soma de várias informações, cada uma com o seu peso |
-| Coeficiente `wⱼ` | quanto muda a previsão se `xⱼ` sobe 1, com o resto parado |
-| Variável indicadora | coluna de 0 ou 1 que representa uma categoria |
-| Categoria de referência | a categoria que fica de fora e vive dentro do `w₀` |
-| Colinearidade | duas variáveis que andam juntas e dividem o crédito |
-| `R²` ajustado | o `R²` descontando o custo de cada variável nova |
-| Resíduo contra previsto | o gráfico de diagnóstico que você olha antes de confiar |
-| Treino e teste | separar 30% dos dados que o modelo nunca vê |
-| Sobreajuste | ficar melhor no treino e pior no teste |
-| Regularização | somar ao erro uma penalidade pelo tamanho dos coeficientes |
-| Ridge | penalidade `Σw²`: encolhe todos, nunca zera |
-| Lasso | penalidade `Σ\|w\|`: zera os inúteis e tira a coluna do modelo |
-| ElasticNet | mistura das duas, com `l1_ratio` decidindo a proporção |
-| Padronizar | pôr as colunas na mesma escala, obrigatório antes de regularizar |
-
 ## Materiais
 
 - **Notebook desta aula, no Google Colab:** [![Abrir no Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-02-regressao-multipla.ipynb)

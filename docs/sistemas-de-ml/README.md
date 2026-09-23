@@ -1,13 +1,13 @@
 ---
-description: Visão geral do módulo de Sistemas de Classificação e Previsão
+description: Visão geral do módulo de Sistemas de ML
 ---
 
-# Sistemas de Classificação e Previsão
+# Sistemas de ML
 
-Até aqui, cada aula ensinou uma peça isolada. Este módulo junta as peças:
-você vai construir, em aula, um sistema de verdade que usa um classificador
-e um modelo de previsão trabalhando juntos.
+Até aqui, cada aula ensinou uma peça isolada. Agora você vai construir um
+sistema pequeno com um classificador, tuning de hiperparâmetros com Optuna
+e uma tela para explorar as decisões.
 
 | Aula | Conteúdo | Status |
 |---|---|---|
-| [Aula 6 — Um Sistema de Ponta a Ponta](aula-06-sistema-ponta-a-ponta.md) | Projeto guiado: classificador, previsão e uma tela em Streamlit, rodando na sua máquina | Disponível |
+| [Aula 4 — Um Sistema de Ponta a Ponta](aula-04-sistema-ponta-a-ponta.md) | Classificador de cancelamento, validação cruzada, Optuna e uma tela em Streamlit | Disponível |

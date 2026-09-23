@@ -251,30 +251,6 @@ Pedir "explique o seu raciocínio antes de responder" costuma valer mais
 que qualquer ajuste de temperatura, e é de graça.
 {% endhint %}
 
-## Explique sem olhar
-
-O teste mais honesto de que você entendeu é tentar explicar sem ler.
-Feche esta página e responda em voz alta, como se explicasse para um
-colega. Onde travar, é ali que falta entender: volte à seção.
-
-1. O que a temperatura muda, e o que ela não muda?
-2. Por que a escolha gulosa entra em repetição?
-3. Por que "alucinação" é um nome ruim para o que o modelo faz?
-
-## Cola da aula
-
-| Conceito | O que significa |
-|---|---|
-| Logit | O número cru que o modelo dá a um token, antes da softmax |
-| Amostragem | A regra para escolher um token entre os 1.024 |
-| Gulosa | Escolher sempre o mais provável: entra em repetição |
-| Temperatura | Divide os logits: baixa concentra, alta espalha |
-| Top-k | Fica só com os k mais prováveis |
-| Top-p | Fica com os mais prováveis até somarem p |
-| Autorregressiva | Cada token gerado vira entrada do passo seguinte |
-| Alucinação | Frase provável e falsa: o modelo não distingue as duas |
-| Ajuste por instrução | O treino extra que transforma um continuador em assistente |
-
 ## Materiais
 
 - **Notebook desta aula, no Google Colab:** [![Abrir no Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-12-geracao-e-limites.ipynb)

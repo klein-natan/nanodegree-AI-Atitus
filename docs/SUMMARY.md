@@ -18,16 +18,16 @@
 * [Aula 2 — Regressão Múltipla](modelos-lineares/aula-02-regressao-multipla.md)
 * [Aula 3 — Regressão Logística](modelos-lineares/aula-03-regressao-logistica.md)
 
+## Sistemas de ML
+
+* [Visão geral](sistemas-de-ml/README.md)
+* [Aula 4 — Um Sistema de Ponta a Ponta](sistemas-de-ml/aula-04-sistema-ponta-a-ponta.md)
+
 ## Séries Temporais
 
 * [Visão geral](series-temporais/README.md)
-* [Aula 4 — Conceitos de Séries Temporais](series-temporais/aula-04-conceitos-series-temporais.md)
-* [Aula 5 — Séries Temporais com Prophet](series-temporais/aula-05-prophet.md)
-
-## Sistemas de Classificação e Previsão
-
-* [Visão geral](sistemas-de-ml/README.md)
-* [Aula 6 — Um Sistema de Ponta a Ponta](sistemas-de-ml/aula-06-sistema-ponta-a-ponta.md)
+* [Aula 5 — Conceitos de Séries Temporais](series-temporais/aula-05-conceitos-series-temporais.md)
+* [Aula 6 — Séries Temporais com Prophet](series-temporais/aula-06-prophet.md)
 
 ## Redes Neurais
 

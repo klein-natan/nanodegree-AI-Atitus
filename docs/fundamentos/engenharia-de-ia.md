@@ -239,32 +239,6 @@ disponível e resultado que alguém consegue revisar.
 O objetivo não é automatizar tudo. É montar fluxos verificáveis, onde
 pessoa e sistema entregam mais juntos do que separados.
 
-## Cola
-
-| Conceito | O que significa |
-|---|---|
-| Engenharia de IA | construir aplicações com modelos que outra pessoa treinou |
-| Token | o pedaço de texto que o modelo processa, e a unidade de custo |
-| Janela de contexto | quantos tokens cabem: instruções, documentos, histórico e resposta |
-| Autorregressivo | prevê o próximo token e realimenta o que gerou |
-| Mascarado | preenche lacunas no meio do texto (BERT) |
-| Auto-supervisão | o próprio dado fornece o alvo, sem rotulagem humana |
-| Modelo de fundação | treinado em escala, adaptável a muitas tarefas |
-| Engenharia de prompt | instruções, exemplos e formato; o degrau mais barato |
-| RAG | buscar contexto numa fonte externa e mandar junto |
-| Ajuste fino | treinar com exemplos para mudar comportamento, tom ou formato |
-| Guardrail | filtro de entrada e saída, contra vazamento e conteúdo tóxico |
-| Volante de dados | o uso gera feedback, que melhora o sistema, que atrai mais uso |
-
-## Explique sem olhar
-
-1. Qual é a diferença de trabalho entre engenharia de ML e engenharia de IA?
-2. Por que a mesma frase custa mais em português que em inglês?
-3. O que significa dizer que o modelo é autorregressivo, e qual o risco disso?
-4. Nas três formas de adaptar um modelo, quando você sobe do prompt para o RAG?
-5. Por que RAG sozinho não resolve alucinação?
-6. Qual etapa do ciclo todo mundo pula, e o que acontece por causa disso?
-
 ## Para ir além
 
 - [Um tokenizador no navegador](https://gpt-tokenizer.dev/): cole uma frase em português e a tradução em inglês, e compare a contagem.

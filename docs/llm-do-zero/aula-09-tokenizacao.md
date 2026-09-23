@@ -185,29 +185,6 @@ parte do modelo: salve os dois juntos, sempre. Nesta aula, o arquivo é
 `data/machado_bpe.json`.
 {% endhint %}
 
-## Explique sem olhar
-
-O teste mais honesto de que você entendeu é tentar explicar sem ler.
-Feche esta página e responda em voz alta, como se explicasse para um
-colega. Onde travar, é ali que falta entender: volte à seção.
-
-1. Por que nem letra nem palavra inteira servem como unidade?
-2. O que o BPE faz a cada passo, e quando ele para?
-3. Por que uma janela de 8 tokens dá 7 exemplos de treino, e não um?
-
-## Cola da aula
-
-| Conceito | O que significa |
-|---|---|
-| Modelo de linguagem | Devolve a probabilidade de cada continuação possível |
-| Corpus | O monte de texto usado para treinar |
-| Token | A peça mínima que o modelo manipula |
-| Tokenizador | O programa que converte texto em tokens e de volta |
-| BPE | Juntar o par de peças mais comum, repetidas vezes |
-| Vocabulário | Quantos tokens diferentes existem na tabela |
-| Janela de contexto | Quantos tokens o modelo enxerga de uma vez |
-| Entrada e alvo | A mesma sequência, com uma casa de diferença |
-
 ## Materiais
 
 - **Notebook desta aula, no Google Colab:** [![Abrir no Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-09-do-texto-aos-numeros.ipynb)

@@ -74,7 +74,7 @@ software a sistemas que são probabilísticos por natureza.
 | O que entrega | um protótipo que responde a pergunta | um sistema que atende usuários |
 | O que otimiza | descoberta | confiabilidade, escala, manutenção |
 
-As duas são necessárias, e a Aula 6 deste curso é justamente a travessia de
+As duas são necessárias, e a Aula 4 deste curso é justamente a travessia de
 uma para a outra.
 
 {% hint style="info" %}
@@ -189,35 +189,11 @@ O quarto é o mais ignorado e o mais caro quando falta. Modelo perfeito para
 a pergunta errada não vale nada.
 {% endhint %}
 
-## Cola
-
-| Conceito | O que significa |
-|---|---|
-| Determinístico | mesma entrada, mesma saída, sempre |
-| Probabilístico | a saída é uma estimativa, não uma verdade |
-| Falha silenciosa | o código roda sem erro e a previsão está errada |
-| Modelo | o resultado de um algoritmo **mais** um conjunto de dados |
-| Engenharia de características | transformar dado bruto no formato que o algoritmo usa |
-| Generalizar | acertar em dados novos, não só nos do treino |
-| Desvio de dados | as entradas mudam de perfil |
-| Desvio de conceito | a relação entre entrada e resposta muda |
-| MLOps | automatizar o ciclo de vida do modelo, do dado ao monitoramento |
-| Princípio dos 5% | o algoritmo é 5% do trabalho; o resto é sistema |
-| Regra dos 25% | software, dados, modelagem e negócio, em partes iguais |
-
-## Explique sem olhar
-
-1. O que é uma falha silenciosa, e por que ela não acontece em software comum?
-2. Por que em ML você precisa versionar os dados, e não só o código?
-3. Qual a diferença entre desvio de dados e desvio de conceito? Dê um exemplo de cada.
-4. Por que um modelo mais preciso pode ser a escolha errada em produção?
-5. Dos quatro domínios da regra dos 25%, qual costuma faltar, e o que acontece quando falta?
-
 ## Para ir além
 
 - [Designing Machine Learning Systems](https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/), de Chip Huyen: o livro mais direto sobre o assunto desta página.
 - [Rules of Machine Learning (Google)](https://developers.google.com/machine-learning/guides/rules-of-ml): 43 regras práticas de quem opera ML em escala. Comece pela regra 1.
-- [Aula 6 — Um Sistema de Ponta a Ponta](../sistemas-de-ml/aula-06-sistema-ponta-a-ponta.md): a aula em que você constrói o sistema, não só o modelo.
+- [Aula 4 — Um Sistema de Ponta a Ponta](../sistemas-de-ml/aula-04-sistema-ponta-a-ponta.md): a aula em que você constrói o sistema, não só o modelo.
 - [Glossário](../glossario.md): para revisar qualquer termo novo desta página.
 
 ## Bibliografia

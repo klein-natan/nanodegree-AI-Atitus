@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-<!-- fonte-docs: 3a21968207c82047 -->
+<!-- fonte-docs: ce898ccfd7f275e7 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Nanodegree de IA &amp; ML</title>
@@ -647,11 +647,11 @@ exercícios.</li>
 <p>Antes da primeira aula, leia <a href="#/antes-de-comecar">Antes de começar</a>. Leva
 dois minutos e evita perder tempo de aula com configuração.</p>
 <p>A única aula fora desse formato é a
-<a href="#/sistemas-de-ml/aula-06-sistema-ponta-a-ponta">Aula 6</a>, que a turma
+<a href="#/sistemas-de-ml/aula-04-sistema-ponta-a-ponta">Aula 4</a>, que a turma
 constrói no VS Code, no próprio computador, seguindo o README do projeto em
 vez de slides.</p>
 <h2 id="o-caminho-do-curso">O caminho do curso<a class="ancora" href="#o-caminho-do-curso" aria-label="Link para esta secao">#</a></h2>
-<div class="fluxo"><span class="fluxo-caixa">Fundamentos</span><span class="fluxo-seta" aria-hidden="true">→</span><span class="fluxo-caixa">Modelos Lineares</span><span class="fluxo-seta" aria-hidden="true">→</span><span class="fluxo-caixa">Séries Temporais</span><span class="fluxo-seta" aria-hidden="true">→</span><span class="fluxo-caixa">Sistema de Classificação e Previsão</span><span class="fluxo-seta" aria-hidden="true">→</span><span class="fluxo-caixa">Redes Neurais</span><span class="fluxo-seta" aria-hidden="true">→</span><span class="fluxo-caixa">LLM do Zero (construindo um GPT)</span><span class="fluxo-seta" aria-hidden="true">→</span><span class="fluxo-caixa">IA Generativa</span></div><div class="tabela-rolavel"><table><thead>
+<div class="fluxo"><span class="fluxo-caixa">Fundamentos</span><span class="fluxo-seta" aria-hidden="true">→</span><span class="fluxo-caixa">Modelos Lineares</span><span class="fluxo-seta" aria-hidden="true">→</span><span class="fluxo-caixa">Sistema de ML</span><span class="fluxo-seta" aria-hidden="true">→</span><span class="fluxo-caixa">Séries Temporais</span><span class="fluxo-seta" aria-hidden="true">→</span><span class="fluxo-caixa">Redes Neurais</span><span class="fluxo-seta" aria-hidden="true">→</span><span class="fluxo-caixa">LLM do Zero (construindo um GPT)</span><span class="fluxo-seta" aria-hidden="true">→</span><span class="fluxo-caixa">IA Generativa</span></div><div class="tabela-rolavel"><table><thead>
 <tr>
   <th>Módulo</th>
   <th>O que você aprende</th>
@@ -667,12 +667,12 @@ vez de slides.</p>
   <td>Prever um número ou uma categoria a partir de dados, e entender por que o modelo decide o que decide</td>
 </tr>
 <tr>
-  <td><a href="#/series-temporais">Séries Temporais</a></td>
-  <td>Prever o futuro de algo que muda com o tempo</td>
+  <td><a href="#/sistemas-de-ml">Sistemas de ML</a></td>
+  <td>Ajustar um classificador com validação cruzada e Optuna e usá-lo num painel</td>
 </tr>
 <tr>
-  <td><a href="#/sistemas-de-ml">Sistemas de Classificação e Previsão</a></td>
-  <td>Juntar um classificador e um modelo de previsão num sistema só</td>
+  <td><a href="#/series-temporais">Séries Temporais</a></td>
+  <td>Prever o futuro de algo que muda com o tempo</td>
 </tr>
 <tr>
   <td><a href="#/redes-neurais">Redes Neurais</a></td>
@@ -900,7 +900,19 @@ nesta página do que voltar a reler uma aula inteira.</p>
 </tr>
 <tr>
   <td>Validação cruzada</td>
-  <td>Testar vários valores de <code>α</code> em pedaços diferentes do treino e ficar com o melhor. É o que as versões <code>CV</code> fazem sozinhas</td>
+  <td>Dividir o treino em dobras, alternar qual fica para validação e calcular a média da métrica; ajuda a escolher hiperparâmetros sem usar o teste final</td>
+</tr>
+<tr>
+  <td>Desbalanceamento de classes</td>
+  <td>Quando uma categoria aparece menos que outra; acurácia sozinha pode esconder falhas na classe menor</td>
+</tr>
+<tr>
+  <td>Hiperparâmetro</td>
+  <td>Escolha feita antes do treino, como <code>C</code> ou <code>class_weight</code> na regressão logística</td>
+</tr>
+<tr>
+  <td>Optuna</td>
+  <td>Biblioteca que testa combinações de hiperparâmetros e procura a melhor pela métrica escolhida</td>
 </tr>
 <tr>
   <td>Padronização (<code>StandardScaler</code>)</td>
@@ -1519,64 +1531,6 @@ apressado, que acha que não mudou nada.</p>
 <p>A pergunta de Turing continua aberta, e hoje ela tem uma versão mais útil:
 que tipo de inteligência queremos construir, e para servir a que tipo de
 sociedade?</p>
-<h2 id="cola">Cola<a class="ancora" href="#cola" aria-label="Link para esta secao">#</a></h2>
-<div class="tabela-rolavel"><table><thead>
-<tr>
-  <th>Conceito</th>
-  <th>O que significa</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td>Teste de Turing</td>
-  <td>trocar &quot;a máquina pensa?&quot; por &quot;você percebe que não é gente?&quot;</td>
-</tr>
-<tr>
-  <td>Dartmouth (1956)</td>
-  <td>a conferência que batizou a área</td>
-</tr>
-<tr>
-  <td>Perceptron</td>
-  <td>o primeiro neurônio artificial: entradas, pesos, uma resposta</td>
-</tr>
-<tr>
-  <td>IA simbólica</td>
-  <td>resolver por regras escritas à mão; trava fora do laboratório</td>
-</tr>
-<tr>
-  <td>Inverno da IA</td>
-  <td>período de descrédito e corte de financiamento (1973 e 1987)</td>
-</tr>
-<tr>
-  <td>Sistemas especialistas</td>
-  <td>uma tarefa só, com conhecimento humano numa base de regras</td>
-</tr>
-<tr>
-  <td>Retropropagação</td>
-  <td>o jeito de ajustar pesos a partir do erro</td>
-</tr>
-<tr>
-  <td>Aprendizado de máquina</td>
-  <td>dar exemplos em vez de escrever as regras</td>
-</tr>
-<tr>
-  <td>Os três ingredientes</td>
-  <td>algoritmos, dados e GPUs, chegando juntos</td>
-</tr>
-<tr>
-  <td>Era generativa</td>
-  <td>de 2020 em diante: o modelo produz texto, imagem, código e áudio</td>
-</tr>
-</tbody>
-</table></div>
-<h2 id="explique-sem-olhar">Explique sem olhar<a class="ancora" href="#explique-sem-olhar" aria-label="Link para esta secao">#</a></h2>
-<ol>
-<li>Por que Turing trocou a pergunta &quot;a máquina pode pensar?&quot; por outra?</li>
-<li>O que ELIZA ensinou, e por que a lição vale hoje?</li>
-<li>Qual é a diferença de método entre programação tradicional e aprendizado de máquina?</li>
-<li>Por que a IA não decolou nos anos 1980, se a retropropagação já existia?</li>
-<li>Cite os três ingredientes da virada dos anos 2000, e diga o que acontece se faltar um.</li>
-</ol>
 <h2 id="para-ir-alem">Para ir além<a class="ancora" href="#para-ir-alem" aria-label="Link para esta secao">#</a></h2>
 <ul>
 <li><a href="https://www.masswerk.at/elizabot/">ELIZA, funcionando no navegador</a>: converse cinco minutos com o programa de 1966 e veja quanto tempo leva para você perceber o truque.</li>
@@ -1682,7 +1636,7 @@ software a sistemas que são probabilísticos por natureza.</p>
 </tr>
 </tbody>
 </table></div>
-<p>As duas são necessárias, e a Aula 6 deste curso é justamente a travessia de
+<p>As duas são necessárias, e a Aula 4 deste curso é justamente a travessia de
 uma para a outra.</p>
 <div class="destaque destaque-info" role="note"><div class="destaque-icone" aria-hidden="true">i</div><div class="destaque-corpo"><p class="destaque-rotulo">Nota</p><p><strong>O princípio dos 5%</strong></p>
 <p>O choque de quem entra na área: o código do algoritmo é cerca de <strong>5%</strong> do
@@ -1837,73 +1791,11 @@ importa. Não é. O resultado depende de quatro coisas, em partes iguais:</p>
 <p>O quarto é o mais ignorado e o mais caro quando falta. Modelo perfeito para
 a pergunta errada não vale nada.</p>
 </div></div>
-<h2 id="cola">Cola<a class="ancora" href="#cola" aria-label="Link para esta secao">#</a></h2>
-<div class="tabela-rolavel"><table><thead>
-<tr>
-  <th>Conceito</th>
-  <th>O que significa</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td>Determinístico</td>
-  <td>mesma entrada, mesma saída, sempre</td>
-</tr>
-<tr>
-  <td>Probabilístico</td>
-  <td>a saída é uma estimativa, não uma verdade</td>
-</tr>
-<tr>
-  <td>Falha silenciosa</td>
-  <td>o código roda sem erro e a previsão está errada</td>
-</tr>
-<tr>
-  <td>Modelo</td>
-  <td>o resultado de um algoritmo <strong>mais</strong> um conjunto de dados</td>
-</tr>
-<tr>
-  <td>Engenharia de características</td>
-  <td>transformar dado bruto no formato que o algoritmo usa</td>
-</tr>
-<tr>
-  <td>Generalizar</td>
-  <td>acertar em dados novos, não só nos do treino</td>
-</tr>
-<tr>
-  <td>Desvio de dados</td>
-  <td>as entradas mudam de perfil</td>
-</tr>
-<tr>
-  <td>Desvio de conceito</td>
-  <td>a relação entre entrada e resposta muda</td>
-</tr>
-<tr>
-  <td>MLOps</td>
-  <td>automatizar o ciclo de vida do modelo, do dado ao monitoramento</td>
-</tr>
-<tr>
-  <td>Princípio dos 5%</td>
-  <td>o algoritmo é 5% do trabalho; o resto é sistema</td>
-</tr>
-<tr>
-  <td>Regra dos 25%</td>
-  <td>software, dados, modelagem e negócio, em partes iguais</td>
-</tr>
-</tbody>
-</table></div>
-<h2 id="explique-sem-olhar">Explique sem olhar<a class="ancora" href="#explique-sem-olhar" aria-label="Link para esta secao">#</a></h2>
-<ol>
-<li>O que é uma falha silenciosa, e por que ela não acontece em software comum?</li>
-<li>Por que em ML você precisa versionar os dados, e não só o código?</li>
-<li>Qual a diferença entre desvio de dados e desvio de conceito? Dê um exemplo de cada.</li>
-<li>Por que um modelo mais preciso pode ser a escolha errada em produção?</li>
-<li>Dos quatro domínios da regra dos 25%, qual costuma faltar, e o que acontece quando falta?</li>
-</ol>
 <h2 id="para-ir-alem">Para ir além<a class="ancora" href="#para-ir-alem" aria-label="Link para esta secao">#</a></h2>
 <ul>
 <li><a href="https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/">Designing Machine Learning Systems</a>, de Chip Huyen: o livro mais direto sobre o assunto desta página.</li>
 <li><a href="https://developers.google.com/machine-learning/guides/rules-of-ml">Rules of Machine Learning (Google)</a>: 43 regras práticas de quem opera ML em escala. Comece pela regra 1.</li>
-<li><a href="#/sistemas-de-ml/aula-06-sistema-ponta-a-ponta">Aula 6 — Um Sistema de Ponta a Ponta</a>: a aula em que você constrói o sistema, não só o modelo.</li>
+<li><a href="#/sistemas-de-ml/aula-04-sistema-ponta-a-ponta">Aula 4 — Um Sistema de Ponta a Ponta</a>: a aula em que você constrói o sistema, não só o modelo.</li>
 <li><a href="#/glossario">Glossário</a>: para revisar qualquer termo novo desta página.</li>
 </ul>
 <h2 id="bibliografia">Bibliografia<a class="ancora" href="#bibliografia" aria-label="Link para esta secao">#</a></h2>
@@ -2214,73 +2106,6 @@ disponível e resultado que alguém consegue revisar.</p>
 </table></div>
 <p>O objetivo não é automatizar tudo. É montar fluxos verificáveis, onde
 pessoa e sistema entregam mais juntos do que separados.</p>
-<h2 id="cola">Cola<a class="ancora" href="#cola" aria-label="Link para esta secao">#</a></h2>
-<div class="tabela-rolavel"><table><thead>
-<tr>
-  <th>Conceito</th>
-  <th>O que significa</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td>Engenharia de IA</td>
-  <td>construir aplicações com modelos que outra pessoa treinou</td>
-</tr>
-<tr>
-  <td>Token</td>
-  <td>o pedaço de texto que o modelo processa, e a unidade de custo</td>
-</tr>
-<tr>
-  <td>Janela de contexto</td>
-  <td>quantos tokens cabem: instruções, documentos, histórico e resposta</td>
-</tr>
-<tr>
-  <td>Autorregressivo</td>
-  <td>prevê o próximo token e realimenta o que gerou</td>
-</tr>
-<tr>
-  <td>Mascarado</td>
-  <td>preenche lacunas no meio do texto (BERT)</td>
-</tr>
-<tr>
-  <td>Auto-supervisão</td>
-  <td>o próprio dado fornece o alvo, sem rotulagem humana</td>
-</tr>
-<tr>
-  <td>Modelo de fundação</td>
-  <td>treinado em escala, adaptável a muitas tarefas</td>
-</tr>
-<tr>
-  <td>Engenharia de prompt</td>
-  <td>instruções, exemplos e formato; o degrau mais barato</td>
-</tr>
-<tr>
-  <td>RAG</td>
-  <td>buscar contexto numa fonte externa e mandar junto</td>
-</tr>
-<tr>
-  <td>Ajuste fino</td>
-  <td>treinar com exemplos para mudar comportamento, tom ou formato</td>
-</tr>
-<tr>
-  <td>Guardrail</td>
-  <td>filtro de entrada e saída, contra vazamento e conteúdo tóxico</td>
-</tr>
-<tr>
-  <td>Volante de dados</td>
-  <td>o uso gera feedback, que melhora o sistema, que atrai mais uso</td>
-</tr>
-</tbody>
-</table></div>
-<h2 id="explique-sem-olhar">Explique sem olhar<a class="ancora" href="#explique-sem-olhar" aria-label="Link para esta secao">#</a></h2>
-<ol>
-<li>Qual é a diferença de trabalho entre engenharia de ML e engenharia de IA?</li>
-<li>Por que a mesma frase custa mais em português que em inglês?</li>
-<li>O que significa dizer que o modelo é autorregressivo, e qual o risco disso?</li>
-<li>Nas três formas de adaptar um modelo, quando você sobe do prompt para o RAG?</li>
-<li>Por que RAG sozinho não resolve alucinação?</li>
-<li>Qual etapa do ciclo todo mundo pula, e o que acontece por causa disso?</li>
-</ol>
 <h2 id="para-ir-alem">Para ir além<a class="ancora" href="#para-ir-alem" aria-label="Link para esta secao">#</a></h2>
 <ul>
 <li><a href="https://gpt-tokenizer.dev/">Um tokenizador no navegador</a>: cole uma frase em português e a tradução em inglês, e compare a contagem.</li>
@@ -2415,7 +2240,7 @@ reta previu para ela se chama <strong>resíduo</strong> (também chamado de <em>
 <p>Exemplo: uma corrida de 8 km custou R$ 25,00, e a reta previu R$ 22,60.
 O resíduo dessa corrida é 25,00 − 22,60 = R$ 2,40.</p>
 <p>A mesma conta, escrita com símbolos:</p>
-<div class="formula" title="ε_i = y_i - \hat{y}_i"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><msub><mi>ε</mi><mi>i</mi></msub><mo>&#x0003D;</mo><msub><mi>y</mi><mi>i</mi></msub><mo>&#x02212;</mo><msub><mover accent="true"><mrow><mi>y</mi></mrow><mo>&#x0005E;</mo></mover><mi>i</mi></msub></mrow></math></div>
+<div class="formula" title="arepsilon_i = y_i - \hat{y}_i"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>a</mi><mi>r</mi><mi>e</mi><mi>p</mi><mi>s</mi><mi>i</mi><mi>l</mi><mi>o</mi><msub><mi>n</mi><mi>i</mi></msub><mo>&#x0003D;</mo><msub><mi>y</mi><mi>i</mi></msub><mo>&#x02212;</mo><msub><mover accent="true"><mrow><mi>y</mi></mrow><mo>&#x0005E;</mo></mover><mi>i</mi></msub></mrow></math></div>
 <div class="tabela-rolavel"><table><thead>
 <tr>
   <th>Símbolo</th>
@@ -3203,88 +3028,6 @@ de diferença.</p>
 média das distâncias. Prever uma corrida de 60 km com dados que vão até
 25 km é possível, e a fórmula avisa que a incerteza cresce. Fora da faixa
 dos dados, ela deixa de avisar direito: ali não há informação nenhuma.</p>
-<h2 id="explique-sem-olhar">Explique sem olhar<a class="ancora" href="#explique-sem-olhar" aria-label="Link para esta secao">#</a></h2>
-<p>O teste mais honesto de que você entendeu é tentar explicar sem ler.
-Feche esta página e responda em voz alta, como se explicasse para um
-colega. Onde travar, é ali que falta entender: volte à seção.</p>
-<ol>
-<li>Por que elevar o erro ao quadrado, em vez de só somar os erros?</li>
-<li>O sinal da inclinação diz o quê sobre para que lado mexer o peso?</li>
-<li>Por que não usar a fórmula dos mínimos quadrados para tudo, já que ela dá a resposta exata de primeira?</li>
-<li>Se o RMSE está bem acima do MAE, o que isso revela sobre os erros?</li>
-<li>Por que o MAE quase não muda entre corridas curtas e longas, e o MAPE muda quatro vezes?</li>
-<li>Por que a faixa da média encolhe com mais dados, e a faixa de uma corrida não?</li>
-</ol>
-<h2 id="cola-da-aula">Cola da aula<a class="ancora" href="#cola-da-aula" aria-label="Link para esta secao">#</a></h2>
-<div class="tabela-rolavel"><table><thead>
-<tr>
-  <th>Conceito</th>
-  <th>O que significa</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td><code>w₀</code>, <code>w₁</code></td>
-  <td>taxa fixa e preço por km</td>
-</tr>
-<tr>
-  <td>Resíduo (<code>εᵢ</code>)</td>
-  <td>preço real menos preço previsto, corrida por corrida</td>
-</tr>
-<tr>
-  <td>MSE</td>
-  <td>média dos resíduos ao quadrado</td>
-</tr>
-<tr>
-  <td>Mínimos quadrados</td>
-  <td>fórmula que calcula a melhor reta direto, sem tentativa e erro</td>
-</tr>
-<tr>
-  <td>Inclinação (derivada)</td>
-  <td>o quanto o erro muda quando você mexe um tiquinho no peso</td>
-</tr>
-<tr>
-  <td>Gradiente</td>
-  <td>a lista das inclinações, uma por peso do modelo</td>
-</tr>
-<tr>
-  <td>Gradiente descendente</td>
-  <td>ajusta os coeficientes aos poucos, na direção que reduz o erro</td>
-</tr>
-<tr>
-  <td>Taxa de aprendizado (<code>α</code>)</td>
-  <td>tamanho do passo do gradiente descendente</td>
-</tr>
-<tr>
-  <td>MAE</td>
-  <td>erro médio, na mesma unidade do preço</td>
-</tr>
-<tr>
-  <td>RMSE</td>
-  <td>como o MAE, mas penaliza mais os erros grandes</td>
-</tr>
-<tr>
-  <td>R²</td>
-  <td>fração da variação dos preços que a reta explica (0 a 1)</td>
-</tr>
-<tr>
-  <td>MAPE</td>
-  <td>erro médio em porcentagem do preço real</td>
-</tr>
-<tr>
-  <td><code>s</code> (resíduo típico)</td>
-  <td>o tamanho médio de um resíduo, em reais</td>
-</tr>
-<tr>
-  <td>Intervalo de predição</td>
-  <td>a faixa onde cai <strong>uma</strong> corrida: <code>ŷ ± 2s</code></td>
-</tr>
-<tr>
-  <td>Intervalo de confiança</td>
-  <td>a faixa onde cai a <strong>média</strong>, bem mais estreita</td>
-</tr>
-</tbody>
-</table></div>
 <h2 id="materiais">Materiais<a class="ancora" href="#materiais" aria-label="Link para esta secao">#</a></h2>
 <ul>
 <li><strong>Notebook desta aula, no Google Colab:</strong> <a href="https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-01-regressao-linear-simples.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Abrir no Colab" /></a></li>
@@ -3730,7 +3473,7 @@ menor o prêmio por encolher mais um pouco. Sempre sobra um pouquinho.</p>
 </thead>
 <tbody>
 <tr>
-  <td><code>|wⱼ|</code></td>
+  <td><code>\|wⱼ\|</code></td>
   <td>o coeficiente da variável <code>j</code>, sem o sinal</td>
 </tr>
 <tr>
@@ -3940,83 +3683,6 @@ preços.</p>
 <p>O que acende o alarme: um funil (o erro cresce com o preço previsto), uma
 curva (falta uma variável ou a relação não é reta), ou pontos muito longe
 do zero (candidatos a investigar um a um).</p>
-<h2 id="explique-sem-olhar">Explique sem olhar<a class="ancora" href="#explique-sem-olhar" aria-label="Link para esta secao">#</a></h2>
-<p>O teste mais honesto de que você entendeu é tentar explicar sem ler.
-Feche esta página e responda em voz alta, como se explicasse para um
-colega. Onde travar, é ali que falta entender: volte à seção.</p>
-<ol>
-<li>Por que numerar os bairros como 1, 2 e 3 estraga o modelo?</li>
-<li>Por que o coeficiente da área diminui quando os quartos entram?</li>
-<li>Por que o R² nunca cai quando entra uma coluna, e o que o R² ajustado faz a respeito?</li>
-<li>Por que o Ridge nunca zera um coeficiente e o Lasso zera?</li>
-<li>Por que regularizar sem padronizar faz o modelo escolher errado o que cortar?</li>
-</ol>
-<h2 id="cola-da-aula">Cola da aula<a class="ancora" href="#cola-da-aula" aria-label="Link para esta secao">#</a></h2>
-<div class="tabela-rolavel"><table><thead>
-<tr>
-  <th>Conceito</th>
-  <th>O que significa</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td>Regressão múltipla</td>
-  <td>uma soma de várias informações, cada uma com o seu peso</td>
-</tr>
-<tr>
-  <td>Coeficiente <code>wⱼ</code></td>
-  <td>quanto muda a previsão se <code>xⱼ</code> sobe 1, com o resto parado</td>
-</tr>
-<tr>
-  <td>Variável indicadora</td>
-  <td>coluna de 0 ou 1 que representa uma categoria</td>
-</tr>
-<tr>
-  <td>Categoria de referência</td>
-  <td>a categoria que fica de fora e vive dentro do <code>w₀</code></td>
-</tr>
-<tr>
-  <td>Colinearidade</td>
-  <td>duas variáveis que andam juntas e dividem o crédito</td>
-</tr>
-<tr>
-  <td><code>R²</code> ajustado</td>
-  <td>o <code>R²</code> descontando o custo de cada variável nova</td>
-</tr>
-<tr>
-  <td>Resíduo contra previsto</td>
-  <td>o gráfico de diagnóstico que você olha antes de confiar</td>
-</tr>
-<tr>
-  <td>Treino e teste</td>
-  <td>separar 30% dos dados que o modelo nunca vê</td>
-</tr>
-<tr>
-  <td>Sobreajuste</td>
-  <td>ficar melhor no treino e pior no teste</td>
-</tr>
-<tr>
-  <td>Regularização</td>
-  <td>somar ao erro uma penalidade pelo tamanho dos coeficientes</td>
-</tr>
-<tr>
-  <td>Ridge</td>
-  <td>penalidade <code>Σw²</code>: encolhe todos, nunca zera</td>
-</tr>
-<tr>
-  <td>Lasso</td>
-  <td>penalidade <code>Σ\|w\|</code>: zera os inúteis e tira a coluna do modelo</td>
-</tr>
-<tr>
-  <td>ElasticNet</td>
-  <td>mistura das duas, com <code>l1_ratio</code> decidindo a proporção</td>
-</tr>
-<tr>
-  <td>Padronizar</td>
-  <td>pôr as colunas na mesma escala, obrigatório antes de regularizar</td>
-</tr>
-</tbody>
-</table></div>
 <h2 id="materiais">Materiais<a class="ancora" href="#materiais" aria-label="Link para esta secao">#</a></h2>
 <ul>
 <li><strong>Notebook desta aula, no Google Colab:</strong> <a href="https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-02-regressao-multipla.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Abrir no Colab" /></a></li>
@@ -4053,6 +3719,11 @@ logística</strong>.</p>
 um: tempo de casa, valor mensal, chamados ao suporte e plano. A coluna
 <code>cancelou</code> vale 1 para quem cancelou e 0 para quem ficou. No total, 36%
 cancelaram.</p>
+<p>Isso é um <strong>desbalanceamento de classes</strong>: há 255 clientes que ficaram e
+145 que cancelaram. Não é extremo, mas já permite que um modelo que sempre
+responde &quot;ficou&quot; pareça bom pela acurácia. Por isso, além da porcentagem
+total de acertos, vamos medir quantos cancelamentos ele encontra e quantos
+alarmes são corretos.</p>
 <h2 id="por-que-a-reta-nao-serve">Por que a reta não serve<a class="ancora" href="#por-que-a-reta-nao-serve" aria-label="Link para esta secao">#</a></h2>
 <p>A tentação é usar a regressão da Aula 1, com 0 e 1 no lugar do preço. Veja
 o que acontece.</p>
@@ -4358,6 +4029,18 @@ fora.</p>
 <p>No nosso caso: <code>F₁ = 0,62</code>. O valor fica sempre entre a precisão e o
 recall, e mais perto do pior dos dois. É por isso que ele serve como
 número único: para o F1 subir, os dois precisam ir bem.</p>
+<h2 id="validacao-cruzada-medir-antes-de-escolher">Validação cruzada: medir antes de escolher<a class="ancora" href="#validacao-cruzada-medir-antes-de-escolher" aria-label="Link para esta secao">#</a></h2>
+<p>Medir o modelo nos mesmos clientes usados para treiná-lo produz resultados
+otimistas. Reserve uma parte como <strong>teste</strong>, sem usá-la para escolher o
+modelo. No restante, a <strong>validação cruzada</strong> divide o treino em partes
+chamadas dobras: treina em algumas, mede na que ficou de fora e repete até
+que cada dobra tenha servido como validação. A média mostra se o resultado
+é estável. Como uma classe é menor, usamos dobras <strong>estratificadas</strong>, que
+preservam aproximadamente a proporção de cancelamentos em cada parte.</p>
+<p>Essa técnica será usada na Aula 4 para escolher hiperparâmetros. Depois
+da escolha, o teste reservado dá uma avaliação final. Os números das
+figuras de limiar a seguir foram calculados na base inteira para explicar as métricas;
+não são estimativas de desempenho em clientes novos.</p>
 <h2 id="escolhendo-o-limiar">Escolhendo o limiar<a class="ancora" href="#escolhendo-o-limiar" aria-label="Link para esta secao">#</a></h2>
 <p>Agora junte tudo. Baixar o limiar significa avisar mais gente, o que pega
 mais cancelamentos (recall sobe) e erra mais alarmes (precisão cai).</p>
@@ -4402,7 +4085,10 @@ para nós&quot;.</p>
 <h2 id="a-curva-roc-todos-os-limiares-de-uma-vez">A curva ROC: todos os limiares de uma vez<a class="ancora" href="#a-curva-roc-todos-os-limiares-de-uma-vez" aria-label="Link para esta secao">#</a></h2>
 <p>A tabela acima compara dois limiares. Existem infinitos. A <strong>curva ROC</strong>
 mostra todos ao mesmo tempo.</p>
-<p>Ela é um gráfico de dois números, e os dois você já calculou:</p>
+<p>Ela é um gráfico de dois números. <strong>TPR</strong> vem de <em>true positive rate</em>,
+taxa de verdadeiros positivos: entre os que cancelaram, a fração que o
+modelo encontrou. É o recall. <strong>FPR</strong> vem de <em>false positive rate</em>, taxa
+de falsos positivos: entre os que ficaram, a fração acusada por engano.</p>
 <div class="formula" title="\text{TPR} = \frac{VP}{VP + FN} \qquad \text{FPR} = \frac{FP}{FP + VN}"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mtext>TPR</mtext><mo>&#x0003D;</mo><mfrac><mrow><mi>V</mi><mi>P</mi></mrow><mrow><mi>V</mi><mi>P</mi><mo>&#x0002B;</mo><mi>F</mi><mi>N</mi></mrow></mfrac><mspace width="2em" /><mtext>FPR</mtext><mo>&#x0003D;</mo><mfrac><mrow><mi>F</mi><mi>P</mi></mrow><mrow><mi>F</mi><mi>P</mi><mo>&#x0002B;</mo><mi>V</mi><mi>N</mi></mrow></mfrac></mrow></math></div>
 <div class="tabela-rolavel"><table><thead>
 <tr>
@@ -4412,11 +4098,11 @@ mostra todos ao mesmo tempo.</p>
 </thead>
 <tbody>
 <tr>
-  <td>TPR</td>
+  <td>TPR (taxa de verdadeiros positivos)</td>
   <td>dos que cancelaram, quantos o modelo pegou. É o recall</td>
 </tr>
 <tr>
-  <td>FPR</td>
+  <td>FPR (taxa de falsos positivos)</td>
   <td>dos que ficaram, quantos o modelo acusou à toa</td>
 </tr>
 <tr>
@@ -4756,95 +4442,6 @@ pouco otimistas. Medimos a diferença: separando 30% dos clientes, a AUC
 cai de 0,83 no treino para 0,80 no teste. Pequena aqui, e a Aula 2 mostra
 por que ela nem sempre é.</p>
 </div></div>
-<h2 id="explique-sem-olhar">Explique sem olhar<a class="ancora" href="#explique-sem-olhar" aria-label="Link para esta secao">#</a></h2>
-<p>O teste mais honesto de que você entendeu é tentar explicar sem ler.
-Feche esta página e responda em voz alta, como se explicasse para um
-colega. Onde travar, é ali que falta entender: volte à seção.</p>
-<ol>
-<li>O que a sigmoide faz com um número que a reta jogaria acima de 1?</li>
-<li>Por que 75% de acurácia pode ser um resultado ruim neste dataset?</li>
-<li>O que acontece com precisão e recall quando você baixa o limiar, e por quê?</li>
-<li>O que a AUC mede, e o que ela é incapaz de enxergar?</li>
-<li>Como você descobre, em dois minutos, se as probabilidades do seu modelo são honestas?</li>
-</ol>
-<h2 id="cola-da-aula">Cola da aula<a class="ancora" href="#cola-da-aula" aria-label="Link para esta secao">#</a></h2>
-<div class="tabela-rolavel"><table><thead>
-<tr>
-  <th>Conceito</th>
-  <th>O que significa</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td>Classificação</td>
-  <td>prever uma categoria em vez de um número</td>
-</tr>
-<tr>
-  <td>Sigmoide</td>
-  <td>função em S que transforma qualquer número em algo entre 0 e 1</td>
-</tr>
-<tr>
-  <td><code>z</code></td>
-  <td>a soma de sempre, <code>w₀ + w₁x₁ + ...</code>, antes da sigmoide</td>
-</tr>
-<tr>
-  <td>Chance (<em>odds</em>)</td>
-  <td><code>p / (1 − p)</code>: quantas vezes cancelar é mais provável que ficar</td>
-</tr>
-<tr>
-  <td><code>e</code> elevado a <code>wⱼ</code></td>
-  <td>o fator que multiplica a chance quando <code>xⱼ</code> sobe 1</td>
-</tr>
-<tr>
-  <td>Limiar</td>
-  <td>o ponto de corte que transforma probabilidade em decisão</td>
-</tr>
-<tr>
-  <td>Matriz de confusão</td>
-  <td>as quatro caixas: VP, FP, FN, VN</td>
-</tr>
-<tr>
-  <td>Acurácia</td>
-  <td>fração de acertos, enganosa quando uma classe domina a outra</td>
-</tr>
-<tr>
-  <td>Precisão</td>
-  <td>dos apontados, quantos eram de verdade</td>
-</tr>
-<tr>
-  <td>Recall</td>
-  <td>dos que eram de verdade, quantos o modelo apontou</td>
-</tr>
-<tr>
-  <td>F1</td>
-  <td>um número só, que só sobe se precisão e recall subirem</td>
-</tr>
-<tr>
-  <td>TPR e FPR</td>
-  <td>dos que saíram quantos peguei; dos que ficaram quantos acusei</td>
-</tr>
-<tr>
-  <td>Curva ROC</td>
-  <td>todos os limiares num gráfico só</td>
-</tr>
-<tr>
-  <td>AUC</td>
-  <td>a chance de o modelo ordenar certo um par sorteado</td>
-</tr>
-<tr>
-  <td>Calibração</td>
-  <td>a probabilidade prometida acontece na frequência prometida</td>
-</tr>
-<tr>
-  <td>Brier</td>
-  <td>o MSE da probabilidade: mede calibração num número</td>
-</tr>
-<tr>
-  <td>Limiar por custo</td>
-  <td>escolher o corte pela razão entre o custo dos dois erros</td>
-</tr>
-</tbody>
-</table></div>
 <h2 id="materiais">Materiais<a class="ancora" href="#materiais" aria-label="Link para esta secao">#</a></h2>
 <ul>
 <li><strong>Notebook desta aula, no Google Colab:</strong> <a href="https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-03-regressao-logistica.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Abrir no Colab" /></a></li>
@@ -4863,6 +4460,91 @@ colega. Onde travar, é ali que falta entender: volte à seção.</p>
 <li><a href="#/glossario">Glossário</a>: para revisar qualquer termo novo desta aula.</li>
 </ul>
 </template>
+<template class="pagina" data-id="sistemas-de-ml" data-titulo="Sistemas de ML" data-descricao="Visão geral do módulo de Sistemas de ML">
+<p>Até aqui, cada aula ensinou uma peça isolada. Agora você vai construir um
+sistema pequeno com um classificador, tuning de hiperparâmetros com Optuna
+e uma tela para explorar as decisões.</p>
+<div class="tabela-rolavel"><table><thead>
+<tr>
+  <th>Aula</th>
+  <th>Conteúdo</th>
+  <th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><a href="#/sistemas-de-ml/aula-04-sistema-ponta-a-ponta">Aula 4 — Um Sistema de Ponta a Ponta</a></td>
+  <td>Classificador de cancelamento, validação cruzada, Optuna e uma tela em Streamlit</td>
+  <td>Disponível</td>
+</tr>
+</tbody>
+</table></div>
+</template>
+<template class="pagina" data-id="sistemas-de-ml/aula-04-sistema-ponta-a-ponta" data-titulo="Aula 4 — Um Sistema de Ponta a Ponta" data-descricao="Um classificador de cancelamento, da validação cruzada ao painel">
+<div class="destaque destaque-info" role="note"><div class="destaque-icone" aria-hidden="true">i</div><div class="destaque-corpo"><p class="destaque-rotulo">Nota</p><p><strong>O que você leva desta aula</strong></p>
+<p>Você vai transformar a regressão logística da Aula 3 em um sistema pequeno:
+um classificador, uma busca de hiperparâmetros com Optuna e uma tela para
+usar as probabilidades. O código completo está em <code>projeto-aula-04/</code>.</p>
+</div></div>
+<h2 id="para-que-serve">Para que serve<a class="ancora" href="#para-que-serve" aria-label="Link para esta secao">#</a></h2>
+<p>O Clube do Café quer priorizar os clientes com maior risco de cancelar.
+Temos 400 assinantes e 146 cancelamentos (36,5%). As classes são
+<strong>moderadamente desbalanceadas</strong>: se o sistema disser que ninguém cancela,
+acerta 63,5% e não ajuda a equipe. Por isso avaliamos precisão, recall e F1,
+além da acurácia.</p>
+<p>O sistema responde uma pergunta: <strong>quais clientes entram na lista de
+contato?</strong> Ele usa apenas regressão logística, o classificador da aula
+anterior.</p>
+<h2 id="do-dado-a-decisao">Do dado à decisão<a class="ancora" href="#do-dado-a-decisao" aria-label="Link para esta secao">#</a></h2>
+<p>O arquivo <code>clientes.csv</code> traz tempo de casa, valor mensal, entregas
+atrasadas e plano. A coluna <code>cancelou</code> é a resposta conhecida. O plano
+vira três colunas de 0 e 1; as entradas numéricas são padronizadas.</p>
+<p>Separamos 25% dos clientes para o teste final, mantendo a proporção de
+cancelamentos com <code>stratify=y</code>. Nos outros 75%, fazemos validação cruzada
+estratificada de cinco dobras: cada configuração treina cinco vezes e
+recebe a média do F1. A padronização está dentro do <code>Pipeline</code>, então
+cada dobra aprende suas médias somente com a parte usada para treino.</p>
+<h2 id="tuning-com-optuna">Tuning com Optuna<a class="ancora" href="#tuning-com-optuna" aria-label="Link para esta secao">#</a></h2>
+<p><strong>Hiperparâmetros</strong> são escolhas feitas antes do treino. Vamos ajustar
+dois: <code>C</code>, que controla a força da regularização, e <code>class_weight</code>, que
+pode dar mais peso à classe com menos exemplos. O Optuna experimenta 15
+combinações e guarda a de melhor F1 médio nas dobras.</p>
+<div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="k">def</span><span class="w"> </span><span class="nf">avaliar</span><span class="p">(</span><span class="n">trial</span><span class="p">):</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">trial</span><span class="o">.</span><span class="n">suggest_float</span><span class="p">(</span><span class="s2">"C"</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">peso</span> <span class="o">=</span> <span class="n">trial</span><span class="o">.</span><span class="n">suggest_categorical</span><span class="p">(</span><span class="s2">"class_weight"</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="s2">"balanced"</span><span class="p">])</span>
+    <span class="n">modelo</span> <span class="o">=</span> <span class="n">make_pipeline</span><span class="p">(</span><span class="n">StandardScaler</span><span class="p">(),</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">C</span><span class="o">=</span><span class="n">c</span><span class="p">,</span> <span class="n">class_weight</span><span class="o">=</span><span class="n">peso</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">cross_val_score</span><span class="p">(</span><span class="n">modelo</span><span class="p">,</span> <span class="n">X_treino</span><span class="p">,</span> <span class="n">y_treino</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="n">dobras</span><span class="p">,</span> <span class="n">scoring</span><span class="o">=</span><span class="s2">"f1"</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+<span class="n">estudo</span> <span class="o">=</span> <span class="n">optuna</span><span class="o">.</span><span class="n">create_study</span><span class="p">(</span><span class="n">direction</span><span class="o">=</span><span class="s2">"maximize"</span><span class="p">)</span>
+<span class="n">estudo</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="n">avaliar</span><span class="p">,</span> <span class="n">n_trials</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+</code></pre></div>
+<p>O teste separado não participa dessa escolha. Depois do tuning,
+treinamos a melhor configuração com todo o conjunto de treino e medimos
+o resultado uma vez no teste. Esse relatório dá uma estimativa mais
+honesta de como o classificador pode funcionar com clientes novos.</p>
+<h2 id="o-painel">O painel<a class="ancora" href="#o-painel" aria-label="Link para esta secao">#</a></h2>
+<p>O <code>app.py</code> mostra o F1 da validação cruzada, os melhores hiperparâmetros
+e o relatório do teste. Um controle de limiar transforma as probabilidades
+em lista de contato: ao baixar o limiar, a lista cresce. Essa lista inclui
+os clientes do arquivo usado na aula e serve para explorar a decisão; o
+resultado do teste separado é a medida de desempenho.</p>
+<div class="bloco-codigo" data-lingua="bash"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="nb">cd</span><span class="w"> </span>projeto-aula-04
+python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>.venv
+.venv<span class="se">\S</span>cripts<span class="se">\A</span>ctivate.ps1<span class="w">  </span><span class="c1"># Windows PowerShell</span>
+pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+streamlit<span class="w"> </span>run<span class="w"> </span>app.py
+</code></pre></div>
+<p>No macOS ou Linux, ative com <code>source .venv/bin/activate</code>.</p>
+<p>O <a href="https://github.com/klein-natan/nanodegree-AI-Atitus/blob/main/projeto-aula-04/README.md">roteiro do projeto</a> mostra a implementação
+passo a passo. O <a href="https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-04-sistema-ponta-a-ponta.ipynb">notebook da aula</a>
+permite experimentar o tuning antes de abrir o VS Code.</p>
+<h2 id="para-ir-alem">Para ir além<a class="ancora" href="#para-ir-alem" aria-label="Link para esta secao">#</a></h2>
+<ul>
+<li><a href="https://optuna.readthedocs.io/en/stable/tutorial/10_key_features/001_first.html">Optuna: tutorial de primeira otimização</a></li>
+<li><a href="https://scikit-learn.org/stable/modules/cross_validation.html">Validação cruzada no scikit-learn</a></li>
+<li><a href="https://scikit-learn.org/stable/modules/compose.html#pipeline">Pipeline no scikit-learn</a></li>
+</ul>
+</template>
 <template class="pagina" data-id="series-temporais" data-titulo="Séries Temporais" data-descricao="Visão geral do módulo de Séries Temporais">
 <p>Muitos problemas de previsão não são &quot;prever um valor a partir de outro&quot;.
 São &quot;prever o futuro de algo que muda com o tempo&quot;. Vendas de uma loja,
@@ -4877,19 +4559,19 @@ série temporal.</p>
 </thead>
 <tbody>
 <tr>
-  <td><a href="#/series-temporais/aula-04-conceitos-series-temporais">Aula 4 — Conceitos de Séries Temporais</a></td>
+  <td><a href="#/series-temporais/aula-05-conceitos-series-temporais">Aula 5 — Conceitos de Séries Temporais</a></td>
   <td>Tendência, sazonalidade e ruído, previsões de referência e o corte no tempo</td>
   <td>Disponível</td>
 </tr>
 <tr>
-  <td><a href="#/series-temporais/aula-05-prophet">Aula 5 — Séries Temporais com Prophet</a></td>
+  <td><a href="#/series-temporais/aula-06-prophet">Aula 6 — Séries Temporais com Prophet</a></td>
   <td>Tendência, sazonalidades e feriados estimados por uma biblioteca, e o intervalo de incerteza</td>
   <td>Disponível</td>
 </tr>
 </tbody>
 </table></div>
 </template>
-<template class="pagina" data-id="series-temporais/aula-04-conceitos-series-temporais" data-titulo="Aula 4 — Conceitos de Séries Temporais" data-descricao="Tendência, sazonalidade e ruído, e as previsões simples que todo modelo precisa vencer">
+<template class="pagina" data-id="series-temporais/aula-05-conceitos-series-temporais" data-titulo="Aula 5 — Conceitos de Séries Temporais" data-descricao="Tendência, sazonalidade e ruído, e as previsões simples que todo modelo precisa vencer">
 <div class="destaque destaque-info" role="note"><div class="destaque-icone" aria-hidden="true">i</div><div class="destaque-corpo"><p class="destaque-rotulo">Nota</p><p><strong>O que você leva desta aula</strong></p>
 <p>Você vai aprender a ler um gráfico ao longo do tempo, separando o que ele
 tem de tendência, de padrão que se repete e de ruído. Vai aprender também
@@ -5152,64 +4834,9 @@ num dia de R$ 600 é 10%. O MAPE conta o segundo como pior, e é isso que o
 torna útil para comparar períodos de movimento diferente.</p>
 <p>O cuidado com o MAPE: ele explode quando o valor real chega perto de zero.
 Numa série que passa por zero, use MAE.</p>
-<h2 id="explique-sem-olhar">Explique sem olhar<a class="ancora" href="#explique-sem-olhar" aria-label="Link para esta secao">#</a></h2>
-<p>O teste mais honesto de que você entendeu é tentar explicar sem ler.
-Feche esta página e responda em voz alta, como se explicasse para um
-colega. Onde travar, é ali que falta entender: volte à seção.</p>
-<ol>
-<li>Por que sortear linhas para o teste está errado numa série temporal?</li>
-<li>Por que a sazonal ingênua erra quase metade da ingênua, sem usar modelo nenhum?</li>
-<li>Qual janela de média móvel apaga o padrão semanal, e por quê?</li>
-</ol>
-<h2 id="cola-da-aula">Cola da aula<a class="ancora" href="#cola-da-aula" aria-label="Link para esta secao">#</a></h2>
-<div class="tabela-rolavel"><table><thead>
-<tr>
-  <th>Conceito</th>
-  <th>O que significa</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td>Série temporal</td>
-  <td>valores medidos ao longo do tempo, em que a ordem importa</td>
-</tr>
-<tr>
-  <td>Tendência</td>
-  <td>para onde a série caminha no longo prazo</td>
-</tr>
-<tr>
-  <td>Sazonalidade</td>
-  <td>padrão que se repete em intervalo fixo (semana, ano)</td>
-</tr>
-<tr>
-  <td>Média móvel</td>
-  <td>média dos últimos <code>k</code> valores, usada para suavizar</td>
-</tr>
-<tr>
-  <td>Corte no tempo</td>
-  <td>treino é o passado, teste é o futuro. Nunca sorteio</td>
-</tr>
-<tr>
-  <td>Vazamento de dados</td>
-  <td>quando o modelo enxerga o futuro durante o treino</td>
-</tr>
-<tr>
-  <td>Previsão ingênua</td>
-  <td>amanhã é igual a hoje</td>
-</tr>
-<tr>
-  <td>Sazonal ingênua</td>
-  <td>amanhã é igual ao mesmo dia da semana passada</td>
-</tr>
-<tr>
-  <td>MAPE</td>
-  <td>o erro médio em porcentagem do valor real</td>
-</tr>
-</tbody>
-</table></div>
 <h2 id="materiais">Materiais<a class="ancora" href="#materiais" aria-label="Link para esta secao">#</a></h2>
 <ul>
-<li><strong>Notebook desta aula, no Google Colab:</strong> <a href="https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-04-conceitos-series-temporais.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Abrir no Colab" /></a></li>
+<li><strong>Notebook desta aula, no Google Colab:</strong> <a href="https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-05-conceitos-series-temporais.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Abrir no Colab" /></a></li>
 <li>Slides desta aula: entregues em sala.</li>
 <li>Dataset: <a href="https://github.com/klein-natan/nanodegree-AI-Atitus/blob/main/data/vendas_cafeteria.csv"><code>vendas_cafeteria.csv</code></a></li>
 </ul>
@@ -5222,7 +4849,7 @@ colega. Onde travar, é ali que falta entender: volte à seção.</p>
 <li><a href="#/glossario">Glossário</a>: para revisar qualquer termo novo desta aula.</li>
 </ul>
 </template>
-<template class="pagina" data-id="series-temporais/aula-05-prophet" data-titulo="Aula 5 — Séries Temporais com Prophet" data-descricao="Tendência, sazonalidades, feriados e incerteza estimados pelo Prophet">
+<template class="pagina" data-id="series-temporais/aula-06-prophet" data-titulo="Aula 6 — Séries Temporais com Prophet" data-descricao="Tendência, sazonalidades, feriados e incerteza estimados pelo Prophet">
 <div class="destaque destaque-info" role="note"><div class="destaque-icone" aria-hidden="true">i</div><div class="destaque-corpo"><p class="destaque-rotulo">Nota</p><p><strong>O que você leva desta aula</strong></p>
 <p>Você vai treinar um modelo de série temporal em três linhas de código, ler
 as peças que ele estimou sozinho, ensinar a ele o calendário de feriados,
@@ -5242,7 +4869,7 @@ uma equipe da Meta, e pensada para séries de negócio: vendas, acessos,
 pedidos. É a ferramenta que resolve a maior parte dos casos reais sem
 exigir doutorado em estatística.</p>
 <h2 id="o-que-o-prophet-faz">O que o Prophet faz<a class="ancora" href="#o-que-o-prophet-faz" aria-label="Link para esta secao">#</a></h2>
-<p>A ideia é a mesma da Aula 4, agora escrita como modelo.</p>
+<p>A ideia é a mesma da Aula 5, agora escrita como modelo.</p>
 <div class="formula" title="y(t) = g(t) + s(t) + h(t) + \varepsilon_t"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>y</mi><mo stretchy="false">&#x00028;</mo><mi>t</mi><mo stretchy="false">&#x00029;</mo><mo>&#x0003D;</mo><mi>g</mi><mo stretchy="false">&#x00028;</mo><mi>t</mi><mo stretchy="false">&#x00029;</mo><mo>&#x0002B;</mo><mi>s</mi><mo stretchy="false">&#x00028;</mo><mi>t</mi><mo stretchy="false">&#x00029;</mo><mo>&#x0002B;</mo><mi>h</mi><mo stretchy="false">&#x00028;</mo><mi>t</mi><mo stretchy="false">&#x00029;</mo><mo>&#x0002B;</mo><msub><mi>&#x003B5;</mi><mi>t</mi></msub></mrow></math></div>
 <div class="tabela-rolavel"><table><thead>
 <tr>
@@ -5316,7 +4943,7 @@ e várias colunas, das quais três importam agora: <code>yhat</code> (a previsã
 <h2 id="as-pecas-que-ele-estimou-sozinho">As peças que ele estimou sozinho<a class="ancora" href="#as-pecas-que-ele-estimou-sozinho" aria-label="Link para esta secao">#</a></h2>
 <p>A parte mais útil do Prophet não é a previsão: é poder abrir o modelo e
 olhar cada peça separada.</p>
-<figure><img src="docs/assets/aula-05/componentes_prophet.png" alt="Quatro painéis mostrando a tendência crescente, os tombos dos feriados, o perfil semanal em barras e a onda anual estimados pelo Prophet"><figcaption>As mesmas três peças da Aula 4, agora estimadas por conta própria.</figcaption></figure>
+<figure><img src="docs/assets/aula-05/componentes_prophet.png" alt="Quatro painéis mostrando a tendência crescente, os tombos dos feriados, o perfil semanal em barras e a onda anual estimados pelo Prophet"><figcaption>As mesmas três peças da Aula 5, agora estimadas por conta própria.</figcaption></figure>
 
 <p>Compare com o que você já sabia da aula passada. A tendência sobe. O
 sábado é o melhor dia e a segunda é o pior. O meio do ano vende mais que o
@@ -5458,441 +5085,19 @@ modelo aceita dobrar.</p>
 </tr>
 </tbody>
 </table></div>
-<h2 id="explique-sem-olhar">Explique sem olhar<a class="ancora" href="#explique-sem-olhar" aria-label="Link para esta secao">#</a></h2>
-<p>O teste mais honesto de que você entendeu é tentar explicar sem ler.
-Feche esta página e responda em voz alta, como se explicasse para um
-colega. Onde travar, é ali que falta entender: volte à seção.</p>
-<ol>
-<li>Por que o Prophet sem feriados empata com a sazonal ingênua?</li>
-<li>Que duas incertezas a faixa soma, e qual delas domina nesta série?</li>
-<li>O que a faixa de incerteza não tem como prever?</li>
-</ol>
-<h2 id="cola-da-aula">Cola da aula<a class="ancora" href="#cola-da-aula" aria-label="Link para esta secao">#</a></h2>
-<div class="tabela-rolavel"><table><thead>
-<tr>
-  <th>Conceito</th>
-  <th>O que significa</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td><code>ds</code> e <code>y</code></td>
-  <td>os dois nomes de coluna que o Prophet exige</td>
-</tr>
-<tr>
-  <td><code>fit</code></td>
-  <td>treina o modelo no passado</td>
-</tr>
-<tr>
-  <td><code>make_future_dataframe</code></td>
-  <td>cria a tabela de datas a prever</td>
-</tr>
-<tr>
-  <td><code>predict</code></td>
-  <td>devolve <code>yhat</code>, <code>yhat_lower</code> e <code>yhat_upper</code></td>
-</tr>
-<tr>
-  <td>Componentes</td>
-  <td>tendência, sazonalidades e feriados, cada um em um gráfico</td>
-</tr>
-<tr>
-  <td><code>holidays</code></td>
-  <td>a tabela de datas especiais que você entrega ao modelo</td>
-</tr>
-<tr>
-  <td>Intervalo de incerteza</td>
-  <td>a faixa que cobre 80% dos casos, e não conhece eventos novos</td>
-</tr>
-<tr>
-  <td>Ponto de mudança</td>
-  <td>onde a tendência tem permissão para dobrar</td>
-</tr>
-<tr>
-  <td>A régua</td>
-  <td>as previsões de referência da Aula 4, que o modelo tem que vencer</td>
-</tr>
-</tbody>
-</table></div>
 <h2 id="materiais">Materiais<a class="ancora" href="#materiais" aria-label="Link para esta secao">#</a></h2>
 <ul>
-<li><strong>Notebook desta aula, no Google Colab:</strong> <a href="https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-05-series-temporais-prophet.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Abrir no Colab" /></a></li>
+<li><strong>Notebook desta aula, no Google Colab:</strong> <a href="https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-06-series-temporais-prophet.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Abrir no Colab" /></a></li>
 <li>Slides desta aula: entregues em sala.</li>
 <li>Dataset: <a href="https://github.com/klein-natan/nanodegree-AI-Atitus/blob/main/data/vendas_cafeteria.csv"><code>vendas_cafeteria.csv</code></a></li>
 </ul>
 <p>O notebook desta aula instala o Prophet na primeira célula, com
-<code>pip install prophet</code>. É a única aula do curso que instala biblioteca:
-todas as outras usam só o que já vem no Colab.</p>
+<code>pip install prophet</code>. A Aula 4 também instala o Optuna no Colab.</p>
 <h2 id="para-ir-alem">Para ir além<a class="ancora" href="#para-ir-alem" aria-label="Link para esta secao">#</a></h2>
 <ul>
 <li><a href="https://facebook.github.io/prophet/docs/quick_start.html">Documentação do Prophet</a>: o guia oficial, com exemplos em Python e R.</li>
 <li><a href="https://facebook.github.io/prophet/docs/diagnostics.html">Validação cruzada no Prophet</a>: como testar em várias janelas de tempo em vez de uma só.</li>
 <li><a href="https://otexts.com/fpp3/">Forecasting: Principles and Practice</a>: os capítulos 5 e 7 explicam as previsões de referência e os modelos de regressão no tempo, em inglês.</li>
-<li><a href="#/glossario">Glossário</a>: para revisar qualquer termo novo desta aula.</li>
-</ul>
-</template>
-<template class="pagina" data-id="sistemas-de-ml" data-titulo="Sistemas de Classificação e Previsão" data-descricao="Visão geral do módulo de Sistemas de Classificação e Previsão">
-<p>Até aqui, cada aula ensinou uma peça isolada. Este módulo junta as peças:
-você vai construir, em aula, um sistema de verdade que usa um classificador
-e um modelo de previsão trabalhando juntos.</p>
-<div class="tabela-rolavel"><table><thead>
-<tr>
-  <th>Aula</th>
-  <th>Conteúdo</th>
-  <th>Status</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td><a href="#/sistemas-de-ml/aula-06-sistema-ponta-a-ponta">Aula 6 — Um Sistema de Ponta a Ponta</a></td>
-  <td>Projeto guiado: classificador, previsão e uma tela em Streamlit, rodando na sua máquina</td>
-  <td>Disponível</td>
-</tr>
-</tbody>
-</table></div>
-</template>
-<template class="pagina" data-id="sistemas-de-ml/aula-06-sistema-ponta-a-ponta" data-titulo="Aula 6 — Um Sistema de Ponta a Ponta" data-descricao="Dois modelos, uma tela e um sistema que roda na sua máquina">
-<div class="destaque destaque-info" role="note"><div class="destaque-icone" aria-hidden="true">i</div><div class="destaque-corpo"><p class="destaque-rotulo">Nota</p><p><strong>O que você leva desta aula</strong></p>
-<p>Você vai construir, do zero, um sistema que junta um classificador e uma
-previsão de série temporal numa tela só. Vai rodar tudo na sua máquina, no
-VS Code, e sair da aula com um painel funcionando que qualquer pessoa da
-empresa conseguiria usar.</p>
-</div></div>
-<h2 id="para-que-serve">Para que serve<a class="ancora" href="#para-que-serve" aria-label="Link para esta secao">#</a></h2>
-<p>Nas cinco aulas anteriores você treinou modelos em notebooks. O notebook é
-ótimo para aprender e para experimentar, mas ninguém entrega um notebook
-para a equipe de atendimento.</p>
-<p>Um modelo só vira útil quando alguém que não sabe programar consegue fazer
-uma pergunta e receber uma resposta. É disso que esta aula trata: o
-caminho do modelo até a decisão.</p>
-<p>O negócio da vez é o <strong>Clube do Café</strong>, uma assinatura mensal de café em
-grãos. Ele tem duas perguntas, e você já sabe responder as duas:</p>
-<div class="tabela-rolavel"><table><thead>
-<tr>
-  <th>Pergunta</th>
-  <th>Modelo</th>
-  <th>Aula</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td>Quais assinantes correm risco de cancelar?</td>
-  <td>Regressão logística</td>
-  <td>Aula 3</td>
-</tr>
-<tr>
-  <td>Quanto o clube vai faturar no próximo mês?</td>
-  <td>Prophet</td>
-  <td>Aula 5</td>
-</tr>
-</tbody>
-</table></div>
-<p>O que muda hoje é o entorno. As duas respostas vão morar na mesma tela, e
-a tela vai rodar no seu computador.</p>
-<h2 id="o-modelo-e-uma-peca-nao-o-sistema">O modelo é uma peça, não o sistema<a class="ancora" href="#o-modelo-e-uma-peca-nao-o-sistema" aria-label="Link para esta secao">#</a></h2>
-<p>Esta é a ideia que organiza a aula inteira.</p>
-<figure><img src="docs/assets/aula-06/arquitetura.png" alt="Diagrama com quatro caixas ligadas por setas: dados, modelos ponto py, app ponto py e decisão"><figcaption>O caminho completo: dos arquivos de dados até a ligação que alguém faz.</figcaption></figure>
-
-<p>Repare que o modelo ocupa uma caixa das quatro. Nos projetos reais essa
-proporção se mantém: a maior parte do trabalho está em levar dados até o
-modelo e em levar a resposta do modelo até quem decide.</p>
-<p>O sistema desta aula tem quatro arquivos, e cada um faz uma coisa só.</p>
-<div class="tabela-rolavel"><table><thead>
-<tr>
-  <th>Arquivo</th>
-  <th>Responsabilidade</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td><code>dados/clientes.csv</code> e <code>dados/vendas.csv</code></td>
-  <td>o que já aconteceu</td>
-</tr>
-<tr>
-  <td><code>modelos.py</code></td>
-  <td>carrega, treina e prevê. Não sabe nada de tela</td>
-</tr>
-<tr>
-  <td><code>app.py</code></td>
-  <td>desenha a tela. Não sabe nada de modelo</td>
-</tr>
-<tr>
-  <td><code>requirements.txt</code></td>
-  <td>as quatro bibliotecas que o sistema usa</td>
-</tr>
-</tbody>
-</table></div>
-<p>Essa separação não é frescura. Quando a previsão sai errada, você sabe em
-que arquivo procurar. Quando a tela precisa de um botão novo, você mexe em
-um arquivo só.</p>
-<h2 id="antes-da-aula-deixe-a-maquina-pronta">Antes da aula: deixe a máquina pronta<a class="ancora" href="#antes-da-aula-deixe-a-maquina-pronta" aria-label="Link para esta secao">#</a></h2>
-<p>A instalação é a parte mais chata e a mais fácil de resolver com
-antecedência. Faça isso antes, com calma.</p>
-<p>Você precisa de <strong>Python 3.10 ou mais novo</strong> e do <strong>VS Code</strong>. Para
-conferir a versão do Python, abra o terminal e digite <code>python --version</code>
-(no macOS e no Linux, às vezes é <code>python3 --version</code>).</p>
-<p>Depois baixe a pasta do sistema, crie o ambiente virtual e instale as
-bibliotecas:</p>
-<div class="bloco-codigo" data-lingua="bash"><button class="copiar" type="button">copiar</button><pre class="realce"><code>python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>.venv
-</code></pre></div>
-<p>No Windows, ative com <code>.venv\Scripts\activate</code>. No macOS e no Linux, com
-<code>source .venv/bin/activate</code>. Deu certo quando aparece <code>(.venv)</code> no começo
-da linha.</p>
-<div class="bloco-codigo" data-lingua="bash"><button class="copiar" type="button">copiar</button><pre class="realce"><code>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
-</code></pre></div>
-<p>A instalação leva de dois a cinco minutos. O Prophet é o mais demorado.</p>
-<div class="destaque destaque-warning" role="note"><div class="destaque-icone" aria-hidden="true">!</div><div class="destaque-corpo"><p class="destaque-rotulo">Atenção</p><p><strong>Erro do dia</strong></p>
-<p>Rodar <code>pip install</code> sem o ambiente virtual ativo, e depois <code>streamlit</code>
-responder <code>command not found</code>. O sintoma é sempre esse, e a causa quase
-sempre é a mesma: a linha do terminal não começa com <code>(.venv)</code>. Ative o
-ambiente e repita. Em aula, esse é o problema número um.</p>
-</div></div>
-<h2 id="os-dois-modelos-em-oito-funcoes">Os dois modelos, em oito funções<a class="ancora" href="#os-dois-modelos-em-oito-funcoes" aria-label="Link para esta secao">#</a></h2>
-<p>O <code>modelos.py</code> inteiro cabe numa tela. Ele tem oito funções curtas, e
-nenhuma delas faz mais de uma coisa.</p>
-<div class="tabela-rolavel"><table><thead>
-<tr>
-  <th>Função</th>
-  <th>O que faz</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td><code>carregar_clientes</code></td>
-  <td>lê o CSV de assinantes</td>
-</tr>
-<tr>
-  <td><code>carregar_vendas</code></td>
-  <td>lê o CSV de receita diária</td>
-</tr>
-<tr>
-  <td><code>preparar_tabela</code></td>
-  <td>transforma o plano em colunas de 0 e 1</td>
-</tr>
-<tr>
-  <td><code>treinar_classificador</code></td>
-  <td>ajusta a regressão logística</td>
-</tr>
-<tr>
-  <td><code>calcular_risco</code></td>
-  <td>devolve a probabilidade de cancelar de cada cliente</td>
-</tr>
-<tr>
-  <td><code>risco_de_um_cliente</code></td>
-  <td>faz o mesmo para um cliente digitado na tela</td>
-</tr>
-<tr>
-  <td><code>treinar_previsor</code></td>
-  <td>ajusta o Prophet, com a lista de feriados</td>
-</tr>
-<tr>
-  <td><code>prever</code></td>
-  <td>devolve a previsão dos próximos dias</td>
-</tr>
-</tbody>
-</table></div>
-<p>Nada aqui é novo. É o mesmo código das Aulas 3 e 5, agora com nome, guardado
-num arquivo em vez de espalhado por células de notebook.</p>
-<p>Uma linha merece atenção, porque ela resolve um problema clássico:</p>
-<div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">tabela</span> <span class="o">=</span> <span class="n">tabela</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">modelo</span><span class="o">.</span><span class="n">feature_names_in_</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-</code></pre></div>
-<p>Quando a tela manda um cliente só, o <code>get_dummies</code> cria colunas para o
-plano daquele cliente, e só. O <code>reindex</code> põe as colunas na mesma ordem do
-treino e preenche com zero o que faltar. Sem essa linha, o modelo recebe as
-colunas trocadas e devolve um número sem sentido.</p>
-<h2 id="o-limiar-e-uma-decisao-de-operacao">O limiar é uma decisão de operação<a class="ancora" href="#o-limiar-e-uma-decisao-de-operacao" aria-label="Link para esta secao">#</a></h2>
-<p>O classificador devolve uma probabilidade. Quem transforma probabilidade em
-lista de ligações é o limiar, e no painel ele é um controle deslizante.</p>
-<figure><img src="docs/assets/aula-06/limiar_operacao.png" alt="Dois gráficos: à esquerda o tamanho da lista de risco caindo conforme o limiar sobe, à direita a porcentagem da lista que cancelou de fato subindo"><figcaption>Mexer no limiar muda quantas pessoas a equipe liga, e quão certeira é a lista.</figcaption></figure>
-
-<p>Com os 400 assinantes do Clube do Café:</p>
-<div class="tabela-rolavel"><table><thead>
-<tr>
-  <th>Limiar</th>
-  <th>Clientes na lista</th>
-  <th>Receita mensal em risco</th>
-  <th>Da lista, cancelaram de fato</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td>0,40</td>
-  <td>168</td>
-  <td>R$ 13.265</td>
-  <td>61%</td>
-</tr>
-<tr>
-  <td>0,50</td>
-  <td>119</td>
-  <td>R$ 9.748</td>
-  <td>67%</td>
-</tr>
-</tbody>
-</table></div>
-<p>Suba o limiar e a lista encolhe, mas fica mais certeira. Desça e você
-alcança mais gente que ia cancelar, ao custo de ligar para quem ia ficar.</p>
-<p>Por isso o limiar mora na tela, e não escondido no código. Quem decide o
-tamanho da operação é a pessoa que vai fazer as ligações, não o modelo.</p>
-<h2 id="a-previsao-que-o-painel-mostra">A previsão que o painel mostra<a class="ancora" href="#a-previsao-que-o-painel-mostra" aria-label="Link para esta secao">#</a></h2>
-<p>O segundo modelo é o Prophet da Aula 5, treinado nos 731 dias de receita do
-clube, com a lista de feriados.</p>
-<figure><img src="docs/assets/aula-06/previsao_receita.png" alt="Gráfico com os últimos 90 dias de receita e a previsão dos próximos 30 dias, com a faixa de incerteza"><figcaption>Trinta dias à frente, com a faixa de incerteza que a Aula 5 ensinou a ler.</figcaption></figure>
-
-<p>O painel resume isso em três números: R$ 89.853 previstos para os próximos
-30 dias, R$ 2.995 por dia em média, e R$ 84.475 no pior caso da faixa. O
-terceiro é o que interessa para quem vai assumir um compromisso de compra.</p>
-<h2 id="a-tela-em-seis-comandos">A tela, em seis comandos<a class="ancora" href="#a-tela-em-seis-comandos" aria-label="Link para esta secao">#</a></h2>
-<p>O <code>app.py</code> usa seis comandos do Streamlit. Seis. É todo o vocabulário que
-esta aula precisa.</p>
-<div class="tabela-rolavel"><table><thead>
-<tr>
-  <th>Comando</th>
-  <th>O que faz</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td><code>st.title</code> e <code>st.subheader</code></td>
-  <td>escrevem títulos</td>
-</tr>
-<tr>
-  <td><code>st.tabs</code></td>
-  <td>cria as abas</td>
-</tr>
-<tr>
-  <td><code>st.slider</code> e <code>st.selectbox</code></td>
-  <td>pedem um número e uma opção</td>
-</tr>
-<tr>
-  <td><code>st.metric</code></td>
-  <td>mostra um número grande, com rótulo</td>
-</tr>
-<tr>
-  <td><code>st.dataframe</code></td>
-  <td>mostra uma tabela</td>
-</tr>
-<tr>
-  <td><code>st.line_chart</code></td>
-  <td>desenha um gráfico de linha</td>
-</tr>
-</tbody>
-</table></div>
-<p>O Streamlit funciona de um jeito diferente do que você talvez espere: toda
-vez que alguém mexe num controle, ele <strong>roda o arquivo inteiro de novo</strong>,
-de cima para baixo. É isso que faz a tela reagir sem você escrever nada de
-interface.</p>
-<p>Isso traz um problema óbvio: treinar os dois modelos a cada clique deixaria
-o painel lento. A solução é uma linha:</p>
-<div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="nd">@st</span><span class="o">.</span><span class="n">cache_resource</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">preparar_sistema</span><span class="p">():</span>
-    <span class="o">...</span>
-</code></pre></div>
-<p>Com ela, o Streamlit guarda o resultado e só executa a função na primeira
-vez. Os cliques seguintes reaproveitam os modelos já treinados.</p>
-<figure><img src="docs/assets/aula-06/tela_risco.png" alt="Captura de tela do painel na aba de risco, com o controle de limiar, três números grandes e a tabela dos clientes de maior risco"><figcaption>A primeira aba: a lista de risco de hoje, e um simulador logo abaixo.</figcaption></figure>
-
-<figure><img src="docs/assets/aula-06/tela_previsao.png" alt="Captura de tela do painel na aba de previsão, com o controle de dias, três números grandes e o gráfico do histórico com a previsão"><figcaption>A segunda aba: quanto o clube fatura nos próximos dias.</figcaption></figure>
-
-<h2 id="o-que-este-sistema-ainda-nao-e">O que este sistema ainda não é<a class="ancora" href="#o-que-este-sistema-ainda-nao-e" aria-label="Link para esta secao">#</a></h2>
-<p>O painel funciona, mas ele não está pronto para uma empresa depender dele.
-Vale saber a diferença.</p>
-<div class="tabela-rolavel"><table><thead>
-<tr>
-  <th>O que falta</th>
-  <th>Por quê</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td>Retreinar sozinho</td>
-  <td>os modelos aprenderam com os dados de hoje. Daqui a três meses, o mundo mudou</td>
-</tr>
-<tr>
-  <td>Guardar o que previu</td>
-  <td>sem registro, você nunca descobre se as previsões estavam certas</td>
-</tr>
-<tr>
-  <td>Monitorar a entrada</td>
-  <td>se o CSV chegar com uma coluna a menos, o painel quebra na cara do usuário</td>
-</tr>
-<tr>
-  <td>Rodar em algum lugar</td>
-  <td>hoje ele roda na sua máquina. Para a equipe usar, precisa de um servidor</td>
-</tr>
-<tr>
-  <td>Controlar quem vê</td>
-  <td>a lista tem nome de cliente e valor de contrato</td>
-</tr>
-</tbody>
-</table></div>
-<p>Nenhum desses itens é difícil sozinho. Juntos, eles são a diferença entre
-um protótipo e um produto, e é neles que mora a maior parte do trabalho de
-quem faz sistemas de dados.</p>
-<h2 id="explique-sem-olhar">Explique sem olhar<a class="ancora" href="#explique-sem-olhar" aria-label="Link para esta secao">#</a></h2>
-<p>O teste mais honesto de que você entendeu é tentar explicar sem ler.
-Feche esta página e responda em voz alta, como se explicasse para um
-colega. Onde travar, é ali que falta entender: volte à seção.</p>
-<ol>
-<li>Por que o modelo é uma caixa das quatro, e não o sistema inteiro?</li>
-<li>O que a linha do <code>reindex</code> corrige, e o que aconteceria sem ela?</li>
-<li>Por que o limiar mora na tela, e não no código?</li>
-</ol>
-<h2 id="cola-da-aula">Cola da aula<a class="ancora" href="#cola-da-aula" aria-label="Link para esta secao">#</a></h2>
-<div class="tabela-rolavel"><table><thead>
-<tr>
-  <th>Conceito</th>
-  <th>O que significa</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td>Ambiente virtual (<code>.venv</code>)</td>
-  <td>uma caixa de bibliotecas só deste projeto</td>
-</tr>
-<tr>
-  <td><code>requirements.txt</code></td>
-  <td>a lista de bibliotecas, para qualquer máquina repetir</td>
-</tr>
-<tr>
-  <td>Separação de arquivos</td>
-  <td><code>modelos.py</code> pensa, <code>app.py</code> mostra</td>
-</tr>
-<tr>
-  <td><code>streamlit run app.py</code></td>
-  <td>o comando que sobe o painel</td>
-</tr>
-<tr>
-  <td>Reexecução</td>
-  <td>a cada clique, o Streamlit roda o arquivo inteiro de novo</td>
-</tr>
-<tr>
-  <td><code>@st.cache_resource</code></td>
-  <td>guarda o modelo treinado entre uma execução e outra</td>
-</tr>
-<tr>
-  <td>Limiar na tela</td>
-  <td>quem decide o tamanho da operação é quem opera</td>
-</tr>
-<tr>
-  <td>Protótipo x produto</td>
-  <td>falta retreino, registro, monitoramento e servidor</td>
-</tr>
-</tbody>
-</table></div>
-<h2 id="materiais">Materiais<a class="ancora" href="#materiais" aria-label="Link para esta secao">#</a></h2>
-<ul>
-<li><strong>O roteiro da aula</strong>: <a href="https://github.com/klein-natan/nanodegree-AI-Atitus/blob/main/projeto-aula-06/README.md"><code>projeto-aula-06/README.md</code></a>. Esta é a única aula sem slides: o próprio README do projeto guia a aula inteira, do setup ao último desafio.</li>
-<li>O sistema completo: <a href="https://github.com/klein-natan/nanodegree-AI-Atitus/tree/main/projeto-aula-06"><code>projeto-aula-06/</code></a></li>
-<li><strong>Notebook de apoio, no Google Colab:</strong> <a href="https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-06-sistema-ponta-a-ponta.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Abrir no Colab" /></a></li>
-<li>Dados: <a href="https://github.com/klein-natan/nanodegree-AI-Atitus/blob/main/data/clube_cafe_clientes.csv"><code>clube_cafe_clientes.csv</code></a> e <a href="https://github.com/klein-natan/nanodegree-AI-Atitus/blob/main/data/clube_cafe_vendas.csv"><code>clube_cafe_vendas.csv</code></a></li>
-</ul>
-<p>Para baixar o sistema sem instalar o Git, use o botão verde <code>Code</code> do
-GitHub e escolha <code>Download ZIP</code>. Descompacte e abra a pasta
-<code>projeto-aula-06</code> no VS Code.</p>
-<h2 id="para-ir-alem">Para ir além<a class="ancora" href="#para-ir-alem" aria-label="Link para esta secao">#</a></h2>
-<ul>
-<li><a href="https://docs.streamlit.io/library/api-reference">Documentação do Streamlit</a>: a lista completa de comandos, com exemplo de cada um.</li>
-<li><a href="https://streamlit.io/cloud">Streamlit Community Cloud</a>: publica o painel na internet a partir de um repositório do GitHub, de graça.</li>
-<li><a href="https://docs.streamlit.io/get-started">Primeiros passos com Streamlit</a>: o tutorial oficial, que constrói um painel do zero em meia hora.</li>
 <li><a href="#/glossario">Glossário</a>: para revisar qualquer termo novo desta aula.</li>
 </ul>
 </template>
@@ -6190,61 +5395,6 @@ desvio padrão de cada coluna. Faça isso <strong>sempre</strong> em rede neural
 <p>A rede tem uma desvantagem que importa: ela não te dá um coeficiente para
 interpretar. Na Aula 2 você lia &quot;cada m² soma R$ 25&quot;. Aqui não existe frase
 equivalente. Você ganhou formato e perdeu explicação.</p>
-<h2 id="explique-sem-olhar">Explique sem olhar<a class="ancora" href="#explique-sem-olhar" aria-label="Link para esta secao">#</a></h2>
-<p>O teste mais honesto de que você entendeu é tentar explicar sem ler.
-Feche esta página e responda em voz alta, como se explicasse para um
-colega. Onde travar, é ali que falta entender: volte à seção.</p>
-<ol>
-<li>O que um neurônio com sigmoide tem a ver com a regressão logística da Aula 3?</li>
-<li>O que aconteceria se você empilhasse camadas sem função de ativação?</li>
-<li>O que significa a curva de validação subir enquanto a de treino cai?</li>
-</ol>
-<h2 id="cola-da-aula">Cola da aula<a class="ancora" href="#cola-da-aula" aria-label="Link para esta secao">#</a></h2>
-<div class="tabela-rolavel"><table><thead>
-<tr>
-  <th>Conceito</th>
-  <th>O que significa</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td>Neurônio</td>
-  <td>a soma de pesos, seguida de uma ativação</td>
-</tr>
-<tr>
-  <td>Ativação</td>
-  <td>a dobra que permite fronteiras que não são retas</td>
-</tr>
-<tr>
-  <td>ReLU</td>
-  <td>negativo vira zero, positivo passa direto</td>
-</tr>
-<tr>
-  <td>Camada densa</td>
-  <td>todos os neurônios recebem todas as entradas</td>
-</tr>
-<tr>
-  <td>Retropropagação</td>
-  <td>o cálculo que distribui a culpa do erro entre os pesos</td>
-</tr>
-<tr>
-  <td>Época</td>
-  <td>uma passada por todos os exemplos</td>
-</tr>
-<tr>
-  <td>Lote</td>
-  <td>quantos exemplos entram antes de cada ajuste</td>
-</tr>
-<tr>
-  <td>Normalizar</td>
-  <td>pôr as colunas na mesma escala, antes de treinar</td>
-</tr>
-<tr>
-  <td>Curva de treino</td>
-  <td>o gráfico que você olha antes de acreditar no modelo</td>
-</tr>
-</tbody>
-</table></div>
 <h2 id="materiais">Materiais<a class="ancora" href="#materiais" aria-label="Link para esta secao">#</a></h2>
 <ul>
 <li><strong>Notebook desta aula, no Google Colab:</strong> <a href="https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-07-redes-neurais.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Abrir no Colab" /></a></li>
@@ -6608,61 +5758,6 @@ fotos são&quot;.</p>
 épocas num notebook. Ele usa milhões de fotos, placas de vídeo e dias de
 processamento. O que você treina em sala é a versão pequena da mesma
 ideia, e ela funciona pelo mesmo motivo.</p>
-<h2 id="explique-sem-olhar">Explique sem olhar<a class="ancora" href="#explique-sem-olhar" aria-label="Link para esta secao">#</a></h2>
-<p>O teste mais honesto de que você entendeu é tentar explicar sem ler.
-Feche esta página e responda em voz alta, como se explicasse para um
-colega. Onde travar, é ali que falta entender: volte à seção.</p>
-<ol>
-<li>O que o achatar joga fora, e por que isso importa numa foto?</li>
-<li>Como um filtro de nove pesos consegue cobrir uma foto de 784 pixels?</li>
-<li>Por que o pooling perde a posição exata de propósito?</li>
-</ol>
-<h2 id="cola-da-aula">Cola da aula<a class="ancora" href="#cola-da-aula" aria-label="Link para esta secao">#</a></h2>
-<div class="tabela-rolavel"><table><thead>
-<tr>
-  <th>Conceito</th>
-  <th>O que significa</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td>Achatar (flatten)</td>
-  <td>enfileirar a tabela de pixels, perdendo a vizinhança</td>
-</tr>
-<tr>
-  <td>Filtro (kernel)</td>
-  <td>um quadradinho de nove pesos que a rede aprende</td>
-</tr>
-<tr>
-  <td>Convolução</td>
-  <td>passar o mesmo filtro por toda a imagem, janela por janela</td>
-</tr>
-<tr>
-  <td>Mapa de ativação</td>
-  <td>a imagem que sai do filtro, mostrando onde ele reagiu</td>
-</tr>
-<tr>
-  <td>Peso compartilhado</td>
-  <td>os mesmos pesos servem para a imagem inteira</td>
-</tr>
-<tr>
-  <td>Pooling</td>
-  <td>encolher pela metade guardando o maior de cada quadrado</td>
-</tr>
-<tr>
-  <td>Canal</td>
-  <td>quantos números tem cada pixel: 1 em cinza, 3 em cor</td>
-</tr>
-<tr>
-  <td>Softmax</td>
-  <td>transforma números soltos em probabilidades que somam 1</td>
-</tr>
-<tr>
-  <td>Matriz de confusão</td>
-  <td>a tabela que mostra qual categoria virou qual</td>
-</tr>
-</tbody>
-</table></div>
 <h2 id="materiais">Materiais<a class="ancora" href="#materiais" aria-label="Link para esta secao">#</a></h2>
 <ul>
 <li><strong>Notebook desta aula, no Google Colab:</strong> <a href="https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-08-redes-convolucionais.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Abrir no Colab" /></a></li>
@@ -6903,57 +5998,6 @@ sorteia empates de um jeito, e a tabela sai diferente. O tokenizador é
 parte do modelo: salve os dois juntos, sempre. Nesta aula, o arquivo é
 <code>data/machado_bpe.json</code>.</p>
 </div></div>
-<h2 id="explique-sem-olhar">Explique sem olhar<a class="ancora" href="#explique-sem-olhar" aria-label="Link para esta secao">#</a></h2>
-<p>O teste mais honesto de que você entendeu é tentar explicar sem ler.
-Feche esta página e responda em voz alta, como se explicasse para um
-colega. Onde travar, é ali que falta entender: volte à seção.</p>
-<ol>
-<li>Por que nem letra nem palavra inteira servem como unidade?</li>
-<li>O que o BPE faz a cada passo, e quando ele para?</li>
-<li>Por que uma janela de 8 tokens dá 7 exemplos de treino, e não um?</li>
-</ol>
-<h2 id="cola-da-aula">Cola da aula<a class="ancora" href="#cola-da-aula" aria-label="Link para esta secao">#</a></h2>
-<div class="tabela-rolavel"><table><thead>
-<tr>
-  <th>Conceito</th>
-  <th>O que significa</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td>Modelo de linguagem</td>
-  <td>Devolve a probabilidade de cada continuação possível</td>
-</tr>
-<tr>
-  <td>Corpus</td>
-  <td>O monte de texto usado para treinar</td>
-</tr>
-<tr>
-  <td>Token</td>
-  <td>A peça mínima que o modelo manipula</td>
-</tr>
-<tr>
-  <td>Tokenizador</td>
-  <td>O programa que converte texto em tokens e de volta</td>
-</tr>
-<tr>
-  <td>BPE</td>
-  <td>Juntar o par de peças mais comum, repetidas vezes</td>
-</tr>
-<tr>
-  <td>Vocabulário</td>
-  <td>Quantos tokens diferentes existem na tabela</td>
-</tr>
-<tr>
-  <td>Janela de contexto</td>
-  <td>Quantos tokens o modelo enxerga de uma vez</td>
-</tr>
-<tr>
-  <td>Entrada e alvo</td>
-  <td>A mesma sequência, com uma casa de diferença</td>
-</tr>
-</tbody>
-</table></div>
 <h2 id="materiais">Materiais<a class="ancora" href="#materiais" aria-label="Link para esta secao">#</a></h2>
 <ul>
 <li><strong>Notebook desta aula, no Google Colab:</strong> <a href="https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-09-do-texto-aos-numeros.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Abrir no Colab" /></a></li>
@@ -7303,72 +6347,6 @@ custo.</p>
 </table></div>
 <p>É por isso que janela grande é caro, e por que cada modelo novo anuncia a
 janela dele como se fosse uma conquista. É.</p>
-<h2 id="explique-sem-olhar">Explique sem olhar<a class="ancora" href="#explique-sem-olhar" aria-label="Link para esta secao">#</a></h2>
-<p>O teste mais honesto de que você entendeu é tentar explicar sem ler.
-Feche esta página e responda em voz alta, como se explicasse para um
-colega. Onde travar, é ali que falta entender: volte à seção.</p>
-<ol>
-<li>Faça a atenção sem pesos nenhum, com três palavras, em quatro passos.</li>
-<li>Por que a versão sem pesos faz cada palavra olhar para si mesma?</li>
-<li>Qual é o papel de Q, K e V, em uma frase cada?</li>
-<li>Por que dividir por √d antes da softmax?</li>
-<li>O que a máscara causal impede, e o que acontece com um modelo treinado sem ela?</li>
-<li>O que muda na saída se você embaralhar as palavras da frase, e por quê?</li>
-</ol>
-<h2 id="cola-da-aula">Cola da aula<a class="ancora" href="#cola-da-aula" aria-label="Link para esta secao">#</a></h2>
-<div class="tabela-rolavel"><table><thead>
-<tr>
-  <th>Conceito</th>
-  <th>O que significa</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td>Embutimento</td>
-  <td>A tabela que troca cada token por um vetor de 128 números</td>
-</tr>
-<tr>
-  <td>Atenção</td>
-  <td>Cada posição escolhe para onde olhar, com pesos aprendidos</td>
-</tr>
-<tr>
-  <td>Atenção sem pesos</td>
-  <td>A mesma ideia, comparando os vetores com eles mesmos. Funciona, e vira espelho</td>
-</tr>
-<tr>
-  <td>Vetor de contexto</td>
-  <td>A saída de uma posição: ela mesma misturada com o que ela escolheu olhar</td>
-</tr>
-<tr>
-  <td>Q (pergunta)</td>
-  <td>O que esta posição está procurando</td>
-</tr>
-<tr>
-  <td>K (etiqueta)</td>
-  <td>O que cada posição anterior tem a oferecer</td>
-</tr>
-<tr>
-  <td>V (conteúdo)</td>
-  <td>O que ela entrega, se for escolhida</td>
-</tr>
-<tr>
-  <td>Produto escalar</td>
-  <td>Multiplicar casa com casa e somar: mede parecença</td>
-</tr>
-<tr>
-  <td>Máscara causal</td>
-  <td>Zera tudo que aponta para o futuro, antes da softmax</td>
-</tr>
-<tr>
-  <td>Cabeça</td>
-  <td>Uma atenção independente; o modelo roda várias em paralelo</td>
-</tr>
-<tr>
-  <td>RoPE</td>
-  <td>A posição entra como um giro no vetor</td>
-</tr>
-</tbody>
-</table></div>
 <h2 id="materiais">Materiais<a class="ancora" href="#materiais" aria-label="Link para esta secao">#</a></h2>
 <ul>
 <li><strong>Notebook desta aula, no Google Colab:</strong> <a href="https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-10-atencao.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Abrir no Colab" /></a></li>
@@ -7727,65 +6705,6 @@ arquitetura, essa, é a mesma que você acabou de montar.</p>
 </tbody>
 </table></div>
 <p>Nada nessa tabela é uma ideia nova. É a mesma ideia, com mais dinheiro.</p>
-<h2 id="explique-sem-olhar">Explique sem olhar<a class="ancora" href="#explique-sem-olhar" aria-label="Link para esta secao">#</a></h2>
-<p>O teste mais honesto de que você entendeu é tentar explicar sem ler.
-Feche esta página e responda em voz alta, como se explicasse para um
-colega. Onde travar, é ali que falta entender: volte à seção.</p>
-<ol>
-<li>Para que serve o atalho num bloco transformer?</li>
-<li>Por que a perda no passo 0 tem que dar ln(1024)?</li>
-<li>O que uma perplexidade de 31,8 significa, em português?</li>
-</ol>
-<h2 id="cola-da-aula">Cola da aula<a class="ancora" href="#cola-da-aula" aria-label="Link para esta secao">#</a></h2>
-<div class="tabela-rolavel"><table><thead>
-<tr>
-  <th>Conceito</th>
-  <th>O que significa</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td>Transformer</td>
-  <td>Um bloco (norma, atenção, MLP) repetido várias vezes</td>
-</tr>
-<tr>
-  <td>Atalho (residual)</td>
-  <td>Soma a entrada à saída de cada metade do bloco</td>
-</tr>
-<tr>
-  <td>RMSNorm</td>
-  <td>Põe cada vetor num tamanho padrão</td>
-</tr>
-<tr>
-  <td>SwiGLU</td>
-  <td>Camada densa com uma porta que decide o que passa</td>
-</tr>
-<tr>
-  <td>Pesos amarrados</td>
-  <td>A mesma tabela serve de entrada e de saída</td>
-</tr>
-<tr>
-  <td>Entropia cruzada</td>
-  <td>A perda: castiga quem erra com confiança</td>
-</tr>
-<tr>
-  <td>Perplexidade</td>
-  <td><code>e</code> elevado à perda: entre quantos tokens o modelo hesita</td>
-</tr>
-<tr>
-  <td>AdamW</td>
-  <td>O otimizador padrão para modelos de linguagem</td>
-</tr>
-<tr>
-  <td>Corte de gradiente</td>
-  <td>Limita o passo quando um lote sai fora do normal</td>
-</tr>
-<tr>
-  <td>Aquecimento e resfriamento</td>
-  <td>A taxa sobe no começo e desce no fim</td>
-</tr>
-</tbody>
-</table></div>
 <h2 id="materiais">Materiais<a class="ancora" href="#materiais" aria-label="Link para esta secao">#</a></h2>
 <ul>
 <li><strong>Notebook desta aula, no Google Colab:</strong> <a href="https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-11-transformer-e-treino.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Abrir no Colab" /></a></li>
@@ -8087,61 +7006,6 @@ mais antes de mostrar o resultado.</p>
 Pedir &quot;explique o seu raciocínio antes de responder&quot; costuma valer mais
 que qualquer ajuste de temperatura, e é de graça.</p>
 </div></div>
-<h2 id="explique-sem-olhar">Explique sem olhar<a class="ancora" href="#explique-sem-olhar" aria-label="Link para esta secao">#</a></h2>
-<p>O teste mais honesto de que você entendeu é tentar explicar sem ler.
-Feche esta página e responda em voz alta, como se explicasse para um
-colega. Onde travar, é ali que falta entender: volte à seção.</p>
-<ol>
-<li>O que a temperatura muda, e o que ela não muda?</li>
-<li>Por que a escolha gulosa entra em repetição?</li>
-<li>Por que &quot;alucinação&quot; é um nome ruim para o que o modelo faz?</li>
-</ol>
-<h2 id="cola-da-aula">Cola da aula<a class="ancora" href="#cola-da-aula" aria-label="Link para esta secao">#</a></h2>
-<div class="tabela-rolavel"><table><thead>
-<tr>
-  <th>Conceito</th>
-  <th>O que significa</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td>Logit</td>
-  <td>O número cru que o modelo dá a um token, antes da softmax</td>
-</tr>
-<tr>
-  <td>Amostragem</td>
-  <td>A regra para escolher um token entre os 1.024</td>
-</tr>
-<tr>
-  <td>Gulosa</td>
-  <td>Escolher sempre o mais provável: entra em repetição</td>
-</tr>
-<tr>
-  <td>Temperatura</td>
-  <td>Divide os logits: baixa concentra, alta espalha</td>
-</tr>
-<tr>
-  <td>Top-k</td>
-  <td>Fica só com os k mais prováveis</td>
-</tr>
-<tr>
-  <td>Top-p</td>
-  <td>Fica com os mais prováveis até somarem p</td>
-</tr>
-<tr>
-  <td>Autorregressiva</td>
-  <td>Cada token gerado vira entrada do passo seguinte</td>
-</tr>
-<tr>
-  <td>Alucinação</td>
-  <td>Frase provável e falsa: o modelo não distingue as duas</td>
-</tr>
-<tr>
-  <td>Ajuste por instrução</td>
-  <td>O treino extra que transforma um continuador em assistente</td>
-</tr>
-</tbody>
-</table></div>
 <h2 id="materiais">Materiais<a class="ancora" href="#materiais" aria-label="Link para esta secao">#</a></h2>
 <ul>
 <li><strong>Notebook desta aula, no Google Colab:</strong> <a href="https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-12-geracao-e-limites.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Abrir no Colab" /></a></li>
@@ -8421,57 +7285,6 @@ projeto, não de gosto.</p>
 <p>O critério que decide na prática costuma ser um só: se o dado não pode
 sair da empresa, o modelo aberto deixa de ser opção e passa a ser
 requisito.</p>
-<h2 id="explique-sem-olhar">Explique sem olhar<a class="ancora" href="#explique-sem-olhar" aria-label="Link para esta secao">#</a></h2>
-<p>O teste mais honesto de que você entendeu é tentar explicar sem ler.
-Feche esta página e responda em voz alta, como se explicasse para um
-colega. Onde travar, é ali que falta entender: volte à seção.</p>
-<ol>
-<li>O que o molde de conversa faz com a lista de mensagens?</li>
-<li>Que duas etapas de treino separam um continuador de texto de um assistente?</li>
-<li>Por que você só pega o erro do modelo em assunto que já conhece?</li>
-</ol>
-<h2 id="cola-da-aula">Cola da aula<a class="ancora" href="#cola-da-aula" aria-label="Link para esta secao">#</a></h2>
-<div class="tabela-rolavel"><table><thead>
-<tr>
-  <th>Conceito</th>
-  <th>O que significa</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td>Modelo de fundação</td>
-  <td>Modelo grande, treinado uma vez, que serve de base para muitas tarefas</td>
-</tr>
-<tr>
-  <td>Hugging Face</td>
-  <td>O repositório público de onde vêm os modelos abertos</td>
-</tr>
-<tr>
-  <td>Molde de conversa</td>
-  <td>O texto com marcadores que traduz mensagens em um texto só</td>
-</tr>
-<tr>
-  <td>Papéis</td>
-  <td><code>system</code>, <code>user</code> e <code>assistant</code>: tokens especiais, nada mais</td>
-</tr>
-<tr>
-  <td>Prompt de sistema</td>
-  <td>O texto que define quem o modelo é antes da conversa</td>
-</tr>
-<tr>
-  <td>Zero-shot</td>
-  <td>Pedir sem exemplo nenhum</td>
-</tr>
-<tr>
-  <td>Few-shot</td>
-  <td>Colocar dois ou três exemplos dentro do prompt</td>
-</tr>
-<tr>
-  <td><code>do_sample=False</code></td>
-  <td>Sempre o token mais provável: resposta reproduzível</td>
-</tr>
-</tbody>
-</table></div>
 <h2 id="materiais">Materiais<a class="ancora" href="#materiais" aria-label="Link para esta secao">#</a></h2>
 <ul>
 <li><strong>Notebook desta aula, no Google Colab:</strong> <a href="https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-13-modelos-de-fundacao.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Abrir no Colab" /></a></li>
@@ -8543,7 +7356,7 @@ pergunta.</p>
 <p>O primeiro passo é prático. Você não coloca o documento inteiro no prompt:
 não cabe na janela de contexto, e mesmo se coubesse, encheria de texto
 irrelevante.</p>
-<figure><img src="docs/assets/aula-14/pedacos.png" alt="À esquerda um histograma dos tamanhos dos 161 pedaços, com mediana em 678 caracteres; à direita um pedaço mostrado por inteiro"><figcaption>Uma seção do material por pedaço. O título da seção fica junto, e ajuda na busca.</figcaption></figure>
+<figure><img src="docs/assets/aula-14/pedacos.png" alt="Histograma dos 187 pedaços do curso, com mediana de 763 caracteres, ao lado de um exemplo de trecho"><figcaption>Uma seção por pedaço; o título acompanha o texto na busca.</figcaption></figure>
 
 <p>O tamanho do pedaço é a primeira decisão do projeto, e ela tem um
 compromisso claro:</p>
@@ -8568,8 +7381,8 @@ compromisso claro:</p>
 </tr>
 </tbody>
 </table></div>
-<p>Aqui foram 161 pedaços, um por seção das páginas do curso, com mediana de
-678 caracteres.</p>
+<p>Aqui foram 187 pedaços, um por seção das páginas do curso, com mediana de
+763 caracteres.</p>
 <h2 id="transformar-texto-em-vetor">Transformar texto em vetor<a class="ancora" href="#transformar-texto-em-vetor" aria-label="Link para esta secao">#</a></h2>
 <p>Agora a parte interessante. Para achar os pedaços que falam de um assunto,
 você precisa comparar significado, e não palavras. A pergunta &quot;o que é a
@@ -8610,7 +7423,7 @@ produto escalar da Aula 10:</p>
 1, ela é exatamente o produto escalar, e vai de −1 (opostos) a 1
 (idênticos).</p>
 <h2 id="a-busca">A busca<a class="ancora" href="#a-busca" aria-label="Link para esta secao">#</a></h2>
-<p>Com todos os 161 pedaços virados em vetor, buscar é uma multiplicação de
+<p>Com todos os 187 pedaços virados em vetor, buscar é uma multiplicação de
 matriz e um <code>topk</code>:</p>
 <div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">vetor_pergunta</span> <span class="o">=</span> <span class="n">embutir</span><span class="p">([</span><span class="s2">"query: O que é a máscara causal?"</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
 <span class="n">notas</span> <span class="o">=</span> <span class="n">vetores</span> <span class="o">@</span> <span class="n">vetor_pergunta</span>
@@ -8620,7 +7433,7 @@ matriz e um <code>topk</code>:</p>
 
 <p>Num projeto grande, com milhões de pedaços, essa multiplicação vira lenta
 e você guarda os vetores numa <strong>base vetorial</strong>, que é um banco de dados
-especializado em achar vizinhos rápido. Com 161 pedaços, uma matriz
+especializado em achar vizinhos rápido. Com 187 pedaços, uma matriz
 resolve.</p>
 <div class="destaque destaque-info" role="note"><div class="destaque-icone" aria-hidden="true">i</div><div class="destaque-corpo"><p class="destaque-rotulo">Nota</p><p><strong>Por que não buscar por palavra</strong></p>
 <p>Buscar por palavra funciona, é barato, e falha exatamente onde dói: quando
@@ -8790,57 +7603,6 @@ quando buscar, quando calcular e quando responder).</p>
 </tbody>
 </table></div>
 <p>Nenhuma dessas coisas é mágica, e você sabe disso porque montou todas.</p>
-<h2 id="explique-sem-olhar">Explique sem olhar<a class="ancora" href="#explique-sem-olhar" aria-label="Link para esta secao">#</a></h2>
-<p>O teste mais honesto de que você entendeu é tentar explicar sem ler.
-Feche esta página e responda em voz alta, como se explicasse para um
-colega. Onde travar, é ali que falta entender: volte à seção.</p>
-<ol>
-<li>Por que não treinar o modelo com o seu documento?</li>
-<li>Como a busca acha um trecho que não repete nenhuma palavra da pergunta?</li>
-<li>Na pergunta da perplexidade, o que falhou: a busca ou a leitura? Como você sabe?</li>
-</ol>
-<h2 id="cola-da-aula">Cola da aula<a class="ancora" href="#cola-da-aula" aria-label="Link para esta secao">#</a></h2>
-<div class="tabela-rolavel"><table><thead>
-<tr>
-  <th>Conceito</th>
-  <th>O que significa</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-  <td>RAG</td>
-  <td>Buscar trechos do seu documento e colar no prompt antes de perguntar</td>
-</tr>
-<tr>
-  <td>Pedaço (<em>chunk</em>)</td>
-  <td>Um pedaço do documento, do tamanho de uma seção</td>
-</tr>
-<tr>
-  <td>Embutimento de frase</td>
-  <td>O vetor de um texto inteiro: a média dos vetores dos tokens</td>
-</tr>
-<tr>
-  <td>Similaridade do cosseno</td>
-  <td>O produto escalar de dois vetores de tamanho 1</td>
-</tr>
-<tr>
-  <td>Base vetorial</td>
-  <td>Banco de dados que acha vizinhos rápido, para milhões de pedaços</td>
-</tr>
-<tr>
-  <td>Prompt aumentado</td>
-  <td>O prompt com os trechos buscados colados dentro</td>
-</tr>
-<tr>
-  <td>Busca híbrida</td>
-  <td>Buscar por palavra e por vetor, e juntar os resultados</td>
-</tr>
-<tr>
-  <td>Avaliação</td>
-  <td>O conjunto de perguntas com resposta conhecida, que diz se melhorou</td>
-</tr>
-</tbody>
-</table></div>
 <h2 id="materiais">Materiais<a class="ancora" href="#materiais" aria-label="Link para esta secao">#</a></h2>
 <ul>
 <li><strong>Notebook desta aula, no Google Colab:</strong> <a href="https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-14-aplicacao-rag.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Abrir no Colab" /></a></li>
@@ -8860,7 +7622,7 @@ colega. Onde travar, é ali que falta entender: volte à seção.</p>
 (function () {
   "use strict";
 
-  var NAV = [{"tipo": "parte", "titulo": ""}, {"tipo": "pagina", "id": "index", "titulo": "Roadmap", "descricao": "Roadmap do Nanodegree de IA & ML", "sumario": [{"nivel": 2, "ancora": "como-este-curso-funciona", "texto": "Como este curso funciona"}, {"nivel": 2, "ancora": "o-caminho-do-curso", "texto": "O caminho do curso"}]}, {"tipo": "pagina", "id": "leia-me", "titulo": "LEIA-ME", "descricao": "Como este material foi feito, e por quê", "sumario": [{"nivel": 2, "ancora": "o-que-quot-bem-feito-quot-quer-dizer-aqui", "texto": "O que &quot;bem feito&quot; quer dizer aqui"}, {"nivel": 2, "ancora": "onde-esta-o-codigo", "texto": "Onde está o código"}]}, {"tipo": "pagina", "id": "antes-de-comecar", "titulo": "Antes de começar", "descricao": "Como abrir e rodar os notebooks do curso no Google Colab", "sumario": [{"nivel": 2, "ancora": "passo-a-passo", "texto": "Passo a passo"}, {"nivel": 2, "ancora": "se-algo-der-errado", "texto": "Se algo der errado"}, {"nivel": 2, "ancora": "onde-ficam-seus-arquivos", "texto": "Onde ficam seus arquivos"}]}, {"tipo": "pagina", "id": "glossario", "titulo": "Glossário", "descricao": "Termos técnicos do curso, explicados em uma frase cada", "sumario": []}, {"tipo": "parte", "titulo": "Fundamentos"}, {"tipo": "pagina", "id": "fundamentos/contexto-historico", "titulo": "0. Contexto Histórico", "descricao": "Setenta anos de entusiasmo, decepção e recomeço", "sumario": [{"nivel": 2, "ancora": "a-pergunta-que-comecou-tudo", "texto": "A pergunta que começou tudo"}, {"nivel": 2, "ancora": "o-perceptron-a-semente", "texto": "O perceptron: a semente"}, {"nivel": 2, "ancora": "a-ia-simbolica-e-por-que-ela-travou", "texto": "A IA simbólica, e por que ela travou"}, {"nivel": 2, "ancora": "dois-invernos", "texto": "Dois invernos"}, {"nivel": 2, "ancora": "a-virada-parar-de-escrever-regras", "texto": "A virada: parar de escrever regras"}, {"nivel": 2, "ancora": "o-que-fez-a-coisa-funcionar", "texto": "O que fez a coisa funcionar"}, {"nivel": 2, "ancora": "o-que-veio-junto-e-nao-e-bonito", "texto": "O que veio junto, e não é bonito"}, {"nivel": 2, "ancora": "a-leitura-que-interessa", "texto": "A leitura que interessa"}, {"nivel": 2, "ancora": "cola", "texto": "Cola"}, {"nivel": 2, "ancora": "explique-sem-olhar", "texto": "Explique sem olhar"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}, {"nivel": 2, "ancora": "bibliografia", "texto": "Bibliografia"}]}, {"tipo": "pagina", "id": "fundamentos/engenharia-de-ml", "titulo": "1. Engenharia de Machine Learning", "descricao": "Por que o modelo é a parte fácil", "sumario": [{"nivel": 2, "ancora": "aprendizado-de-maquina-em-uma-frase", "texto": "Aprendizado de máquina, em uma frase"}, {"nivel": 2, "ancora": "a-diferenca-que-muda-tudo-probabilidade", "texto": "A diferença que muda tudo: probabilidade"}, {"nivel": 2, "ancora": "programacao-tradicional-contra-ml", "texto": "Programação tradicional contra ML"}, {"nivel": 2, "ancora": "cientista-de-dados-e-engenheiro-de-ml", "texto": "Cientista de dados e engenheiro de ML"}, {"nivel": 2, "ancora": "o-ciclo-de-vida-e-por-que-ele-nao-termina", "texto": "O ciclo de vida, e por que ele não termina"}, {"nivel": 2, "ancora": "por-que-os-modelos-apodrecem", "texto": "Por que os modelos apodrecem"}, {"nivel": 2, "ancora": "producao-nao-e-competicao", "texto": "Produção não é competição"}, {"nivel": 2, "ancora": "mlops-se-nao-esta-automatizado-esta-quebrado", "texto": "MLOps: se não está automatizado, está quebrado"}, {"nivel": 2, "ancora": "cola", "texto": "Cola"}, {"nivel": 2, "ancora": "explique-sem-olhar", "texto": "Explique sem olhar"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}, {"nivel": 2, "ancora": "bibliografia", "texto": "Bibliografia"}]}, {"tipo": "pagina", "id": "fundamentos/engenharia-de-ia", "titulo": "2. Engenharia de IA", "descricao": "Construir com modelos que outra pessoa treinou", "sumario": [{"nivel": 2, "ancora": "a-fronteira-mudou-de-lugar", "texto": "A fronteira mudou de lugar"}, {"nivel": 2, "ancora": "a-unidade-de-tudo-o-token", "texto": "A unidade de tudo: o token"}, {"nivel": 2, "ancora": "como-o-modelo-preve-autorregressao", "texto": "Como o modelo prevê: autorregressão"}, {"nivel": 2, "ancora": "o-truque-que-permitiu-a-escala-auto-supervisao", "texto": "O truque que permitiu a escala: auto-supervisão"}, {"nivel": 2, "ancora": "modelos-de-fundacao-e-multimodalidade", "texto": "Modelos de fundação e multimodalidade"}, {"nivel": 2, "ancora": "as-tres-formas-de-adaptar-da-mais-barata-para-a-mais-cara", "texto": "As três formas de adaptar, da mais barata para a mais cara"}, {"nivel": 2, "ancora": "o-ciclo-de-uma-aplicacao-de-ia", "texto": "O ciclo de uma aplicação de IA"}, {"nivel": 2, "ancora": "avaliar-e-testar-o-que-da-errado", "texto": "Avaliar é testar o que dá errado"}, {"nivel": 2, "ancora": "onde-isso-rende-de-verdade", "texto": "Onde isso rende de verdade"}, {"nivel": 2, "ancora": "cola", "texto": "Cola"}, {"nivel": 2, "ancora": "explique-sem-olhar", "texto": "Explique sem olhar"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}, {"nivel": 2, "ancora": "bibliografia", "texto": "Bibliografia"}]}, {"tipo": "parte", "titulo": "Modelos Lineares"}, {"tipo": "pagina", "id": "modelos-lineares", "titulo": "Visão geral", "descricao": "Visão geral do módulo de Modelos Lineares", "sumario": []}, {"tipo": "pagina", "id": "modelos-lineares/aula-01-regressao-linear-simples", "titulo": "Aula 1 — Regressão Linear Simples", "descricao": "Reta de previsão, gradiente descendente e métricas de regressão", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "a-reta-que-preve-o-preco", "texto": "A reta que prevê o preço"}, {"nivel": 2, "ancora": "o-erro-de-cada-previsao", "texto": "O erro de cada previsão"}, {"nivel": 2, "ancora": "encontrando-a-melhor-reta-o-erro-quadratico-medio", "texto": "Encontrando a melhor reta: o erro quadrático médio"}, {"nivel": 2, "ancora": "existe-um-atalho-minimos-quadrados", "texto": "Existe um atalho: mínimos quadrados"}, {"nivel": 2, "ancora": "gradiente-descendente-descendo-a-serra-na-neblina", "texto": "Gradiente descendente: descendo a serra na neblina"}, {"nivel": 3, "ancora": "por-que-nao-usar-sempre-o-atalho", "texto": "Por que não usar sempre o atalho"}, {"nivel": 3, "ancora": "o-terreno-existe-e-da-para-desenha-lo", "texto": "O terreno existe, e dá para desenhá-lo"}, {"nivel": 3, "ancora": "a-inclinacao-tem-nome-derivada", "texto": "A inclinação tem nome: derivada"}, {"nivel": 3, "ancora": "o-gradiente-uma-inclinacao-para-cada-peso", "texto": "O gradiente: uma inclinação para cada peso"}, {"nivel": 3, "ancora": "a-regra-de-atualizacao", "texto": "A regra de atualização"}, {"nivel": 3, "ancora": "o-algoritmo-do-comeco-ao-fim", "texto": "O algoritmo, do começo ao fim"}, {"nivel": 3, "ancora": "com-os-dois-pesos-ao-mesmo-tempo", "texto": "Com os dois pesos ao mesmo tempo"}, {"nivel": 3, "ancora": "a-taxa-de-aprendizado", "texto": "A taxa de aprendizado"}, {"nivel": 2, "ancora": "metricas-de-regressao", "texto": "Métricas de regressão"}, {"nivel": 3, "ancora": "mae-o-erro-medio-em-reais", "texto": "MAE: o erro médio, em reais"}, {"nivel": 3, "ancora": "mse-e-rmse-penalizando-os-erros-grandes", "texto": "MSE e RMSE: penalizando os erros grandes"}, {"nivel": 3, "ancora": "mape-o-erro-em-porcentagem", "texto": "MAPE: o erro em porcentagem"}, {"nivel": 3, "ancora": "r-quanto-da-bagunca-a-reta-explica", "texto": "R²: quanto da bagunça a reta explica"}, {"nivel": 3, "ancora": "quando-uma-metrica-engana", "texto": "Quando uma métrica engana"}, {"nivel": 2, "ancora": "o-intervalo-de-predicao", "texto": "O intervalo de predição"}, {"nivel": 3, "ancora": "quanto-uma-corrida-se-afasta-da-reta", "texto": "Quanto uma corrida se afasta da reta"}, {"nivel": 3, "ancora": "a-regra-pratica-dois-desvios-para-cada-lado", "texto": "A regra prática: dois desvios para cada lado"}, {"nivel": 3, "ancora": "ela-funciona-da-para-conferir", "texto": "Ela funciona? Dá para conferir"}, {"nivel": 3, "ancora": "as-duas-faixas-do-painel-da-direita", "texto": "As duas faixas do painel da direita"}, {"nivel": 3, "ancora": "a-formula-completa-para-constar", "texto": "A fórmula completa, para constar"}, {"nivel": 2, "ancora": "explique-sem-olhar", "texto": "Explique sem olhar"}, {"nivel": 2, "ancora": "cola-da-aula", "texto": "Cola da aula"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "modelos-lineares/aula-02-regressao-multipla", "titulo": "Aula 2 — Regressão Múltipla", "descricao": "Várias variáveis ao mesmo tempo, preditores categóricos e interpretação dos coeficientes", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "uma-variavel-nao-basta", "texto": "Uma variável não basta"}, {"nivel": 2, "ancora": "a-formula-com-varias-variaveis", "texto": "A fórmula com várias variáveis"}, {"nivel": 2, "ancora": "nada-muda-no-treino", "texto": "Nada muda no treino"}, {"nivel": 2, "ancora": "o-bairro-nao-e-um-numero", "texto": "O bairro não é um número"}, {"nivel": 2, "ancora": "lendo-os-coeficientes", "texto": "Lendo os coeficientes"}, {"nivel": 2, "ancora": "por-que-um-coeficiente-muda-quando-outro-entra", "texto": "Por que um coeficiente muda quando outro entra"}, {"nivel": 2, "ancora": "quanto-mais-variaveis-melhor", "texto": "Quanto mais variáveis, melhor?"}, {"nivel": 2, "ancora": "separe-treino-e-teste", "texto": "Separe treino e teste"}, {"nivel": 2, "ancora": "regularizacao-um-freio-nos-coeficientes", "texto": "Regularização: um freio nos coeficientes"}, {"nivel": 3, "ancora": "ridge-encolhe-tudo", "texto": "Ridge: encolhe tudo"}, {"nivel": 3, "ancora": "lasso-corta", "texto": "Lasso: corta"}, {"nivel": 3, "ancora": "elasticnet-os-dois-juntos", "texto": "ElasticNet: os dois juntos"}, {"nivel": 2, "ancora": "o-resultado-nos-90-apartamentos-de-teste", "texto": "O resultado, nos 90 apartamentos de teste"}, {"nivel": 2, "ancora": "padronizar-antes-de-regularizar", "texto": "Padronizar antes de regularizar"}, {"nivel": 2, "ancora": "qual-dos-tres-usar", "texto": "Qual dos três usar"}, {"nivel": 2, "ancora": "o-grafico-que-voce-olha-antes-de-confiar", "texto": "O gráfico que você olha antes de confiar"}, {"nivel": 2, "ancora": "explique-sem-olhar", "texto": "Explique sem olhar"}, {"nivel": 2, "ancora": "cola-da-aula", "texto": "Cola da aula"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "modelos-lineares/aula-03-regressao-logistica", "titulo": "Aula 3 — Regressão Logística", "descricao": "Função sigmoide, interpretação dos coeficientes e métricas de classificação", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "por-que-a-reta-nao-serve", "texto": "Por que a reta não serve"}, {"nivel": 2, "ancora": "a-funcao-sigmoide", "texto": "A função sigmoide"}, {"nivel": 2, "ancora": "o-modelo-logistico", "texto": "O modelo logístico"}, {"nivel": 2, "ancora": "interpretando-os-coeficientes", "texto": "Interpretando os coeficientes"}, {"nivel": 2, "ancora": "da-probabilidade-a-decisao", "texto": "Da probabilidade à decisão"}, {"nivel": 2, "ancora": "a-matriz-de-confusao", "texto": "A matriz de confusão"}, {"nivel": 2, "ancora": "as-quatro-metricas", "texto": "As quatro métricas"}, {"nivel": 3, "ancora": "acuracia-a-fracao-de-acertos", "texto": "Acurácia: a fração de acertos"}, {"nivel": 3, "ancora": "precisao-e-recall", "texto": "Precisão e recall"}, {"nivel": 3, "ancora": "f1-as-duas-num-numero-so", "texto": "F1: as duas num número só"}, {"nivel": 2, "ancora": "escolhendo-o-limiar", "texto": "Escolhendo o limiar"}, {"nivel": 2, "ancora": "a-curva-roc-todos-os-limiares-de-uma-vez", "texto": "A curva ROC: todos os limiares de uma vez"}, {"nivel": 3, "ancora": "auc-a-area-embaixo-da-curva", "texto": "AUC: a área embaixo da curva"}, {"nivel": 2, "ancora": "calibracao-a-probabilidade-e-um-numero-honesto", "texto": "Calibração: a probabilidade é um número honesto?"}, {"nivel": 3, "ancora": "o-brier-calibracao-num-numero", "texto": "O Brier: calibração num número"}, {"nivel": 3, "ancora": "o-que-quebra-a-calibracao", "texto": "O que quebra a calibração"}, {"nivel": 2, "ancora": "o-limiar-e-a-razao-entre-dois-custos", "texto": "O limiar é a razão entre dois custos"}, {"nivel": 2, "ancora": "explique-sem-olhar", "texto": "Explique sem olhar"}, {"nivel": 2, "ancora": "cola-da-aula", "texto": "Cola da aula"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "parte", "titulo": "Séries Temporais"}, {"tipo": "pagina", "id": "series-temporais", "titulo": "Visão geral", "descricao": "Visão geral do módulo de Séries Temporais", "sumario": []}, {"tipo": "pagina", "id": "series-temporais/aula-04-conceitos-series-temporais", "titulo": "Aula 4 — Conceitos de Séries Temporais", "descricao": "Tendência, sazonalidade e ruído, e as previsões simples que todo modelo precisa vencer", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "as-tres-pecas-de-qualquer-serie", "texto": "As três peças de qualquer série"}, {"nivel": 2, "ancora": "a-media-movel", "texto": "A média móvel"}, {"nivel": 2, "ancora": "o-padrao-semanal", "texto": "O padrão semanal"}, {"nivel": 2, "ancora": "a-regra-de-ouro-o-corte-e-no-tempo", "texto": "A regra de ouro: o corte é no tempo"}, {"nivel": 2, "ancora": "tres-previsoes-sem-modelo-nenhum", "texto": "Três previsões sem modelo nenhum"}, {"nivel": 2, "ancora": "mape-o-erro-em-porcentagem", "texto": "MAPE: o erro em porcentagem"}, {"nivel": 2, "ancora": "explique-sem-olhar", "texto": "Explique sem olhar"}, {"nivel": 2, "ancora": "cola-da-aula", "texto": "Cola da aula"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "series-temporais/aula-05-prophet", "titulo": "Aula 5 — Séries Temporais com Prophet", "descricao": "Tendência, sazonalidades, feriados e incerteza estimados pelo Prophet", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "o-que-o-prophet-faz", "texto": "O que o Prophet faz"}, {"nivel": 2, "ancora": "o-formato-que-ele-exige", "texto": "O formato que ele exige"}, {"nivel": 2, "ancora": "tres-linhas-para-treinar-e-prever", "texto": "Três linhas para treinar e prever"}, {"nivel": 2, "ancora": "as-pecas-que-ele-estimou-sozinho", "texto": "As peças que ele estimou sozinho"}, {"nivel": 2, "ancora": "feriados-o-que-o-modelo-nao-adivinha", "texto": "Feriados: o que o modelo não adivinha"}, {"nivel": 2, "ancora": "o-resultado-contra-a-regua", "texto": "O resultado contra a régua"}, {"nivel": 2, "ancora": "o-intervalo-de-incerteza", "texto": "O intervalo de incerteza"}, {"nivel": 2, "ancora": "quando-a-tendencia-dobra", "texto": "Quando a tendência dobra"}, {"nivel": 2, "ancora": "quando-o-prophet-nao-e-a-resposta", "texto": "Quando o Prophet não é a resposta"}, {"nivel": 2, "ancora": "explique-sem-olhar", "texto": "Explique sem olhar"}, {"nivel": 2, "ancora": "cola-da-aula", "texto": "Cola da aula"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "parte", "titulo": "Sistemas de Classificação e Previsão"}, {"tipo": "pagina", "id": "sistemas-de-ml", "titulo": "Visão geral", "descricao": "Visão geral do módulo de Sistemas de Classificação e Previsão", "sumario": []}, {"tipo": "pagina", "id": "sistemas-de-ml/aula-06-sistema-ponta-a-ponta", "titulo": "Aula 6 — Um Sistema de Ponta a Ponta", "descricao": "Dois modelos, uma tela e um sistema que roda na sua máquina", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "o-modelo-e-uma-peca-nao-o-sistema", "texto": "O modelo é uma peça, não o sistema"}, {"nivel": 2, "ancora": "antes-da-aula-deixe-a-maquina-pronta", "texto": "Antes da aula: deixe a máquina pronta"}, {"nivel": 2, "ancora": "os-dois-modelos-em-oito-funcoes", "texto": "Os dois modelos, em oito funções"}, {"nivel": 2, "ancora": "o-limiar-e-uma-decisao-de-operacao", "texto": "O limiar é uma decisão de operação"}, {"nivel": 2, "ancora": "a-previsao-que-o-painel-mostra", "texto": "A previsão que o painel mostra"}, {"nivel": 2, "ancora": "a-tela-em-seis-comandos", "texto": "A tela, em seis comandos"}, {"nivel": 2, "ancora": "o-que-este-sistema-ainda-nao-e", "texto": "O que este sistema ainda não é"}, {"nivel": 2, "ancora": "explique-sem-olhar", "texto": "Explique sem olhar"}, {"nivel": 2, "ancora": "cola-da-aula", "texto": "Cola da aula"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "parte", "titulo": "Redes Neurais"}, {"tipo": "pagina", "id": "redes-neurais", "titulo": "Visão geral", "descricao": "Visão geral do módulo de Redes Neurais", "sumario": []}, {"tipo": "pagina", "id": "redes-neurais/aula-07-redes-neurais-densas", "titulo": "Aula 7 — Fundamentos de Redes Neurais", "descricao": "Neurônio, ativação, camadas e treino, com Keras", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "por-que-a-reta-nao-basta", "texto": "Por que a reta não basta"}, {"nivel": 2, "ancora": "o-que-e-um-neuronio", "texto": "O que é um neurônio"}, {"nivel": 2, "ancora": "a-dobra-funcoes-de-ativacao", "texto": "A dobra: funções de ativação"}, {"nivel": 2, "ancora": "a-rede-inteira-em-cinco-linhas", "texto": "A rede inteira, em cinco linhas"}, {"nivel": 2, "ancora": "como-ela-aprende-e-a-aula-1-de-novo", "texto": "Como ela aprende (é a Aula 1 de novo)"}, {"nivel": 2, "ancora": "epoca-lote-e-a-curva-de-treino", "texto": "Época, lote e a curva de treino"}, {"nivel": 2, "ancora": "quando-a-rede-nao-e-a-resposta", "texto": "Quando a rede não é a resposta"}, {"nivel": 2, "ancora": "explique-sem-olhar", "texto": "Explique sem olhar"}, {"nivel": 2, "ancora": "cola-da-aula", "texto": "Cola da aula"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "redes-neurais/aula-08-redes-convolucionais", "titulo": "Aula 8 — Redes Convolucionais", "descricao": "Convolução, filtros e pooling, com Keras", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "a-foto-por-dentro", "texto": "A foto por dentro"}, {"nivel": 2, "ancora": "por-que-a-rede-da-aula-7-e-ruim-nisso", "texto": "Por que a rede da Aula 7 é ruim nisso"}, {"nivel": 2, "ancora": "a-janela-que-passeia", "texto": "A janela que passeia"}, {"nivel": 2, "ancora": "tres-ideias-em-uma", "texto": "Três ideias em uma"}, {"nivel": 2, "ancora": "pooling-encolher-sem-perder-o-que-importa", "texto": "Pooling: encolher sem perder o que importa"}, {"nivel": 2, "ancora": "os-filtros-que-ela-aprende-sozinha", "texto": "Os filtros que ela aprende sozinha"}, {"nivel": 2, "ancora": "a-rede-convolucional-inteira", "texto": "A rede convolucional inteira"}, {"nivel": 2, "ancora": "a-saida-dez-probabilidades", "texto": "A saída: dez probabilidades"}, {"nivel": 2, "ancora": "o-resultado", "texto": "O resultado"}, {"nivel": 2, "ancora": "por-que-ela-ganha-o-teste-do-deslocamento", "texto": "Por que ela ganha: o teste do deslocamento"}, {"nivel": 2, "ancora": "onde-ela-erra", "texto": "Onde ela erra"}, {"nivel": 2, "ancora": "quando-a-convolucao-nao-serve", "texto": "Quando a convolução não serve"}, {"nivel": 2, "ancora": "explique-sem-olhar", "texto": "Explique sem olhar"}, {"nivel": 2, "ancora": "cola-da-aula", "texto": "Cola da aula"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "parte", "titulo": "LLM do Zero"}, {"tipo": "pagina", "id": "llm-do-zero", "titulo": "Visão geral", "descricao": "Visão geral do módulo de LLM do Zero", "sumario": []}, {"tipo": "pagina", "id": "llm-do-zero/aula-09-tokenizacao", "titulo": "Aula 9 — Do Texto aos Números", "descricao": "O que um LLM faz, e como o texto vira número", "sumario": [{"nivel": 2, "ancora": "onde-estamos", "texto": "Onde estamos"}, {"nivel": 2, "ancora": "o-que-um-llm-faz", "texto": "O que um LLM faz"}, {"nivel": 2, "ancora": "o-material-da-obra", "texto": "O material da obra"}, {"nivel": 2, "ancora": "a-unidade-errada-duas-vezes", "texto": "A unidade errada, duas vezes"}, {"nivel": 2, "ancora": "o-meio-termo-bpe", "texto": "O meio-termo: BPE"}, {"nivel": 2, "ancora": "bytes-para-nada-ficar-de-fora", "texto": "Bytes, para nada ficar de fora"}, {"nivel": 2, "ancora": "codificar-e-decodificar", "texto": "Codificar e decodificar"}, {"nivel": 2, "ancora": "do-texto-para-o-lote-de-treino", "texto": "Do texto para o lote de treino"}, {"nivel": 2, "ancora": "explique-sem-olhar", "texto": "Explique sem olhar"}, {"nivel": 2, "ancora": "cola-da-aula", "texto": "Cola da aula"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "llm-do-zero/aula-10-atencao", "titulo": "Aula 10 — Atenção", "descricao": "Como o modelo decide para onde olhar", "sumario": [{"nivel": 2, "ancora": "onde-estamos", "texto": "Onde estamos"}, {"nivel": 2, "ancora": "o-problema", "texto": "O problema"}, {"nivel": 2, "ancora": "antes-a-palavra-vira-um-vetor", "texto": "Antes: a palavra vira um vetor"}, {"nivel": 2, "ancora": "primeiro-a-versao-sem-peso-nenhum", "texto": "Primeiro, a versão sem peso nenhum"}, {"nivel": 2, "ancora": "os-dois-buracos-da-versao-sem-pesos", "texto": "Os dois buracos da versão sem pesos"}, {"nivel": 2, "ancora": "os-tres-papeis", "texto": "Os três papéis"}, {"nivel": 2, "ancora": "a-formula-inteira", "texto": "A fórmula inteira"}, {"nivel": 2, "ancora": "a-mascara-nao-vale-olhar-a-resposta", "texto": "A máscara: não vale olhar a resposta"}, {"nivel": 2, "ancora": "quatro-cabecas-quatro-olhares", "texto": "Quatro cabeças, quatro olhares"}, {"nivel": 2, "ancora": "o-buraco-2-enfim-a-posicao", "texto": "O buraco 2, enfim: a posição"}, {"nivel": 2, "ancora": "o-preco-da-janela", "texto": "O preço da janela"}, {"nivel": 2, "ancora": "explique-sem-olhar", "texto": "Explique sem olhar"}, {"nivel": 2, "ancora": "cola-da-aula", "texto": "Cola da aula"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "llm-do-zero/aula-11-transformer-treino", "titulo": "Aula 11 — O Transformer e o Treino", "descricao": "Montar o modelo inteiro e treiná-lo no processador", "sumario": [{"nivel": 2, "ancora": "onde-estamos", "texto": "Onde estamos"}, {"nivel": 2, "ancora": "todas-as-pecas-ja-existem", "texto": "Todas as peças já existem"}, {"nivel": 2, "ancora": "comece-por-um-modelo-de-mentira", "texto": "Comece por um modelo de mentira"}, {"nivel": 2, "ancora": "o-bloco-transformer", "texto": "O bloco transformer"}, {"nivel": 2, "ancora": "as-duas-metades-do-bloco", "texto": "As duas metades do bloco"}, {"nivel": 2, "ancora": "o-modelo-inteiro", "texto": "O modelo inteiro"}, {"nivel": 2, "ancora": "a-perda-entropia-cruzada-com-1-024-categorias", "texto": "A perda: entropia cruzada com 1.024 categorias"}, {"nivel": 2, "ancora": "perplexidade-a-perda-em-portugues", "texto": "Perplexidade: a perda em português"}, {"nivel": 2, "ancora": "o-laco-de-treino", "texto": "O laço de treino"}, {"nivel": 2, "ancora": "o-tamanho-do-passo-muda-ao-longo-do-treino", "texto": "O tamanho do passo muda ao longo do treino"}, {"nivel": 2, "ancora": "o-treino-de-verdade", "texto": "O treino de verdade"}, {"nivel": 2, "ancora": "o-que-muda-quando-o-modelo-e-grande", "texto": "O que muda quando o modelo é grande"}, {"nivel": 2, "ancora": "explique-sem-olhar", "texto": "Explique sem olhar"}, {"nivel": 2, "ancora": "cola-da-aula", "texto": "Cola da aula"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "llm-do-zero/aula-12-geracao-limites", "titulo": "Aula 12 — Geração e Limites", "descricao": "Do logit ao texto, e o que o modelo não sabe fazer", "sumario": [{"nivel": 2, "ancora": "onde-estamos", "texto": "Onde estamos"}, {"nivel": 2, "ancora": "o-modelo-nao-devolve-uma-palavra", "texto": "O modelo não devolve uma palavra"}, {"nivel": 2, "ancora": "duas-escolhas-ruins", "texto": "Duas escolhas ruins"}, {"nivel": 2, "ancora": "controle-1-a-temperatura", "texto": "Controle 1: a temperatura"}, {"nivel": 2, "ancora": "controles-2-e-3-cortar-a-cauda", "texto": "Controles 2 e 3: cortar a cauda"}, {"nivel": 2, "ancora": "os-quatro-textos", "texto": "Os quatro textos"}, {"nivel": 2, "ancora": "autorregressao-o-erro-vira-entrada", "texto": "Autorregressão: o erro vira entrada"}, {"nivel": 2, "ancora": "ele-copia-ou-inventa", "texto": "Ele copia ou inventa?"}, {"nivel": 2, "ancora": "por-que-o-modelo-alucina", "texto": "Por que o modelo alucina"}, {"nivel": 2, "ancora": "o-modelo-e-o-corpus", "texto": "O modelo é o corpus"}, {"nivel": 2, "ancora": "o-que-a-escala-compra", "texto": "O que a escala compra"}, {"nivel": 2, "ancora": "o-que-falta-para-virar-um-assistente", "texto": "O que falta para virar um assistente"}, {"nivel": 2, "ancora": "a-novidade-gastar-tempo-em-vez-de-peso", "texto": "A novidade: gastar tempo em vez de peso"}, {"nivel": 2, "ancora": "explique-sem-olhar", "texto": "Explique sem olhar"}, {"nivel": 2, "ancora": "cola-da-aula", "texto": "Cola da aula"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "parte", "titulo": "IA Generativa"}, {"tipo": "pagina", "id": "ia-generativa", "titulo": "Visão geral", "descricao": "Visão geral do módulo de IA Generativa", "sumario": []}, {"tipo": "pagina", "id": "ia-generativa/aula-13-modelos-de-fundacao", "titulo": "Aula 13 — Modelos de Fundação", "descricao": "Rodar um modelo pronto, e aprender a falar com ele", "sumario": [{"nivel": 2, "ancora": "de-787-mil-para-494-milhoes", "texto": "De 787 mil para 494 milhões"}, {"nivel": 2, "ancora": "as-tres-etapas", "texto": "As três etapas"}, {"nivel": 2, "ancora": "rodar-tres-linhas", "texto": "Rodar: três linhas"}, {"nivel": 2, "ancora": "nao-existe-conversa", "texto": "Não existe conversa"}, {"nivel": 2, "ancora": "o-prompt-e-o-unico-controle-que-voce-tem", "texto": "O prompt é o único controle que você tem"}, {"nivel": 2, "ancora": "poucos-exemplos-valem-mais-que-muita-explicacao", "texto": "Poucos exemplos valem mais que muita explicação"}, {"nivel": 2, "ancora": "os-parametros-ja-conhecidos", "texto": "Os parâmetros: já conhecidos"}, {"nivel": 2, "ancora": "ele-nao-sabe-dizer-quot-nao-sei-quot", "texto": "Ele não sabe dizer &quot;não sei&quot;"}, {"nivel": 2, "ancora": "aberto-ou-por-api", "texto": "Aberto ou por API"}, {"nivel": 2, "ancora": "explique-sem-olhar", "texto": "Explique sem olhar"}, {"nivel": 2, "ancora": "cola-da-aula", "texto": "Cola da aula"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "ia-generativa/aula-14-aplicacao-rag", "titulo": "Aula 14 — Uma Aplicação de Verdade", "descricao": "Buscar antes de responder, e medir se melhorou", "sumario": [{"nivel": 2, "ancora": "o-problema", "texto": "O problema"}, {"nivel": 2, "ancora": "rag-buscar-antes-de-responder", "texto": "RAG: buscar antes de responder"}, {"nivel": 2, "ancora": "dividir-o-documento-em-pedacos", "texto": "Dividir o documento em pedaços"}, {"nivel": 2, "ancora": "transformar-texto-em-vetor", "texto": "Transformar texto em vetor"}, {"nivel": 2, "ancora": "a-busca", "texto": "A busca"}, {"nivel": 2, "ancora": "montar-o-prompt", "texto": "Montar o prompt"}, {"nivel": 2, "ancora": "medir-que-e-a-parte-que-ninguem-faz", "texto": "Medir, que é a parte que ninguém faz"}, {"nivel": 2, "ancora": "o-que-fazer-quando-nao-esta-bom", "texto": "O que fazer quando não está bom"}, {"nivel": 2, "ancora": "o-caminho-inteiro", "texto": "O caminho inteiro"}, {"nivel": 2, "ancora": "explique-sem-olhar", "texto": "Explique sem olhar"}, {"nivel": 2, "ancora": "cola-da-aula", "texto": "Cola da aula"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}];
+  var NAV = [{"tipo": "parte", "titulo": ""}, {"tipo": "pagina", "id": "index", "titulo": "Roadmap", "descricao": "Roadmap do Nanodegree de IA & ML", "sumario": [{"nivel": 2, "ancora": "como-este-curso-funciona", "texto": "Como este curso funciona"}, {"nivel": 2, "ancora": "o-caminho-do-curso", "texto": "O caminho do curso"}]}, {"tipo": "pagina", "id": "leia-me", "titulo": "LEIA-ME", "descricao": "Como este material foi feito, e por quê", "sumario": [{"nivel": 2, "ancora": "o-que-quot-bem-feito-quot-quer-dizer-aqui", "texto": "O que &quot;bem feito&quot; quer dizer aqui"}, {"nivel": 2, "ancora": "onde-esta-o-codigo", "texto": "Onde está o código"}]}, {"tipo": "pagina", "id": "antes-de-comecar", "titulo": "Antes de começar", "descricao": "Como abrir e rodar os notebooks do curso no Google Colab", "sumario": [{"nivel": 2, "ancora": "passo-a-passo", "texto": "Passo a passo"}, {"nivel": 2, "ancora": "se-algo-der-errado", "texto": "Se algo der errado"}, {"nivel": 2, "ancora": "onde-ficam-seus-arquivos", "texto": "Onde ficam seus arquivos"}]}, {"tipo": "pagina", "id": "glossario", "titulo": "Glossário", "descricao": "Termos técnicos do curso, explicados em uma frase cada", "sumario": []}, {"tipo": "parte", "titulo": "Fundamentos"}, {"tipo": "pagina", "id": "fundamentos/contexto-historico", "titulo": "0. Contexto Histórico", "descricao": "Setenta anos de entusiasmo, decepção e recomeço", "sumario": [{"nivel": 2, "ancora": "a-pergunta-que-comecou-tudo", "texto": "A pergunta que começou tudo"}, {"nivel": 2, "ancora": "o-perceptron-a-semente", "texto": "O perceptron: a semente"}, {"nivel": 2, "ancora": "a-ia-simbolica-e-por-que-ela-travou", "texto": "A IA simbólica, e por que ela travou"}, {"nivel": 2, "ancora": "dois-invernos", "texto": "Dois invernos"}, {"nivel": 2, "ancora": "a-virada-parar-de-escrever-regras", "texto": "A virada: parar de escrever regras"}, {"nivel": 2, "ancora": "o-que-fez-a-coisa-funcionar", "texto": "O que fez a coisa funcionar"}, {"nivel": 2, "ancora": "o-que-veio-junto-e-nao-e-bonito", "texto": "O que veio junto, e não é bonito"}, {"nivel": 2, "ancora": "a-leitura-que-interessa", "texto": "A leitura que interessa"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}, {"nivel": 2, "ancora": "bibliografia", "texto": "Bibliografia"}]}, {"tipo": "pagina", "id": "fundamentos/engenharia-de-ml", "titulo": "1. Engenharia de Machine Learning", "descricao": "Por que o modelo é a parte fácil", "sumario": [{"nivel": 2, "ancora": "aprendizado-de-maquina-em-uma-frase", "texto": "Aprendizado de máquina, em uma frase"}, {"nivel": 2, "ancora": "a-diferenca-que-muda-tudo-probabilidade", "texto": "A diferença que muda tudo: probabilidade"}, {"nivel": 2, "ancora": "programacao-tradicional-contra-ml", "texto": "Programação tradicional contra ML"}, {"nivel": 2, "ancora": "cientista-de-dados-e-engenheiro-de-ml", "texto": "Cientista de dados e engenheiro de ML"}, {"nivel": 2, "ancora": "o-ciclo-de-vida-e-por-que-ele-nao-termina", "texto": "O ciclo de vida, e por que ele não termina"}, {"nivel": 2, "ancora": "por-que-os-modelos-apodrecem", "texto": "Por que os modelos apodrecem"}, {"nivel": 2, "ancora": "producao-nao-e-competicao", "texto": "Produção não é competição"}, {"nivel": 2, "ancora": "mlops-se-nao-esta-automatizado-esta-quebrado", "texto": "MLOps: se não está automatizado, está quebrado"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}, {"nivel": 2, "ancora": "bibliografia", "texto": "Bibliografia"}]}, {"tipo": "pagina", "id": "fundamentos/engenharia-de-ia", "titulo": "2. Engenharia de IA", "descricao": "Construir com modelos que outra pessoa treinou", "sumario": [{"nivel": 2, "ancora": "a-fronteira-mudou-de-lugar", "texto": "A fronteira mudou de lugar"}, {"nivel": 2, "ancora": "a-unidade-de-tudo-o-token", "texto": "A unidade de tudo: o token"}, {"nivel": 2, "ancora": "como-o-modelo-preve-autorregressao", "texto": "Como o modelo prevê: autorregressão"}, {"nivel": 2, "ancora": "o-truque-que-permitiu-a-escala-auto-supervisao", "texto": "O truque que permitiu a escala: auto-supervisão"}, {"nivel": 2, "ancora": "modelos-de-fundacao-e-multimodalidade", "texto": "Modelos de fundação e multimodalidade"}, {"nivel": 2, "ancora": "as-tres-formas-de-adaptar-da-mais-barata-para-a-mais-cara", "texto": "As três formas de adaptar, da mais barata para a mais cara"}, {"nivel": 2, "ancora": "o-ciclo-de-uma-aplicacao-de-ia", "texto": "O ciclo de uma aplicação de IA"}, {"nivel": 2, "ancora": "avaliar-e-testar-o-que-da-errado", "texto": "Avaliar é testar o que dá errado"}, {"nivel": 2, "ancora": "onde-isso-rende-de-verdade", "texto": "Onde isso rende de verdade"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}, {"nivel": 2, "ancora": "bibliografia", "texto": "Bibliografia"}]}, {"tipo": "parte", "titulo": "Modelos Lineares"}, {"tipo": "pagina", "id": "modelos-lineares", "titulo": "Visão geral", "descricao": "Visão geral do módulo de Modelos Lineares", "sumario": []}, {"tipo": "pagina", "id": "modelos-lineares/aula-01-regressao-linear-simples", "titulo": "Aula 1 — Regressão Linear Simples", "descricao": "Reta de previsão, gradiente descendente e métricas de regressão", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "a-reta-que-preve-o-preco", "texto": "A reta que prevê o preço"}, {"nivel": 2, "ancora": "o-erro-de-cada-previsao", "texto": "O erro de cada previsão"}, {"nivel": 2, "ancora": "encontrando-a-melhor-reta-o-erro-quadratico-medio", "texto": "Encontrando a melhor reta: o erro quadrático médio"}, {"nivel": 2, "ancora": "existe-um-atalho-minimos-quadrados", "texto": "Existe um atalho: mínimos quadrados"}, {"nivel": 2, "ancora": "gradiente-descendente-descendo-a-serra-na-neblina", "texto": "Gradiente descendente: descendo a serra na neblina"}, {"nivel": 3, "ancora": "por-que-nao-usar-sempre-o-atalho", "texto": "Por que não usar sempre o atalho"}, {"nivel": 3, "ancora": "o-terreno-existe-e-da-para-desenha-lo", "texto": "O terreno existe, e dá para desenhá-lo"}, {"nivel": 3, "ancora": "a-inclinacao-tem-nome-derivada", "texto": "A inclinação tem nome: derivada"}, {"nivel": 3, "ancora": "o-gradiente-uma-inclinacao-para-cada-peso", "texto": "O gradiente: uma inclinação para cada peso"}, {"nivel": 3, "ancora": "a-regra-de-atualizacao", "texto": "A regra de atualização"}, {"nivel": 3, "ancora": "o-algoritmo-do-comeco-ao-fim", "texto": "O algoritmo, do começo ao fim"}, {"nivel": 3, "ancora": "com-os-dois-pesos-ao-mesmo-tempo", "texto": "Com os dois pesos ao mesmo tempo"}, {"nivel": 3, "ancora": "a-taxa-de-aprendizado", "texto": "A taxa de aprendizado"}, {"nivel": 2, "ancora": "metricas-de-regressao", "texto": "Métricas de regressão"}, {"nivel": 3, "ancora": "mae-o-erro-medio-em-reais", "texto": "MAE: o erro médio, em reais"}, {"nivel": 3, "ancora": "mse-e-rmse-penalizando-os-erros-grandes", "texto": "MSE e RMSE: penalizando os erros grandes"}, {"nivel": 3, "ancora": "mape-o-erro-em-porcentagem", "texto": "MAPE: o erro em porcentagem"}, {"nivel": 3, "ancora": "r-quanto-da-bagunca-a-reta-explica", "texto": "R²: quanto da bagunça a reta explica"}, {"nivel": 3, "ancora": "quando-uma-metrica-engana", "texto": "Quando uma métrica engana"}, {"nivel": 2, "ancora": "o-intervalo-de-predicao", "texto": "O intervalo de predição"}, {"nivel": 3, "ancora": "quanto-uma-corrida-se-afasta-da-reta", "texto": "Quanto uma corrida se afasta da reta"}, {"nivel": 3, "ancora": "a-regra-pratica-dois-desvios-para-cada-lado", "texto": "A regra prática: dois desvios para cada lado"}, {"nivel": 3, "ancora": "ela-funciona-da-para-conferir", "texto": "Ela funciona? Dá para conferir"}, {"nivel": 3, "ancora": "as-duas-faixas-do-painel-da-direita", "texto": "As duas faixas do painel da direita"}, {"nivel": 3, "ancora": "a-formula-completa-para-constar", "texto": "A fórmula completa, para constar"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "modelos-lineares/aula-02-regressao-multipla", "titulo": "Aula 2 — Regressão Múltipla", "descricao": "Várias variáveis ao mesmo tempo, preditores categóricos e interpretação dos coeficientes", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "uma-variavel-nao-basta", "texto": "Uma variável não basta"}, {"nivel": 2, "ancora": "a-formula-com-varias-variaveis", "texto": "A fórmula com várias variáveis"}, {"nivel": 2, "ancora": "nada-muda-no-treino", "texto": "Nada muda no treino"}, {"nivel": 2, "ancora": "o-bairro-nao-e-um-numero", "texto": "O bairro não é um número"}, {"nivel": 2, "ancora": "lendo-os-coeficientes", "texto": "Lendo os coeficientes"}, {"nivel": 2, "ancora": "por-que-um-coeficiente-muda-quando-outro-entra", "texto": "Por que um coeficiente muda quando outro entra"}, {"nivel": 2, "ancora": "quanto-mais-variaveis-melhor", "texto": "Quanto mais variáveis, melhor?"}, {"nivel": 2, "ancora": "separe-treino-e-teste", "texto": "Separe treino e teste"}, {"nivel": 2, "ancora": "regularizacao-um-freio-nos-coeficientes", "texto": "Regularização: um freio nos coeficientes"}, {"nivel": 3, "ancora": "ridge-encolhe-tudo", "texto": "Ridge: encolhe tudo"}, {"nivel": 3, "ancora": "lasso-corta", "texto": "Lasso: corta"}, {"nivel": 3, "ancora": "elasticnet-os-dois-juntos", "texto": "ElasticNet: os dois juntos"}, {"nivel": 2, "ancora": "o-resultado-nos-90-apartamentos-de-teste", "texto": "O resultado, nos 90 apartamentos de teste"}, {"nivel": 2, "ancora": "padronizar-antes-de-regularizar", "texto": "Padronizar antes de regularizar"}, {"nivel": 2, "ancora": "qual-dos-tres-usar", "texto": "Qual dos três usar"}, {"nivel": 2, "ancora": "o-grafico-que-voce-olha-antes-de-confiar", "texto": "O gráfico que você olha antes de confiar"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "modelos-lineares/aula-03-regressao-logistica", "titulo": "Aula 3 — Regressão Logística", "descricao": "Função sigmoide, interpretação dos coeficientes e métricas de classificação", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "por-que-a-reta-nao-serve", "texto": "Por que a reta não serve"}, {"nivel": 2, "ancora": "a-funcao-sigmoide", "texto": "A função sigmoide"}, {"nivel": 2, "ancora": "o-modelo-logistico", "texto": "O modelo logístico"}, {"nivel": 2, "ancora": "interpretando-os-coeficientes", "texto": "Interpretando os coeficientes"}, {"nivel": 2, "ancora": "da-probabilidade-a-decisao", "texto": "Da probabilidade à decisão"}, {"nivel": 2, "ancora": "a-matriz-de-confusao", "texto": "A matriz de confusão"}, {"nivel": 2, "ancora": "as-quatro-metricas", "texto": "As quatro métricas"}, {"nivel": 3, "ancora": "acuracia-a-fracao-de-acertos", "texto": "Acurácia: a fração de acertos"}, {"nivel": 3, "ancora": "precisao-e-recall", "texto": "Precisão e recall"}, {"nivel": 3, "ancora": "f1-as-duas-num-numero-so", "texto": "F1: as duas num número só"}, {"nivel": 2, "ancora": "validacao-cruzada-medir-antes-de-escolher", "texto": "Validação cruzada: medir antes de escolher"}, {"nivel": 2, "ancora": "escolhendo-o-limiar", "texto": "Escolhendo o limiar"}, {"nivel": 2, "ancora": "a-curva-roc-todos-os-limiares-de-uma-vez", "texto": "A curva ROC: todos os limiares de uma vez"}, {"nivel": 3, "ancora": "auc-a-area-embaixo-da-curva", "texto": "AUC: a área embaixo da curva"}, {"nivel": 2, "ancora": "calibracao-a-probabilidade-e-um-numero-honesto", "texto": "Calibração: a probabilidade é um número honesto?"}, {"nivel": 3, "ancora": "o-brier-calibracao-num-numero", "texto": "O Brier: calibração num número"}, {"nivel": 3, "ancora": "o-que-quebra-a-calibracao", "texto": "O que quebra a calibração"}, {"nivel": 2, "ancora": "o-limiar-e-a-razao-entre-dois-custos", "texto": "O limiar é a razão entre dois custos"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "parte", "titulo": "Sistemas de ML"}, {"tipo": "pagina", "id": "sistemas-de-ml", "titulo": "Visão geral", "descricao": "Visão geral do módulo de Sistemas de ML", "sumario": []}, {"tipo": "pagina", "id": "sistemas-de-ml/aula-04-sistema-ponta-a-ponta", "titulo": "Aula 4 — Um Sistema de Ponta a Ponta", "descricao": "Um classificador de cancelamento, da validação cruzada ao painel", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "do-dado-a-decisao", "texto": "Do dado à decisão"}, {"nivel": 2, "ancora": "tuning-com-optuna", "texto": "Tuning com Optuna"}, {"nivel": 2, "ancora": "o-painel", "texto": "O painel"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "parte", "titulo": "Séries Temporais"}, {"tipo": "pagina", "id": "series-temporais", "titulo": "Visão geral", "descricao": "Visão geral do módulo de Séries Temporais", "sumario": []}, {"tipo": "pagina", "id": "series-temporais/aula-05-conceitos-series-temporais", "titulo": "Aula 5 — Conceitos de Séries Temporais", "descricao": "Tendência, sazonalidade e ruído, e as previsões simples que todo modelo precisa vencer", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "as-tres-pecas-de-qualquer-serie", "texto": "As três peças de qualquer série"}, {"nivel": 2, "ancora": "a-media-movel", "texto": "A média móvel"}, {"nivel": 2, "ancora": "o-padrao-semanal", "texto": "O padrão semanal"}, {"nivel": 2, "ancora": "a-regra-de-ouro-o-corte-e-no-tempo", "texto": "A regra de ouro: o corte é no tempo"}, {"nivel": 2, "ancora": "tres-previsoes-sem-modelo-nenhum", "texto": "Três previsões sem modelo nenhum"}, {"nivel": 2, "ancora": "mape-o-erro-em-porcentagem", "texto": "MAPE: o erro em porcentagem"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "series-temporais/aula-06-prophet", "titulo": "Aula 6 — Séries Temporais com Prophet", "descricao": "Tendência, sazonalidades, feriados e incerteza estimados pelo Prophet", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "o-que-o-prophet-faz", "texto": "O que o Prophet faz"}, {"nivel": 2, "ancora": "o-formato-que-ele-exige", "texto": "O formato que ele exige"}, {"nivel": 2, "ancora": "tres-linhas-para-treinar-e-prever", "texto": "Três linhas para treinar e prever"}, {"nivel": 2, "ancora": "as-pecas-que-ele-estimou-sozinho", "texto": "As peças que ele estimou sozinho"}, {"nivel": 2, "ancora": "feriados-o-que-o-modelo-nao-adivinha", "texto": "Feriados: o que o modelo não adivinha"}, {"nivel": 2, "ancora": "o-resultado-contra-a-regua", "texto": "O resultado contra a régua"}, {"nivel": 2, "ancora": "o-intervalo-de-incerteza", "texto": "O intervalo de incerteza"}, {"nivel": 2, "ancora": "quando-a-tendencia-dobra", "texto": "Quando a tendência dobra"}, {"nivel": 2, "ancora": "quando-o-prophet-nao-e-a-resposta", "texto": "Quando o Prophet não é a resposta"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "parte", "titulo": "Redes Neurais"}, {"tipo": "pagina", "id": "redes-neurais", "titulo": "Visão geral", "descricao": "Visão geral do módulo de Redes Neurais", "sumario": []}, {"tipo": "pagina", "id": "redes-neurais/aula-07-redes-neurais-densas", "titulo": "Aula 7 — Fundamentos de Redes Neurais", "descricao": "Neurônio, ativação, camadas e treino, com Keras", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "por-que-a-reta-nao-basta", "texto": "Por que a reta não basta"}, {"nivel": 2, "ancora": "o-que-e-um-neuronio", "texto": "O que é um neurônio"}, {"nivel": 2, "ancora": "a-dobra-funcoes-de-ativacao", "texto": "A dobra: funções de ativação"}, {"nivel": 2, "ancora": "a-rede-inteira-em-cinco-linhas", "texto": "A rede inteira, em cinco linhas"}, {"nivel": 2, "ancora": "como-ela-aprende-e-a-aula-1-de-novo", "texto": "Como ela aprende (é a Aula 1 de novo)"}, {"nivel": 2, "ancora": "epoca-lote-e-a-curva-de-treino", "texto": "Época, lote e a curva de treino"}, {"nivel": 2, "ancora": "quando-a-rede-nao-e-a-resposta", "texto": "Quando a rede não é a resposta"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "redes-neurais/aula-08-redes-convolucionais", "titulo": "Aula 8 — Redes Convolucionais", "descricao": "Convolução, filtros e pooling, com Keras", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "a-foto-por-dentro", "texto": "A foto por dentro"}, {"nivel": 2, "ancora": "por-que-a-rede-da-aula-7-e-ruim-nisso", "texto": "Por que a rede da Aula 7 é ruim nisso"}, {"nivel": 2, "ancora": "a-janela-que-passeia", "texto": "A janela que passeia"}, {"nivel": 2, "ancora": "tres-ideias-em-uma", "texto": "Três ideias em uma"}, {"nivel": 2, "ancora": "pooling-encolher-sem-perder-o-que-importa", "texto": "Pooling: encolher sem perder o que importa"}, {"nivel": 2, "ancora": "os-filtros-que-ela-aprende-sozinha", "texto": "Os filtros que ela aprende sozinha"}, {"nivel": 2, "ancora": "a-rede-convolucional-inteira", "texto": "A rede convolucional inteira"}, {"nivel": 2, "ancora": "a-saida-dez-probabilidades", "texto": "A saída: dez probabilidades"}, {"nivel": 2, "ancora": "o-resultado", "texto": "O resultado"}, {"nivel": 2, "ancora": "por-que-ela-ganha-o-teste-do-deslocamento", "texto": "Por que ela ganha: o teste do deslocamento"}, {"nivel": 2, "ancora": "onde-ela-erra", "texto": "Onde ela erra"}, {"nivel": 2, "ancora": "quando-a-convolucao-nao-serve", "texto": "Quando a convolução não serve"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "parte", "titulo": "LLM do Zero"}, {"tipo": "pagina", "id": "llm-do-zero", "titulo": "Visão geral", "descricao": "Visão geral do módulo de LLM do Zero", "sumario": []}, {"tipo": "pagina", "id": "llm-do-zero/aula-09-tokenizacao", "titulo": "Aula 9 — Do Texto aos Números", "descricao": "O que um LLM faz, e como o texto vira número", "sumario": [{"nivel": 2, "ancora": "onde-estamos", "texto": "Onde estamos"}, {"nivel": 2, "ancora": "o-que-um-llm-faz", "texto": "O que um LLM faz"}, {"nivel": 2, "ancora": "o-material-da-obra", "texto": "O material da obra"}, {"nivel": 2, "ancora": "a-unidade-errada-duas-vezes", "texto": "A unidade errada, duas vezes"}, {"nivel": 2, "ancora": "o-meio-termo-bpe", "texto": "O meio-termo: BPE"}, {"nivel": 2, "ancora": "bytes-para-nada-ficar-de-fora", "texto": "Bytes, para nada ficar de fora"}, {"nivel": 2, "ancora": "codificar-e-decodificar", "texto": "Codificar e decodificar"}, {"nivel": 2, "ancora": "do-texto-para-o-lote-de-treino", "texto": "Do texto para o lote de treino"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "llm-do-zero/aula-10-atencao", "titulo": "Aula 10 — Atenção", "descricao": "Como o modelo decide para onde olhar", "sumario": [{"nivel": 2, "ancora": "onde-estamos", "texto": "Onde estamos"}, {"nivel": 2, "ancora": "o-problema", "texto": "O problema"}, {"nivel": 2, "ancora": "antes-a-palavra-vira-um-vetor", "texto": "Antes: a palavra vira um vetor"}, {"nivel": 2, "ancora": "primeiro-a-versao-sem-peso-nenhum", "texto": "Primeiro, a versão sem peso nenhum"}, {"nivel": 2, "ancora": "os-dois-buracos-da-versao-sem-pesos", "texto": "Os dois buracos da versão sem pesos"}, {"nivel": 2, "ancora": "os-tres-papeis", "texto": "Os três papéis"}, {"nivel": 2, "ancora": "a-formula-inteira", "texto": "A fórmula inteira"}, {"nivel": 2, "ancora": "a-mascara-nao-vale-olhar-a-resposta", "texto": "A máscara: não vale olhar a resposta"}, {"nivel": 2, "ancora": "quatro-cabecas-quatro-olhares", "texto": "Quatro cabeças, quatro olhares"}, {"nivel": 2, "ancora": "o-buraco-2-enfim-a-posicao", "texto": "O buraco 2, enfim: a posição"}, {"nivel": 2, "ancora": "o-preco-da-janela", "texto": "O preço da janela"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "llm-do-zero/aula-11-transformer-treino", "titulo": "Aula 11 — O Transformer e o Treino", "descricao": "Montar o modelo inteiro e treiná-lo no processador", "sumario": [{"nivel": 2, "ancora": "onde-estamos", "texto": "Onde estamos"}, {"nivel": 2, "ancora": "todas-as-pecas-ja-existem", "texto": "Todas as peças já existem"}, {"nivel": 2, "ancora": "comece-por-um-modelo-de-mentira", "texto": "Comece por um modelo de mentira"}, {"nivel": 2, "ancora": "o-bloco-transformer", "texto": "O bloco transformer"}, {"nivel": 2, "ancora": "as-duas-metades-do-bloco", "texto": "As duas metades do bloco"}, {"nivel": 2, "ancora": "o-modelo-inteiro", "texto": "O modelo inteiro"}, {"nivel": 2, "ancora": "a-perda-entropia-cruzada-com-1-024-categorias", "texto": "A perda: entropia cruzada com 1.024 categorias"}, {"nivel": 2, "ancora": "perplexidade-a-perda-em-portugues", "texto": "Perplexidade: a perda em português"}, {"nivel": 2, "ancora": "o-laco-de-treino", "texto": "O laço de treino"}, {"nivel": 2, "ancora": "o-tamanho-do-passo-muda-ao-longo-do-treino", "texto": "O tamanho do passo muda ao longo do treino"}, {"nivel": 2, "ancora": "o-treino-de-verdade", "texto": "O treino de verdade"}, {"nivel": 2, "ancora": "o-que-muda-quando-o-modelo-e-grande", "texto": "O que muda quando o modelo é grande"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "llm-do-zero/aula-12-geracao-limites", "titulo": "Aula 12 — Geração e Limites", "descricao": "Do logit ao texto, e o que o modelo não sabe fazer", "sumario": [{"nivel": 2, "ancora": "onde-estamos", "texto": "Onde estamos"}, {"nivel": 2, "ancora": "o-modelo-nao-devolve-uma-palavra", "texto": "O modelo não devolve uma palavra"}, {"nivel": 2, "ancora": "duas-escolhas-ruins", "texto": "Duas escolhas ruins"}, {"nivel": 2, "ancora": "controle-1-a-temperatura", "texto": "Controle 1: a temperatura"}, {"nivel": 2, "ancora": "controles-2-e-3-cortar-a-cauda", "texto": "Controles 2 e 3: cortar a cauda"}, {"nivel": 2, "ancora": "os-quatro-textos", "texto": "Os quatro textos"}, {"nivel": 2, "ancora": "autorregressao-o-erro-vira-entrada", "texto": "Autorregressão: o erro vira entrada"}, {"nivel": 2, "ancora": "ele-copia-ou-inventa", "texto": "Ele copia ou inventa?"}, {"nivel": 2, "ancora": "por-que-o-modelo-alucina", "texto": "Por que o modelo alucina"}, {"nivel": 2, "ancora": "o-modelo-e-o-corpus", "texto": "O modelo é o corpus"}, {"nivel": 2, "ancora": "o-que-a-escala-compra", "texto": "O que a escala compra"}, {"nivel": 2, "ancora": "o-que-falta-para-virar-um-assistente", "texto": "O que falta para virar um assistente"}, {"nivel": 2, "ancora": "a-novidade-gastar-tempo-em-vez-de-peso", "texto": "A novidade: gastar tempo em vez de peso"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "parte", "titulo": "IA Generativa"}, {"tipo": "pagina", "id": "ia-generativa", "titulo": "Visão geral", "descricao": "Visão geral do módulo de IA Generativa", "sumario": []}, {"tipo": "pagina", "id": "ia-generativa/aula-13-modelos-de-fundacao", "titulo": "Aula 13 — Modelos de Fundação", "descricao": "Rodar um modelo pronto, e aprender a falar com ele", "sumario": [{"nivel": 2, "ancora": "de-787-mil-para-494-milhoes", "texto": "De 787 mil para 494 milhões"}, {"nivel": 2, "ancora": "as-tres-etapas", "texto": "As três etapas"}, {"nivel": 2, "ancora": "rodar-tres-linhas", "texto": "Rodar: três linhas"}, {"nivel": 2, "ancora": "nao-existe-conversa", "texto": "Não existe conversa"}, {"nivel": 2, "ancora": "o-prompt-e-o-unico-controle-que-voce-tem", "texto": "O prompt é o único controle que você tem"}, {"nivel": 2, "ancora": "poucos-exemplos-valem-mais-que-muita-explicacao", "texto": "Poucos exemplos valem mais que muita explicação"}, {"nivel": 2, "ancora": "os-parametros-ja-conhecidos", "texto": "Os parâmetros: já conhecidos"}, {"nivel": 2, "ancora": "ele-nao-sabe-dizer-quot-nao-sei-quot", "texto": "Ele não sabe dizer &quot;não sei&quot;"}, {"nivel": 2, "ancora": "aberto-ou-por-api", "texto": "Aberto ou por API"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "ia-generativa/aula-14-aplicacao-rag", "titulo": "Aula 14 — Uma Aplicação de Verdade", "descricao": "Buscar antes de responder, e medir se melhorou", "sumario": [{"nivel": 2, "ancora": "o-problema", "texto": "O problema"}, {"nivel": 2, "ancora": "rag-buscar-antes-de-responder", "texto": "RAG: buscar antes de responder"}, {"nivel": 2, "ancora": "dividir-o-documento-em-pedacos", "texto": "Dividir o documento em pedaços"}, {"nivel": 2, "ancora": "transformar-texto-em-vetor", "texto": "Transformar texto em vetor"}, {"nivel": 2, "ancora": "a-busca", "texto": "A busca"}, {"nivel": 2, "ancora": "montar-o-prompt", "texto": "Montar o prompt"}, {"nivel": 2, "ancora": "medir-que-e-a-parte-que-ninguem-faz", "texto": "Medir, que é a parte que ninguém faz"}, {"nivel": 2, "ancora": "o-que-fazer-quando-nao-esta-bom", "texto": "O que fazer quando não está bom"}, {"nivel": 2, "ancora": "o-caminho-inteiro", "texto": "O caminho inteiro"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}];
   var SOL = '<circle cx="12" cy="12" r="4.2"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4"/>';
   var LUA = '<path d="M20 13.5A8 8 0 1 1 10.5 4a6.3 6.3 0 0 0 9.5 9.5Z"/>';
 

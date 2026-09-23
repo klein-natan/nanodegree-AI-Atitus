@@ -193,20 +193,6 @@ A pergunta de Turing continua aberta, e hoje ela tem uma versão mais útil:
 que tipo de inteligência queremos construir, e para servir a que tipo de
 sociedade?
 
-### 0. Contexto Histórico > Cola
-| Conceito | O que significa |
-|---|---|
-| Teste de Turing | trocar "a máquina pensa?" por "você percebe que não é gente?" |
-| Dartmouth (1956) | a conferência que batizou a área |
-| Perceptron | o primeiro neurônio artificial: entradas, pesos, uma resposta |
-| IA simbólica | resolver por regras escritas à mão; trava fora do laboratório |
-| Inverno da IA | período de descrédito e corte de financiamento (1973 e 1987) |
-| Sistemas especialistas | uma tarefa só, com conhecimento humano numa base de regras |
-| Retropropagação | o jeito de ajustar pesos a partir do erro |
-| Aprendizado de máquina | dar exemplos em vez de escrever as regras |
-| Os três ingredientes | algoritmos, dados e GPUs, chegando juntos |
-| Era generativa | de 2020 em diante: o modelo produz texto, imagem, código e áudio |
-
 ### 0. Contexto Histórico > Para ir além
 - ELIZA, funcionando no navegador: converse cinco minutos com o programa de 1966 e veja quanto tempo leva para você perceber o truque.
 - Arquiteturas neuro-simbólicas: a linha de pesquisa que tenta juntar regras e aprendizado.
@@ -422,22 +408,6 @@ disponível e resultado que alguém consegue revisar.
 O objetivo não é automatizar tudo. É montar fluxos verificáveis, onde
 pessoa e sistema entregam mais juntos do que separados.
 
-### 2. Engenharia de IA > Cola
-| Conceito | O que significa |
-|---|---|
-| Engenharia de IA | construir aplicações com modelos que outra pessoa treinou |
-| Token | o pedaço de texto que o modelo processa, e a unidade de custo |
-| Janela de contexto | quantos tokens cabem: instruções, documentos, histórico e resposta |
-| Autorregressivo | prevê o próximo token e realimenta o que gerou |
-| Mascarado | preenche lacunas no meio do texto (BERT) |
-| Auto-supervisão | o próprio dado fornece o alvo, sem rotulagem humana |
-| Modelo de fundação | treinado em escala, adaptável a muitas tarefas |
-| Engenharia de prompt | instruções, exemplos e formato; o degrau mais barato |
-| RAG | buscar contexto numa fonte externa e mandar junto |
-| Ajuste fino | treinar com exemplos para mudar comportamento, tom ou formato |
-| Guardrail | filtro de entrada e saída, contra vazamento e conteúdo tóxico |
-| Volante de dados | o uso gera feedback, que melhora o sistema, que atrai mais uso |
-
 ### 2. Engenharia de IA > Para ir além
 - Um tokenizador no navegador: cole uma frase em português e a tradução em inglês, e compare a contagem.
 - AI Engineering, de Chip Huyen: o livro que organiza esta página.
@@ -498,7 +468,7 @@ software a sistemas que são probabilísticos por natureza.
 | O que entrega | um protótipo que responde a pergunta | um sistema que atende usuários |
 | O que otimiza | descoberta | confiabilidade, escala, manutenção |
 
-As duas são necessárias, e a Aula 6 deste curso é justamente a travessia de
+As duas são necessárias, e a Aula 4 deste curso é justamente a travessia de
 uma para a outra.
 
 **O princípio dos 5%**
@@ -603,25 +573,10 @@ importa. Não é. O resultado depende de quatro coisas, em partes iguais:
 O quarto é o mais ignorado e o mais caro quando falta. Modelo perfeito para
 a pergunta errada não vale nada.
 
-### 1. Engenharia de Machine Learning > Cola
-| Conceito | O que significa |
-|---|---|
-| Determinístico | mesma entrada, mesma saída, sempre |
-| Probabilístico | a saída é uma estimativa, não uma verdade |
-| Falha silenciosa | o código roda sem erro e a previsão está errada |
-| Modelo | o resultado de um algoritmo **mais** um conjunto de dados |
-| Engenharia de características | transformar dado bruto no formato que o algoritmo usa |
-| Generalizar | acertar em dados novos, não só nos do treino |
-| Desvio de dados | as entradas mudam de perfil |
-| Desvio de conceito | a relação entre entrada e resposta muda |
-| MLOps | automatizar o ciclo de vida do modelo, do dado ao monitoramento |
-| Princípio dos 5% | o algoritmo é 5% do trabalho; o resto é sistema |
-| Regra dos 25% | software, dados, modelagem e negócio, em partes iguais |
-
 ### 1. Engenharia de Machine Learning > Para ir além
 - Designing Machine Learning Systems, de Chip Huyen: o livro mais direto sobre o assunto desta página.
 - Rules of Machine Learning (Google): 43 regras práticas de quem opera ML em escala. Comece pela regra 1.
-- Aula 6 — Um Sistema de Ponta a Ponta: a aula em que você constrói o sistema, não só o modelo.
+- Aula 4 — Um Sistema de Ponta a Ponta: a aula em que você constrói o sistema, não só o modelo.
 - Glossário: para revisar qualquer termo novo desta página.
 
 ### 1. Engenharia de Machine Learning > Bibliografia
@@ -781,18 +736,6 @@ projeto, não de gosto.
 O critério que decide na prática costuma ser um só: se o dado não pode
 sair da empresa, o modelo aberto deixa de ser opção e passa a ser
 requisito.
-
-### Aula 13 — Modelos de Fundação > Cola da aula
-| Conceito | O que significa |
-|---|---|
-| Modelo de fundação | Modelo grande, treinado uma vez, que serve de base para muitas tarefas |
-| Hugging Face | O repositório público de onde vêm os modelos abertos |
-| Molde de conversa | O texto com marcadores que traduz mensagens em um texto só |
-| Papéis | `system`, `user` e `assistant`: tokens especiais, nada mais |
-| Prompt de sistema | O texto que define quem o modelo é antes da conversa |
-| Zero-shot | Pedir sem exemplo nenhum |
-| Few-shot | Colocar dois ou três exemplos dentro do prompt |
-| `do_sample=False` | Sempre o token mais provável: resposta reproduzível |
 
 ### Aula 13 — Modelos de Fundação > Materiais
 - **Notebook desta aula, no Google Colab:** [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-13-modelos-de-fundacao.ipynb)
@@ -968,18 +911,6 @@ Treinar o tokenizador de novo antes de usar o modelo. Cada treino de BPE
 sorteia empates de um jeito, e a tabela sai diferente. O tokenizador é
 parte do modelo: salve os dois juntos, sempre. Nesta aula, o arquivo é
 `data/machado_bpe.json`.
-
-### Aula 9 — Do Texto aos Números > Cola da aula
-| Conceito | O que significa |
-|---|---|
-| Modelo de linguagem | Devolve a probabilidade de cada continuação possível |
-| Corpus | O monte de texto usado para treinar |
-| Token | A peça mínima que o modelo manipula |
-| Tokenizador | O programa que converte texto em tokens e de volta |
-| BPE | Juntar o par de peças mais comum, repetidas vezes |
-| Vocabulário | Quantos tokens diferentes existem na tabela |
-| Janela de contexto | Quantos tokens o modelo enxerga de uma vez |
-| Entrada e alvo | A mesma sequência, com uma casa de diferença |
 
 ### Aula 9 — Do Texto aos Números > Materiais
 - **Notebook desta aula, no Google Colab:** [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-09-do-texto-aos-numeros.ipynb)
@@ -1223,21 +1154,6 @@ custo.
 É por isso que janela grande é caro, e por que cada modelo novo anuncia a
 janela dele como se fosse uma conquista. É.
 
-### Aula 10 — Atenção > Cola da aula
-| Conceito | O que significa |
-|---|---|
-| Embutimento | A tabela que troca cada token por um vetor de 128 números |
-| Atenção | Cada posição escolhe para onde olhar, com pesos aprendidos |
-| Atenção sem pesos | A mesma ideia, comparando os vetores com eles mesmos. Funciona, e vira espelho |
-| Vetor de contexto | A saída de uma posição: ela mesma misturada com o que ela escolheu olhar |
-| Q (pergunta) | O que esta posição está procurando |
-| K (etiqueta) | O que cada posição anterior tem a oferecer |
-| V (conteúdo) | O que ela entrega, se for escolhida |
-| Produto escalar | Multiplicar casa com casa e somar: mede parecença |
-| Máscara causal | Zera tudo que aponta para o futuro, antes da softmax |
-| Cabeça | Uma atenção independente; o modelo roda várias em paralelo |
-| RoPE | A posição entra como um giro no vetor |
-
 ### Aula 10 — Atenção > Materiais
 - **Notebook desta aula, no Google Colab:** [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-10-atencao.ipynb)
 - Slides desta aula: entregues em sala.
@@ -1462,20 +1378,6 @@ arquitetura, essa, é a mesma que você acabou de montar.
 
 Nada nessa tabela é uma ideia nova. É a mesma ideia, com mais dinheiro.
 
-### Aula 11 — O Transformer e o Treino > Cola da aula
-| Conceito | O que significa |
-|---|---|
-| Transformer | Um bloco (norma, atenção, MLP) repetido várias vezes |
-| Atalho (residual) | Soma a entrada à saída de cada metade do bloco |
-| RMSNorm | Põe cada vetor num tamanho padrão |
-| SwiGLU | Camada densa com uma porta que decide o que passa |
-| Pesos amarrados | A mesma tabela serve de entrada e de saída |
-| Entropia cruzada | A perda: castiga quem erra com confiança |
-| Perplexidade | `e` elevado à perda: entre quantos tokens o modelo hesita |
-| AdamW | O otimizador padrão para modelos de linguagem |
-| Corte de gradiente | Limita o passo quando um lote sai fora do normal |
-| Aquecimento e resfriamento | A taxa sobe no começo e desce no fim |
-
 ### Aula 11 — O Transformer e o Treino > Materiais
 - **Notebook desta aula, no Google Colab:** [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-11-transformer-e-treino.ipynb)
 - Slides desta aula: entregues em sala.
@@ -1691,19 +1593,6 @@ mais antes de mostrar o resultado.
 O modelo que você usa no dia a dia não muda. O seu jeito de pedir muda.
 Pedir "explique o seu raciocínio antes de responder" costuma valer mais
 que qualquer ajuste de temperatura, e é de graça.
-
-### Aula 12 — Geração e Limites > Cola da aula
-| Conceito | O que significa |
-|---|---|
-| Logit | O número cru que o modelo dá a um token, antes da softmax |
-| Amostragem | A regra para escolher um token entre os 1.024 |
-| Gulosa | Escolher sempre o mais provável: entra em repetição |
-| Temperatura | Divide os logits: baixa concentra, alta espalha |
-| Top-k | Fica só com os k mais prováveis |
-| Top-p | Fica com os mais prováveis até somarem p |
-| Autorregressiva | Cada token gerado vira entrada do passo seguinte |
-| Alucinação | Frase provável e falsa: o modelo não distingue as duas |
-| Ajuste por instrução | O treino extra que transforma um continuador em assistente |
 
 ### Aula 12 — Geração e Limites > Materiais
 - **Notebook desta aula, no Google Colab:** [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-12-geracao-e-limites.ipynb)
@@ -2351,25 +2240,6 @@ média das distâncias. Prever uma corrida de 60 km com dados que vão até
 25 km é possível, e a fórmula avisa que a incerteza cresce. Fora da faixa
 dos dados, ela deixa de avisar direito: ali não há informação nenhuma.
 
-### Aula 1 — Regressão Linear Simples > Cola da aula
-| Conceito | O que significa |
-|---|---|
-| `w₀`, `w₁` | taxa fixa e preço por km |
-| Resíduo (`εᵢ`) | preço real menos preço previsto, corrida por corrida |
-| MSE | média dos resíduos ao quadrado |
-| Mínimos quadrados | fórmula que calcula a melhor reta direto, sem tentativa e erro |
-| Inclinação (derivada) | o quanto o erro muda quando você mexe um tiquinho no peso |
-| Gradiente | a lista das inclinações, uma por peso do modelo |
-| Gradiente descendente | ajusta os coeficientes aos poucos, na direção que reduz o erro |
-| Taxa de aprendizado (`α`) | tamanho do passo do gradiente descendente |
-| MAE | erro médio, na mesma unidade do preço |
-| RMSE | como o MAE, mas penaliza mais os erros grandes |
-| R² | fração da variação dos preços que a reta explica (0 a 1) |
-| MAPE | erro médio em porcentagem do preço real |
-| `s` (resíduo típico) | o tamanho médio de um resíduo, em reais |
-| Intervalo de predição | a faixa onde cai **uma** corrida: `ŷ ± 2s` |
-| Intervalo de confiança | a faixa onde cai a **média**, bem mais estreita |
-
 ### Aula 1 — Regressão Linear Simples > Materiais
 - **Notebook desta aula, no Google Colab:** [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-01-regressao-linear-simples.ipynb)
 - Slides desta aula: entregues em sala.
@@ -2765,24 +2635,6 @@ O que acende o alarme: um funil (o erro cresce com o preço previsto), uma
 curva (falta uma variável ou a relação não é reta), ou pontos muito longe
 do zero (candidatos a investigar um a um).
 
-### Aula 2 — Regressão Múltipla > Cola da aula
-| Conceito | O que significa |
-|---|---|
-| Regressão múltipla | uma soma de várias informações, cada uma com o seu peso |
-| Coeficiente `wⱼ` | quanto muda a previsão se `xⱼ` sobe 1, com o resto parado |
-| Variável indicadora | coluna de 0 ou 1 que representa uma categoria |
-| Categoria de referência | a categoria que fica de fora e vive dentro do `w₀` |
-| Colinearidade | duas variáveis que andam juntas e dividem o crédito |
-| `R²` ajustado | o `R²` descontando o custo de cada variável nova |
-| Resíduo contra previsto | o gráfico de diagnóstico que você olha antes de confiar |
-| Treino e teste | separar 30% dos dados que o modelo nunca vê |
-| Sobreajuste | ficar melhor no treino e pior no teste |
-| Regularização | somar ao erro uma penalidade pelo tamanho dos coeficientes |
-| Ridge | penalidade `Σw²`: encolhe todos, nunca zera |
-| Lasso | penalidade `Σ\|w\|`: zera os inúteis e tira a coluna do modelo |
-| ElasticNet | mistura das duas, com `l1_ratio` decidindo a proporção |
-| Padronizar | pôr as colunas na mesma escala, obrigatório antes de regularizar |
-
 ### Aula 2 — Regressão Múltipla > Materiais
 - **Notebook desta aula, no Google Colab:** [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-02-regressao-multipla.ipynb)
 - Slides desta aula: entregues em sala.
@@ -2812,6 +2664,12 @@ O dataset desta aula tem 400 clientes, com quatro informações sobre cada
 um: tempo de casa, valor mensal, chamados ao suporte e plano. A coluna
 `cancelou` vale 1 para quem cancelou e 0 para quem ficou. No total, 36%
 cancelaram.
+
+Isso é um **desbalanceamento de classes**: há 255 clientes que ficaram e
+145 que cancelaram. Não é extremo, mas já permite que um modelo que sempre
+responde "ficou" pareça bom pela acurácia. Por isso, além da porcentagem
+total de acertos, vamos medir quantos cancelamentos ele encontra e quantos
+alarmes são corretos.
 
 ### Aula 3 — Regressão Logística > Por que a reta não serve
 A tentação é usar a regressão da Aula 1, com 0 e 1 no lugar do preço. Veja
@@ -2990,6 +2848,20 @@ No nosso caso: `F₁ = 0,62`. O valor fica sempre entre a precisão e o
 recall, e mais perto do pior dos dois. É por isso que ele serve como
 número único: para o F1 subir, os dois precisam ir bem.
 
+### Aula 3 — Regressão Logística > Validação cruzada: medir antes de escolher
+Medir o modelo nos mesmos clientes usados para treiná-lo produz resultados
+otimistas. Reserve uma parte como **teste**, sem usá-la para escolher o
+modelo. No restante, a **validação cruzada** divide o treino em partes
+chamadas dobras: treina em algumas, mede na que ficou de fora e repete até
+que cada dobra tenha servido como validação. A média mostra se o resultado
+é estável. Como uma classe é menor, usamos dobras **estratificadas**, que
+preservam aproximadamente a proporção de cancelamentos em cada parte.
+
+Essa técnica será usada na Aula 4 para escolher hiperparâmetros. Depois
+da escolha, o teste reservado dá uma avaliação final. Os números das
+figuras de limiar a seguir foram calculados na base inteira para explicar as métricas;
+não são estimativas de desempenho em clientes novos.
+
 ### Aula 3 — Regressão Logística > Escolhendo o limiar
 Agora junte tudo. Baixar o limiar significa avisar mais gente, o que pega
 mais cancelamentos (recall sobe) e erra mais alarmes (precisão cai).
@@ -3013,14 +2885,17 @@ para nós".
 A tabela acima compara dois limiares. Existem infinitos. A **curva ROC**
 mostra todos ao mesmo tempo.
 
-Ela é um gráfico de dois números, e os dois você já calculou:
+Ela é um gráfico de dois números. **TPR** vem de *true positive rate*,
+taxa de verdadeiros positivos: entre os que cancelaram, a fração que o
+modelo encontrou. É o recall. **FPR** vem de *false positive rate*, taxa
+de falsos positivos: entre os que ficaram, a fração acusada por engano.
 
 $$\text{TPR} = \frac{VP}{VP + FN} \qquad \text{FPR} = \frac{FP}{FP + VN}$$
 
 | Símbolo | Significado |
 |---|---|
-| TPR | dos que cancelaram, quantos o modelo pegou. É o recall |
-| FPR | dos que ficaram, quantos o modelo acusou à toa |
+| TPR (taxa de verdadeiros positivos) | dos que cancelaram, quantos o modelo pegou. É o recall |
+| FPR (taxa de falsos positivos) | dos que ficaram, quantos o modelo acusou à toa |
 | `VP`, `FP`, `FN`, `VN` | as quatro caixas da matriz de confusão |
 
 Exemplo, com o limiar em 0,50: o modelo pega 56% dos cancelamentos (TPR)
@@ -3207,27 +3082,6 @@ pouco otimistas. Medimos a diferença: separando 30% dos clientes, a AUC
 cai de 0,83 no treino para 0,80 no teste. Pequena aqui, e a Aula 2 mostra
 por que ela nem sempre é.
 
-### Aula 3 — Regressão Logística > Cola da aula
-| Conceito | O que significa |
-|---|---|
-| Classificação | prever uma categoria em vez de um número |
-| Sigmoide | função em S que transforma qualquer número em algo entre 0 e 1 |
-| `z` | a soma de sempre, `w₀ + w₁x₁ + ...`, antes da sigmoide |
-| Chance (*odds*) | `p / (1 − p)`: quantas vezes cancelar é mais provável que ficar |
-| `e` elevado a `wⱼ` | o fator que multiplica a chance quando `xⱼ` sobe 1 |
-| Limiar | o ponto de corte que transforma probabilidade em decisão |
-| Matriz de confusão | as quatro caixas: VP, FP, FN, VN |
-| Acurácia | fração de acertos, enganosa quando uma classe domina a outra |
-| Precisão | dos apontados, quantos eram de verdade |
-| Recall | dos que eram de verdade, quantos o modelo apontou |
-| F1 | um número só, que só sobe se precisão e recall subirem |
-| TPR e FPR | dos que saíram quantos peguei; dos que ficaram quantos acusei |
-| Curva ROC | todos os limiares num gráfico só |
-| AUC | a chance de o modelo ordenar certo um par sorteado |
-| Calibração | a probabilidade prometida acontece na frequência prometida |
-| Brier | o MSE da probabilidade: mede calibração num número |
-| Limiar por custo | escolher o corte pela razão entre o custo dos dois erros |
-
 ### Aula 3 — Regressão Logística > Materiais
 - **Notebook desta aula, no Google Colab:** [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-03-regressao-logistica.ipynb)
 - Slides desta aula: entregues em sala.
@@ -3266,7 +3120,7 @@ Antes da primeira aula, leia Antes de começar. Leva
 dois minutos e evita perder tempo de aula com configuração.
 
 A única aula fora desse formato é a
-Aula 6, que a turma
+Aula 4, que a turma
 constrói no VS Code, no próprio computador, seguindo o README do projeto em
 vez de slides.
 
@@ -3275,8 +3129,8 @@ vez de slides.
 |---|---|
 | Fundamentos | De onde veio a IA, e o que separa um modelo de um produto |
 | Modelos Lineares | Prever um número ou uma categoria a partir de dados, e entender por que o modelo decide o que decide |
+| Sistemas de ML | Ajustar um classificador com validação cruzada e Optuna e usá-lo num painel |
 | Séries Temporais | Prever o futuro de algo que muda com o tempo |
-| Sistemas de Classificação e Previsão | Juntar um classificador e um modelo de previsão num sistema só |
 | Redes Neurais | Como uma rede neural aprende, do neurônio à imagem |
 | LLM do Zero | Construir um modelo de linguagem, peça por peça, em PyTorch |
 | IA Generativa | Usar um modelo pronto, e construir uma aplicação em cima dele |
@@ -3434,19 +3288,6 @@ A rede venceu por 20 pontos aqui, mas isso não é regra.
 A rede tem uma desvantagem que importa: ela não te dá um coeficiente para
 interpretar. Na Aula 2 você lia "cada m² soma R$ 25". Aqui não existe frase
 equivalente. Você ganhou formato e perdeu explicação.
-
-### Aula 7 — Fundamentos de Redes Neurais > Cola da aula
-| Conceito | O que significa |
-|---|---|
-| Neurônio | a soma de pesos, seguida de uma ativação |
-| Ativação | a dobra que permite fronteiras que não são retas |
-| ReLU | negativo vira zero, positivo passa direto |
-| Camada densa | todos os neurônios recebem todas as entradas |
-| Retropropagação | o cálculo que distribui a culpa do erro entre os pesos |
-| Época | uma passada por todos os exemplos |
-| Lote | quantos exemplos entram antes de cada ajuste |
-| Normalizar | pôr as colunas na mesma escala, antes de treinar |
-| Curva de treino | o gráfico que você olha antes de acreditar no modelo |
 
 ### Aula 7 — Fundamentos de Redes Neurais > Materiais
 - **Notebook desta aula, no Google Colab:** [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-07-redes-neurais.ipynb)
@@ -3667,19 +3508,6 @@ Vale registrar o custo. Um modelo de imagem sério não treina em oito
 processamento. O que você treina em sala é a versão pequena da mesma
 ideia, e ela funciona pelo mesmo motivo.
 
-### Aula 8 — Redes Convolucionais > Cola da aula
-| Conceito | O que significa |
-|---|---|
-| Achatar (flatten) | enfileirar a tabela de pixels, perdendo a vizinhança |
-| Filtro (kernel) | um quadradinho de nove pesos que a rede aprende |
-| Convolução | passar o mesmo filtro por toda a imagem, janela por janela |
-| Mapa de ativação | a imagem que sai do filtro, mostrando onde ele reagiu |
-| Peso compartilhado | os mesmos pesos servem para a imagem inteira |
-| Pooling | encolher pela metade guardando o maior de cada quadrado |
-| Canal | quantos números tem cada pixel: 1 em cinza, 3 em cor |
-| Softmax | transforma números soltos em probabilidades que somam 1 |
-| Matriz de confusão | a tabela que mostra qual categoria virou qual |
-
 ### Aula 8 — Redes Convolucionais > Materiais
 - **Notebook desta aula, no Google Colab:** [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-08-redes-convolucionais.ipynb)
 - Slides desta aula: entregues em sala.
@@ -3691,7 +3519,7 @@ ideia, e ela funciona pelo mesmo motivo.
 - CNN Explainer: uma rede convolucional inteira rodando no navegador. Clique em cada camada e veja o filtro passear.
 - Glossário: para revisar qualquer termo novo desta aula.
 
-### Aula 4 — Conceitos de Séries Temporais > Para que serve
+### Aula 5 — Conceitos de Séries Temporais > Para que serve
 Uma cafeteria perto de escritórios abre todo dia e precisa decidir quanto
 comprar de leite, quantos pães encomendar e quantas pessoas escalar. Errar
 para cima é desperdício. Errar para baixo é cliente indo embora.
@@ -3708,7 +3536,7 @@ temperatura por minuto.
 O dataset desta aula tem 1.096 dias de vendas, de janeiro de 2022 a
 dezembro de 2024.
 
-### Aula 4 — Conceitos de Séries Temporais > As três peças de qualquer série
+### Aula 5 — Conceitos de Séries Temporais > As três peças de qualquer série
 Toda série temporal pode ser lida como uma soma de peças. As três que
 importam nesta aula:
 
@@ -3726,7 +3554,7 @@ Repare no último painel. Aqueles dois mergulhos fundos não são ruído: são
 feriados, quando os escritórios fecham e a cafeteria vende R$ 719 em vez
 dos R$ 1.109 de um dia comum.
 
-### Aula 4 — Conceitos de Séries Temporais > A média móvel
+### Aula 5 — Conceitos de Séries Temporais > A média móvel
 Como se separa a tendência do resto? A ferramenta mais simples é a **média
 móvel**: em vez de olhar o valor de cada dia, você olha a média dos
 últimos dias.
@@ -3752,7 +3580,7 @@ Uma janela de 7 dias é a escolha natural aqui, porque a sazonalidade
 principal é semanal. A regra vale em geral: use uma janela do tamanho do
 ciclo que você quer apagar.
 
-### Aula 4 — Conceitos de Séries Temporais > O padrão semanal
+### Aula 5 — Conceitos de Séries Temporais > O padrão semanal
 Vale olhar a sazonalidade semanal de frente. Basta tirar a média de cada
 dia da semana ao longo dos três anos.
 
@@ -3770,7 +3598,7 @@ Esse desenho é estável, e é exatamente por isso que ele serve para prever.
 Um padrão que se repete há três anos provavelmente se repete na semana que
 vem.
 
-### Aula 4 — Conceitos de Séries Temporais > A regra de ouro: o corte é no tempo
+### Aula 5 — Conceitos de Séries Temporais > A regra de ouro: o corte é no tempo
 Aqui mora o erro mais caro do assunto inteiro.
 
 Nas aulas anteriores, separar treino e teste era sorteio: pegue 80% das
@@ -3789,7 +3617,7 @@ resultado não vale nada: o modelo viu o futuro durante o treino. Isso se
 chama **vazamento de dados** (*data leakage*), e o sintoma é sempre o
 mesmo. Um desempenho excelente no teste que não se repete na vida real.
 
-### Aula 4 — Conceitos de Séries Temporais > Três previsões sem modelo nenhum
+### Aula 5 — Conceitos de Séries Temporais > Três previsões sem modelo nenhum
 Antes de treinar qualquer coisa, faça as previsões mais burras possíveis.
 Elas são a régua: um modelo que não vence essas três não está pagando o
 próprio trabalho.
@@ -3826,7 +3654,7 @@ A sazonal ingênua erra quase metade das outras duas, e não usa modelo
 nenhum: ela só repete a última semana. Qualquer modelo desta série tem que
 começar batendo R$ 63,78 de MAE.
 
-### Aula 4 — Conceitos de Séries Temporais > MAPE: o erro em porcentagem
+### Aula 5 — Conceitos de Séries Temporais > MAPE: o erro em porcentagem
 MAE, RMSE e MAPE você já conhece da Aula 1. Aqui o MAPE ganha uma
 importância extra, e vale relembrar por quê: ele mede o erro como fração
 do valor real, e por isso compara períodos de movimento diferente.
@@ -3847,33 +3675,20 @@ torna útil para comparar períodos de movimento diferente.
 O cuidado com o MAPE: ele explode quando o valor real chega perto de zero.
 Numa série que passa por zero, use MAE.
 
-### Aula 4 — Conceitos de Séries Temporais > Cola da aula
-| Conceito | O que significa |
-|---|---|
-| Série temporal | valores medidos ao longo do tempo, em que a ordem importa |
-| Tendência | para onde a série caminha no longo prazo |
-| Sazonalidade | padrão que se repete em intervalo fixo (semana, ano) |
-| Média móvel | média dos últimos `k` valores, usada para suavizar |
-| Corte no tempo | treino é o passado, teste é o futuro. Nunca sorteio |
-| Vazamento de dados | quando o modelo enxerga o futuro durante o treino |
-| Previsão ingênua | amanhã é igual a hoje |
-| Sazonal ingênua | amanhã é igual ao mesmo dia da semana passada |
-| MAPE | o erro médio em porcentagem do valor real |
-
-### Aula 4 — Conceitos de Séries Temporais > Materiais
-- **Notebook desta aula, no Google Colab:** [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-04-conceitos-series-temporais.ipynb)
+### Aula 5 — Conceitos de Séries Temporais > Materiais
+- **Notebook desta aula, no Google Colab:** [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-05-conceitos-series-temporais.ipynb)
 - Slides desta aula: entregues em sala.
 - Dataset: `vendas_cafeteria.csv`
 
 Se ainda não sabe como abrir o notebook, veja
 Antes de começar primeiro.
 
-### Aula 4 — Conceitos de Séries Temporais > Para ir além
+### Aula 5 — Conceitos de Séries Temporais > Para ir além
 - `rolling` no pandas: a função que calcula médias móveis em uma linha.
 - Forecasting: Principles and Practice: o livro gratuito de Hyndman e Athanasopoulos, referência da área. O capítulo 2 é esta aula inteira, em inglês.
 - Glossário: para revisar qualquer termo novo desta aula.
 
-### Aula 5 — Séries Temporais com Prophet > Para que serve
+### Aula 6 — Séries Temporais com Prophet > Para que serve
 Na aula passada, a melhor previsão para a cafeteria era repetir a semana
 anterior. Ela erra R$ 63,78 por dia, em média, e não custa nada. É a
 régua.
@@ -3888,8 +3703,8 @@ uma equipe da Meta, e pensada para séries de negócio: vendas, acessos,
 pedidos. É a ferramenta que resolve a maior parte dos casos reais sem
 exigir doutorado em estatística.
 
-### Aula 5 — Séries Temporais com Prophet > O que o Prophet faz
-A ideia é a mesma da Aula 4, agora escrita como modelo.
+### Aula 6 — Séries Temporais com Prophet > O que o Prophet faz
+A ideia é a mesma da Aula 5, agora escrita como modelo.
 
 $$y(t) = g(t) + s(t) + h(t) + \varepsilon_t$$
 
@@ -3908,7 +3723,7 @@ previsão é `1.320 − 15 + 110 = 1.415` reais.
 Repare que é uma soma, como todos os modelos do curso. A diferença é que
 cada parcela agora é uma função do tempo, e não um peso vezes uma coluna.
 
-### Aula 5 — Séries Temporais com Prophet > O formato que ele exige
+### Aula 6 — Séries Temporais com Prophet > O formato que ele exige
 O Prophet só aceita a tabela com duas colunas, e com estes nomes exatos:
 
 | Coluna | O que é |
@@ -3919,13 +3734,13 @@ O Prophet só aceita a tabela com duas colunas, e com estes nomes exatos:
 Renomear as colunas é o primeiro passo de qualquer projeto com Prophet, e
 é onde mais gente trava na primeira vez.
 
-### Aula 5 — Séries Temporais com Prophet > Três linhas para treinar e prever
+### Aula 6 — Séries Temporais com Prophet > Três linhas para treinar e prever
 `make_future_dataframe` cria a tabela de datas que você quer prever,
 incluindo o histórico. `predict` devolve uma tabela com uma linha por dia
 e várias colunas, das quais três importam agora: `yhat` (a previsão),
 `yhat_lower` e `yhat_upper` (as bordas do intervalo de incerteza).
 
-### Aula 5 — Séries Temporais com Prophet > As peças que ele estimou sozinho
+### Aula 6 — Séries Temporais com Prophet > As peças que ele estimou sozinho
 A parte mais útil do Prophet não é a previsão: é poder abrir o modelo e
 olhar cada peça separada.
 
@@ -3937,7 +3752,7 @@ Esse quadro é o que você leva para uma reunião. Ele responde perguntas de
 negócio ("o crescimento continua?", "vale abrir aos domingos?") melhor do
 que qualquer número único de previsão.
 
-### Aula 5 — Séries Temporais com Prophet > Feriados: o que o modelo não adivinha
+### Aula 6 — Séries Temporais com Prophet > Feriados: o que o modelo não adivinha
 Uma coisa o Prophet não descobre sozinho: o calendário. Ele não sabe que
 25 de dezembro é diferente dos outros dias.
 
@@ -3946,7 +3761,7 @@ Para ensinar o calendário, você entrega uma tabela de feriados:
 Essa lista pode ir além do calendário oficial. Promoções, greves, jogos
 importantes, qualquer data que a sua série "sente" entra ali.
 
-### Aula 5 — Séries Temporais com Prophet > O resultado contra a régua
+### Aula 6 — Séries Temporais com Prophet > O resultado contra a régua
 Agora o teste que importa, nos mesmos 28 dias escondidos da aula passada:
 
 | Previsão | MAE | RMSE | MAPE |
@@ -3973,7 +3788,7 @@ que o modelo é bom, sem nunca comparar com a régua. Um gráfico de previsão
 sempre parece convincente. A régua é o que separa um modelo útil de um
 enfeite caro.
 
-### Aula 5 — Séries Temporais com Prophet > O intervalo de incerteza
+### Aula 6 — Séries Temporais com Prophet > O intervalo de incerteza
 Toda linha de `yhat` vem acompanhada de `yhat_lower` e `yhat_upper`. Eles
 formam a faixa em torno da previsão, e por padrão cobrem 80% dos casos.
 
@@ -4004,7 +3819,7 @@ Use a faixa para conversar sobre risco. "A previsão é R$ 1.200, mas pode
 ficar entre R$ 1.130 e R$ 1.280" é uma frase muito mais útil para quem vai
 comprar leite do que um número solto.
 
-### Aula 5 — Séries Temporais com Prophet > Quando a tendência dobra
+### Aula 6 — Séries Temporais com Prophet > Quando a tendência dobra
 O Prophet não obriga a tendência a ser uma reta. Ele permite que ela mude
 de inclinação em alguns pontos, chamados **pontos de mudança**
 (*changepoints*).
@@ -4018,7 +3833,7 @@ seguir o ruído e a previsão fica instável. O parâmetro
 `changepoint_prior_scale` controla essa liberdade: quanto maior, mais o
 modelo aceita dobrar.
 
-### Aula 5 — Séries Temporais com Prophet > Quando o Prophet não é a resposta
+### Aula 6 — Séries Temporais com Prophet > Quando o Prophet não é a resposta
 Ele resolve a maioria dos casos de negócio, mas não todos.
 
 | Situação | Por quê |
@@ -4027,212 +3842,62 @@ Ele resolve a maioria dos casos de negócio, mas não todos.
 | Dados de alta frequência com muita estrutura | séries de segundos ou de mercado financeiro pedem outras ferramentas |
 | Quando outras variáveis explicam mais que o tempo | se preço e promoção mandam mais que o calendário, um modelo de regressão pode servir melhor |
 
-### Aula 5 — Séries Temporais com Prophet > Cola da aula
-| Conceito | O que significa |
-|---|---|
-| `ds` e `y` | os dois nomes de coluna que o Prophet exige |
-| `fit` | treina o modelo no passado |
-| `make_future_dataframe` | cria a tabela de datas a prever |
-| `predict` | devolve `yhat`, `yhat_lower` e `yhat_upper` |
-| Componentes | tendência, sazonalidades e feriados, cada um em um gráfico |
-| `holidays` | a tabela de datas especiais que você entrega ao modelo |
-| Intervalo de incerteza | a faixa que cobre 80% dos casos, e não conhece eventos novos |
-| Ponto de mudança | onde a tendência tem permissão para dobrar |
-| A régua | as previsões de referência da Aula 4, que o modelo tem que vencer |
-
-### Aula 5 — Séries Temporais com Prophet > Materiais
-- **Notebook desta aula, no Google Colab:** [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-05-series-temporais-prophet.ipynb)
+### Aula 6 — Séries Temporais com Prophet > Materiais
+- **Notebook desta aula, no Google Colab:** [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-06-series-temporais-prophet.ipynb)
 - Slides desta aula: entregues em sala.
 - Dataset: `vendas_cafeteria.csv`
 
 O notebook desta aula instala o Prophet na primeira célula, com
-`pip install prophet`. É a única aula do curso que instala biblioteca:
-todas as outras usam só o que já vem no Colab.
+`pip install prophet`. A Aula 4 também instala o Optuna no Colab.
 
-### Aula 5 — Séries Temporais com Prophet > Para ir além
+### Aula 6 — Séries Temporais com Prophet > Para ir além
 - Documentação do Prophet: o guia oficial, com exemplos em Python e R.
 - Validação cruzada no Prophet: como testar em várias janelas de tempo em vez de uma só.
 - Forecasting: Principles and Practice: os capítulos 5 e 7 explicam as previsões de referência e os modelos de regressão no tempo, em inglês.
 - Glossário: para revisar qualquer termo novo desta aula.
 
-### Aula 6 — Um Sistema de Ponta a Ponta > Para que serve
-Nas cinco aulas anteriores você treinou modelos em notebooks. O notebook é
-ótimo para aprender e para experimentar, mas ninguém entrega um notebook
-para a equipe de atendimento.
+### Aula 4 — Um Sistema de Ponta a Ponta > Para que serve
+O Clube do Café quer priorizar os clientes com maior risco de cancelar.
+Temos 400 assinantes e 146 cancelamentos (36,5%). As classes são
+**moderadamente desbalanceadas**: se o sistema disser que ninguém cancela,
+acerta 63,5% e não ajuda a equipe. Por isso avaliamos precisão, recall e F1,
+além da acurácia.
 
-Um modelo só vira útil quando alguém que não sabe programar consegue fazer
-uma pergunta e receber uma resposta. É disso que esta aula trata: o
-caminho do modelo até a decisão.
+O sistema responde uma pergunta: **quais clientes entram na lista de
+contato?** Ele usa apenas regressão logística, o classificador da aula
+anterior.
 
-O negócio da vez é o **Clube do Café**, uma assinatura mensal de café em
-grãos. Ele tem duas perguntas, e você já sabe responder as duas:
+### Aula 4 — Um Sistema de Ponta a Ponta > Do dado à decisão
+O arquivo `clientes.csv` traz tempo de casa, valor mensal, entregas
+atrasadas e plano. A coluna `cancelou` é a resposta conhecida. O plano
+vira três colunas de 0 e 1; as entradas numéricas são padronizadas.
 
-| Pergunta | Modelo | Aula |
-|---|---|---|
-| Quais assinantes correm risco de cancelar? | Regressão logística | Aula 3 |
-| Quanto o clube vai faturar no próximo mês? | Prophet | Aula 5 |
+Separamos 25% dos clientes para o teste final, mantendo a proporção de
+cancelamentos com `stratify=y`. Nos outros 75%, fazemos validação cruzada
+estratificada de cinco dobras: cada configuração treina cinco vezes e
+recebe a média do F1. A padronização está dentro do `Pipeline`, então
+cada dobra aprende suas médias somente com a parte usada para treino.
 
-O que muda hoje é o entorno. As duas respostas vão morar na mesma tela, e
-a tela vai rodar no seu computador.
+### Aula 4 — Um Sistema de Ponta a Ponta > Tuning com Optuna
+**Hiperparâmetros** são escolhas feitas antes do treino. Vamos ajustar
+dois: `C`, que controla a força da regularização, e `class_weight`, que
+pode dar mais peso à classe com menos exemplos. O Optuna experimenta 15
+combinações e guarda a de melhor F1 médio nas dobras.
 
-### Aula 6 — Um Sistema de Ponta a Ponta > O modelo é uma peça, não o sistema
-Esta é a ideia que organiza a aula inteira.
+O teste separado não participa dessa escolha. Depois do tuning,
+treinamos a melhor configuração com todo o conjunto de treino e medimos
+o resultado uma vez no teste. Esse relatório dá uma estimativa mais
+honesta de como o classificador pode funcionar com clientes novos.
 
-Repare que o modelo ocupa uma caixa das quatro. Nos projetos reais essa
-proporção se mantém: a maior parte do trabalho está em levar dados até o
-modelo e em levar a resposta do modelo até quem decide.
+### Aula 4 — Um Sistema de Ponta a Ponta > O painel
+O `app.py` mostra o F1 da validação cruzada, os melhores hiperparâmetros
+e o relatório do teste. Um controle de limiar transforma as probabilidades
+em lista de contato: ao baixar o limiar, a lista cresce. Essa lista inclui
+os clientes do arquivo usado na aula e serve para explorar a decisão; o
+resultado do teste separado é a medida de desempenho.
 
-O sistema desta aula tem quatro arquivos, e cada um faz uma coisa só.
+No macOS ou Linux, ative com `source .venv/bin/activate`.
 
-| Arquivo | Responsabilidade |
-|---|---|
-| `dados/clientes.csv` e `dados/vendas.csv` | o que já aconteceu |
-| `modelos.py` | carrega, treina e prevê. Não sabe nada de tela |
-| `app.py` | desenha a tela. Não sabe nada de modelo |
-| `requirements.txt` | as quatro bibliotecas que o sistema usa |
-
-Essa separação não é frescura. Quando a previsão sai errada, você sabe em
-que arquivo procurar. Quando a tela precisa de um botão novo, você mexe em
-um arquivo só.
-
-### Aula 6 — Um Sistema de Ponta a Ponta > Antes da aula: deixe a máquina pronta
-A instalação é a parte mais chata e a mais fácil de resolver com
-antecedência. Faça isso antes, com calma.
-
-Você precisa de **Python 3.10 ou mais novo** e do **VS Code**. Para
-conferir a versão do Python, abra o terminal e digite `python --version`
-(no macOS e no Linux, às vezes é `python3 --version`).
-
-Depois baixe a pasta do sistema, crie o ambiente virtual e instale as
-bibliotecas:
-
-No Windows, ative com `.venv\Scripts\activate`. No macOS e no Linux, com
-`source .venv/bin/activate`. Deu certo quando aparece `(.venv)` no começo
-da linha.
-
-A instalação leva de dois a cinco minutos. O Prophet é o mais demorado.
-
-**Erro do dia**
-
-Rodar `pip install` sem o ambiente virtual ativo, e depois `streamlit`
-responder `command not found`. O sintoma é sempre esse, e a causa quase
-sempre é a mesma: a linha do terminal não começa com `(.venv)`. Ative o
-ambiente e repita. Em aula, esse é o problema número um.
-
-### Aula 6 — Um Sistema de Ponta a Ponta > Os dois modelos, em oito funções
-O `modelos.py` inteiro cabe numa tela. Ele tem oito funções curtas, e
-nenhuma delas faz mais de uma coisa.
-
-| Função | O que faz |
-|---|---|
-| `carregar_clientes` | lê o CSV de assinantes |
-| `carregar_vendas` | lê o CSV de receita diária |
-| `preparar_tabela` | transforma o plano em colunas de 0 e 1 |
-| `treinar_classificador` | ajusta a regressão logística |
-| `calcular_risco` | devolve a probabilidade de cancelar de cada cliente |
-| `risco_de_um_cliente` | faz o mesmo para um cliente digitado na tela |
-| `treinar_previsor` | ajusta o Prophet, com a lista de feriados |
-| `prever` | devolve a previsão dos próximos dias |
-
-Nada aqui é novo. É o mesmo código das Aulas 3 e 5, agora com nome, guardado
-num arquivo em vez de espalhado por células de notebook.
-
-Uma linha merece atenção, porque ela resolve um problema clássico:
-
-Quando a tela manda um cliente só, o `get_dummies` cria colunas para o
-plano daquele cliente, e só. O `reindex` põe as colunas na mesma ordem do
-treino e preenche com zero o que faltar. Sem essa linha, o modelo recebe as
-colunas trocadas e devolve um número sem sentido.
-
-### Aula 6 — Um Sistema de Ponta a Ponta > O limiar é uma decisão de operação
-O classificador devolve uma probabilidade. Quem transforma probabilidade em
-lista de ligações é o limiar, e no painel ele é um controle deslizante.
-
-Com os 400 assinantes do Clube do Café:
-
-| Limiar | Clientes na lista | Receita mensal em risco | Da lista, cancelaram de fato |
-|---|---|---|---|
-| 0,40 | 168 | R$ 13.265 | 61% |
-| 0,50 | 119 | R$ 9.748 | 67% |
-
-Suba o limiar e a lista encolhe, mas fica mais certeira. Desça e você
-alcança mais gente que ia cancelar, ao custo de ligar para quem ia ficar.
-
-Por isso o limiar mora na tela, e não escondido no código. Quem decide o
-tamanho da operação é a pessoa que vai fazer as ligações, não o modelo.
-
-### Aula 6 — Um Sistema de Ponta a Ponta > A previsão que o painel mostra
-O segundo modelo é o Prophet da Aula 5, treinado nos 731 dias de receita do
-clube, com a lista de feriados.
-
-O painel resume isso em três números: R$ 89.853 previstos para os próximos
-30 dias, R$ 2.995 por dia em média, e R$ 84.475 no pior caso da faixa. O
-terceiro é o que interessa para quem vai assumir um compromisso de compra.
-
-### Aula 6 — Um Sistema de Ponta a Ponta > A tela, em seis comandos
-O `app.py` usa seis comandos do Streamlit. Seis. É todo o vocabulário que
-esta aula precisa.
-
-| Comando | O que faz |
-|---|---|
-| `st.title` e `st.subheader` | escrevem títulos |
-| `st.tabs` | cria as abas |
-| `st.slider` e `st.selectbox` | pedem um número e uma opção |
-| `st.metric` | mostra um número grande, com rótulo |
-| `st.dataframe` | mostra uma tabela |
-| `st.line_chart` | desenha um gráfico de linha |
-
-O Streamlit funciona de um jeito diferente do que você talvez espere: toda
-vez que alguém mexe num controle, ele **roda o arquivo inteiro de novo**,
-de cima para baixo. É isso que faz a tela reagir sem você escrever nada de
-interface.
-
-Isso traz um problema óbvio: treinar os dois modelos a cada clique deixaria
-o painel lento. A solução é uma linha:
-
-Com ela, o Streamlit guarda o resultado e só executa a função na primeira
-vez. Os cliques seguintes reaproveitam os modelos já treinados.
-
-### Aula 6 — Um Sistema de Ponta a Ponta > O que este sistema ainda não é
-O painel funciona, mas ele não está pronto para uma empresa depender dele.
-Vale saber a diferença.
-
-| O que falta | Por quê |
-|---|---|
-| Retreinar sozinho | os modelos aprenderam com os dados de hoje. Daqui a três meses, o mundo mudou |
-| Guardar o que previu | sem registro, você nunca descobre se as previsões estavam certas |
-| Monitorar a entrada | se o CSV chegar com uma coluna a menos, o painel quebra na cara do usuário |
-| Rodar em algum lugar | hoje ele roda na sua máquina. Para a equipe usar, precisa de um servidor |
-| Controlar quem vê | a lista tem nome de cliente e valor de contrato |
-
-Nenhum desses itens é difícil sozinho. Juntos, eles são a diferença entre
-um protótipo e um produto, e é neles que mora a maior parte do trabalho de
-quem faz sistemas de dados.
-
-### Aula 6 — Um Sistema de Ponta a Ponta > Cola da aula
-| Conceito | O que significa |
-|---|---|
-| Ambiente virtual (`.venv`) | uma caixa de bibliotecas só deste projeto |
-| `requirements.txt` | a lista de bibliotecas, para qualquer máquina repetir |
-| Separação de arquivos | `modelos.py` pensa, `app.py` mostra |
-| `streamlit run app.py` | o comando que sobe o painel |
-| Reexecução | a cada clique, o Streamlit roda o arquivo inteiro de novo |
-| `@st.cache_resource` | guarda o modelo treinado entre uma execução e outra |
-| Limiar na tela | quem decide o tamanho da operação é quem opera |
-| Protótipo x produto | falta retreino, registro, monitoramento e servidor |
-
-### Aula 6 — Um Sistema de Ponta a Ponta > Materiais
-- **O roteiro da aula**: `projeto-aula-06/README.md`. Esta é a única aula sem slides: o próprio README do projeto guia a aula inteira, do setup ao último desafio.
-- O sistema completo: `projeto-aula-06/`
-- **Notebook de apoio, no Google Colab:** [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-06-sistema-ponta-a-ponta.ipynb)
-- Dados: `clube_cafe_clientes.csv` e `clube_cafe_vendas.csv`
-
-Para baixar o sistema sem instalar o Git, use o botão verde `Code` do
-GitHub e escolha `Download ZIP`. Descompacte e abra a pasta
-`projeto-aula-06` no VS Code.
-
-### Aula 6 — Um Sistema de Ponta a Ponta > Para ir além
-- Documentação do Streamlit: a lista completa de comandos, com exemplo de cada um.
-- Streamlit Community Cloud: publica o painel na internet a partir de um repositório do GitHub, de graça.
-- Primeiros passos com Streamlit: o tutorial oficial, que constrói um painel do zero em meia hora.
-- Glossário: para revisar qualquer termo novo desta aula.
+O roteiro do projeto mostra a implementação
+passo a passo. O notebook da aula
+permite experimentar o tuning antes de abrir o VS Code.

@@ -282,35 +282,6 @@ custo.
 É por isso que janela grande é caro, e por que cada modelo novo anuncia a
 janela dele como se fosse uma conquista. É.
 
-## Explique sem olhar
-
-O teste mais honesto de que você entendeu é tentar explicar sem ler.
-Feche esta página e responda em voz alta, como se explicasse para um
-colega. Onde travar, é ali que falta entender: volte à seção.
-
-1. Faça a atenção sem pesos nenhum, com três palavras, em quatro passos.
-2. Por que a versão sem pesos faz cada palavra olhar para si mesma?
-3. Qual é o papel de Q, K e V, em uma frase cada?
-4. Por que dividir por √d antes da softmax?
-5. O que a máscara causal impede, e o que acontece com um modelo treinado sem ela?
-6. O que muda na saída se você embaralhar as palavras da frase, e por quê?
-
-## Cola da aula
-
-| Conceito | O que significa |
-|---|---|
-| Embutimento | A tabela que troca cada token por um vetor de 128 números |
-| Atenção | Cada posição escolhe para onde olhar, com pesos aprendidos |
-| Atenção sem pesos | A mesma ideia, comparando os vetores com eles mesmos. Funciona, e vira espelho |
-| Vetor de contexto | A saída de uma posição: ela mesma misturada com o que ela escolheu olhar |
-| Q (pergunta) | O que esta posição está procurando |
-| K (etiqueta) | O que cada posição anterior tem a oferecer |
-| V (conteúdo) | O que ela entrega, se for escolhida |
-| Produto escalar | Multiplicar casa com casa e somar: mede parecença |
-| Máscara causal | Zera tudo que aponta para o futuro, antes da softmax |
-| Cabeça | Uma atenção independente; o modelo roda várias em paralelo |
-| RoPE | A posição entra como um giro no vetor |
-
 ## Materiais
 
 - **Notebook desta aula, no Google Colab:** [![Abrir no Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-10-atencao.ipynb)

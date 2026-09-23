@@ -193,30 +193,6 @@ A rede tem uma desvantagem que importa: ela não te dá um coeficiente para
 interpretar. Na Aula 2 você lia "cada m² soma R$ 25". Aqui não existe frase
 equivalente. Você ganhou formato e perdeu explicação.
 
-## Explique sem olhar
-
-O teste mais honesto de que você entendeu é tentar explicar sem ler.
-Feche esta página e responda em voz alta, como se explicasse para um
-colega. Onde travar, é ali que falta entender: volte à seção.
-
-1. O que um neurônio com sigmoide tem a ver com a regressão logística da Aula 3?
-2. O que aconteceria se você empilhasse camadas sem função de ativação?
-3. O que significa a curva de validação subir enquanto a de treino cai?
-
-## Cola da aula
-
-| Conceito | O que significa |
-|---|---|
-| Neurônio | a soma de pesos, seguida de uma ativação |
-| Ativação | a dobra que permite fronteiras que não são retas |
-| ReLU | negativo vira zero, positivo passa direto |
-| Camada densa | todos os neurônios recebem todas as entradas |
-| Retropropagação | o cálculo que distribui a culpa do erro entre os pesos |
-| Época | uma passada por todos os exemplos |
-| Lote | quantos exemplos entram antes de cada ajuste |
-| Normalizar | pôr as colunas na mesma escala, antes de treinar |
-| Curva de treino | o gráfico que você olha antes de acreditar no modelo |
-
 ## Materiais
 
 - **Notebook desta aula, no Google Colab:** [![Abrir no Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-07-redes-neurais.ipynb)

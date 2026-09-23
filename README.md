@@ -18,13 +18,13 @@ As páginas também podem ser lidas uma a uma, em Markdown, dentro de
 | [`docs/`](docs/README.md) | as páginas do livro em Markdown, e as imagens delas |
 | [`notebooks/`](notebooks/) | um notebook por aula, para abrir no Google Colab |
 | [`data/`](data/README.md) | os datasets e o modelo treinado que os notebooks usam |
-| [`projeto-aula-06/`](projeto-aula-06/) | o sistema que a Aula 6 constrói, para rodar no VS Code |
+| [`projeto-aula-04/`](projeto-aula-04/) | o sistema que a Aula 4 constrói, para rodar no VS Code |
 
 ## Como abrir um notebook
 
 Cada aula do livro tem, na seção **Materiais**, um botão que abre o
-notebook direto no Google Colab. Nada para instalar: o Colab roda no
-navegador e já vem com as bibliotecas do curso.
+notebook direto no Google Colab. O Colab roda no navegador; as aulas que
+precisam de Optuna ou Prophet instalam a biblioteca na primeira célula.
 
 No Colab, faça **Arquivo → Salvar uma cópia no Drive** antes de escrever
 qualquer coisa. Sem isso, o seu trabalho se perde ao fechar a aba.
@@ -39,9 +39,9 @@ sem download nenhum.
 | 1. Regressão Linear Simples | [Colab](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-01-regressao-linear-simples.ipynb) |
 | 2. Regressão Múltipla | [Colab](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-02-regressao-multipla.ipynb) |
 | 3. Regressão Logística | [Colab](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-03-regressao-logistica.ipynb) |
-| 4. Conceitos de Séries Temporais | [Colab](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-04-conceitos-series-temporais.ipynb) |
-| 5. Séries Temporais com Prophet | [Colab](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-05-series-temporais-prophet.ipynb) |
-| 6. Um Sistema de Ponta a Ponta | [Colab](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-06-sistema-ponta-a-ponta.ipynb) |
+| 4. Um Sistema de Ponta a Ponta | [Colab](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-04-sistema-ponta-a-ponta.ipynb) |
+| 5. Conceitos de Séries Temporais | [Colab](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-05-conceitos-series-temporais.ipynb) |
+| 6. Séries Temporais com Prophet | [Colab](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-06-series-temporais-prophet.ipynb) |
 | 7. Fundamentos de Redes Neurais | [Colab](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-07-redes-neurais.ipynb) |
 | 8. Redes Convolucionais | [Colab](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-08-redes-convolucionais.ipynb) |
 | 9. Do Texto aos Números | [Colab](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-09-do-texto-aos-numeros.ipynb) |
@@ -53,5 +53,5 @@ sem download nenhum.
 
 ## Sobre os slides
 
-Os slides são entregues em sala e não ficam neste repositório, assim como
-os gabaritos dos exercícios e o material de preparação das aulas.
+Os slides de apoio são entregues em sala e não ficam neste repositório.
+As páginas de leitura e os notebooks estão disponíveis aqui.

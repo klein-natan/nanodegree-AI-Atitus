@@ -268,30 +268,6 @@ Vale registrar o custo. Um modelo de imagem sério não treina em oito
 processamento. O que você treina em sala é a versão pequena da mesma
 ideia, e ela funciona pelo mesmo motivo.
 
-## Explique sem olhar
-
-O teste mais honesto de que você entendeu é tentar explicar sem ler.
-Feche esta página e responda em voz alta, como se explicasse para um
-colega. Onde travar, é ali que falta entender: volte à seção.
-
-1. O que o achatar joga fora, e por que isso importa numa foto?
-2. Como um filtro de nove pesos consegue cobrir uma foto de 784 pixels?
-3. Por que o pooling perde a posição exata de propósito?
-
-## Cola da aula
-
-| Conceito | O que significa |
-|---|---|
-| Achatar (flatten) | enfileirar a tabela de pixels, perdendo a vizinhança |
-| Filtro (kernel) | um quadradinho de nove pesos que a rede aprende |
-| Convolução | passar o mesmo filtro por toda a imagem, janela por janela |
-| Mapa de ativação | a imagem que sai do filtro, mostrando onde ele reagiu |
-| Peso compartilhado | os mesmos pesos servem para a imagem inteira |
-| Pooling | encolher pela metade guardando o maior de cada quadrado |
-| Canal | quantos números tem cada pixel: 1 em cinza, 3 em cor |
-| Softmax | transforma números soltos em probabilidades que somam 1 |
-| Matriz de confusão | a tabela que mostra qual categoria virou qual |
-
 ## Materiais
 
 - **Notebook desta aula, no Google Colab:** [![Abrir no Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-08-redes-convolucionais.ipynb)
