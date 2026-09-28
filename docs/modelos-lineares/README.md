@@ -15,3 +15,4 @@ não).
 | [Aula 1 — Regressão Linear Simples](aula-01-regressao-linear-simples.md) | Reta de previsão, gradiente descendente, métricas de regressão | Disponível |
 | [Aula 2 — Regressão Múltipla](aula-02-regressao-multipla.md) | Várias variáveis ao mesmo tempo, preditores categóricos, interpretação dos coeficientes | Disponível |
 | [Aula 3 — Regressão Logística](aula-03-regressao-logistica.md) | Função sigmoide, interpretação dos coeficientes, métricas de classificação | Disponível |
+| [Quiz — Modelos Lineares](quiz-modelos-lineares.md) | 10 perguntas de interpretação sobre as três aulas | Disponível |

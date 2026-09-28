@@ -17,6 +17,7 @@
 * [Aula 1 — Regressão Linear Simples](modelos-lineares/aula-01-regressao-linear-simples.md)
 * [Aula 2 — Regressão Múltipla](modelos-lineares/aula-02-regressao-multipla.md)
 * [Aula 3 — Regressão Logística](modelos-lineares/aula-03-regressao-logistica.md)
+* [Quiz — Modelos Lineares](modelos-lineares/quiz-modelos-lineares.md)
 
 ## Sistemas de ML
 

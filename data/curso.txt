@@ -3098,6 +3098,13 @@ Antes de começar primeiro.
 - Precisão e recall, visualmente (MLU-Explain): mova o limiar e veja as quatro caixas se redistribuírem.
 - Glossário: para revisar qualquer termo novo desta aula.
 
+### Quiz — Modelos Lineares > Onde revisar
+| Se errou a questão | Releia |
+|---|---|
+| 1, 2 ou 3 | Aula 1 — Regressão Linear Simples |
+| 4, 5 ou 6 | Aula 2 — Regressão Múltipla |
+| 7, 8, 9 ou 10 | Aula 3 — Regressão Logística |
+
 ### Roadmap > Como este curso funciona
 Você não precisa saber programar bem, nem lembrar de cálculo, para
 acompanhar. Cada aula parte de uma situação concreta, o preço de um
