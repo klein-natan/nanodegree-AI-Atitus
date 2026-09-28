@@ -1,5 +1,5 @@
 ---
-description: Dez perguntas para conferir se você sabe ler e interpretar um modelo linear
+description: Quinze perguntas para conferir se você sabe ler e interpretar um modelo linear
 ---
 
 # Quiz — Modelos Lineares
@@ -7,7 +7,7 @@ description: Dez perguntas para conferir se você sabe ler e interpretar um mode
 {% hint style="info" %}
 **Como funciona**
 
-São 10 perguntas sobre as Aulas 1, 2 e 3. Nenhuma pede conta: todas pedem
+São 15 perguntas sobre as Aulas 1, 2 e 3. Nenhuma pede conta: todas pedem
 para você **ler um resultado** e dizer o que ele significa. Clique na
 opção que achar certa. A resposta e uma explicação aparecem na hora, e o
 placar no fim da página soma os acertos. Não vale nota, e o botão
@@ -110,6 +110,53 @@ O modelo de cancelamento tem **AUC de 0,82**. Qual é a leitura correta?
 ? A AUC mede se o modelo **ordena** bem os clientes: 0,5 é chute, 1 é perfeito. Ela não depende de limiar nenhum, e por isso não é uma taxa de acertos. Como ela só olha a ordem, um modelo com boa AUC ainda pode dar probabilidades exageradas.
 ```
 
+## Treino, teste e ajuste
+
+```quiz
+Um colega treina um modelo de aluguel com **todos** os 300 apartamentos e mede o R² **nos mesmos 300**: dá 0,95. Por que esse número não serve para dizer se o modelo é bom?
+- Porque o R² só vale para a regressão logística.
+- Porque 300 apartamentos é pouco. Com 3.000, medir no treino seria confiável.
++ Porque o modelo está sendo medido em dados que já viu. O número sai otimista e não diz como ele vai com apartamentos novos.
+- Serve, sim: usar todos os dados no treino deixa a medida mais honesta.
+? É como dar a prova com as mesmas questões da lista de exercícios: a nota mostra quem decorou, não quem aprendeu. Por isso separamos um **conjunto de teste** que o modelo nunca vê durante o treino. Só ele mede o desempenho em casos novos.
+```
+
+```quiz
+O que acontece numa **validação cruzada com 5 dobras**?
++ O treino é dividido em 5 partes. O modelo treina 5 vezes, e em cada vez uma parte diferente fica de fora para servir de prova. A nota é a média das 5 provas.
+- Os dados são divididos em 5 partes, e o modelo treina só com a melhor delas.
+- O modelo treina 5 vezes com os mesmos dados, para ficar mais preciso a cada rodada.
+- O conjunto de teste é dividido em 5, para medir o modelo final 5 vezes.
+? A validação cruzada funciona como provas simuladas feitas só com o treino. Cada parte serve de prova uma vez, e a média das notas é mais estável que uma prova só. Assim dá para comparar modelos sem gastar o conjunto de teste, que fica guardado para o fim.
+```
+
+```quiz
+Para escolher a força do freio da regularização, alguém testa 50 valores e fica com o que deu **o melhor resultado no conjunto de teste**. Depois, apresenta esse resultado como o desempenho do modelo. Qual é o problema?
+- Nenhum: é para isso que serve o conjunto de teste.
++ O teste passou a fazer parte da escolha. A nota dele sai otimista e deixa de ser uma prova honesta. A escolha deveria ser feita com validação cruzada no treino.
+- 50 valores é pouco. Com 500, o resultado no teste ficaria honesto.
+- O problema é usar regularização. Sem ela, não haveria nada a escolher.
+? Toda escolha feita olhando para o teste "vaza" informação da prova para o modelo. Com 50 tentativas, alguma vai bem no teste por sorte. O caminho certo é escolher com validação cruzada (é o que o `LassoCV` e o `RidgeCV` fazem) e medir o escolhido no teste **uma única vez**, no fim.
+```
+
+```quiz
+Qual destes é um **hiperparâmetro**, e não um parâmetro que o modelo aprende sozinho?
+- O peso `w₁`, o preço por quilômetro da reta das corridas.
+- O coeficiente do bairro Jardins no modelo de aluguel.
+- O `w₀` da regressão logística de cancelamento.
++ A força do freio `α` da regularização, que precisa ser escolhida antes do treino.
+? Os **parâmetros** (os pesos `w`) o modelo aprende sozinho com os dados, como um aluno aprende a matéria. Os **hiperparâmetros** são escolhas feitas antes do treino, como o professor decidir quanto tempo de revisão a turma vai ter. A força do freio e a taxa de aprendizado do gradiente descendente são hiperparâmetros: nós testamos valores e ficamos com o melhor.
+```
+
+```quiz
+Num modelo de aluguel com 45 colunas (5 de verdade e 40 de números sorteados), o **Lasso zerou 27 coeficientes**. O que isso quer dizer?
+- O treino deu errado: um modelo bom não deveria ter coeficientes zero.
+- As 27 colunas zeradas são as mais importantes do modelo.
++ O freio tirou do modelo as colunas que quase não ajudavam, e a maioria delas era ruído.
+- O modelo passou a prever o mesmo valor para todos os apartamentos.
+? Sem freio, o modelo dá um pouco de peso até para colunas inúteis, porque isso reduz um tiquinho o erro no treino. A regularização cobra uma multa por coeficientes grandes. O **Ridge** encolhe todos os coeficientes sem zerar nenhum; o **Lasso** empurra os inúteis até zero, e a coluna sai do modelo. Por isso ele ajuda quando há muitas colunas suspeitas.
+```
+
 ## Onde revisar
 
 | Se errou a questão | Releia |
@@ -117,3 +164,6 @@ O modelo de cancelamento tem **AUC de 0,82**. Qual é a leitura correta?
 | 1, 2 ou 3 | [Aula 1 — Regressão Linear Simples](aula-01-regressao-linear-simples.md) |
 | 4, 5 ou 6 | [Aula 2 — Regressão Múltipla](aula-02-regressao-multipla.md) |
 | 7, 8, 9 ou 10 | [Aula 3 — Regressão Logística](aula-03-regressao-logistica.md) |
+| 11, 13 ou 15 | [Aula 2: treino e teste e regularização](aula-02-regressao-multipla.md#separe-treino-e-teste) |
+| 12 | [Aula 3: validação cruzada](aula-03-regressao-logistica.md#validacao-cruzada-medir-antes-de-escolher) |
+| 14 | [Aula 1: a taxa de aprendizado](aula-01-regressao-linear-simples.md#a-taxa-de-aprendizado) e [Aula 2: regularização](aula-02-regressao-multipla.md#regularizacao-um-freio-nos-coeficientes) |
