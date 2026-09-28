@@ -19,6 +19,9 @@ aulas.txt
 # Scripts que geram os datasets e treinam os modelos
 data/scripts/
 
+# Modelo treinado pelo projeto da Aula 4: cada máquina gera o seu
+projeto-aula-04/artefatos/
+
 # Ambiente Python (o repositório do livro não precisa rodar nada)
 pyproject.toml
 uv.lock

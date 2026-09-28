@@ -27,12 +27,19 @@ exclui da publicação. Consulte essas fontes ao alterar uma aula.
   `.claude/skills/aula-slides/scripts/build_slides.py` e renderize para
   conferir. O projeto da Aula 4 era a antiga pasta `aulas/06-sistema-ml`;
   ela conserva o nome antigo, mas o código e o plano locais foram
-  atualizados. O notebook publicado da Aula 4 é mantido diretamente em
-  `notebooks/`, sem `notebook_fonte.py` nesta pasta.
-- `projeto-aula-04/`: projeto local da Aula 4. Usa **um** classificador de
-  regressão logística no conjunto `dados/clientes.csv`, validação cruzada
-  estratificada, tuning com Optuna e um painel Streamlit. `modelos.py`
-  contém a modelagem; `app.py`, a interface.
+  atualizados. O notebook publicado da Aula 4 é gerado do
+  `notebook_fonte.py` dessa pasta e copiado para `notebooks/`.
+- `projeto-aula-04/`: projeto local da Aula 4, exemplo completo do que o
+  notebook constrói em aula. Regressão logística treinada por SGD
+  (`SGDClassifier(loss="log_loss")`), preparo com `ColumnTransformer`,
+  baselines com `DummyClassifier`, tuning com Optuna na validação cruzada
+  estratificada, importância por permutação, limiar escolhido pelo lucro na
+  validação e painel Streamlit com simulador. `modelos.py` contém a
+  modelagem; `treinar.py` grava o artefato em `artefatos/` (ignorado pelo
+  Git); `app.py` é o painel. O notebook da aula é gerado de
+  `aulas/06-sistema-ml/notebook_fonte.py`: a versão dos alunos, com lacunas
+  de code-along, vai para `notebooks/`; a do professor, executada, fica em
+  `aulas/06-sistema-ml/aula-04-gabarito.ipynb`.
 
 ## Sequência atual
 
@@ -73,5 +80,5 @@ notebooks com `json.load` e rode `python -m compileall projeto-aula-04`.
 Para conferir o projeto da Aula 4 sem abrir Streamlit:
 
 ```bash
-python -c "import sys; sys.path.insert(0, 'projeto-aula-04'); import modelos; d = modelos.carregar_dados(); m, p, f1, r = modelos.treinar(d, 3); print(p, f1, len(modelos.calcular_risco(m, d)))"
+python -c "import sys; sys.path.insert(0, 'projeto-aula-04'); import modelos; d = modelos.carregar_dados(); s = modelos.treinar_sistema(d, 3); print(s['parametros'], s['metricas_teste'], len(modelos.prever_risco(s['modelo'], d)))"
 ```

@@ -126,27 +126,41 @@ uv run python data/scripts/gerar_vendas_cafeteria.py
 
 | | |
 |---|---|
-| **Origem** | Sintético, com semente fixa |
+| **Origem** | Sintético, gerado por [`scripts/gerar_clube_cafe.py`](scripts/gerar_clube_cafe.py) (seed fixa = 42, reprodutível) |
 | **Usado em** | Módulo Sistemas de ML — Aula 4 |
-| **Linhas** | 400 assinantes: 146 cancelaram e 254 ficaram |
+| **Linhas** | 2.000 assinantes: 583 cancelaram (29,1%) e 1.417 ficaram |
 
 O Clube do Café é uma assinatura mensal fictícia. A Aula 4 usa esta tabela
-para treinar um classificador de risco de cancelamento. O desbalanceamento
-é moderado: 36,5% cancelaram.
-
-`clube_cafe_clientes.csv`:
+para construir um sistema de risco de cancelamento de ponta a ponta.
 
 | Coluna | Tipo | Unidade | Descrição |
 |---|---|---|---|
-| `id_cliente` | inteiro | — | identificador do assinante (1 a 400) |
-| `meses_de_casa` | inteiro | meses | há quanto tempo ele assina |
-| `valor_mensal` | decimal | reais (R$) | quanto ele paga por mês |
-| `entregas_atrasadas` | inteiro | entregas | atrasos nos últimos meses |
+| `id_cliente` | inteiro | — | identificador do assinante (1 a 2.000) |
+| `meses_de_casa` | inteiro | meses | há quanto tempo ele assina (1 a 60) |
 | `plano` | texto | — | `Degustação`, `Clássico` ou `Premium` |
+| `valor_mensal` | decimal | reais (R$) | quanto ele paga por mês |
+| `forma_pagamento` | texto | — | `Cartão`, `Pix` ou `Boleto` |
+| `entrou_com_cupom` | inteiro | 0 ou 1 | 1 se assinou usando cupom de desconto |
+| `entregas_atrasadas` | inteiro | entregas | atrasos nos últimos 6 meses |
+| `chamados_suporte` | inteiro | chamados | chamados ao suporte nos últimos 3 meses |
+| `avaliacao_media` | decimal | nota de 1 a 5 | nota média dada aos cafés; **vazia** para 194 clientes que nunca avaliaram |
+| `dias_sem_acessar` | inteiro | dias | dias desde o último acesso ao app (cauda longa: média 12, máximo 104) |
+| `idade` | inteiro | anos | idade do assinante |
 | `cancelou` | inteiro | 0 ou 1 | 1 se o assinante cancelou |
 
-O projeto em `projeto-aula-04/dados/` contém uma cópia para rodar sem
-download.
+Três características foram postas de propósito para a aula: a avaliação
+faltando (imputação dentro do `Pipeline`), a cauda longa de
+`dias_sem_acessar` (transformação logarítmica) e a `idade`, que **não**
+entra na regra que gera os cancelamentos e por isso aparece sem
+importância na permutação. `chamados_suporte` cresce com
+`entregas_atrasadas`, para discutir colunas correlacionadas.
+
+Para regenerar (o script também copia o arquivo para
+`projeto-aula-04/dados/clientes.csv`, que precisa rodar sem download):
+
+```bash
+uv run python data/scripts/gerar_clube_cafe.py
+```
 
 ## torra_cafe.csv
 

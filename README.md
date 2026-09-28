@@ -18,7 +18,7 @@ As páginas também podem ser lidas uma a uma, em Markdown, dentro de
 | [`docs/`](docs/README.md) | as páginas do livro em Markdown, e as imagens delas |
 | [`notebooks/`](notebooks/) | um notebook por aula, para abrir no Google Colab |
 | [`data/`](data/README.md) | os datasets e o modelo treinado que os notebooks usam |
-| [`projeto-aula-04/`](projeto-aula-04/) | o sistema que a Aula 4 constrói, para rodar no VS Code |
+| [`projeto-aula-04/`](projeto-aula-04/) | o sistema da Aula 4 como projeto completo, com painel, para rodar no VS Code |
 
 ## Como abrir um notebook
 
