@@ -7,221 +7,189 @@ description: Um sistema de risco de cancelamento, do dado bruto à decisão
 {% hint style="info" %}
 **O que você leva desta aula**
 
-Você vai transformar a regressão logística da Aula 3 num sistema completo:
-um baseline para comparar, um preparo de dados com `ColumnTransformer`, o
-modelo treinado por gradiente descendente estocástico, o tuning com Optuna,
-a explicação do modelo e a escolha do limiar pelo custo do negócio. Em aula,
-construímos tudo no notebook. O projeto `projeto-aula-04/` mostra o mesmo
-sistema organizado em arquivos, com um painel.
+Um modelo sozinho não resolve o problema de ninguém. Nesta aula, você
+constrói um sistema inteiro em volta da regressão logística da Aula 3:
+separar os dados, criar uma régua, preparar a tabela, treinar, ajustar,
+testar, explicar e decidir. Em aula, fazemos tudo no notebook. O projeto
+`projeto-aula-04/` mostra o mesmo sistema organizado em arquivos, com um
+painel.
 {% endhint %}
 
 ## Para que serve
 
-O Clube do Café é uma assinatura mensal de café em grãos. Tem 2.000
-assinantes, e 583 deles cancelaram (29,1%). A equipe pode ligar para um
-cliente e oferecer um desconto, mas cada contato custa dinheiro. A pergunta
-do negócio é: **para quem ligar esta semana?**
+O Clube do Café é uma assinatura mensal de café em grãos, com 2.000
+assinantes. Todo mês, alguns cancelam: 29% já cancelaram. A equipe pode
+ligar para um cliente e oferecer um desconto, mas cada ligação custa
+dinheiro. A pergunta da empresa é:
 
-O sistema dá a cada cliente um risco de cancelar e transforma esse risco
-numa lista de contato. Um modelo sozinho não faz isso. É preciso um ciclo
-inteiro, e cada etapa pode estragar as outras:
+> **Para quem vale a pena ligar esta semana?**
 
-| Etapa | Pergunta |
-|---|---|
-| Separação | com que dados treinamos, e com quais tiramos a prova final? |
-| Baseline | quanto acerta quem não aprende nada? |
-| Preparo | como transformar a tabela em números limpos? |
-| Modelo | como a regressão logística aprende? |
-| Tuning | quais ajustes funcionam melhor? |
-| Teste final | o sistema funciona com clientes que nunca viu? |
-| Explicabilidade | em que o modelo se apoia? |
-| Decisão | a partir de que risco vale ligar? |
+O sistema dá a cada cliente uma nota de risco, de 0 a 1, e transforma
+essa nota numa lista de ligações.
 
-## Os dados e a separação
+## Os dados
 
-Cada assinante tem dez colunas: tempo de casa, plano, valor mensal, forma
-de pagamento, se entrou com cupom, entregas atrasadas, chamados ao suporte,
-avaliação média dos cafés, dias sem acessar o app e idade. A coluna
-`cancelou` é a resposta.
+Cada assinante tem dez informações: tempo de casa, plano, mensalidade,
+forma de pagamento, se entrou com cupom, entregas atrasadas, reclamações
+ao suporte, nota média dada aos cafés, dias sem entrar no app e idade. A
+coluna `cancelou` é a resposta.
 
-Três coisas chamam atenção logo de cara. A avaliação está vazia para 194
-clientes, que nunca deram nota. As escalas são muito diferentes: o valor
-mensal vai de 30 a 150, e o cupom só vale 0 ou 1. E os dias sem acessar
-têm cauda longa, com média de 12 dias e alguns clientes sumidos há mais de
-90.
+Dois problemas aparecem logo. 194 clientes nunca deram nota, então a
+avaliação deles está vazia. E as colunas vivem em réguas muito
+diferentes: a mensalidade vai de 30 a 150, e o cupom só vale 0 ou 1.
 
-Antes de qualquer outra coisa, 25% dos clientes vão para o **teste**, com
-`stratify=y` para manter a proporção de cancelamentos. O teste fica
-trancado até o fim. Toda comparação entre modelos usa **validação cruzada
-estratificada** de cinco dobras nos outros 1.500 clientes.
+## A prova final fica trancada
 
-## O baseline
+Um bom professor não entrega a prova final como lista de exercícios. Com
+o modelo é igual: 25% dos clientes vão para uma gaveta trancada, o
+**teste**, que só é aberto no fim.
 
-Um `DummyClassifier` que responde sempre "fica" acerta 70,9% dos clientes
-sem aprender nada. O F1 dele é zero, porque ele nunca encontra um
-cancelamento. É a régua: o sistema precisa de F1 bem acima de zero, e a
-acurácia sozinha não serve para julgar.
+Para comparar modelos antes disso, usamos **provas simuladas**: o treino
+é dividido em 5 pedaços, e cada pedaço serve de prova uma vez. A nota do
+modelo é a média das 5 provas. É a **validação cruzada**.
 
-## O preparo com ColumnTransformer
+## O baseline: a régua
 
-Cada tipo de coluna tem seu problema e sua ferramenta, encadeados num
-`Pipeline`. O `ColumnTransformer` manda cada grupo de colunas para a sua
-linha de montagem e junta tudo no fim.
+O primeiro "modelo" é preguiçoso: responde sempre "fica", sem olhar para
+o cliente. Ele acerta 71% das vezes e não encontra nenhum cancelamento.
+O F1 dele é zero.
 
-| Colunas | Tratamento |
-|---|---|
-| numéricas | preenche faltas com a mediana, marca quem estava sem nota, padroniza |
-| dias sem acessar | preenche, aplica o logaritmo, padroniza |
-| plano e pagamento | uma coluna de 0 e 1 para cada categoria (one-hot) |
-| cupom | já é 0 ou 1, passa direto |
+Essa é a lição: quando uma resposta é bem mais comum que a outra, a
+acurácia engana. O sistema é julgado pelo F1.
 
-A padronização mede cada valor em desvios padrão a partir da média:
+## O preparo: uma receita para cada coluna
+
+Na cozinha, cada ingrediente tem seu preparo. Com os dados é igual:
+
+| Problema | Onde | Solução |
+|---|---|---|
+| células vazias | avaliação | preencher com a mediana e marcar quem não tinha nota |
+| réguas diferentes | colunas de números | padronizar |
+| texto em vez de número | plano, forma de pagamento | uma coluna de 0 e 1 por opção |
+| poucos valores enormes | dias sem acessar | encolher com o logaritmo |
+
+Padronizar põe todas as colunas na mesma régua:
 
 $$
-x_{\text{padronizado}} = \frac{x - \text{média}}{\text{desvio padrão}}
+\text{valor padronizado} = \frac{\text{valor} - \text{média}}{\text{desvio padrão}}
 $$
 
-O valor mensal tem média 78,6 e desvio padrão 33,9. Quem paga R$ 129 vira
-(129 − 78,6) / 33,9 = 1,49.
+A mensalidade média é R$ 78,60, com desvio padrão de R$ 33,90. Quem paga
+R$ 129 vira 1,5: um pouco acima do normal.
 
-O logaritmo encurta a cauda longa:
+Cada receita é um `Pipeline`, uma lista de passos feitos em ordem. O
+`ColumnTransformer` manda cada grupo de colunas para a sua receita e junta
+tudo numa tabela só. O preparo fica na mesma peça que o modelo, para
+aprender médias e medianas só com o treino, sem espiar a prova final.
 
-$$
-x_{\text{novo}} = \log(1 + x)
-$$
+## O modelo aprende um cliente de cada vez
 
-Com 3 dias sem acessar, o resultado é 1,39; com 90 dias, é 4,51. A
-distância entre os dois cai de 87 para 3,1, e os poucos clientes sumidos
-deixam de dominar a escala.
+Na regressão logística, cada característica soma ou tira pontos de risco,
+e a sigmoide transforma o total num número entre 0 e 1. O que muda aqui é
+o jeito de aprender os pesos.
 
-O preparo aprende médias e medianas. Por isso ele fica **dentro** do mesmo
-`Pipeline` que o modelo: em cada dobra da validação cruzada, ele aprende só
-com a parte de treino daquela dobra, e nada do que vai ser avaliado vaza
-para o treino.
+O **SGD** (gradiente descendente estocástico) é um aprendiz que olha os
+clientes um por um, em ordem sorteada. A cada palpite errado, ele ajusta
+um pouquinho os pesos. Na Aula 1, o gradiente descendente olhava todos os
+exemplos antes de cada ajuste; o SGD ajusta a cada exemplo.
 
-## O modelo: regressão logística por SGD
+Ele aprende rápido. Depois de ver 10 clientes, a AUC é 0,53, quase um
+chute. Depois de 50, passa de 0,75. Depois de 300, está em 0,78, e cada
+cliente novo ensina pouca coisa nova.
 
-O modelo é a mesma regressão logística da Aula 3. A diferença está em como
-ela aprende. O `SGDClassifier` com `loss="log_loss"` usa o **gradiente
-descendente estocástico**: em vez de olhar os 1.500 clientes antes de cada
-passo, como o gradiente descendente da Aula 1, ele dá um passo a cada
-cliente. Para cada peso, o passo é:
+Sem nenhum ajuste, o modelo chega a F1 de 0,49 nas provas simuladas. O
+baseline tinha zero.
 
-$$
-w_j \leftarrow w_j - \eta \cdot (p_i - y_i) \cdot x_{ij}
-$$
+## O ajuste fino com Optuna
 
-O η é a taxa de aprendizado, `p_i` é o risco que o modelo deu ao cliente,
-`y_i` é o que aconteceu (1 se cancelou) e `x_ij` é o valor da coluna para
-ele. Com peso 0,5, um cliente que cancelou, risco dado de 0,3, coluna
-valendo 2 e η de 0,1, o peso vai para 0,5 − 0,1 · (0,3 − 1) · 2 = 0,64. O
-peso sobe, e o risco desse cliente sobe junto.
+Os pesos o modelo aprende sozinho. Os **hiperparâmetros** são escolhas
+feitas antes do treino. Ajustamos dois:
 
-Sem nenhum ajuste, o SGD já chega a F1 de 0,49 na validação cruzada.
+- **a força do freio** (`alpha`): impede o modelo de decorar os clientes
+  do treino. Freio de menos, ele decora; freio demais, fica simples demais;
+- **os pesos das classes** (`class_weight`): com `"balanced"`, cada cliente
+  que cancelou conta como 1,7 cliente, e o modelo presta mais atenção em
+  quem é minoria.
 
-## Tuning com Optuna
-
-Os pesos `w` o modelo aprende sozinho. Os **hiperparâmetros** são escolhas
-feitas antes do treino. O Optuna ajusta quatro:
-
-| Hiperparâmetro | O que controla |
-|---|---|
-| `alpha` | a força da regularização, uma multa por pesos grandes |
-| `penalty` | o tipo de multa: L2 encolhe todos os pesos, L1 zera os inúteis, elastic net mistura as duas |
-| `l1_ratio` | a proporção de L1 na mistura (só existe com elastic net) |
-| `class_weight` | com `"balanced"`, errar num cliente que cancelou pesa mais |
-
-Com a multa L2, o custo que o modelo minimiza é:
-
-$$
-\text{custo} = \text{perda} + \alpha \sum_j w_j^2
-$$
-
-Com `alpha` de 0,01 e dois pesos, 2 e −1, a multa soma 0,01 · (4 + 1) =
-0,05. Atenção ao nome: no scikit-learn, `alpha` é a força da multa, não a
-taxa de aprendizado.
+O Optuna procura a melhor combinação como quem acerta o sal de uma
+receita: prova, ajusta, prova de novo. A nota de cada tentativa é o F1
+nas provas simuladas.
 
 ```python
-def avaliar(trial):
-    alpha = trial.suggest_float("alpha", 1e-5, 1e-1, log=True)
-    penalidade = trial.suggest_categorical("penalty", ["l2", "l1", "elasticnet"])
-    peso_das_classes = trial.suggest_categorical("class_weight", [None, "balanced"])
-    proporcao_l1 = 0.15
-    if penalidade == "elasticnet":
-        proporcao_l1 = trial.suggest_float("l1_ratio", 0.05, 0.95)
-    classificador = SGDClassifier(loss="log_loss", alpha=alpha, penalty=penalidade,
-                                  l1_ratio=proporcao_l1, class_weight=peso_das_classes,
-                                  max_iter=2000, tol=1e-4, random_state=42)
-    modelo = Pipeline([("preparo", preparo), ("classificador", classificador)])
+def avaliar(tentativa):
+    forca = tentativa.suggest_float("forca", 0.00001, 0.1, log=True)
+    pesos = tentativa.suggest_categorical("pesos", [None, "balanced"])
+    modelo = montar_modelo(forca, pesos)
     return cross_val_score(modelo, X_treino, y_treino, cv=dobras, scoring="f1").mean()
 ```
 
-Em 40 tentativas, o melhor F1 médio nas dobras sobe para 0,58, com elastic
-net e `class_weight="balanced"`. O teste não participa dessa escolha.
+Em 30 tentativas, o F1 sobe de 0,49 para 0,58, com `"balanced"`.
 
-## O teste final
+## A prova final
 
-O modelo vencedor treina com o treino inteiro e é medido uma única vez nos
-500 clientes do teste: F1 de 0,64 e AUC de 0,81. Dos 146 clientes do teste
-que cancelaram, o modelo aponta 111. O baseline, lembre, apontava zero.
+O modelo ajustado treina com o treino inteiro e faz a prova uma única
+vez. Dos 146 clientes do teste que cancelaram, ele encontra 113. O F1 é
+0,62 e a AUC é 0,82, perto do que as provas simuladas prometiam: o modelo
+aprendeu de verdade, não decorou.
 
-## Explicabilidade
+## Em que o modelo presta atenção
 
-A **importância por permutação** embaralha uma coluna do teste por vez e
-mede quanto a AUC cai. Se o modelo depende da coluna, embaralhar destrói a
-informação e a AUC despenca. Se não depende, nada muda.
+Para saber quanto um jogador importa, tire ele de campo e veja quanto o
+time piora. Aqui, tirar uma coluna é **embaralhá-la**: cada cliente recebe
+o valor de outra pessoa. Quanto mais a AUC cai, mais importante era a
+coluna. É a **importância por permutação**.
 
 | Coluna | Queda na AUC |
 |---|---|
-| meses de casa | 0,127 |
-| dias sem acessar | 0,045 |
-| entregas atrasadas | 0,040 |
-| avaliação média | 0,039 |
-| chamados ao suporte | 0,018 |
-| idade | 0,001 |
+| meses de casa | 0,125 |
+| dias sem acessar | 0,048 |
+| entregas atrasadas | 0,039 |
+| avaliação média | 0,036 |
+| idade | 0,000 |
 
-O tempo de casa é o que mais pesa. A idade quase não ajuda e poderia sair
-do sistema. E importância não é causa: ela mostra no que o modelo se
-apoia, não o que faz o cliente sair.
+O tempo de casa é o que mais pesa. A idade não ajuda em nada e pode sair
+do sistema. E importância não é causa: ela mostra em que o *modelo*
+presta atenção, não o que faz o cliente sair.
 
-## Do risco à decisão
+## A decisão: para quem ligar
 
-O modelo dá o risco; o negócio decide o **limiar**. Suponha que cada
-contato custe R$ 10, que 30% de quem ia cancelar aceite a oferta, e que
-cada cliente salvo pague mais 4 meses:
+O modelo dá o risco. Quem decide a partir de que risco vale ligar é a
+empresa. Esse corte é o **limiar**.
 
-$$
-\text{lucro} = 0{,}30 \cdot 4 \cdot (\text{mensalidades de quem ia cancelar e foi contatado}) - 10 \cdot \text{contatos}
-$$
+Suponha que cada ligação custe R$ 10, que 30% de quem ia cancelar aceite
+o desconto, e que cada cliente salvo pague mais 4 meses. Ligar para 200
+clientes custa R$ 2.000. Se 110 deles iam cancelar pagando R$ 80, o
+desconto segura 33, que pagam R$ 10.560 a mais. O lucro é R$ 8.560.
 
-Escolher o limiar também é um ajuste, então ele sai da validação cruzada,
-e não do teste. Com esses custos, o melhor limiar é 0,30, e ele rende 23% a
-mais que o 0,50. Se o contato custasse R$ 60, o melhor limiar subiria para
-0,75, e o 0,50 passaria a dar prejuízo. É o mesmo modelo com os mesmos
-clientes, mas a decisão muda.
+Escolher o limiar também é um ajuste, então ele sai das provas simuladas,
+e não da prova final. Com esses números, o melhor limiar é 0,25, e ele
+rende uns 20% a mais que o 0,50. Se cada ligação custasse R$ 60, o melhor
+limiar subiria para 0,85, e o 0,50 daria prejuízo. Mesmo modelo, mesmos
+clientes, decisão diferente.
 
-## Simulação de cenários
+## E se?
 
-Com o modelo pronto, dá para perguntar "e se". O cliente de maior risco no
-teste tem 94% de chance estimada de cancelar. Se as entregas dele não
-tivessem atrasado, o modelo daria 83%. Aplicando a mesma mudança à base
-inteira, 258 clientes sairiam da lista de risco.
+Com o modelo pronto, dá para simular. O cliente de maior risco no teste
+tem 97% de risco. Se as entregas dele não tivessem atrasado, o modelo
+daria 90%. Zerando os atrasos de todo mundo, uns 190 clientes sairiam da
+lista de ligações.
 
 O simulador mostra o que o *modelo* prevê. O modelo aprendeu associações,
-e só um teste de verdade com clientes mostra o efeito real de uma ação.
+e só um teste na vida real mostra o efeito de uma mudança.
 
 ## O projeto
 
-O `projeto-aula-04/` organiza o mesmo sistema em arquivos:
+O `projeto-aula-04/` organiza o mesmo sistema em arquivos, e vai um passo
+além: o Optuna também testa tipos diferentes de freio.
 
 | Arquivo | Papel |
 |---|---|
-| `modelos.py` | preparo, baselines, tuning, avaliação e explicabilidade |
-| `treinar.py` | treina e grava o modelo em `artefatos/` |
-| `app.py` | painel Streamlit com visão geral, modelo, explicabilidade, lista de contato e simulador |
+| `modelos.py` | preparo, baseline, ajuste fino, avaliação e explicação |
+| `treinar.py` | treina e guarda o modelo num arquivo |
+| `app.py` | painel com visão geral, modelo, explicação, lista de ligações e simulador |
 
-Treinar e servir ficam separados: o treino grava o `Pipeline` inteiro, com
-o preparo junto, e o painel só carrega o que foi gravado.
+Treinar e usar ficam separados: o treino guarda o preparo e o modelo
+juntos num arquivo, e o painel só carrega esse arquivo.
 
 ```bash
 cd projeto-aula-04
