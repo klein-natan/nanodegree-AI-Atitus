@@ -129,12 +129,11 @@ probabilidades maiores para quem sobreviveu.
 ## O placar
 
 <!-- placar:inicio -->
-{% hint style="success" %}
-**O placar está no ar.** Envie pelo quadro abaixo ou, se preferir uma tela
-maior, abra o placar numa aba nova: <a href="https://alleged-capabilities-focal-contacted.trycloudflare.com" target="_blank" rel="noopener">https://alleged-capabilities-focal-contacted.trycloudflare.com</a>
+{% hint style="warning" %}
+**O placar está desligado.** Ele só fica no ar durante o desafio, em sala.
+Quando o professor ligar, o placar aparece aqui mesmo, nesta página.
+Recarregue a página se ele não aparecer.
 {% endhint %}
-
-<iframe src="https://alleged-capabilities-focal-contacted.trycloudflare.com" title="Placar do Desafio Titanic" loading="lazy" style="width:100%;height:1150px;border:1px solid #e4dfd3;border-radius:10px;background:#fff"></iframe>
 <!-- placar:fim -->
 
 ## Materiais
