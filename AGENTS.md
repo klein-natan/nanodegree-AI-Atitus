@@ -14,8 +14,10 @@ exclui da publicação. Consulte essas fontes ao alterar uma aula.
   de mudar `docs/`, rode `tools/build_site.py` e `tools/verificar_site.py`.
   O gerador usa `tools/site_template.html`; não edite o HTML gerado à mão.
 - `notebooks/`: um `.ipynb` por aula, dividido em demonstração e
-  exercícios com `# SEU CODIGO AQUI`. Os links Colab nas páginas e no
-  `README.md` precisam apontar para o nome real do notebook.
+  exercícios com `# SEU CODIGO AQUI`. Nas Aulas 4 a 6 não há seção final
+  de exercícios: eles ficam ao longo do código, em células "Sua vez".
+  Os links Colab nas páginas e no `README.md` precisam apontar para o
+  nome real do notebook.
 - `data/`: dados dos notebooks e artefatos do pequeno modelo de linguagem.
   `data/curso.txt` é gerado a partir de `docs/` por
   `data/scripts/juntar_curso.py`; rode o script quando mudar as páginas.
@@ -45,7 +47,7 @@ exclui da publicação. Consulte essas fontes ao alterar uma aula.
 
 1. Aulas 1–3: modelos lineares, terminando em regressão logística.
 2. Aula 4: sistema de classificação com Optuna.
-3. Aulas 5–6: séries temporais e Prophet.
+3. Aulas 5–6: séries temporais (régua, regressão com calendário, ARIMA, Prophet e TimesFM).
 4. Aulas 7–8: redes neurais; 9–12: LLM do zero; 13–14: IA generativa.
 
 Os nomes dos arquivos publicados das Aulas 4–6 acompanham essa sequência.

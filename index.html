@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-<!-- fonte-docs: e154f2a4be2afd2a -->
+<!-- fonte-docs: 01fa217bc8ec3227 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Nanodegree de IA &amp; ML</title>
@@ -1113,6 +1113,18 @@ nesta página do que voltar a reler uma aula inteira.</p>
 <tr>
   <td>Ponto de mudança (<em>changepoint</em>)</td>
   <td>Data em que a tendência tem permissão para mudar de inclinação</td>
+</tr>
+<tr>
+  <td>TimesFM</td>
+  <td>Modelo de fundação do Google para séries temporais: prevê uma série nova sem treinar nela</td>
+</tr>
+<tr>
+  <td>Contexto (em séries)</td>
+  <td>Quantos pontos do passado você entrega ao modelo pré-treinado para ele prever o futuro</td>
+</tr>
+<tr>
+  <td>Quantil</td>
+  <td>O valor abaixo do qual fica uma fração dos casos: 10% dos dias ficam abaixo do quantil de 10%</td>
 </tr>
 <tr>
   <td>Ambiente virtual (<code>.venv</code>)</td>
@@ -4858,8 +4870,8 @@ série temporal.</p>
   <td>Disponível</td>
 </tr>
 <tr>
-  <td><a href="#/series-temporais/aula-06-prophet">Aula 6 — Séries Temporais com Prophet</a></td>
-  <td>Tendência, sazonalidades e feriados estimados por uma biblioteca, e o intervalo de incerteza</td>
+  <td><a href="#/series-temporais/aula-06-prophet">Aula 6 — Séries Temporais com Prophet e TimesFM</a></td>
+  <td>Tendência, sazonalidades e feriados estimados pelo Prophet, previsão sem treino com o TimesFM, e o intervalo de incerteza</td>
   <td>Disponível</td>
 </tr>
 </tbody>
@@ -5474,27 +5486,34 @@ saber do Natal.</li>
 <li><a href="https://www.statsmodels.org/stable/generated/statsmodels.tsa.arima.model.ARIMA.html">ARIMA no statsmodels</a>: a documentação da classe usada no notebook.</li>
 </ul>
 </template>
-<template class="pagina" data-id="series-temporais/aula-06-prophet" data-titulo="Aula 6 — Séries Temporais com Prophet" data-descricao="Tendência, sazonalidades, feriados e incerteza estimados pelo Prophet">
+<template class="pagina" data-id="series-temporais/aula-06-prophet" data-titulo="Aula 6 — Séries Temporais com Prophet e TimesFM" data-descricao="O Prophet estima tendência, sazonalidades e feriados; o TimesFM prevê sem treino nenhum; e o calendário continua sendo seu">
 <div class="destaque destaque-info" role="note"><div class="destaque-icone" aria-hidden="true">i</div><div class="destaque-corpo"><p class="destaque-rotulo">Nota</p><p><strong>O que você leva desta aula</strong></p>
-<p>Você vai treinar um modelo de série temporal em três linhas de código, ler
-as peças que ele estimou sozinho, ensinar a ele o calendário de feriados,
-e comparar o resultado com a régua da aula passada. Também vai aprender a
-ler o intervalo de incerteza sem se enganar.</p>
+<p>Você vai treinar o Prophet em três linhas, ler as peças que ele estimou
+sozinho e ensinar a ele o calendário de feriados. Depois vai usar o
+TimesFM, um modelo pré-treinado que prevê a série sem treino nenhum. No
+fim, vai comparar tudo com a régua e decidir qual ferramenta usar em cada
+situação.</p>
 </div></div>
 <h2 id="para-que-serve">Para que serve<a class="ancora" href="#para-que-serve" aria-label="Link para esta secao">#</a></h2>
-<p>Na aula passada, a melhor previsão para a cafeteria era repetir a semana
-anterior. Ela erra R$ 63,78 por dia, em média, e não custa nada. É a
-régua.</p>
-<p>O problema é que ela não sabe nada. Não sabe que o negócio cresce, que
-julho vende mais que janeiro, nem que no Natal a rua fica vazia. Ela só
-copia.</p>
-<p>Esta aula troca a cópia por um modelo que estima cada uma dessas peças
-separadamente. O <strong>Prophet</strong> é uma biblioteca feita para isso, criada por
-uma equipe da Meta, e pensada para séries de negócio: vendas, acessos,
-pedidos. É a ferramenta que resolve a maior parte dos casos reais sem
-exigir doutorado em estatística.</p>
+<p>Na aula passada, a cafeteria ganhou uma régua e dois modelos. A régua
+copia a semana anterior e erra R$ 63,78 por dia. O ARIMA sazonal erra
+R$ 57,57. E a regressão com calendário, com 19 colunas montadas à mão,
+erra R$ 44,11.</p>
+<p>Montar essas colunas deu trabalho. Você precisou decidir que o mês
+importava, criar as variáveis indicadoras e lembrar da coluna de feriado.
+Esta aula testa dois atalhos:</p>
+<ul>
+<li>O <strong>Prophet</strong>, uma biblioteca que monta a regressão com calendário por
+você.</li>
+<li>O <strong>TimesFM</strong>, um modelo que já viu milhões de séries e prevê esta sem
+treinar nada.</li>
+</ul>
+<p>A pergunta é a mesma da aula passada: eles batem a régua? E batem os
+R$ 44,11?</p>
 <h2 id="o-que-o-prophet-faz">O que o Prophet faz<a class="ancora" href="#o-que-o-prophet-faz" aria-label="Link para esta secao">#</a></h2>
-<p>A ideia é a mesma da Aula 5, agora escrita como modelo.</p>
+<p>Uma equipe da Meta criou o Prophet pensando em séries de negócio: vendas,
+acessos, pedidos. A ideia é a mesma da Aula 5, escrita
+como modelo.</p>
 <div class="formula" title="y(t) = g(t) + s(t) + h(t) + \varepsilon_t"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>y</mi><mo stretchy="false">&#x00028;</mo><mi>t</mi><mo stretchy="false">&#x00029;</mo><mo>&#x0003D;</mo><mi>g</mi><mo stretchy="false">&#x00028;</mo><mi>t</mi><mo stretchy="false">&#x00029;</mo><mo>&#x0002B;</mo><mi>s</mi><mo stretchy="false">&#x00028;</mo><mi>t</mi><mo stretchy="false">&#x00029;</mo><mo>&#x0002B;</mo><mi>h</mi><mo stretchy="false">&#x00028;</mo><mi>t</mi><mo stretchy="false">&#x00029;</mo><mo>&#x0002B;</mo><msub><mi>&#x003B5;</mi><mi>t</mi></msub></mrow></math></div>
 <div class="tabela-rolavel"><table><thead>
 <tr>
@@ -5528,8 +5547,10 @@ exigir doutorado em estatística.</p>
 <p>Exemplo, para uma quarta-feira de julho de 2025: a tendência dá R$ 1.320,
 a sazonalidade semanal tira R$ 15, a anual soma R$ 110 e não há feriado. A
 previsão é <code>1.320 − 15 + 110 = 1.415</code> reais.</p>
-<p>Repare que é uma soma, como todos os modelos do curso. A diferença é que
-cada parcela agora é uma função do tempo, e não um peso vezes uma coluna.</p>
+<p>Repare que é a regressão com calendário da aula passada, com as mesmas
+peças. A diferença é que você não monta nenhuma coluna. O Prophet cria
+sozinho as curvas da semana e do ano, e ainda deixa a tendência mudar de
+inclinação.</p>
 <h2 id="o-formato-que-ele-exige">O formato que ele exige<a class="ancora" href="#o-formato-que-ele-exige" aria-label="Link para esta secao">#</a></h2>
 <p>O Prophet só aceita a tabela com duas colunas, e com estes nomes exatos:</p>
 <div class="tabela-rolavel"><table><thead>
@@ -5590,7 +5611,7 @@ que qualquer número único de previsão.</p>
 </code></pre></div>
 <p>Essa lista pode ir além do calendário oficial. Promoções, greves, jogos
 importantes, qualquer data que a sua série &quot;sente&quot; entra ali.</p>
-<h2 id="o-resultado-contra-a-regua">O resultado contra a régua<a class="ancora" href="#o-resultado-contra-a-regua" aria-label="Link para esta secao">#</a></h2>
+<h2 id="o-prophet-contra-a-regua">O Prophet contra a régua<a class="ancora" href="#o-prophet-contra-a-regua" aria-label="Link para esta secao">#</a></h2>
 <p>Agora o teste que importa, nos mesmos 28 dias escondidos da aula passada:</p>
 <div class="tabela-rolavel"><table><thead>
 <tr>
@@ -5602,22 +5623,16 @@ importantes, qualquer data que a sua série &quot;sente&quot; entra ali.</p>
 </thead>
 <tbody>
 <tr>
-  <td>Ingênua</td>
-  <td>R$ 121,28</td>
-  <td>R$ 156,45</td>
-  <td>10,3%</td>
-</tr>
-<tr>
-  <td>Média de 7 dias</td>
-  <td>R$ 115,93</td>
-  <td>R$ 154,73</td>
-  <td>10,4%</td>
-</tr>
-<tr>
   <td>Sazonal ingênua (a régua)</td>
   <td>R$ 63,78</td>
   <td>R$ 110,80</td>
   <td>6,0%</td>
+</tr>
+<tr>
+  <td>Regressão com calendário (Aula 5)</td>
+  <td>R$ 44,11</td>
+  <td>R$ 60,12</td>
+  <td>3,6%</td>
 </tr>
 <tr>
   <td>Prophet, sem feriados</td>
@@ -5633,24 +5648,101 @@ importantes, qualquer data que a sua série &quot;sente&quot; entra ali.</p>
 </tr>
 </tbody>
 </table></div>
-<figure><img src="docs/assets/aula-05/regua.png" alt="Gráfico de barras com o erro médio de cada previsão, mostrando o Prophet sem feriados empatado com a sazonal ingênua e o Prophet com feriados bem abaixo"><figcaption>Sem o calendário, o Prophet empata com a cópia da semana passada.</figcaption></figure>
+<figure><img src="docs/assets/aula-05/regua.png" alt="Gráfico de barras com o erro médio de quatro previsões: a régua e o Prophet sem feriados perto de 64 reais, a regressão da Aula 5 e o Prophet com feriados perto de 44 reais"><figcaption>Sem o calendário, o Prophet empata com a cópia da semana passada. Com ele, alcança a regressão.</figcaption></figure>
 
-<p>Leia a tabela com atenção, porque ela guarda a lição da aula. O Prophet
-recém-instalado, sem nenhum ajuste, <strong>empata</strong> com a previsão que só copia
-a semana anterior. O que faz ele ganhar é a lista de feriados, que não vem
-do modelo: vem de você, que conhece o negócio.</p>
-<p>O RMSE conta uma parte adicional da história. Mesmo empatado no MAE, o
-Prophet sem feriados já tem RMSE bem menor (R$ 92,91 contra R$ 110,80).
-Ele erra parecido na média, mas erra menos nos dias ruins.</p>
+<p>Leia a tabela com atenção, porque ela guarda duas lições.</p>
+<p>A primeira: o Prophet recém-instalado, sem nenhum ajuste, <strong>empata</strong> com
+a previsão que só copia a semana anterior. O que faz ele ganhar é a lista
+de feriados, que não vem do modelo. Vem de você, que conhece o negócio.</p>
+<p>A segunda: com a lista, o Prophet chega praticamente ao mesmo número da
+regressão da Aula 5. Não é coincidência. Os dois modelos somam as mesmas
+peças. O Prophet economiza o trabalho de montar as colunas, e entrega de
+brinde a faixa de incerteza e a tendência que dobra.</p>
 <div class="destaque destaque-warning" role="note"><div class="destaque-icone" aria-hidden="true">!</div><div class="destaque-corpo"><p class="destaque-rotulo">Atenção</p><p><strong>Erro do dia</strong></p>
 <p>Rodar o Prophet, ver um gráfico bonito com faixa de incerteza e concluir
 que o modelo é bom, sem nunca comparar com a régua. Um gráfico de previsão
 sempre parece convincente. A régua é o que separa um modelo útil de um
 enfeite caro.</p>
 </div></div>
+<h2 id="um-modelo-que-nunca-viu-esta-cafeteria-o-timesfm">Um modelo que nunca viu esta cafeteria: o TimesFM<a class="ancora" href="#um-modelo-que-nunca-viu-esta-cafeteria-o-timesfm" aria-label="Link para esta secao">#</a></h2>
+<p>Todos os modelos até aqui aprenderam com a série da cafeteria. Existe
+outro caminho, que chegou à área de séries temporais nos últimos anos: um
+<strong>modelo de fundação</strong> (<em>foundation model</em>).</p>
+<p>A ideia vem dos modelos de linguagem, que você vai construir mais adiante
+no curso. Um modelo de linguagem leu uma quantidade enorme de texto e
+aprendeu a prever a próxima palavra. O <strong>TimesFM</strong>, do Google, leu uma
+quantidade enorme de séries temporais e aprendeu a prever o próximo
+pedaço de uma série. Só a primeira versão já tinha lido cerca de 100
+bilhões de pontos, de buscas no Google, visitas à Wikipédia e muitas
+outras fontes.</p>
+<p>Como ele já viu séries com semanas, anos, tendências e quedas de todo
+tipo, ele consegue prever uma série nova sem treinar nela. Isso se chama
+previsão <strong>zero-shot</strong>: você entrega o passado, e ele devolve o futuro.</p>
+<p>O TimesFM 2.5 tem 231 milhões de pesos e roda no processador do Colab em
+poucos segundos. Ele vem do Hugging Face, pela biblioteca <code>transformers</code>:</p>
+<div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">modelo</span> <span class="o">=</span> <span class="n">TimesFm2_5ModelForPrediction</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="s2">"google/timesfm-2.5-200m-transformers"</span><span class="p">)</span>
+<span class="n">historico</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">treino</span><span class="p">[</span><span class="s2">"y"</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<span class="n">saida</span> <span class="o">=</span> <span class="n">modelo</span><span class="p">(</span><span class="n">past_values</span><span class="o">=</span><span class="p">[</span><span class="n">historico</span><span class="p">])</span>
+<span class="n">previsao</span> <span class="o">=</span> <span class="n">saida</span><span class="o">.</span><span class="n">mean_predictions</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:</span><span class="mi">28</span><span class="p">]</span>
+</code></pre></div>
+<p>Repare no que <strong>não</strong> aparece: nenhum <code>fit</code>. O modelo não aprende nada com
+a cafeteria. Ele só lê o histórico e escreve os próximos dias.</p>
+<figure><img src="docs/assets/aula-05/timesfm_previsao.png" alt="Gráfico do período de teste com as vendas reais, a previsão do TimesFM em zigue-zague acompanhando a semana e uma faixa sombreada em volta, com o Natal marcado fora da faixa"><figcaption>Sem nenhum treino, o TimesFM reproduz o padrão da semana. Só o Natal escapa.</figcaption></figure>
+
+<p>O resultado: MAE de R$ 55,16. Sem treinar nada, o TimesFM bate a régua,
+bate o ARIMA sazonal e bate o Prophet sem feriados.</p>
+<p>E tem mais. Tirando o Natal da conta, o erro dele nos outros 27 dias é de
+R$ 42,62, o menor de todos os modelos. Nos dias comuns, ele é o melhor da
+turma. O problema é um dia só: no Natal, ele previu R$ 1.173, e a
+cafeteria vendeu R$ 780.</p>
+<h3 id="o-contexto-quanto-passado-voce-entrega">O contexto: quanto passado você entrega<a class="ancora" href="#o-contexto-quanto-passado-voce-entrega" aria-label="Link para esta secao">#</a></h3>
+<p>O TimesFM não tem pesos para treinar, mas tem uma escolha importante: o
+<strong>contexto</strong>, o número de dias de passado que você entrega a ele. A versão
+2.5 aceita até 16 mil pontos.</p>
+<figure><img src="docs/assets/aula-05/contexto.png" alt="Gráfico de barras com o erro do TimesFM para contextos de 64 a 1.068 dias, com erros perto da régua até 365 dias e caindo para cerca de 55 reais a partir de 512 dias"><figcaption>Com mais de um ano de passado, o modelo enxerga também a onda anual.</figcaption></figure>
+
+<p>Com 64 ou 128 dias, ele só enxerga a semana, e empata com a régua. A
+partir de 512 dias, ele enxerga um ano inteiro e mais um pedaço, e
+descobre que dezembro é baixa temporada. Na dúvida, entregue todo o
+histórico que você tem.</p>
+<h3 id="juntando-os-dois-mundos">Juntando os dois mundos<a class="ancora" href="#juntando-os-dois-mundos" aria-label="Link para esta secao">#</a></h3>
+<p>O TimesFM traz o padrão. O calendário, ele não tem como saber: ninguém
+contou a ele que o dia 25 é feriado. A solução é somar à previsão dele o
+efeito do feriado, medido no treino.</p>
+<div class="formula" title="\hat{y}_t = \text{TimesFM}_t + w_1 \cdot \text{feriado}_t"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><msub><mover accent="true"><mrow><mi>y</mi></mrow><mo>&#x0005E;</mo></mover><mi>t</mi></msub><mo>&#x0003D;</mo><msub><mtext>TimesFM</mtext><mi>t</mi></msub><mo>&#x0002B;</mo><msub><mi>w</mi><mn>1</mn></msub><mo>&#x000B7;</mo><msub><mtext>feriado</mtext><mi>t</mi></msub></mrow></math></div>
+<div class="tabela-rolavel"><table><thead>
+<tr>
+  <th>Símbolo</th>
+  <th>Significado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>TimesFMₜ</code></td>
+  <td>a previsão do TimesFM para o dia <code>t</code></td>
+</tr>
+<tr>
+  <td><code>feriadoₜ</code></td>
+  <td>vale 1 se o dia <code>t</code> é feriado, e 0 se não é</td>
+</tr>
+<tr>
+  <td><code>w₁</code></td>
+  <td>o efeito do feriado: a venda média de um feriado menos a de um dia comum, no treino</td>
+</tr>
+</tbody>
+</table></div>
+<p>No treino, um feriado vendeu, em média, R$ 389,68 a menos que um dia
+comum. Então <code>w₁ = −389,68</code>. Exemplo, no Natal: <code>1.173 − 390 = 783</code>
+reais. A cafeteria vendeu R$ 780.</p>
+<p>Nos outros 27 dias, <code>feriadoₜ</code> vale 0 e a previsão fica igual. Com esse
+único ajuste, o erro médio cai para <strong>R$ 41,24</strong>, o melhor resultado do
+módulo.</p>
+<figure><img src="docs/assets/aula-05/timesfm_feriado.png" alt="Gráfico de dezembro com as vendas reais e duas previsões iguais em quase todos os dias; no dia 25, a do TimesFM sozinho segue reto e a do TimesFM com o efeito do feriado mergulha junto com as vendas"><figcaption>Um modelo que viu milhões de séries, mais uma coluna que só você conhece.</figcaption></figure>
+
 <h2 id="o-intervalo-de-incerteza">O intervalo de incerteza<a class="ancora" href="#o-intervalo-de-incerteza" aria-label="Link para esta secao">#</a></h2>
-<p>Toda linha de <code>yhat</code> vem acompanhada de <code>yhat_lower</code> e <code>yhat_upper</code>. Eles
-formam a faixa em torno da previsão, e por padrão cobrem 80% dos casos.</p>
+<p>Toda linha de <code>yhat</code> do Prophet vem acompanhada de <code>yhat_lower</code> e
+<code>yhat_upper</code>. Eles formam a faixa em torno da previsão, e por padrão
+cobrem 80% dos casos.</p>
 <p>É o mesmo intervalo de predição da Aula 1, com dois ajustes. Lá a faixa
 era <code>ŷ ± 2s</code>, com uma largura só para toda a reta; aqui ela muda de dia
 para dia, e a promessa é 80% em vez de 95%. A pergunta que ela responde
@@ -5659,18 +5751,38 @@ continua sendo a mesma: onde cai <strong>um</strong> dia, e não a média de mui
 
 <p>A faixa soma duas incertezas. Uma é o barulho do dia a dia, que não some
 nunca: dois sábados de julho não vendem exatamente o mesmo. A outra é a
-dúvida sobre para onde a tendência vai, e essa cresce com o horizonte.</p>
-<p>Nesta série, a primeira domina. A tendência é tão regular que a dúvida
-sobre ela pesa pouco, e por isso a faixa quase não abre, mesmo prevendo
-seis meses à frente. Em uma série com tendência instável, a faixa abriria
-bem mais.</p>
-<p>Duas leituras práticas. A primeira: a faixa não é garantia. No nosso
-teste, 75% dos dias caíram dentro dela, com a faixa prometendo 80%. É o
-esperado, e serve de aviso: um dia em cada cinco fica de fora.</p>
-<p>A segunda, mais importante: a faixa só conhece o que já aconteceu. Ela não
-tem como prever um concorrente novo na esquina, uma greve de ônibus ou uma
-obra na rua. O risco de prever seis meses à frente vem desses eventos,
-não da largura da faixa.</p>
+dúvida sobre para onde a tendência vai, e essa cresce com o horizonte.
+Nesta série, a primeira domina, e por isso a faixa quase não abre.</p>
+<p>O TimesFM também devolve uma faixa. Em vez de uma borda de baixo e uma de
+cima, ele devolve <strong>quantis</strong>: o valor abaixo do qual devem ficar 10% dos
+dias, 20%, e assim por diante até 90%. Entre o quantil de 10% e o de 90%
+cabem 80% dos casos, a mesma promessa do Prophet.</p>
+<div class="tabela-rolavel"><table><thead>
+<tr>
+  <th>Faixa de 80% no teste</th>
+  <th>Dias dentro</th>
+  <th>Largura média</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Prophet com feriados</td>
+  <td>75%</td>
+  <td>cerca de R$ 150</td>
+</tr>
+<tr>
+  <td>TimesFM</td>
+  <td>89%</td>
+  <td>cerca de R$ 191</td>
+</tr>
+</tbody>
+</table></div>
+<p>O TimesFM é mais cauteloso: a faixa dele é mais larga e erra menos. As
+duas cumprem a promessa de perto, e nenhuma é garantia.</p>
+<p>A lição mais importante vale para as duas: a faixa só conhece o que já
+aconteceu. Ela não tem como prever um concorrente novo na esquina, uma
+greve de ônibus ou uma obra na rua. O risco de prever seis meses à frente
+vem desses eventos, não da largura da faixa.</p>
 <p>Use a faixa para conversar sobre risco. &quot;A previsão é R$ 1.200, mas pode
 ficar entre R$ 1.130 e R$ 1.280&quot; é uma frase muito mais útil para quem vai
 comprar leite do que um número solto.</p>
@@ -5687,26 +5799,102 @@ campanha: a tendência dobra, e o modelo acompanha.</p>
 seguir o ruído e a previsão fica instável. O parâmetro
 <code>changepoint_prior_scale</code> controla essa liberdade: quanto maior, mais o
 modelo aceita dobrar.</p>
-<h2 id="quando-o-prophet-nao-e-a-resposta">Quando o Prophet não é a resposta<a class="ancora" href="#quando-o-prophet-nao-e-a-resposta" aria-label="Link para esta secao">#</a></h2>
-<p>Ele resolve a maioria dos casos de negócio, mas não todos.</p>
+<h2 id="o-placar-do-modulo">O placar do módulo<a class="ancora" href="#o-placar-do-modulo" aria-label="Link para esta secao">#</a></h2>
+<figure><img src="docs/assets/aula-05/placar_final.png" alt="Gráfico de barras horizontais com o MAE de sete previsões e uma linha tracejada na régua; só o Prophet sem feriados fica acima da linha, e o TimesFM com o ajuste de feriado tem a menor barra"><figcaption>Os três melhores têm uma coisa em comum: o calendário de feriados.</figcaption></figure>
+
 <div class="tabela-rolavel"><table><thead>
 <tr>
-  <th>Situação</th>
-  <th>Por quê</th>
+  <th>Previsão</th>
+  <th>MAE</th>
+  <th>RMSE</th>
+  <th>MAPE</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-  <td>Séries muito curtas</td>
-  <td>com menos de dois ciclos completos, não há sazonalidade para estimar</td>
+  <td>Sazonal ingênua (a régua)</td>
+  <td>R$ 63,78</td>
+  <td>R$ 110,80</td>
+  <td>6,0%</td>
 </tr>
 <tr>
-  <td>Dados de alta frequência com muita estrutura</td>
-  <td>séries de segundos ou de mercado financeiro pedem outras ferramentas</td>
+  <td>Regressão com calendário (Aula 5)</td>
+  <td>R$ 44,11</td>
+  <td>R$ 60,12</td>
+  <td>3,6%</td>
 </tr>
 <tr>
-  <td>Quando outras variáveis explicam mais que o tempo</td>
-  <td>se preço e promoção mandam mais que o calendário, um modelo de regressão pode servir melhor</td>
+  <td>ARIMA sazonal (Aula 5)</td>
+  <td>R$ 57,57</td>
+  <td>R$ 96,83</td>
+  <td>5,4%</td>
+</tr>
+<tr>
+  <td>Prophet, sem feriados</td>
+  <td>R$ 64,54</td>
+  <td>R$ 92,91</td>
+  <td>5,7%</td>
+</tr>
+<tr>
+  <td>Prophet, com feriados</td>
+  <td>R$ 43,73</td>
+  <td>R$ 60,22</td>
+  <td>3,5%</td>
+</tr>
+<tr>
+  <td>TimesFM, sem treino</td>
+  <td>R$ 55,16</td>
+  <td>R$ 93,67</td>
+  <td>5,1%</td>
+</tr>
+<tr>
+  <td>TimesFM + efeito do feriado</td>
+  <td>R$ 41,24</td>
+  <td>R$ 56,90</td>
+  <td>3,3%</td>
+</tr>
+</tbody>
+</table></div>
+<p>Os três melhores resultados vieram de ferramentas bem diferentes: uma
+regressão da Aula 2, uma biblioteca de negócio e uma rede neural gigante.
+O que eles têm em comum é o calendário de feriados, que nenhum deles
+descobriu sozinho.</p>
+<p>Repare também que os três ficaram entre R$ 41 e R$ 44. Esse é,
+provavelmente, o piso desta série: o barulho do dia a dia, que nenhum
+modelo prevê.</p>
+<h2 id="qual-ferramenta-usar">Qual ferramenta usar<a class="ancora" href="#qual-ferramenta-usar" aria-label="Link para esta secao">#</a></h2>
+<div class="tabela-rolavel"><table><thead>
+<tr>
+  <th>Ferramenta</th>
+  <th>Use quando</th>
+  <th>Cuidado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>A régua</td>
+  <td>sempre, antes de qualquer modelo</td>
+  <td>ela não é o fim, é o começo</td>
+</tr>
+<tr>
+  <td>Regressão com calendário</td>
+  <td>você conhece as causas e quer ler um peso por causa</td>
+  <td>você monta cada coluna</td>
+</tr>
+<tr>
+  <td>ARIMA</td>
+  <td>a série depende muito do próprio passado, e pouco do calendário</td>
+  <td>não sabe de nada que o passado não mostre</td>
+</tr>
+<tr>
+  <td>Prophet</td>
+  <td>série de negócio com semana, ano e feriados</td>
+  <td>sem a lista de feriados, pode empatar com a régua</td>
+</tr>
+<tr>
+  <td>TimesFM</td>
+  <td>você precisa de uma boa previsão rápido, ou tem muitas séries</td>
+  <td>não conhece o seu calendário, e é um modelo pesado</td>
 </tr>
 </tbody>
 </table></div>
@@ -5716,14 +5904,14 @@ modelo aceita dobrar.</p>
 <li>Slides desta aula: entregues em sala.</li>
 <li>Dataset: <a href="https://github.com/klein-natan/nanodegree-AI-Atitus/blob/main/data/vendas_cafeteria.csv"><code>vendas_cafeteria.csv</code></a></li>
 </ul>
-<p>O notebook desta aula instala o Prophet na primeira célula, com
-<code>pip install prophet</code>. A Aula 4 também instala o Optuna no Colab.</p>
+<p>O notebook desta aula confere, na primeira célula, se o Prophet e uma
+versão recente do <code>transformers</code> estão instalados. Na primeira vez que
+roda o TimesFM, o Colab baixa o modelo, cerca de 1 GB.</p>
 <h2 id="para-ir-alem">Para ir além<a class="ancora" href="#para-ir-alem" aria-label="Link para esta secao">#</a></h2>
 <ul>
 <li><a href="https://facebook.github.io/prophet/docs/quick_start.html">Documentação do Prophet</a>: o guia oficial, com exemplos em Python e R.</li>
-<li><a href="https://facebook.github.io/prophet/docs/diagnostics.html">Validação cruzada no Prophet</a>: como testar em várias janelas de tempo em vez de uma só.</li>
+<li><a href="https://huggingface.co/google/timesfm-2.5-200m-transformers">TimesFM no Hugging Face</a>: a página do modelo usado na aula, com o artigo que o descreve.</li>
 <li><a href="https://otexts.com/fpp3/">Forecasting: Principles and Practice</a>: os capítulos 5 e 7 explicam as previsões de referência e os modelos de regressão no tempo, em inglês.</li>
-<li><a href="#/glossario">Glossário</a>: para revisar qualquer termo novo desta aula.</li>
 </ul>
 </template>
 <template class="pagina" data-id="redes-neurais" data-titulo="Redes Neurais" data-descricao="Visão geral do módulo de Redes Neurais">
@@ -8247,7 +8435,7 @@ quando buscar, quando calcular e quando responder).</p>
 (function () {
   "use strict";
 
-  var NAV = [{"tipo": "parte", "titulo": ""}, {"tipo": "pagina", "id": "index", "titulo": "Roadmap", "descricao": "Roadmap do Nanodegree de IA & ML", "sumario": [{"nivel": 2, "ancora": "como-este-curso-funciona", "texto": "Como este curso funciona"}, {"nivel": 2, "ancora": "o-caminho-do-curso", "texto": "O caminho do curso"}]}, {"tipo": "pagina", "id": "leia-me", "titulo": "LEIA-ME", "descricao": "Como este material foi feito, e por quê", "sumario": [{"nivel": 2, "ancora": "o-que-quot-bem-feito-quot-quer-dizer-aqui", "texto": "O que &quot;bem feito&quot; quer dizer aqui"}, {"nivel": 2, "ancora": "onde-esta-o-codigo", "texto": "Onde está o código"}]}, {"tipo": "pagina", "id": "antes-de-comecar", "titulo": "Antes de começar", "descricao": "Como abrir e rodar os notebooks do curso no Google Colab", "sumario": [{"nivel": 2, "ancora": "passo-a-passo", "texto": "Passo a passo"}, {"nivel": 2, "ancora": "se-algo-der-errado", "texto": "Se algo der errado"}, {"nivel": 2, "ancora": "onde-ficam-seus-arquivos", "texto": "Onde ficam seus arquivos"}]}, {"tipo": "pagina", "id": "glossario", "titulo": "Glossário", "descricao": "Termos técnicos do curso, explicados em uma frase cada", "sumario": []}, {"tipo": "parte", "titulo": "Fundamentos"}, {"tipo": "pagina", "id": "fundamentos/contexto-historico", "titulo": "0. Contexto Histórico", "descricao": "Setenta anos de entusiasmo, decepção e recomeço", "sumario": [{"nivel": 2, "ancora": "a-pergunta-que-comecou-tudo", "texto": "A pergunta que começou tudo"}, {"nivel": 2, "ancora": "o-perceptron-a-semente", "texto": "O perceptron: a semente"}, {"nivel": 2, "ancora": "a-ia-simbolica-e-por-que-ela-travou", "texto": "A IA simbólica, e por que ela travou"}, {"nivel": 2, "ancora": "dois-invernos", "texto": "Dois invernos"}, {"nivel": 2, "ancora": "a-virada-parar-de-escrever-regras", "texto": "A virada: parar de escrever regras"}, {"nivel": 2, "ancora": "o-que-fez-a-coisa-funcionar", "texto": "O que fez a coisa funcionar"}, {"nivel": 2, "ancora": "o-que-veio-junto-e-nao-e-bonito", "texto": "O que veio junto, e não é bonito"}, {"nivel": 2, "ancora": "a-leitura-que-interessa", "texto": "A leitura que interessa"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}, {"nivel": 2, "ancora": "bibliografia", "texto": "Bibliografia"}]}, {"tipo": "pagina", "id": "fundamentos/engenharia-de-ml", "titulo": "1. Engenharia de Machine Learning", "descricao": "Por que o modelo é a parte fácil", "sumario": [{"nivel": 2, "ancora": "aprendizado-de-maquina-em-uma-frase", "texto": "Aprendizado de máquina, em uma frase"}, {"nivel": 2, "ancora": "a-diferenca-que-muda-tudo-probabilidade", "texto": "A diferença que muda tudo: probabilidade"}, {"nivel": 2, "ancora": "programacao-tradicional-contra-ml", "texto": "Programação tradicional contra ML"}, {"nivel": 2, "ancora": "cientista-de-dados-e-engenheiro-de-ml", "texto": "Cientista de dados e engenheiro de ML"}, {"nivel": 2, "ancora": "o-ciclo-de-vida-e-por-que-ele-nao-termina", "texto": "O ciclo de vida, e por que ele não termina"}, {"nivel": 2, "ancora": "por-que-os-modelos-apodrecem", "texto": "Por que os modelos apodrecem"}, {"nivel": 2, "ancora": "producao-nao-e-competicao", "texto": "Produção não é competição"}, {"nivel": 2, "ancora": "mlops-se-nao-esta-automatizado-esta-quebrado", "texto": "MLOps: se não está automatizado, está quebrado"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}, {"nivel": 2, "ancora": "bibliografia", "texto": "Bibliografia"}]}, {"tipo": "pagina", "id": "fundamentos/engenharia-de-ia", "titulo": "2. Engenharia de IA", "descricao": "Construir com modelos que outra pessoa treinou", "sumario": [{"nivel": 2, "ancora": "a-fronteira-mudou-de-lugar", "texto": "A fronteira mudou de lugar"}, {"nivel": 2, "ancora": "a-unidade-de-tudo-o-token", "texto": "A unidade de tudo: o token"}, {"nivel": 2, "ancora": "como-o-modelo-preve-autorregressao", "texto": "Como o modelo prevê: autorregressão"}, {"nivel": 2, "ancora": "o-truque-que-permitiu-a-escala-auto-supervisao", "texto": "O truque que permitiu a escala: auto-supervisão"}, {"nivel": 2, "ancora": "modelos-de-fundacao-e-multimodalidade", "texto": "Modelos de fundação e multimodalidade"}, {"nivel": 2, "ancora": "as-tres-formas-de-adaptar-da-mais-barata-para-a-mais-cara", "texto": "As três formas de adaptar, da mais barata para a mais cara"}, {"nivel": 2, "ancora": "o-ciclo-de-uma-aplicacao-de-ia", "texto": "O ciclo de uma aplicação de IA"}, {"nivel": 2, "ancora": "avaliar-e-testar-o-que-da-errado", "texto": "Avaliar é testar o que dá errado"}, {"nivel": 2, "ancora": "onde-isso-rende-de-verdade", "texto": "Onde isso rende de verdade"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}, {"nivel": 2, "ancora": "bibliografia", "texto": "Bibliografia"}]}, {"tipo": "parte", "titulo": "Modelos Lineares"}, {"tipo": "pagina", "id": "modelos-lineares", "titulo": "Visão geral", "descricao": "Visão geral do módulo de Modelos Lineares", "sumario": []}, {"tipo": "pagina", "id": "modelos-lineares/aula-01-regressao-linear-simples", "titulo": "Aula 1 — Regressão Linear Simples", "descricao": "Reta de previsão, gradiente descendente e métricas de regressão", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "a-reta-que-preve-o-preco", "texto": "A reta que prevê o preço"}, {"nivel": 2, "ancora": "o-erro-de-cada-previsao", "texto": "O erro de cada previsão"}, {"nivel": 2, "ancora": "encontrando-a-melhor-reta-o-erro-quadratico-medio", "texto": "Encontrando a melhor reta: o erro quadrático médio"}, {"nivel": 2, "ancora": "existe-um-atalho-minimos-quadrados", "texto": "Existe um atalho: mínimos quadrados"}, {"nivel": 2, "ancora": "gradiente-descendente-descendo-a-serra-na-neblina", "texto": "Gradiente descendente: descendo a serra na neblina"}, {"nivel": 3, "ancora": "por-que-nao-usar-sempre-o-atalho", "texto": "Por que não usar sempre o atalho"}, {"nivel": 3, "ancora": "o-terreno-existe-e-da-para-desenha-lo", "texto": "O terreno existe, e dá para desenhá-lo"}, {"nivel": 3, "ancora": "a-inclinacao-tem-nome-derivada", "texto": "A inclinação tem nome: derivada"}, {"nivel": 3, "ancora": "o-gradiente-uma-inclinacao-para-cada-peso", "texto": "O gradiente: uma inclinação para cada peso"}, {"nivel": 3, "ancora": "a-regra-de-atualizacao", "texto": "A regra de atualização"}, {"nivel": 3, "ancora": "o-algoritmo-do-comeco-ao-fim", "texto": "O algoritmo, do começo ao fim"}, {"nivel": 3, "ancora": "com-os-dois-pesos-ao-mesmo-tempo", "texto": "Com os dois pesos ao mesmo tempo"}, {"nivel": 3, "ancora": "a-taxa-de-aprendizado", "texto": "A taxa de aprendizado"}, {"nivel": 2, "ancora": "metricas-de-regressao", "texto": "Métricas de regressão"}, {"nivel": 3, "ancora": "mae-o-erro-medio-em-reais", "texto": "MAE: o erro médio, em reais"}, {"nivel": 3, "ancora": "mse-e-rmse-penalizando-os-erros-grandes", "texto": "MSE e RMSE: penalizando os erros grandes"}, {"nivel": 3, "ancora": "mape-o-erro-em-porcentagem", "texto": "MAPE: o erro em porcentagem"}, {"nivel": 3, "ancora": "r-quanto-da-bagunca-a-reta-explica", "texto": "R²: quanto da bagunça a reta explica"}, {"nivel": 3, "ancora": "quando-uma-metrica-engana", "texto": "Quando uma métrica engana"}, {"nivel": 2, "ancora": "o-intervalo-de-predicao", "texto": "O intervalo de predição"}, {"nivel": 3, "ancora": "quanto-uma-corrida-se-afasta-da-reta", "texto": "Quanto uma corrida se afasta da reta"}, {"nivel": 3, "ancora": "a-regra-pratica-dois-desvios-para-cada-lado", "texto": "A regra prática: dois desvios para cada lado"}, {"nivel": 3, "ancora": "ela-funciona-da-para-conferir", "texto": "Ela funciona? Dá para conferir"}, {"nivel": 3, "ancora": "as-duas-faixas-do-painel-da-direita", "texto": "As duas faixas do painel da direita"}, {"nivel": 3, "ancora": "a-formula-completa-para-constar", "texto": "A fórmula completa, para constar"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "modelos-lineares/aula-02-regressao-multipla", "titulo": "Aula 2 — Regressão Múltipla", "descricao": "Várias variáveis ao mesmo tempo, preditores categóricos e interpretação dos coeficientes", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "uma-variavel-nao-basta", "texto": "Uma variável não basta"}, {"nivel": 2, "ancora": "a-formula-com-varias-variaveis", "texto": "A fórmula com várias variáveis"}, {"nivel": 2, "ancora": "nada-muda-no-treino", "texto": "Nada muda no treino"}, {"nivel": 2, "ancora": "o-bairro-nao-e-um-numero", "texto": "O bairro não é um número"}, {"nivel": 2, "ancora": "lendo-os-coeficientes", "texto": "Lendo os coeficientes"}, {"nivel": 2, "ancora": "por-que-um-coeficiente-muda-quando-outro-entra", "texto": "Por que um coeficiente muda quando outro entra"}, {"nivel": 2, "ancora": "quanto-mais-variaveis-melhor", "texto": "Quanto mais variáveis, melhor?"}, {"nivel": 2, "ancora": "separe-treino-e-teste", "texto": "Separe treino e teste"}, {"nivel": 2, "ancora": "regularizacao-um-freio-nos-coeficientes", "texto": "Regularização: um freio nos coeficientes"}, {"nivel": 3, "ancora": "ridge-encolhe-tudo", "texto": "Ridge: encolhe tudo"}, {"nivel": 3, "ancora": "lasso-corta", "texto": "Lasso: corta"}, {"nivel": 3, "ancora": "elasticnet-os-dois-juntos", "texto": "ElasticNet: os dois juntos"}, {"nivel": 2, "ancora": "o-resultado-nos-90-apartamentos-de-teste", "texto": "O resultado, nos 90 apartamentos de teste"}, {"nivel": 2, "ancora": "padronizar-antes-de-regularizar", "texto": "Padronizar antes de regularizar"}, {"nivel": 2, "ancora": "qual-dos-tres-usar", "texto": "Qual dos três usar"}, {"nivel": 2, "ancora": "o-grafico-que-voce-olha-antes-de-confiar", "texto": "O gráfico que você olha antes de confiar"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "modelos-lineares/aula-03-regressao-logistica", "titulo": "Aula 3 — Regressão Logística", "descricao": "Função sigmoide, interpretação dos coeficientes e métricas de classificação", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "por-que-a-reta-nao-serve", "texto": "Por que a reta não serve"}, {"nivel": 2, "ancora": "a-funcao-sigmoide", "texto": "A função sigmoide"}, {"nivel": 2, "ancora": "o-modelo-logistico", "texto": "O modelo logístico"}, {"nivel": 2, "ancora": "interpretando-os-coeficientes", "texto": "Interpretando os coeficientes"}, {"nivel": 2, "ancora": "da-probabilidade-a-decisao", "texto": "Da probabilidade à decisão"}, {"nivel": 2, "ancora": "a-matriz-de-confusao", "texto": "A matriz de confusão"}, {"nivel": 2, "ancora": "as-quatro-metricas", "texto": "As quatro métricas"}, {"nivel": 3, "ancora": "acuracia-a-fracao-de-acertos", "texto": "Acurácia: a fração de acertos"}, {"nivel": 3, "ancora": "precisao-e-recall", "texto": "Precisão e recall"}, {"nivel": 3, "ancora": "f1-as-duas-num-numero-so", "texto": "F1: as duas num número só"}, {"nivel": 2, "ancora": "validacao-cruzada-medir-antes-de-escolher", "texto": "Validação cruzada: medir antes de escolher"}, {"nivel": 2, "ancora": "escolhendo-o-limiar", "texto": "Escolhendo o limiar"}, {"nivel": 2, "ancora": "a-curva-roc-todos-os-limiares-de-uma-vez", "texto": "A curva ROC: todos os limiares de uma vez"}, {"nivel": 3, "ancora": "auc-a-area-embaixo-da-curva", "texto": "AUC: a área embaixo da curva"}, {"nivel": 2, "ancora": "calibracao-a-probabilidade-e-um-numero-honesto", "texto": "Calibração: a probabilidade é um número honesto?"}, {"nivel": 3, "ancora": "o-brier-calibracao-num-numero", "texto": "O Brier: calibração num número"}, {"nivel": 3, "ancora": "o-que-quebra-a-calibracao", "texto": "O que quebra a calibração"}, {"nivel": 2, "ancora": "o-limiar-e-a-razao-entre-dois-custos", "texto": "O limiar é a razão entre dois custos"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "modelos-lineares/quiz-modelos-lineares", "titulo": "Quiz — Modelos Lineares", "descricao": "Quinze perguntas para conferir se você sabe ler e interpretar um modelo linear", "sumario": [{"nivel": 2, "ancora": "regressao-linear-simples", "texto": "Regressão linear simples"}, {"nivel": 2, "ancora": "regressao-multipla", "texto": "Regressão múltipla"}, {"nivel": 2, "ancora": "regressao-logistica", "texto": "Regressão logística"}, {"nivel": 2, "ancora": "treino-teste-e-ajuste", "texto": "Treino, teste e ajuste"}, {"nivel": 2, "ancora": "onde-revisar", "texto": "Onde revisar"}]}, {"tipo": "parte", "titulo": "Sistemas de ML"}, {"tipo": "pagina", "id": "sistemas-de-ml", "titulo": "Visão geral", "descricao": "Visão geral do módulo de Sistemas de ML", "sumario": []}, {"tipo": "pagina", "id": "sistemas-de-ml/aula-04-sistema-ponta-a-ponta", "titulo": "Aula 4 — Um Sistema de Ponta a Ponta", "descricao": "Um sistema de risco de cancelamento, do dado bruto à decisão", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "os-dados", "texto": "Os dados"}, {"nivel": 2, "ancora": "a-prova-final-fica-trancada", "texto": "A prova final fica trancada"}, {"nivel": 2, "ancora": "o-baseline-a-regua", "texto": "O baseline: a régua"}, {"nivel": 2, "ancora": "o-preparo-uma-receita-para-cada-coluna", "texto": "O preparo: uma receita para cada coluna"}, {"nivel": 2, "ancora": "o-modelo-aprende-um-cliente-de-cada-vez", "texto": "O modelo aprende um cliente de cada vez"}, {"nivel": 2, "ancora": "o-ajuste-fino-com-optuna", "texto": "O ajuste fino com Optuna"}, {"nivel": 2, "ancora": "a-prova-final", "texto": "A prova final"}, {"nivel": 2, "ancora": "em-que-o-modelo-presta-atencao", "texto": "Em que o modelo presta atenção"}, {"nivel": 2, "ancora": "a-decisao-para-quem-ligar", "texto": "A decisão: para quem ligar"}, {"nivel": 2, "ancora": "e-se", "texto": "E se?"}, {"nivel": 2, "ancora": "o-projeto", "texto": "O projeto"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "parte", "titulo": "Séries Temporais"}, {"tipo": "pagina", "id": "series-temporais", "titulo": "Visão geral", "descricao": "Visão geral do módulo de Séries Temporais", "sumario": []}, {"tipo": "pagina", "id": "series-temporais/aula-05-conceitos-series-temporais", "titulo": "Aula 5 — Conceitos de Séries Temporais", "descricao": "Tendência, sazonalidade e ruído, as previsões simples que todo modelo precisa vencer, e os dois primeiros modelos: regressão com calendário e ARIMA", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "as-tres-pecas-de-qualquer-serie", "texto": "As três peças de qualquer série"}, {"nivel": 2, "ancora": "a-media-movel", "texto": "A média móvel"}, {"nivel": 2, "ancora": "o-padrao-semanal", "texto": "O padrão semanal"}, {"nivel": 2, "ancora": "a-regra-de-ouro-o-corte-e-no-tempo", "texto": "A regra de ouro: o corte é no tempo"}, {"nivel": 2, "ancora": "tres-previsoes-sem-modelo-nenhum", "texto": "Três previsões sem modelo nenhum"}, {"nivel": 2, "ancora": "mape-o-erro-em-porcentagem", "texto": "MAPE: o erro em porcentagem"}, {"nivel": 2, "ancora": "o-primeiro-modelo-uma-regressao-com-o-calendario", "texto": "O primeiro modelo: uma regressão com o calendário"}, {"nivel": 3, "ancora": "uma-peca-de-cada-vez", "texto": "Uma peça de cada vez"}, {"nivel": 2, "ancora": "o-passado-como-variavel-a-ideia-do-arima", "texto": "O passado como variável: a ideia do ARIMA"}, {"nivel": 3, "ancora": "a-versao-sazonal", "texto": "A versão sazonal"}, {"nivel": 2, "ancora": "o-placar", "texto": "O placar"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "series-temporais/aula-06-prophet", "titulo": "Aula 6 — Séries Temporais com Prophet", "descricao": "Tendência, sazonalidades, feriados e incerteza estimados pelo Prophet", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "o-que-o-prophet-faz", "texto": "O que o Prophet faz"}, {"nivel": 2, "ancora": "o-formato-que-ele-exige", "texto": "O formato que ele exige"}, {"nivel": 2, "ancora": "tres-linhas-para-treinar-e-prever", "texto": "Três linhas para treinar e prever"}, {"nivel": 2, "ancora": "as-pecas-que-ele-estimou-sozinho", "texto": "As peças que ele estimou sozinho"}, {"nivel": 2, "ancora": "feriados-o-que-o-modelo-nao-adivinha", "texto": "Feriados: o que o modelo não adivinha"}, {"nivel": 2, "ancora": "o-resultado-contra-a-regua", "texto": "O resultado contra a régua"}, {"nivel": 2, "ancora": "o-intervalo-de-incerteza", "texto": "O intervalo de incerteza"}, {"nivel": 2, "ancora": "quando-a-tendencia-dobra", "texto": "Quando a tendência dobra"}, {"nivel": 2, "ancora": "quando-o-prophet-nao-e-a-resposta", "texto": "Quando o Prophet não é a resposta"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "parte", "titulo": "Redes Neurais"}, {"tipo": "pagina", "id": "redes-neurais", "titulo": "Visão geral", "descricao": "Visão geral do módulo de Redes Neurais", "sumario": []}, {"tipo": "pagina", "id": "redes-neurais/aula-07-redes-neurais-densas", "titulo": "Aula 7 — Fundamentos de Redes Neurais", "descricao": "Neurônio, ativação, camadas e treino, com Keras", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "por-que-a-reta-nao-basta", "texto": "Por que a reta não basta"}, {"nivel": 2, "ancora": "o-que-e-um-neuronio", "texto": "O que é um neurônio"}, {"nivel": 2, "ancora": "a-dobra-funcoes-de-ativacao", "texto": "A dobra: funções de ativação"}, {"nivel": 2, "ancora": "a-rede-inteira-em-cinco-linhas", "texto": "A rede inteira, em cinco linhas"}, {"nivel": 2, "ancora": "como-ela-aprende-e-a-aula-1-de-novo", "texto": "Como ela aprende (é a Aula 1 de novo)"}, {"nivel": 2, "ancora": "epoca-lote-e-a-curva-de-treino", "texto": "Época, lote e a curva de treino"}, {"nivel": 2, "ancora": "quando-a-rede-nao-e-a-resposta", "texto": "Quando a rede não é a resposta"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "redes-neurais/aula-08-redes-convolucionais", "titulo": "Aula 8 — Redes Convolucionais", "descricao": "Convolução, filtros e pooling, com Keras", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "a-foto-por-dentro", "texto": "A foto por dentro"}, {"nivel": 2, "ancora": "por-que-a-rede-da-aula-7-e-ruim-nisso", "texto": "Por que a rede da Aula 7 é ruim nisso"}, {"nivel": 2, "ancora": "a-janela-que-passeia", "texto": "A janela que passeia"}, {"nivel": 2, "ancora": "tres-ideias-em-uma", "texto": "Três ideias em uma"}, {"nivel": 2, "ancora": "pooling-encolher-sem-perder-o-que-importa", "texto": "Pooling: encolher sem perder o que importa"}, {"nivel": 2, "ancora": "os-filtros-que-ela-aprende-sozinha", "texto": "Os filtros que ela aprende sozinha"}, {"nivel": 2, "ancora": "a-rede-convolucional-inteira", "texto": "A rede convolucional inteira"}, {"nivel": 2, "ancora": "a-saida-dez-probabilidades", "texto": "A saída: dez probabilidades"}, {"nivel": 2, "ancora": "o-resultado", "texto": "O resultado"}, {"nivel": 2, "ancora": "por-que-ela-ganha-o-teste-do-deslocamento", "texto": "Por que ela ganha: o teste do deslocamento"}, {"nivel": 2, "ancora": "onde-ela-erra", "texto": "Onde ela erra"}, {"nivel": 2, "ancora": "quando-a-convolucao-nao-serve", "texto": "Quando a convolução não serve"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "parte", "titulo": "LLM do Zero"}, {"tipo": "pagina", "id": "llm-do-zero", "titulo": "Visão geral", "descricao": "Visão geral do módulo de LLM do Zero", "sumario": []}, {"tipo": "pagina", "id": "llm-do-zero/aula-09-tokenizacao", "titulo": "Aula 9 — Do Texto aos Números", "descricao": "O que um LLM faz, e como o texto vira número", "sumario": [{"nivel": 2, "ancora": "onde-estamos", "texto": "Onde estamos"}, {"nivel": 2, "ancora": "o-que-um-llm-faz", "texto": "O que um LLM faz"}, {"nivel": 2, "ancora": "o-material-da-obra", "texto": "O material da obra"}, {"nivel": 2, "ancora": "a-unidade-errada-duas-vezes", "texto": "A unidade errada, duas vezes"}, {"nivel": 2, "ancora": "o-meio-termo-bpe", "texto": "O meio-termo: BPE"}, {"nivel": 2, "ancora": "bytes-para-nada-ficar-de-fora", "texto": "Bytes, para nada ficar de fora"}, {"nivel": 2, "ancora": "codificar-e-decodificar", "texto": "Codificar e decodificar"}, {"nivel": 2, "ancora": "do-texto-para-o-lote-de-treino", "texto": "Do texto para o lote de treino"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "llm-do-zero/aula-10-atencao", "titulo": "Aula 10 — Atenção", "descricao": "Como o modelo decide para onde olhar", "sumario": [{"nivel": 2, "ancora": "onde-estamos", "texto": "Onde estamos"}, {"nivel": 2, "ancora": "o-problema", "texto": "O problema"}, {"nivel": 2, "ancora": "antes-a-palavra-vira-um-vetor", "texto": "Antes: a palavra vira um vetor"}, {"nivel": 2, "ancora": "primeiro-a-versao-sem-peso-nenhum", "texto": "Primeiro, a versão sem peso nenhum"}, {"nivel": 2, "ancora": "os-dois-buracos-da-versao-sem-pesos", "texto": "Os dois buracos da versão sem pesos"}, {"nivel": 2, "ancora": "os-tres-papeis", "texto": "Os três papéis"}, {"nivel": 2, "ancora": "a-formula-inteira", "texto": "A fórmula inteira"}, {"nivel": 2, "ancora": "a-mascara-nao-vale-olhar-a-resposta", "texto": "A máscara: não vale olhar a resposta"}, {"nivel": 2, "ancora": "quatro-cabecas-quatro-olhares", "texto": "Quatro cabeças, quatro olhares"}, {"nivel": 2, "ancora": "o-buraco-2-enfim-a-posicao", "texto": "O buraco 2, enfim: a posição"}, {"nivel": 2, "ancora": "o-preco-da-janela", "texto": "O preço da janela"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "llm-do-zero/aula-11-transformer-treino", "titulo": "Aula 11 — O Transformer e o Treino", "descricao": "Montar o modelo inteiro e treiná-lo no processador", "sumario": [{"nivel": 2, "ancora": "onde-estamos", "texto": "Onde estamos"}, {"nivel": 2, "ancora": "todas-as-pecas-ja-existem", "texto": "Todas as peças já existem"}, {"nivel": 2, "ancora": "comece-por-um-modelo-de-mentira", "texto": "Comece por um modelo de mentira"}, {"nivel": 2, "ancora": "o-bloco-transformer", "texto": "O bloco transformer"}, {"nivel": 2, "ancora": "as-duas-metades-do-bloco", "texto": "As duas metades do bloco"}, {"nivel": 2, "ancora": "o-modelo-inteiro", "texto": "O modelo inteiro"}, {"nivel": 2, "ancora": "a-perda-entropia-cruzada-com-1-024-categorias", "texto": "A perda: entropia cruzada com 1.024 categorias"}, {"nivel": 2, "ancora": "perplexidade-a-perda-em-portugues", "texto": "Perplexidade: a perda em português"}, {"nivel": 2, "ancora": "o-laco-de-treino", "texto": "O laço de treino"}, {"nivel": 2, "ancora": "o-tamanho-do-passo-muda-ao-longo-do-treino", "texto": "O tamanho do passo muda ao longo do treino"}, {"nivel": 2, "ancora": "o-treino-de-verdade", "texto": "O treino de verdade"}, {"nivel": 2, "ancora": "o-que-muda-quando-o-modelo-e-grande", "texto": "O que muda quando o modelo é grande"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "llm-do-zero/aula-12-geracao-limites", "titulo": "Aula 12 — Geração e Limites", "descricao": "Do logit ao texto, e o que o modelo não sabe fazer", "sumario": [{"nivel": 2, "ancora": "onde-estamos", "texto": "Onde estamos"}, {"nivel": 2, "ancora": "o-modelo-nao-devolve-uma-palavra", "texto": "O modelo não devolve uma palavra"}, {"nivel": 2, "ancora": "duas-escolhas-ruins", "texto": "Duas escolhas ruins"}, {"nivel": 2, "ancora": "controle-1-a-temperatura", "texto": "Controle 1: a temperatura"}, {"nivel": 2, "ancora": "controles-2-e-3-cortar-a-cauda", "texto": "Controles 2 e 3: cortar a cauda"}, {"nivel": 2, "ancora": "os-quatro-textos", "texto": "Os quatro textos"}, {"nivel": 2, "ancora": "autorregressao-o-erro-vira-entrada", "texto": "Autorregressão: o erro vira entrada"}, {"nivel": 2, "ancora": "ele-copia-ou-inventa", "texto": "Ele copia ou inventa?"}, {"nivel": 2, "ancora": "por-que-o-modelo-alucina", "texto": "Por que o modelo alucina"}, {"nivel": 2, "ancora": "o-modelo-e-o-corpus", "texto": "O modelo é o corpus"}, {"nivel": 2, "ancora": "o-que-a-escala-compra", "texto": "O que a escala compra"}, {"nivel": 2, "ancora": "o-que-falta-para-virar-um-assistente", "texto": "O que falta para virar um assistente"}, {"nivel": 2, "ancora": "a-novidade-gastar-tempo-em-vez-de-peso", "texto": "A novidade: gastar tempo em vez de peso"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "parte", "titulo": "IA Generativa"}, {"tipo": "pagina", "id": "ia-generativa", "titulo": "Visão geral", "descricao": "Visão geral do módulo de IA Generativa", "sumario": []}, {"tipo": "pagina", "id": "ia-generativa/aula-13-modelos-de-fundacao", "titulo": "Aula 13 — Modelos de Fundação", "descricao": "Rodar um modelo pronto, e aprender a falar com ele", "sumario": [{"nivel": 2, "ancora": "de-787-mil-para-494-milhoes", "texto": "De 787 mil para 494 milhões"}, {"nivel": 2, "ancora": "as-tres-etapas", "texto": "As três etapas"}, {"nivel": 2, "ancora": "rodar-tres-linhas", "texto": "Rodar: três linhas"}, {"nivel": 2, "ancora": "nao-existe-conversa", "texto": "Não existe conversa"}, {"nivel": 2, "ancora": "o-prompt-e-o-unico-controle-que-voce-tem", "texto": "O prompt é o único controle que você tem"}, {"nivel": 2, "ancora": "poucos-exemplos-valem-mais-que-muita-explicacao", "texto": "Poucos exemplos valem mais que muita explicação"}, {"nivel": 2, "ancora": "os-parametros-ja-conhecidos", "texto": "Os parâmetros: já conhecidos"}, {"nivel": 2, "ancora": "ele-nao-sabe-dizer-quot-nao-sei-quot", "texto": "Ele não sabe dizer &quot;não sei&quot;"}, {"nivel": 2, "ancora": "aberto-ou-por-api", "texto": "Aberto ou por API"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "ia-generativa/aula-14-aplicacao-rag", "titulo": "Aula 14 — Uma Aplicação de Verdade", "descricao": "Buscar antes de responder, e medir se melhorou", "sumario": [{"nivel": 2, "ancora": "o-problema", "texto": "O problema"}, {"nivel": 2, "ancora": "rag-buscar-antes-de-responder", "texto": "RAG: buscar antes de responder"}, {"nivel": 2, "ancora": "dividir-o-documento-em-pedacos", "texto": "Dividir o documento em pedaços"}, {"nivel": 2, "ancora": "transformar-texto-em-vetor", "texto": "Transformar texto em vetor"}, {"nivel": 2, "ancora": "a-busca", "texto": "A busca"}, {"nivel": 2, "ancora": "montar-o-prompt", "texto": "Montar o prompt"}, {"nivel": 2, "ancora": "medir-que-e-a-parte-que-ninguem-faz", "texto": "Medir, que é a parte que ninguém faz"}, {"nivel": 2, "ancora": "o-que-fazer-quando-nao-esta-bom", "texto": "O que fazer quando não está bom"}, {"nivel": 2, "ancora": "o-caminho-inteiro", "texto": "O caminho inteiro"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}];
+  var NAV = [{"tipo": "parte", "titulo": ""}, {"tipo": "pagina", "id": "index", "titulo": "Roadmap", "descricao": "Roadmap do Nanodegree de IA & ML", "sumario": [{"nivel": 2, "ancora": "como-este-curso-funciona", "texto": "Como este curso funciona"}, {"nivel": 2, "ancora": "o-caminho-do-curso", "texto": "O caminho do curso"}]}, {"tipo": "pagina", "id": "leia-me", "titulo": "LEIA-ME", "descricao": "Como este material foi feito, e por quê", "sumario": [{"nivel": 2, "ancora": "o-que-quot-bem-feito-quot-quer-dizer-aqui", "texto": "O que &quot;bem feito&quot; quer dizer aqui"}, {"nivel": 2, "ancora": "onde-esta-o-codigo", "texto": "Onde está o código"}]}, {"tipo": "pagina", "id": "antes-de-comecar", "titulo": "Antes de começar", "descricao": "Como abrir e rodar os notebooks do curso no Google Colab", "sumario": [{"nivel": 2, "ancora": "passo-a-passo", "texto": "Passo a passo"}, {"nivel": 2, "ancora": "se-algo-der-errado", "texto": "Se algo der errado"}, {"nivel": 2, "ancora": "onde-ficam-seus-arquivos", "texto": "Onde ficam seus arquivos"}]}, {"tipo": "pagina", "id": "glossario", "titulo": "Glossário", "descricao": "Termos técnicos do curso, explicados em uma frase cada", "sumario": []}, {"tipo": "parte", "titulo": "Fundamentos"}, {"tipo": "pagina", "id": "fundamentos/contexto-historico", "titulo": "0. Contexto Histórico", "descricao": "Setenta anos de entusiasmo, decepção e recomeço", "sumario": [{"nivel": 2, "ancora": "a-pergunta-que-comecou-tudo", "texto": "A pergunta que começou tudo"}, {"nivel": 2, "ancora": "o-perceptron-a-semente", "texto": "O perceptron: a semente"}, {"nivel": 2, "ancora": "a-ia-simbolica-e-por-que-ela-travou", "texto": "A IA simbólica, e por que ela travou"}, {"nivel": 2, "ancora": "dois-invernos", "texto": "Dois invernos"}, {"nivel": 2, "ancora": "a-virada-parar-de-escrever-regras", "texto": "A virada: parar de escrever regras"}, {"nivel": 2, "ancora": "o-que-fez-a-coisa-funcionar", "texto": "O que fez a coisa funcionar"}, {"nivel": 2, "ancora": "o-que-veio-junto-e-nao-e-bonito", "texto": "O que veio junto, e não é bonito"}, {"nivel": 2, "ancora": "a-leitura-que-interessa", "texto": "A leitura que interessa"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}, {"nivel": 2, "ancora": "bibliografia", "texto": "Bibliografia"}]}, {"tipo": "pagina", "id": "fundamentos/engenharia-de-ml", "titulo": "1. Engenharia de Machine Learning", "descricao": "Por que o modelo é a parte fácil", "sumario": [{"nivel": 2, "ancora": "aprendizado-de-maquina-em-uma-frase", "texto": "Aprendizado de máquina, em uma frase"}, {"nivel": 2, "ancora": "a-diferenca-que-muda-tudo-probabilidade", "texto": "A diferença que muda tudo: probabilidade"}, {"nivel": 2, "ancora": "programacao-tradicional-contra-ml", "texto": "Programação tradicional contra ML"}, {"nivel": 2, "ancora": "cientista-de-dados-e-engenheiro-de-ml", "texto": "Cientista de dados e engenheiro de ML"}, {"nivel": 2, "ancora": "o-ciclo-de-vida-e-por-que-ele-nao-termina", "texto": "O ciclo de vida, e por que ele não termina"}, {"nivel": 2, "ancora": "por-que-os-modelos-apodrecem", "texto": "Por que os modelos apodrecem"}, {"nivel": 2, "ancora": "producao-nao-e-competicao", "texto": "Produção não é competição"}, {"nivel": 2, "ancora": "mlops-se-nao-esta-automatizado-esta-quebrado", "texto": "MLOps: se não está automatizado, está quebrado"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}, {"nivel": 2, "ancora": "bibliografia", "texto": "Bibliografia"}]}, {"tipo": "pagina", "id": "fundamentos/engenharia-de-ia", "titulo": "2. Engenharia de IA", "descricao": "Construir com modelos que outra pessoa treinou", "sumario": [{"nivel": 2, "ancora": "a-fronteira-mudou-de-lugar", "texto": "A fronteira mudou de lugar"}, {"nivel": 2, "ancora": "a-unidade-de-tudo-o-token", "texto": "A unidade de tudo: o token"}, {"nivel": 2, "ancora": "como-o-modelo-preve-autorregressao", "texto": "Como o modelo prevê: autorregressão"}, {"nivel": 2, "ancora": "o-truque-que-permitiu-a-escala-auto-supervisao", "texto": "O truque que permitiu a escala: auto-supervisão"}, {"nivel": 2, "ancora": "modelos-de-fundacao-e-multimodalidade", "texto": "Modelos de fundação e multimodalidade"}, {"nivel": 2, "ancora": "as-tres-formas-de-adaptar-da-mais-barata-para-a-mais-cara", "texto": "As três formas de adaptar, da mais barata para a mais cara"}, {"nivel": 2, "ancora": "o-ciclo-de-uma-aplicacao-de-ia", "texto": "O ciclo de uma aplicação de IA"}, {"nivel": 2, "ancora": "avaliar-e-testar-o-que-da-errado", "texto": "Avaliar é testar o que dá errado"}, {"nivel": 2, "ancora": "onde-isso-rende-de-verdade", "texto": "Onde isso rende de verdade"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}, {"nivel": 2, "ancora": "bibliografia", "texto": "Bibliografia"}]}, {"tipo": "parte", "titulo": "Modelos Lineares"}, {"tipo": "pagina", "id": "modelos-lineares", "titulo": "Visão geral", "descricao": "Visão geral do módulo de Modelos Lineares", "sumario": []}, {"tipo": "pagina", "id": "modelos-lineares/aula-01-regressao-linear-simples", "titulo": "Aula 1 — Regressão Linear Simples", "descricao": "Reta de previsão, gradiente descendente e métricas de regressão", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "a-reta-que-preve-o-preco", "texto": "A reta que prevê o preço"}, {"nivel": 2, "ancora": "o-erro-de-cada-previsao", "texto": "O erro de cada previsão"}, {"nivel": 2, "ancora": "encontrando-a-melhor-reta-o-erro-quadratico-medio", "texto": "Encontrando a melhor reta: o erro quadrático médio"}, {"nivel": 2, "ancora": "existe-um-atalho-minimos-quadrados", "texto": "Existe um atalho: mínimos quadrados"}, {"nivel": 2, "ancora": "gradiente-descendente-descendo-a-serra-na-neblina", "texto": "Gradiente descendente: descendo a serra na neblina"}, {"nivel": 3, "ancora": "por-que-nao-usar-sempre-o-atalho", "texto": "Por que não usar sempre o atalho"}, {"nivel": 3, "ancora": "o-terreno-existe-e-da-para-desenha-lo", "texto": "O terreno existe, e dá para desenhá-lo"}, {"nivel": 3, "ancora": "a-inclinacao-tem-nome-derivada", "texto": "A inclinação tem nome: derivada"}, {"nivel": 3, "ancora": "o-gradiente-uma-inclinacao-para-cada-peso", "texto": "O gradiente: uma inclinação para cada peso"}, {"nivel": 3, "ancora": "a-regra-de-atualizacao", "texto": "A regra de atualização"}, {"nivel": 3, "ancora": "o-algoritmo-do-comeco-ao-fim", "texto": "O algoritmo, do começo ao fim"}, {"nivel": 3, "ancora": "com-os-dois-pesos-ao-mesmo-tempo", "texto": "Com os dois pesos ao mesmo tempo"}, {"nivel": 3, "ancora": "a-taxa-de-aprendizado", "texto": "A taxa de aprendizado"}, {"nivel": 2, "ancora": "metricas-de-regressao", "texto": "Métricas de regressão"}, {"nivel": 3, "ancora": "mae-o-erro-medio-em-reais", "texto": "MAE: o erro médio, em reais"}, {"nivel": 3, "ancora": "mse-e-rmse-penalizando-os-erros-grandes", "texto": "MSE e RMSE: penalizando os erros grandes"}, {"nivel": 3, "ancora": "mape-o-erro-em-porcentagem", "texto": "MAPE: o erro em porcentagem"}, {"nivel": 3, "ancora": "r-quanto-da-bagunca-a-reta-explica", "texto": "R²: quanto da bagunça a reta explica"}, {"nivel": 3, "ancora": "quando-uma-metrica-engana", "texto": "Quando uma métrica engana"}, {"nivel": 2, "ancora": "o-intervalo-de-predicao", "texto": "O intervalo de predição"}, {"nivel": 3, "ancora": "quanto-uma-corrida-se-afasta-da-reta", "texto": "Quanto uma corrida se afasta da reta"}, {"nivel": 3, "ancora": "a-regra-pratica-dois-desvios-para-cada-lado", "texto": "A regra prática: dois desvios para cada lado"}, {"nivel": 3, "ancora": "ela-funciona-da-para-conferir", "texto": "Ela funciona? Dá para conferir"}, {"nivel": 3, "ancora": "as-duas-faixas-do-painel-da-direita", "texto": "As duas faixas do painel da direita"}, {"nivel": 3, "ancora": "a-formula-completa-para-constar", "texto": "A fórmula completa, para constar"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "modelos-lineares/aula-02-regressao-multipla", "titulo": "Aula 2 — Regressão Múltipla", "descricao": "Várias variáveis ao mesmo tempo, preditores categóricos e interpretação dos coeficientes", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "uma-variavel-nao-basta", "texto": "Uma variável não basta"}, {"nivel": 2, "ancora": "a-formula-com-varias-variaveis", "texto": "A fórmula com várias variáveis"}, {"nivel": 2, "ancora": "nada-muda-no-treino", "texto": "Nada muda no treino"}, {"nivel": 2, "ancora": "o-bairro-nao-e-um-numero", "texto": "O bairro não é um número"}, {"nivel": 2, "ancora": "lendo-os-coeficientes", "texto": "Lendo os coeficientes"}, {"nivel": 2, "ancora": "por-que-um-coeficiente-muda-quando-outro-entra", "texto": "Por que um coeficiente muda quando outro entra"}, {"nivel": 2, "ancora": "quanto-mais-variaveis-melhor", "texto": "Quanto mais variáveis, melhor?"}, {"nivel": 2, "ancora": "separe-treino-e-teste", "texto": "Separe treino e teste"}, {"nivel": 2, "ancora": "regularizacao-um-freio-nos-coeficientes", "texto": "Regularização: um freio nos coeficientes"}, {"nivel": 3, "ancora": "ridge-encolhe-tudo", "texto": "Ridge: encolhe tudo"}, {"nivel": 3, "ancora": "lasso-corta", "texto": "Lasso: corta"}, {"nivel": 3, "ancora": "elasticnet-os-dois-juntos", "texto": "ElasticNet: os dois juntos"}, {"nivel": 2, "ancora": "o-resultado-nos-90-apartamentos-de-teste", "texto": "O resultado, nos 90 apartamentos de teste"}, {"nivel": 2, "ancora": "padronizar-antes-de-regularizar", "texto": "Padronizar antes de regularizar"}, {"nivel": 2, "ancora": "qual-dos-tres-usar", "texto": "Qual dos três usar"}, {"nivel": 2, "ancora": "o-grafico-que-voce-olha-antes-de-confiar", "texto": "O gráfico que você olha antes de confiar"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "modelos-lineares/aula-03-regressao-logistica", "titulo": "Aula 3 — Regressão Logística", "descricao": "Função sigmoide, interpretação dos coeficientes e métricas de classificação", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "por-que-a-reta-nao-serve", "texto": "Por que a reta não serve"}, {"nivel": 2, "ancora": "a-funcao-sigmoide", "texto": "A função sigmoide"}, {"nivel": 2, "ancora": "o-modelo-logistico", "texto": "O modelo logístico"}, {"nivel": 2, "ancora": "interpretando-os-coeficientes", "texto": "Interpretando os coeficientes"}, {"nivel": 2, "ancora": "da-probabilidade-a-decisao", "texto": "Da probabilidade à decisão"}, {"nivel": 2, "ancora": "a-matriz-de-confusao", "texto": "A matriz de confusão"}, {"nivel": 2, "ancora": "as-quatro-metricas", "texto": "As quatro métricas"}, {"nivel": 3, "ancora": "acuracia-a-fracao-de-acertos", "texto": "Acurácia: a fração de acertos"}, {"nivel": 3, "ancora": "precisao-e-recall", "texto": "Precisão e recall"}, {"nivel": 3, "ancora": "f1-as-duas-num-numero-so", "texto": "F1: as duas num número só"}, {"nivel": 2, "ancora": "validacao-cruzada-medir-antes-de-escolher", "texto": "Validação cruzada: medir antes de escolher"}, {"nivel": 2, "ancora": "escolhendo-o-limiar", "texto": "Escolhendo o limiar"}, {"nivel": 2, "ancora": "a-curva-roc-todos-os-limiares-de-uma-vez", "texto": "A curva ROC: todos os limiares de uma vez"}, {"nivel": 3, "ancora": "auc-a-area-embaixo-da-curva", "texto": "AUC: a área embaixo da curva"}, {"nivel": 2, "ancora": "calibracao-a-probabilidade-e-um-numero-honesto", "texto": "Calibração: a probabilidade é um número honesto?"}, {"nivel": 3, "ancora": "o-brier-calibracao-num-numero", "texto": "O Brier: calibração num número"}, {"nivel": 3, "ancora": "o-que-quebra-a-calibracao", "texto": "O que quebra a calibração"}, {"nivel": 2, "ancora": "o-limiar-e-a-razao-entre-dois-custos", "texto": "O limiar é a razão entre dois custos"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "modelos-lineares/quiz-modelos-lineares", "titulo": "Quiz — Modelos Lineares", "descricao": "Quinze perguntas para conferir se você sabe ler e interpretar um modelo linear", "sumario": [{"nivel": 2, "ancora": "regressao-linear-simples", "texto": "Regressão linear simples"}, {"nivel": 2, "ancora": "regressao-multipla", "texto": "Regressão múltipla"}, {"nivel": 2, "ancora": "regressao-logistica", "texto": "Regressão logística"}, {"nivel": 2, "ancora": "treino-teste-e-ajuste", "texto": "Treino, teste e ajuste"}, {"nivel": 2, "ancora": "onde-revisar", "texto": "Onde revisar"}]}, {"tipo": "parte", "titulo": "Sistemas de ML"}, {"tipo": "pagina", "id": "sistemas-de-ml", "titulo": "Visão geral", "descricao": "Visão geral do módulo de Sistemas de ML", "sumario": []}, {"tipo": "pagina", "id": "sistemas-de-ml/aula-04-sistema-ponta-a-ponta", "titulo": "Aula 4 — Um Sistema de Ponta a Ponta", "descricao": "Um sistema de risco de cancelamento, do dado bruto à decisão", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "os-dados", "texto": "Os dados"}, {"nivel": 2, "ancora": "a-prova-final-fica-trancada", "texto": "A prova final fica trancada"}, {"nivel": 2, "ancora": "o-baseline-a-regua", "texto": "O baseline: a régua"}, {"nivel": 2, "ancora": "o-preparo-uma-receita-para-cada-coluna", "texto": "O preparo: uma receita para cada coluna"}, {"nivel": 2, "ancora": "o-modelo-aprende-um-cliente-de-cada-vez", "texto": "O modelo aprende um cliente de cada vez"}, {"nivel": 2, "ancora": "o-ajuste-fino-com-optuna", "texto": "O ajuste fino com Optuna"}, {"nivel": 2, "ancora": "a-prova-final", "texto": "A prova final"}, {"nivel": 2, "ancora": "em-que-o-modelo-presta-atencao", "texto": "Em que o modelo presta atenção"}, {"nivel": 2, "ancora": "a-decisao-para-quem-ligar", "texto": "A decisão: para quem ligar"}, {"nivel": 2, "ancora": "e-se", "texto": "E se?"}, {"nivel": 2, "ancora": "o-projeto", "texto": "O projeto"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "parte", "titulo": "Séries Temporais"}, {"tipo": "pagina", "id": "series-temporais", "titulo": "Visão geral", "descricao": "Visão geral do módulo de Séries Temporais", "sumario": []}, {"tipo": "pagina", "id": "series-temporais/aula-05-conceitos-series-temporais", "titulo": "Aula 5 — Conceitos de Séries Temporais", "descricao": "Tendência, sazonalidade e ruído, as previsões simples que todo modelo precisa vencer, e os dois primeiros modelos: regressão com calendário e ARIMA", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "as-tres-pecas-de-qualquer-serie", "texto": "As três peças de qualquer série"}, {"nivel": 2, "ancora": "a-media-movel", "texto": "A média móvel"}, {"nivel": 2, "ancora": "o-padrao-semanal", "texto": "O padrão semanal"}, {"nivel": 2, "ancora": "a-regra-de-ouro-o-corte-e-no-tempo", "texto": "A regra de ouro: o corte é no tempo"}, {"nivel": 2, "ancora": "tres-previsoes-sem-modelo-nenhum", "texto": "Três previsões sem modelo nenhum"}, {"nivel": 2, "ancora": "mape-o-erro-em-porcentagem", "texto": "MAPE: o erro em porcentagem"}, {"nivel": 2, "ancora": "o-primeiro-modelo-uma-regressao-com-o-calendario", "texto": "O primeiro modelo: uma regressão com o calendário"}, {"nivel": 3, "ancora": "uma-peca-de-cada-vez", "texto": "Uma peça de cada vez"}, {"nivel": 2, "ancora": "o-passado-como-variavel-a-ideia-do-arima", "texto": "O passado como variável: a ideia do ARIMA"}, {"nivel": 3, "ancora": "a-versao-sazonal", "texto": "A versão sazonal"}, {"nivel": 2, "ancora": "o-placar", "texto": "O placar"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "series-temporais/aula-06-prophet", "titulo": "Aula 6 — Séries Temporais com Prophet e TimesFM", "descricao": "O Prophet estima tendência, sazonalidades e feriados; o TimesFM prevê sem treino nenhum; e o calendário continua sendo seu", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "o-que-o-prophet-faz", "texto": "O que o Prophet faz"}, {"nivel": 2, "ancora": "o-formato-que-ele-exige", "texto": "O formato que ele exige"}, {"nivel": 2, "ancora": "tres-linhas-para-treinar-e-prever", "texto": "Três linhas para treinar e prever"}, {"nivel": 2, "ancora": "as-pecas-que-ele-estimou-sozinho", "texto": "As peças que ele estimou sozinho"}, {"nivel": 2, "ancora": "feriados-o-que-o-modelo-nao-adivinha", "texto": "Feriados: o que o modelo não adivinha"}, {"nivel": 2, "ancora": "o-prophet-contra-a-regua", "texto": "O Prophet contra a régua"}, {"nivel": 2, "ancora": "um-modelo-que-nunca-viu-esta-cafeteria-o-timesfm", "texto": "Um modelo que nunca viu esta cafeteria: o TimesFM"}, {"nivel": 3, "ancora": "o-contexto-quanto-passado-voce-entrega", "texto": "O contexto: quanto passado você entrega"}, {"nivel": 3, "ancora": "juntando-os-dois-mundos", "texto": "Juntando os dois mundos"}, {"nivel": 2, "ancora": "o-intervalo-de-incerteza", "texto": "O intervalo de incerteza"}, {"nivel": 2, "ancora": "quando-a-tendencia-dobra", "texto": "Quando a tendência dobra"}, {"nivel": 2, "ancora": "o-placar-do-modulo", "texto": "O placar do módulo"}, {"nivel": 2, "ancora": "qual-ferramenta-usar", "texto": "Qual ferramenta usar"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "parte", "titulo": "Redes Neurais"}, {"tipo": "pagina", "id": "redes-neurais", "titulo": "Visão geral", "descricao": "Visão geral do módulo de Redes Neurais", "sumario": []}, {"tipo": "pagina", "id": "redes-neurais/aula-07-redes-neurais-densas", "titulo": "Aula 7 — Fundamentos de Redes Neurais", "descricao": "Neurônio, ativação, camadas e treino, com Keras", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "por-que-a-reta-nao-basta", "texto": "Por que a reta não basta"}, {"nivel": 2, "ancora": "o-que-e-um-neuronio", "texto": "O que é um neurônio"}, {"nivel": 2, "ancora": "a-dobra-funcoes-de-ativacao", "texto": "A dobra: funções de ativação"}, {"nivel": 2, "ancora": "a-rede-inteira-em-cinco-linhas", "texto": "A rede inteira, em cinco linhas"}, {"nivel": 2, "ancora": "como-ela-aprende-e-a-aula-1-de-novo", "texto": "Como ela aprende (é a Aula 1 de novo)"}, {"nivel": 2, "ancora": "epoca-lote-e-a-curva-de-treino", "texto": "Época, lote e a curva de treino"}, {"nivel": 2, "ancora": "quando-a-rede-nao-e-a-resposta", "texto": "Quando a rede não é a resposta"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "redes-neurais/aula-08-redes-convolucionais", "titulo": "Aula 8 — Redes Convolucionais", "descricao": "Convolução, filtros e pooling, com Keras", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "a-foto-por-dentro", "texto": "A foto por dentro"}, {"nivel": 2, "ancora": "por-que-a-rede-da-aula-7-e-ruim-nisso", "texto": "Por que a rede da Aula 7 é ruim nisso"}, {"nivel": 2, "ancora": "a-janela-que-passeia", "texto": "A janela que passeia"}, {"nivel": 2, "ancora": "tres-ideias-em-uma", "texto": "Três ideias em uma"}, {"nivel": 2, "ancora": "pooling-encolher-sem-perder-o-que-importa", "texto": "Pooling: encolher sem perder o que importa"}, {"nivel": 2, "ancora": "os-filtros-que-ela-aprende-sozinha", "texto": "Os filtros que ela aprende sozinha"}, {"nivel": 2, "ancora": "a-rede-convolucional-inteira", "texto": "A rede convolucional inteira"}, {"nivel": 2, "ancora": "a-saida-dez-probabilidades", "texto": "A saída: dez probabilidades"}, {"nivel": 2, "ancora": "o-resultado", "texto": "O resultado"}, {"nivel": 2, "ancora": "por-que-ela-ganha-o-teste-do-deslocamento", "texto": "Por que ela ganha: o teste do deslocamento"}, {"nivel": 2, "ancora": "onde-ela-erra", "texto": "Onde ela erra"}, {"nivel": 2, "ancora": "quando-a-convolucao-nao-serve", "texto": "Quando a convolução não serve"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "parte", "titulo": "LLM do Zero"}, {"tipo": "pagina", "id": "llm-do-zero", "titulo": "Visão geral", "descricao": "Visão geral do módulo de LLM do Zero", "sumario": []}, {"tipo": "pagina", "id": "llm-do-zero/aula-09-tokenizacao", "titulo": "Aula 9 — Do Texto aos Números", "descricao": "O que um LLM faz, e como o texto vira número", "sumario": [{"nivel": 2, "ancora": "onde-estamos", "texto": "Onde estamos"}, {"nivel": 2, "ancora": "o-que-um-llm-faz", "texto": "O que um LLM faz"}, {"nivel": 2, "ancora": "o-material-da-obra", "texto": "O material da obra"}, {"nivel": 2, "ancora": "a-unidade-errada-duas-vezes", "texto": "A unidade errada, duas vezes"}, {"nivel": 2, "ancora": "o-meio-termo-bpe", "texto": "O meio-termo: BPE"}, {"nivel": 2, "ancora": "bytes-para-nada-ficar-de-fora", "texto": "Bytes, para nada ficar de fora"}, {"nivel": 2, "ancora": "codificar-e-decodificar", "texto": "Codificar e decodificar"}, {"nivel": 2, "ancora": "do-texto-para-o-lote-de-treino", "texto": "Do texto para o lote de treino"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "llm-do-zero/aula-10-atencao", "titulo": "Aula 10 — Atenção", "descricao": "Como o modelo decide para onde olhar", "sumario": [{"nivel": 2, "ancora": "onde-estamos", "texto": "Onde estamos"}, {"nivel": 2, "ancora": "o-problema", "texto": "O problema"}, {"nivel": 2, "ancora": "antes-a-palavra-vira-um-vetor", "texto": "Antes: a palavra vira um vetor"}, {"nivel": 2, "ancora": "primeiro-a-versao-sem-peso-nenhum", "texto": "Primeiro, a versão sem peso nenhum"}, {"nivel": 2, "ancora": "os-dois-buracos-da-versao-sem-pesos", "texto": "Os dois buracos da versão sem pesos"}, {"nivel": 2, "ancora": "os-tres-papeis", "texto": "Os três papéis"}, {"nivel": 2, "ancora": "a-formula-inteira", "texto": "A fórmula inteira"}, {"nivel": 2, "ancora": "a-mascara-nao-vale-olhar-a-resposta", "texto": "A máscara: não vale olhar a resposta"}, {"nivel": 2, "ancora": "quatro-cabecas-quatro-olhares", "texto": "Quatro cabeças, quatro olhares"}, {"nivel": 2, "ancora": "o-buraco-2-enfim-a-posicao", "texto": "O buraco 2, enfim: a posição"}, {"nivel": 2, "ancora": "o-preco-da-janela", "texto": "O preço da janela"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "llm-do-zero/aula-11-transformer-treino", "titulo": "Aula 11 — O Transformer e o Treino", "descricao": "Montar o modelo inteiro e treiná-lo no processador", "sumario": [{"nivel": 2, "ancora": "onde-estamos", "texto": "Onde estamos"}, {"nivel": 2, "ancora": "todas-as-pecas-ja-existem", "texto": "Todas as peças já existem"}, {"nivel": 2, "ancora": "comece-por-um-modelo-de-mentira", "texto": "Comece por um modelo de mentira"}, {"nivel": 2, "ancora": "o-bloco-transformer", "texto": "O bloco transformer"}, {"nivel": 2, "ancora": "as-duas-metades-do-bloco", "texto": "As duas metades do bloco"}, {"nivel": 2, "ancora": "o-modelo-inteiro", "texto": "O modelo inteiro"}, {"nivel": 2, "ancora": "a-perda-entropia-cruzada-com-1-024-categorias", "texto": "A perda: entropia cruzada com 1.024 categorias"}, {"nivel": 2, "ancora": "perplexidade-a-perda-em-portugues", "texto": "Perplexidade: a perda em português"}, {"nivel": 2, "ancora": "o-laco-de-treino", "texto": "O laço de treino"}, {"nivel": 2, "ancora": "o-tamanho-do-passo-muda-ao-longo-do-treino", "texto": "O tamanho do passo muda ao longo do treino"}, {"nivel": 2, "ancora": "o-treino-de-verdade", "texto": "O treino de verdade"}, {"nivel": 2, "ancora": "o-que-muda-quando-o-modelo-e-grande", "texto": "O que muda quando o modelo é grande"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "llm-do-zero/aula-12-geracao-limites", "titulo": "Aula 12 — Geração e Limites", "descricao": "Do logit ao texto, e o que o modelo não sabe fazer", "sumario": [{"nivel": 2, "ancora": "onde-estamos", "texto": "Onde estamos"}, {"nivel": 2, "ancora": "o-modelo-nao-devolve-uma-palavra", "texto": "O modelo não devolve uma palavra"}, {"nivel": 2, "ancora": "duas-escolhas-ruins", "texto": "Duas escolhas ruins"}, {"nivel": 2, "ancora": "controle-1-a-temperatura", "texto": "Controle 1: a temperatura"}, {"nivel": 2, "ancora": "controles-2-e-3-cortar-a-cauda", "texto": "Controles 2 e 3: cortar a cauda"}, {"nivel": 2, "ancora": "os-quatro-textos", "texto": "Os quatro textos"}, {"nivel": 2, "ancora": "autorregressao-o-erro-vira-entrada", "texto": "Autorregressão: o erro vira entrada"}, {"nivel": 2, "ancora": "ele-copia-ou-inventa", "texto": "Ele copia ou inventa?"}, {"nivel": 2, "ancora": "por-que-o-modelo-alucina", "texto": "Por que o modelo alucina"}, {"nivel": 2, "ancora": "o-modelo-e-o-corpus", "texto": "O modelo é o corpus"}, {"nivel": 2, "ancora": "o-que-a-escala-compra", "texto": "O que a escala compra"}, {"nivel": 2, "ancora": "o-que-falta-para-virar-um-assistente", "texto": "O que falta para virar um assistente"}, {"nivel": 2, "ancora": "a-novidade-gastar-tempo-em-vez-de-peso", "texto": "A novidade: gastar tempo em vez de peso"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "parte", "titulo": "IA Generativa"}, {"tipo": "pagina", "id": "ia-generativa", "titulo": "Visão geral", "descricao": "Visão geral do módulo de IA Generativa", "sumario": []}, {"tipo": "pagina", "id": "ia-generativa/aula-13-modelos-de-fundacao", "titulo": "Aula 13 — Modelos de Fundação", "descricao": "Rodar um modelo pronto, e aprender a falar com ele", "sumario": [{"nivel": 2, "ancora": "de-787-mil-para-494-milhoes", "texto": "De 787 mil para 494 milhões"}, {"nivel": 2, "ancora": "as-tres-etapas", "texto": "As três etapas"}, {"nivel": 2, "ancora": "rodar-tres-linhas", "texto": "Rodar: três linhas"}, {"nivel": 2, "ancora": "nao-existe-conversa", "texto": "Não existe conversa"}, {"nivel": 2, "ancora": "o-prompt-e-o-unico-controle-que-voce-tem", "texto": "O prompt é o único controle que você tem"}, {"nivel": 2, "ancora": "poucos-exemplos-valem-mais-que-muita-explicacao", "texto": "Poucos exemplos valem mais que muita explicação"}, {"nivel": 2, "ancora": "os-parametros-ja-conhecidos", "texto": "Os parâmetros: já conhecidos"}, {"nivel": 2, "ancora": "ele-nao-sabe-dizer-quot-nao-sei-quot", "texto": "Ele não sabe dizer &quot;não sei&quot;"}, {"nivel": 2, "ancora": "aberto-ou-por-api", "texto": "Aberto ou por API"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "ia-generativa/aula-14-aplicacao-rag", "titulo": "Aula 14 — Uma Aplicação de Verdade", "descricao": "Buscar antes de responder, e medir se melhorou", "sumario": [{"nivel": 2, "ancora": "o-problema", "texto": "O problema"}, {"nivel": 2, "ancora": "rag-buscar-antes-de-responder", "texto": "RAG: buscar antes de responder"}, {"nivel": 2, "ancora": "dividir-o-documento-em-pedacos", "texto": "Dividir o documento em pedaços"}, {"nivel": 2, "ancora": "transformar-texto-em-vetor", "texto": "Transformar texto em vetor"}, {"nivel": 2, "ancora": "a-busca", "texto": "A busca"}, {"nivel": 2, "ancora": "montar-o-prompt", "texto": "Montar o prompt"}, {"nivel": 2, "ancora": "medir-que-e-a-parte-que-ninguem-faz", "texto": "Medir, que é a parte que ninguém faz"}, {"nivel": 2, "ancora": "o-que-fazer-quando-nao-esta-bom", "texto": "O que fazer quando não está bom"}, {"nivel": 2, "ancora": "o-caminho-inteiro", "texto": "O caminho inteiro"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}];
   var SOL = '<circle cx="12" cy="12" r="4.2"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4"/>';
   var LUA = '<path d="M20 13.5A8 8 0 1 1 10.5 4a6.3 6.3 0 0 0 9.5 9.5Z"/>';
 

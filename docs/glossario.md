@@ -80,6 +80,9 @@ nesta página do que voltar a reler uma aula inteira.
 | Prophet | Biblioteca de previsão de séries temporais que estima tendência, sazonalidades e feriados |
 | Intervalo de incerteza | A faixa em torno da previsão, que cobre uma porcentagem dos casos (80% no padrão do Prophet) |
 | Ponto de mudança (*changepoint*) | Data em que a tendência tem permissão para mudar de inclinação |
+| TimesFM | Modelo de fundação do Google para séries temporais: prevê uma série nova sem treinar nela |
+| Contexto (em séries) | Quantos pontos do passado você entrega ao modelo pré-treinado para ele prever o futuro |
+| Quantil | O valor abaixo do qual fica uma fração dos casos: 10% dos dias ficam abaixo do quantil de 10% |
 | Ambiente virtual (`.venv`) | Caixa de bibliotecas isolada, criada para um projeto só |
 | `requirements.txt` | Lista das bibliotecas de um projeto, para outra máquina repetir a instalação |
 | Streamlit | Biblioteca que transforma um arquivo Python numa página web, sem escrever HTML |

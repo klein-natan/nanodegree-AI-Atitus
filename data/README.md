@@ -99,7 +99,7 @@ uv run python data/scripts/gerar_assinaturas.py
 | | |
 |---|---|
 | **Origem** | Sintético, gerado por [`scripts/gerar_vendas_cafeteria.py`](scripts/gerar_vendas_cafeteria.py) (seed fixa = 42, reprodutível) |
-| **Usado em** | Módulo Séries Temporais — Aulas 4 e 5 |
+| **Usado em** | Módulo Séries Temporais — Aulas 5 e 6 |
 | **Linhas** | 1.096 dias, de 2022-01-01 a 2024-12-31 |
 
 Colunas:

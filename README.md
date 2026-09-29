@@ -24,7 +24,8 @@ As páginas também podem ser lidas uma a uma, em Markdown, dentro de
 
 Cada aula do livro tem, na seção **Materiais**, um botão que abre o
 notebook direto no Google Colab. O Colab roda no navegador; as aulas que
-precisam de Optuna ou Prophet instalam a biblioteca na primeira célula.
+precisam de Optuna, Prophet ou de uma versão recente do transformers
+instalam a biblioteca na primeira célula.
 
 No Colab, faça **Arquivo → Salvar uma cópia no Drive** antes de escrever
 qualquer coisa. Sem isso, o seu trabalho se perde ao fechar a aba.
@@ -41,7 +42,7 @@ sem download nenhum.
 | 3. Regressão Logística | [Colab](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-03-regressao-logistica.ipynb) |
 | 4. Um Sistema de Ponta a Ponta | [Colab](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-04-sistema-ponta-a-ponta.ipynb) |
 | 5. Conceitos de Séries Temporais | [Colab](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-05-conceitos-series-temporais.ipynb) |
-| 6. Séries Temporais com Prophet | [Colab](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-06-series-temporais-prophet.ipynb) |
+| 6. Séries Temporais com Prophet e TimesFM | [Colab](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-06-series-temporais-prophet.ipynb) |
 | 7. Fundamentos de Redes Neurais | [Colab](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-07-redes-neurais.ipynb) |
 | 8. Redes Convolucionais | [Colab](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-08-redes-convolucionais.ipynb) |
 | 9. Do Texto aos Números | [Colab](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-09-do-texto-aos-numeros.ipynb) |
