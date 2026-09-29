@@ -14,8 +14,10 @@ exclui da publicação. Consulte essas fontes ao alterar uma aula.
   de mudar `docs/`, rode `tools/build_site.py` e `tools/verificar_site.py`.
   O gerador usa `tools/site_template.html`; não edite o HTML gerado à mão.
 - `notebooks/`: um `.ipynb` por aula, dividido em demonstração e
-  exercícios com `# SEU CODIGO AQUI`. Nas Aulas 4 a 6 não há seção final
-  de exercícios: eles ficam ao longo do código, em células "Sua vez".
+  exercícios com `# SEU CODIGO AQUI`. Na Aula 4 os exercícios ficam ao
+  longo do código, em células "Sua vez". As Aulas 5 e 6 não têm
+  exercício nenhum: são demonstração, com código direto, sem funções
+  próprias e com as métricas do `sklearn.metrics`.
   Os links Colab nas páginas e no `README.md` precisam apontar para o
   nome real do notebook.
 - `data/`: dados dos notebooks e artefatos do pequeno modelo de linguagem.
