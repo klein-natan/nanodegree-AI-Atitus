@@ -301,3 +301,36 @@ Todas as catorze aulas do curso já têm a entrada delas aqui. Dataset novo
 entra com a mesma ficha: origem, aula que usa, colunas e como regerar.
 Sintético precisa de gerador com semente fixa; real precisa de URL de
 origem, data do download e licença.
+
+## titanic_treino.csv e titanic_teste.csv
+
+| | |
+|---|---|
+| **Origem** | Sintético, gerado por [`scripts/gerar_titanic.py`](scripts/gerar_titanic.py) (seed fixa = 1912, reprodutível). Imita as relações do Titanic real, mas nenhum passageiro existe |
+| **Usado em** | Desafio Titanic (classificação, com placar da turma) |
+| **Linhas** | 1.000 passageiros no treino (35,1% sobreviveram) e 300 no teste, com a mesma proporção |
+
+Colunas:
+
+| Coluna | Tipo | Unidade | Descrição |
+|---|---|---|---|
+| `id_passageiro` | inteiro | — | identificador do passageiro (1 a 1.300) |
+| `classe` | inteiro | 1, 2 ou 3 | classe da passagem |
+| `sexo` | texto | — | `feminino` ou `masculino` |
+| `idade` | decimal | anos | idade do passageiro |
+| `irmaos_conjuge` | inteiro | pessoas | irmãos ou cônjuges a bordo |
+| `pais_filhos` | inteiro | pessoas | pais ou filhos a bordo |
+| `tarifa` | decimal | libras | preço da passagem |
+| `porto_embarque` | texto | — | `Southampton`, `Cherbourg` ou `Queenstown` |
+| `sobreviveu` | inteiro | 0 ou 1 | 1 se sobreviveu. **Só no treino** |
+
+A chance de sobreviver sobe para mulheres, crianças e a primeira classe, e
+cai para famílias grandes e para mulheres da terceira classe. O teste
+chega sem a coluna `sobreviveu`: a resposta fica só no computador do
+professor, no app do placar, e nunca entra no repositório.
+
+Para regenerar (produz os arquivos idênticos):
+
+```bash
+uv run python data/scripts/gerar_titanic.py
+```
