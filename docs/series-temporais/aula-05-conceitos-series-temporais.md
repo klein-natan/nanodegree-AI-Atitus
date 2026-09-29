@@ -1,5 +1,5 @@
 ---
-description: Tendência, sazonalidade e ruído, e as previsões simples que todo modelo precisa vencer
+description: Tendência, sazonalidade e ruído, as previsões simples que todo modelo precisa vencer, e os dois primeiros modelos: regressão com calendário e ARIMA
 ---
 
 # Aula 5 — Conceitos de Séries Temporais
@@ -8,9 +8,10 @@ description: Tendência, sazonalidade e ruído, e as previsões simples que todo
 **O que você leva desta aula**
 
 Você vai aprender a ler um gráfico ao longo do tempo, separando o que ele
-tem de tendência, de padrão que se repete e de ruído. Vai aprender também
-a fazer três previsões sem modelo nenhum, e a medir qualquer previsão sem
-enganar a si mesmo.
+tem de tendência, de padrão que se repete e de ruído. Vai fazer três
+previsões sem modelo nenhum e usá-las como régua. Depois vai treinar os
+dois primeiros modelos de verdade, uma regressão com o calendário e um
+ARIMA, e ver quais deles vencem a régua.
 {% endhint %}
 
 ## Para que serve
@@ -190,6 +191,187 @@ torna útil para comparar períodos de movimento diferente.
 O cuidado com o MAPE: ele explode quando o valor real chega perto de zero.
 Numa série que passa por zero, use MAE.
 
+## O primeiro modelo: uma regressão com o calendário
+
+A sazonal ingênua é boa, mas não sabe nada. Ela não sabe que o negócio
+cresce, que dezembro vende menos que julho, nem que o Natal existe. Ela
+só copia a semana passada.
+
+Você já conhece uma ferramenta que aprende esse tipo de coisa: a
+regressão múltipla da Aula 2. O truque é transformar o calendário em
+colunas. Cada peça da série vira uma coluna da tabela.
+
+| Peça da série | Coluna na tabela |
+|---|---|
+| Tendência | `dia_numero`: 0 no primeiro dia, 1 no segundo, e assim por diante |
+| Sazonalidade semanal | uma variável indicadora por dia da semana, com a segunda como referência |
+| Sazonalidade anual | uma variável indicadora por mês, com janeiro como referência |
+| Feriado | a coluna `feriado`, que já vem no arquivo com 0 ou 1 |
+
+As variáveis indicadoras são as mesmas colunas de 0 e 1 que você usou
+para os bairros na Aula 2. Um sábado tem 1 na coluna do sábado e 0 nas
+outras. A segunda-feira tem 0 em todas, porque é a categoria de
+referência.
+
+A regressão soma um peso para cada coluna, como sempre. Mostrando só
+quatro das 19 colunas:
+
+$$\hat{y}_t = w_0 + w_1 \cdot t + w_2 \cdot \text{sábado}_t + w_3 \cdot \text{feriado}_t + \dots$$
+
+| Símbolo | Significado |
+|---|---|
+| `ŷₜ` | a venda prevista para o dia `t` |
+| `t` | o número do dia, a coluna `dia_numero` |
+| `w₁` | quanto a venda cresce a cada dia que passa: a tendência |
+| `sábadoₜ`, `feriadoₜ` | colunas de 0 ou 1: valem 1 se o dia `t` é sábado, ou feriado |
+| `w₂`, `w₃` | quanto um sábado soma, e quanto um feriado tira |
+
+O modelo completo, treinado nos 1.068 dias de treino, aprendeu estes pesos
+(entre outros):
+
+| Peso | Valor | Tradução |
+|---|---|---|
+| `w₀` | R$ 603 | uma segunda de janeiro, no primeiro dia da série |
+| `w₁` | R$ 0,45 por dia | cerca de R$ 164 a mais por dia de venda a cada ano |
+| sábado | + R$ 337 | um sábado vende R$ 337 a mais que uma segunda |
+| julho | + R$ 236 | julho vende R$ 236 a mais que janeiro |
+| feriado | − R$ 387 | um feriado derruba a venda em R$ 387 |
+
+Exemplo: o Natal de 2024 caiu numa quarta, o dia 1.089 da série, em
+dezembro. A conta fica `603 + 0,45 × 1.089 + 80 + 1 − 387 ≈ 787`. Os R$ 80
+são o peso da quarta, e o R$ 1 é o peso de dezembro. A cafeteria vendeu
+R$ 780 naquele dia.
+
+### Uma peça de cada vez
+
+O jeito mais claro de ver o que cada coluna faz é treinar três versões,
+cada uma com uma peça a mais, e medir as três nos mesmos 28 dias de teste.
+
+<figure><img src="../assets/aula-04/regressao.png" alt="Gráfico do período de teste com as vendas reais e três previsões de regressão: uma tracejada, alta demais, e duas que acompanham as vendas, sendo que só uma mergulha no Natal"><figcaption>Sem o mês, a regressão erra para cima o mês inteiro. Sem o feriado, ela não vê o Natal.</figcaption></figure>
+
+| Regressão | MAE | RMSE | MAPE |
+|---|---|---|---|
+| Tendência + semana | R$ 131,63 | R$ 159,24 | 11,7% |
+| + mês | R$ 60,21 | R$ 95,17 | 5,5% |
+| + feriado | R$ 44,11 | R$ 60,12 | 3,6% |
+
+A primeira versão é **pior que todas as previsões de referência**. Ela
+sabe o dia da semana e a tendência, mas não sabe que dezembro é baixa
+temporada, e erra para cima o mês inteiro. Um modelo de verdade pode, sim,
+perder da régua.
+
+A coluna do mês conserta isso e já vence a régua. A coluna de feriado
+acerta o Natal, e o erro médio cai para R$ 44. Cada peça que você conhece
+do negócio vira uma coluna, e cada coluna conserta um erro diferente.
+
+## O passado como variável: a ideia do ARIMA
+
+A regressão com calendário usa a data para prever. Existe outro caminho:
+usar as próprias vendas dos dias anteriores.
+
+<figure><img src="../assets/aula-04/defasagens.png" alt="Dois gráficos de dispersão lado a lado: as vendas de hoje contra as de ontem, com correlação 0,70, e contra as de 7 dias atrás, com correlação 0,86, mais concentrada numa diagonal"><figcaption>Hoje se parece com ontem, e se parece ainda mais com o mesmo dia da semana passada.</figcaption></figure>
+
+Uma coluna com o valor de alguns dias atrás se chama **defasagem**
+(*lag*). Fazer uma regressão da série contra as próprias defasagens se
+chama **autorregressão**, e é a primeira letra de um modelo clássico, o
+**ARIMA**.
+
+$$\hat{y}_t = w_0 + w_1 \cdot y_{t-1}$$
+
+| Símbolo | Significado |
+|---|---|
+| `ŷₜ` | a venda prevista para hoje |
+| `yₜ₋₁` | a venda de ontem, que já aconteceu |
+| `w₀`, `w₁` | os pesos, aprendidos no treino como em qualquer regressão |
+
+Exemplo, com pesos ilustrativos: se `w₀ = 350` e `w₁ = 0,7`, e ontem a
+cafeteria vendeu R$ 1.200, a previsão para hoje é `350 + 0,7 × 1.200 =
+1.190` reais.
+
+As três letras do nome são três ideias, e cada uma tem um número que você
+escolhe:
+
+| Letra | Ideia | O número |
+|---|---|---|
+| AR (autorregressão) | prever usando os valores dos dias anteriores | `p`: quantos dias para trás |
+| I (integração) | prever a **mudança** de um dia para o outro, e não o valor | `d`: quantas vezes tirar a diferença |
+| MA (média móvel dos erros) | corrigir a previsão com os erros dos últimos dias | `q`: quantos erros para trás |
+
+A letra I merece uma fórmula, porque ela é a mais estranha. Em vez de
+olhar o valor, o modelo olha a diferença entre dois dias seguidos:
+
+$$\Delta y_t = y_t - y_{t-1}$$
+
+| Símbolo | Significado |
+|---|---|
+| `Δyₜ` | a mudança de ontem para hoje |
+| `yₜ`, `yₜ₋₁` | as vendas de hoje e de ontem |
+
+Exemplo: se ontem a cafeteria vendeu R$ 1.200 e hoje vendeu R$ 1.250, a
+diferença é R$ 50. Uma série que sobe sem parar vira uma série de
+diferenças que oscila em torno de um número fixo. É assim que o ARIMA lida
+com a tendência.
+
+O ARIMA mais simples, com `p = 1`, `d = 1` e `q = 1`, se escreve
+ARIMA(1,1,1). No Python, com a biblioteca `statsmodels`, são duas linhas:
+
+```python
+modelo = ARIMA(treino["vendas"], order=(1, 1, 1)).fit()
+previsao = modelo.forecast(28)
+```
+
+### A versão sazonal
+
+Nesta série, o ARIMA(1,1,1) decepciona: MAE de R$ 116,45, empatado com a
+previsão ingênua. Ele olha só os últimos dias, e por isso não enxerga a
+semana.
+
+A solução é a **versão sazonal**. Ela repete as mesmas três ideias com um
+passo de 7 dias: compara hoje com o mesmo dia da semana passada, e não só
+com ontem. O quarto número do `seasonal_order` é o tamanho do ciclo.
+
+```python
+modelo = ARIMA(treino["vendas"], order=(1, 1, 1),
+               seasonal_order=(0, 1, 1, 7)).fit()
+```
+
+<figure><img src="../assets/aula-04/arima.png" alt="Gráfico do período de teste com as vendas reais, uma previsão reta do ARIMA simples e uma previsão em zigue-zague do ARIMA sazonal, que acompanha a semana mas não mergulha no Natal"><figcaption>O ARIMA simples vira uma reta. O sazonal acompanha a semana, mas não tem como saber do Natal.</figcaption></figure>
+
+Com o ciclo de 7 dias, o erro cai para R$ 57,57, e o ARIMA vence a
+régua. Mas repare no Natal: o ARIMA sazonal passa reto por ele. O modelo
+só conhece o passado da série, e o passado recente não avisa que o dia
+25 é feriado.
+
+## O placar
+
+Oito previsões, os mesmos 28 dias de teste:
+
+<figure><img src="../assets/aula-04/placar.png" alt="Gráfico de barras horizontais com o MAE de oito previsões e uma linha tracejada na sazonal ingênua; a regressão com mês, a regressão com feriado e o ARIMA sazonal ficam abaixo da linha"><figcaption>Três modelos batem a régua. Dois modelos de verdade perdem dela.</figcaption></figure>
+
+| Previsão | MAE | RMSE | MAPE |
+|---|---|---|---|
+| Ingênua | R$ 121,28 | R$ 156,45 | 10,3% |
+| Média de 7 dias | R$ 115,93 | R$ 154,73 | 10,4% |
+| Sazonal ingênua (a régua) | R$ 63,78 | R$ 110,80 | 6,0% |
+| Regressão: tendência + semana | R$ 131,63 | R$ 159,24 | 11,7% |
+| Regressão: + mês | R$ 60,21 | R$ 95,17 | 5,5% |
+| Regressão: + feriado | R$ 44,11 | R$ 60,12 | 3,6% |
+| ARIMA(1,1,1) | R$ 116,45 | R$ 155,06 | 10,4% |
+| ARIMA sazonal | R$ 57,57 | R$ 96,83 | 5,4% |
+
+Três lições saem desta tabela:
+
+1. **Ter um modelo não garante nada.** Dois modelos de verdade perderam
+   para a cópia da semana passada. Sem a régua, você nunca saberia.
+2. **O ciclo tem que entrar no modelo.** Tanto a regressão quanto o ARIMA
+   só venceram quando alguém contou para eles que a semana existe.
+3. **O que você sabe do negócio vale mais que o modelo.** O melhor
+   resultado veio da regressão, o modelo mais simples, porque ela recebeu
+   a lista de feriados. O ARIMA, olhando só o passado, não tinha como
+   saber do Natal.
+
+A marca a bater na próxima aula é R$ 44,11 de MAE.
+
 ## Materiais
 
 - **Notebook desta aula, no Google Colab:** [![Abrir no Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-05-conceitos-series-temporais.ipynb)
@@ -202,5 +384,5 @@ Se ainda não sabe como abrir o notebook, veja
 ## Para ir além
 
 - [`rolling` no pandas](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.rolling.html): a função que calcula médias móveis em uma linha.
-- [Forecasting: Principles and Practice](https://otexts.com/fpp3/): o livro gratuito de Hyndman e Athanasopoulos, referência da área. O capítulo 2 é esta aula inteira, em inglês.
-- [Glossário](../glossario.md): para revisar qualquer termo novo desta aula.
+- [Forecasting: Principles and Practice](https://otexts.com/fpp3/): o livro gratuito de Hyndman e Athanasopoulos, referência da área. Os capítulos 2, 5, 7 e 9 cobrem esta aula (gráficos, régua, regressão e ARIMA), em inglês.
+- [ARIMA no statsmodels](https://www.statsmodels.org/stable/generated/statsmodels.tsa.arima.model.ARIMA.html): a documentação da classe usada no notebook.

@@ -11,5 +11,5 @@ série temporal.
 
 | Aula | Conteúdo | Status |
 |---|---|---|
-| [Aula 5 — Conceitos de Séries Temporais](aula-05-conceitos-series-temporais.md) | Tendência, sazonalidade e ruído, previsões de referência e o corte no tempo | Disponível |
+| [Aula 5 — Conceitos de Séries Temporais](aula-05-conceitos-series-temporais.md) | Tendência, sazonalidade e ruído, o corte no tempo, previsões de referência, regressão com calendário e ARIMA | Disponível |
 | [Aula 6 — Séries Temporais com Prophet](aula-06-prophet.md) | Tendência, sazonalidades e feriados estimados por uma biblioteca, e o intervalo de incerteza | Disponível |

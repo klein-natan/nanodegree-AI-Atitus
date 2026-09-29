@@ -70,6 +70,10 @@ nesta página do que voltar a reler uma aula inteira.
 | Previsão ingênua (*naïve*) | Prever que amanhã será igual a hoje |
 | Sazonal ingênua | Prever que amanhã será igual ao mesmo dia do ciclo anterior |
 | MAPE | O erro de cada exemplo vira porcentagem do valor daquele exemplo, e o MAPE é a média dessas porcentagens |
+| Defasagem (*lag*) | O valor da própria série alguns passos atrás, usado como coluna para prever o presente |
+| Autorregressão | Uma regressão da série contra as próprias defasagens |
+| ARIMA | Modelo que prevê a série pelo próprio passado: autorregressão (AR), diferenças (I) e erros recentes (MA) |
+| ARIMA sazonal | O ARIMA com as mesmas três ideias repetidas num passo do tamanho do ciclo, como 7 dias |
 | Erro padrão residual (`s`) | O tamanho típico de um resíduo, em unidades do alvo |
 | Intervalo de predição | A faixa em que cai **uma** observação nova: `ŷ ± 2s` |
 | Intervalo de confiança | A faixa em que cai a **média**; encolhe com mais dados |
