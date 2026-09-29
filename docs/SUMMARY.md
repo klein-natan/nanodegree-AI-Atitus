@@ -29,6 +29,7 @@
 * [Visão geral](series-temporais/README.md)
 * [Aula 5 — Conceitos de Séries Temporais](series-temporais/aula-05-conceitos-series-temporais.md)
 * [Aula 6 — Séries Temporais com Prophet e TimesFM](series-temporais/aula-06-prophet.md)
+* [Quiz — Séries Temporais](series-temporais/quiz-series-temporais.md)
 
 ## Redes Neurais
 

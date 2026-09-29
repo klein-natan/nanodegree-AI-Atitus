@@ -4243,6 +4243,20 @@ roda o TimesFM, o Colab baixa o modelo, cerca de 1 GB.
 - TimesFM no Hugging Face: a página do modelo usado na aula, com o artigo que o descreve.
 - Forecasting: Principles and Practice: os capítulos 5 e 7 explicam as previsões de referência e os modelos de regressão no tempo, em inglês.
 
+### Quiz — Séries Temporais > Onde revisar
+| Se errou a questão | Releia |
+|---|---|
+| 1 | Aula 5: as três peças de qualquer série |
+| 2 | Aula 5: a média móvel |
+| 3 | Aula 5: o corte é no tempo |
+| 4 | Aula 5: três previsões sem modelo |
+| 5 | Aula 5: a regressão com o calendário |
+| 6 | Aula 5: d, prever o valor ou a mudança |
+| 7 | Aula 6: o Prophet contra a régua |
+| 8 | Aula 6: o intervalo de incerteza |
+| 9 | Aula 6: o TimesFM |
+| 10 | Aula 6: juntando os dois mundos |
+
 ### Aula 4 — Um Sistema de Ponta a Ponta > Para que serve
 O Clube do Café é uma assinatura mensal de café em grãos, com 2.000
 assinantes. Todo mês, alguns cancelam: 29% já cancelaram. A equipe pode

@@ -13,3 +13,4 @@ série temporal.
 |---|---|---|
 | [Aula 5 — Conceitos de Séries Temporais](aula-05-conceitos-series-temporais.md) | Tendência, sazonalidade e ruído, o corte no tempo, previsões de referência, regressão com calendário e ARIMA | Disponível |
 | [Aula 6 — Séries Temporais com Prophet e TimesFM](aula-06-prophet.md) | Tendência, sazonalidades e feriados estimados pelo Prophet, previsão sem treino com o TimesFM, e o intervalo de incerteza | Disponível |
+| [Quiz — Séries Temporais](quiz-series-temporais.md) | 10 perguntas de interpretação sobre as duas aulas | Disponível |
