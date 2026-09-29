@@ -23,6 +23,7 @@
 
 * [Visão geral](sistemas-de-ml/README.md)
 * [Aula 4 — Um Sistema de Ponta a Ponta](sistemas-de-ml/aula-04-sistema-ponta-a-ponta.md)
+* [Desafio Titanic](sistemas-de-ml/desafio-titanic.md)
 
 ## Séries Temporais
 

@@ -11,3 +11,4 @@ e uma tela para explorar as decisões.
 | Aula | Conteúdo | Status |
 |---|---|---|
 | [Aula 4 — Um Sistema de Ponta a Ponta](aula-04-sistema-ponta-a-ponta.md) | Classificador de cancelamento, validação cruzada, Optuna e uma tela em Streamlit | Disponível |
+| [Desafio Titanic](desafio-titanic.md) | 45 minutos em equipe: um classificador de sobreviventes, com placar ao vivo da turma | Disponível |
