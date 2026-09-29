@@ -72,7 +72,7 @@ nesta página do que voltar a reler uma aula inteira.
 | MAPE | O erro de cada exemplo vira porcentagem do valor daquele exemplo, e o MAPE é a média dessas porcentagens |
 | Defasagem (*lag*) | O valor da própria série alguns passos atrás, usado como coluna para prever o presente |
 | Autorregressão | Uma regressão da série contra as próprias defasagens |
-| ARIMA | Modelo que prevê a série pelo próprio passado: autorregressão (AR), diferenças (I) e erros recentes (MA) |
+| ARIMA(p, d, q) | Modelo que prevê a série pelo próprio passado. `p`: quantos dias entram (AR); `d`: prever o valor (0) ou a mudança (1) (I); `q`: quantos erros recentes corrigem a previsão (MA) |
 | ARIMA sazonal | O ARIMA com as mesmas três ideias repetidas num passo do tamanho do ciclo, como 7 dias |
 | Erro padrão residual (`s`) | O tamanho típico de um resíduo, em unidades do alvo |
 | Intervalo de predição | A faixa em que cai **uma** observação nova: `ŷ ± 2s` |

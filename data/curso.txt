@@ -3760,33 +3760,51 @@ A regressão com calendário usa a data para prever. Existe outro caminho:
 usar as próprias vendas dos dias anteriores.
 
 Uma coluna com o valor de alguns dias atrás se chama **defasagem**
-(*lag*). Fazer uma regressão da série contra as próprias defasagens se
-chama **autorregressão**, e é a primeira letra de um modelo clássico, o
-**ARIMA**.
+(*lag*). O **ARIMA** é um modelo clássico que prevê a série usando só o
+passado dela mesma. Ele faz três perguntas, e cada resposta é um número
+que você escolhe. Por isso ele se escreve ARIMA(p, d, q).
 
-$$\hat{y}_t = w_0 + w_1 \cdot y_{t-1}$$
+| Número | A pergunta que ele responde |
+|---|---|
+| `p` | quantos dias do passado entram como coluna? |
+| `d` | o modelo prevê o valor ou a mudança de um dia para o outro? |
+| `q` | quantos erros recentes o modelo usa para se corrigir? |
+
+Vale ver um de cada vez.
+
+p: quantos dias do passado entram
+
+A primeira letra, AR, quer dizer **autorregressão**: uma regressão da
+série contra as próprias defasagens. É a regressão da Aula 1, só que as
+colunas de entrada são as vendas dos dias anteriores. O `p` diz quantas
+dessas colunas entram. Com `p = 2`:
+
+$$\hat{y}_t = w_0 + w_1 \cdot y_{t-1} + w_2 \cdot y_{t-2}$$
 
 | Símbolo | Significado |
 |---|---|
 | `ŷₜ` | a venda prevista para hoje |
-| `yₜ₋₁` | a venda de ontem, que já aconteceu |
-| `w₀`, `w₁` | os pesos, aprendidos no treino como em qualquer regressão |
+| `yₜ₋₁`, `yₜ₋₂` | as vendas de ontem e de anteontem, que já aconteceram |
+| `w₀`, `w₁`, `w₂` | os pesos, aprendidos no treino como em qualquer regressão |
 
-Exemplo, com pesos ilustrativos: se `w₀ = 350` e `w₁ = 0,7`, e ontem a
-cafeteria vendeu R$ 1.200, a previsão para hoje é `350 + 0,7 × 1.200 =
-1.190` reais.
+Exemplo, com pesos ilustrativos: `w₀ = 250`, `w₁ = 0,5` e `w₂ = 0,3`.
+Ontem a cafeteria vendeu R$ 1.200 e anteontem R$ 1.100. A previsão para
+hoje é `250 + 0,5 × 1.200 + 0,3 × 1.100 = 1.180` reais.
 
-As três letras do nome são três ideias, e cada uma tem um número que você
-escolhe:
+Com `p = 1`, só ontem entra. Com `p = 0`, nenhum dia entra, e sobram as
+outras duas ideias.
 
-| Letra | Ideia | O número |
-|---|---|---|
-| AR (autorregressão) | prever usando os valores dos dias anteriores | `p`: quantos dias para trás |
-| I (integração) | prever a **mudança** de um dia para o outro, e não o valor | `d`: quantas vezes tirar a diferença |
-| MA (média móvel dos erros) | corrigir a previsão com os erros dos últimos dias | `q`: quantos erros para trás |
+d: prever o valor ou a mudança?
 
-A letra I merece uma fórmula, porque ela é a mais estranha. Em vez de
-olhar o valor, o modelo olha a diferença entre dois dias seguidos:
+Um ARIMA com `d = 0` prevê o valor das vendas diretamente. O problema é
+que ele supõe que a série oscila em torno de um nível fixo, e a nossa
+série sobe. O ARIMA(1,0,0) mostra o estrago: nos dias de teste, a
+previsão escorrega para R$ 1.097, a média dos três anos, que mistura 2022
+com 2024. O erro médio vai a R$ 166,82, pior que qualquer previsão de
+referência.
+
+Com `d = 1`, o modelo passa a olhar a **diferença** entre dois dias
+seguidos:
 
 $$\Delta y_t = y_t - y_{t-1}$$
 
@@ -3795,28 +3813,129 @@ $$\Delta y_t = y_t - y_{t-1}$$
 | `Δyₜ` | a mudança de ontem para hoje |
 | `yₜ`, `yₜ₋₁` | as vendas de hoje e de ontem |
 
-Exemplo: se ontem a cafeteria vendeu R$ 1.200 e hoje vendeu R$ 1.250, a
-diferença é R$ 50. Uma série que sobe sem parar vira uma série de
-diferenças que oscila em torno de um número fixo. É assim que o ARIMA lida
-com a tendência.
+Exemplo: uma série que vendeu R$ 1.000, R$ 1.010, R$ 1.020 e R$ 1.030
+sobe sem parar. As diferenças são 10, 10 e 10: uma série parada, fácil de
+prever. O modelo prevê a próxima mudança (mais 10) e soma ao último valor.
+A previsão é R$ 1.040.
 
-O ARIMA mais simples, com `p = 1`, `d = 1` e `q = 1`, se escreve
-ARIMA(1,1,1). No Python, com a biblioteca `statsmodels`, são duas linhas:
+É assim que o ARIMA lida com a tendência. A regra prática: se o gráfico
+sobe ou desce, use `d = 1`; se ele oscila em torno de um nível estável,
+`d = 0`. Quase nunca é preciso passar de 1.
+
+Um caso curioso: o ARIMA(0,1,0) não usa dia nenhum (`p = 0`), nem erro
+nenhum (`q = 0`). Ele prevê mudança zero, e repete o último valor. É a
+previsão ingênua, com o mesmo MAE de R$ 121,28.
+
+q: corrigir com o erro de ontem
+
+A terceira letra, MA, vem de *moving average*, média móvel. O nome
+confunde: não é a média móvel das vendas que você viu no começo da aula.
+Aqui, o modelo guarda o próprio erro de ontem e usa uma parte dele para
+corrigir a previsão de hoje. O `q` diz quantos erros para trás entram.
+Com `q = 1`:
+
+$$\hat{y}_t = w_0 + w_1 \cdot \varepsilon_{t-1}$$
+
+| Símbolo | Significado |
+|---|---|
+| `εₜ₋₁` | o erro de ontem: o que vendeu menos o que o modelo tinha previsto |
+| `w₁` | quanto desse erro vira correção hoje |
+| `w₀` | o nível da previsão antes da correção |
+
+Exemplo, com pesos ilustrativos: ontem o modelo previu R$ 1.100 e a
+cafeteria vendeu R$ 1.150. O erro foi `ε = +50`. Com `w₀ = 1.100` e
+`w₁ = 0,4`, a previsão de hoje é `1.100 + 0,4 × 50 = 1.120` reais. O
+modelo sobe um pouco, sem acreditar totalmente num dia só.
+
+Na prática, corrigir com os erros faz o modelo tirar uma média ponderada
+dos últimos dias, em vez de copiar o último. O ARIMA(0,1,1) desta série
+erra R$ 115,93, o mesmo que a média dos últimos 7 dias.
+
+Os três números juntos
+
+O ARIMA(1,1,1) usa as três ideias ao mesmo tempo: ele prevê a mudança de
+hoje (`d = 1`) a partir da mudança de ontem (`p = 1`) e do erro de ontem
+(`q = 1`).
+
+$$\Delta \hat{y}_t = w_0 + w_1 \cdot \Delta y_{t-1} + w_2 \cdot \varepsilon_{t-1}$$
+
+| Símbolo | Significado |
+|---|---|
+| `Δŷₜ` | a mudança prevista de ontem para hoje |
+| `Δyₜ₋₁` | a mudança que aconteceu de anteontem para ontem |
+| `εₜ₋₁` | o erro do modelo ontem |
+| `w₀`, `w₁`, `w₂` | os pesos, aprendidos no treino |
+
+Exemplo, com pesos ilustrativos `w₀ = 0`, `w₁ = 0,3` e `w₂ = 0,5`.
+Anteontem a cafeteria vendeu R$ 1.150 e ontem R$ 1.200, então a mudança
+foi +50. O erro do modelo ontem foi +30. A mudança prevista é
+`0,3 × 50 + 0,5 × 30 = 30`, e a previsão de hoje é `1.200 + 30 = 1.230`
+reais.
+
+No Python, com a biblioteca `statsmodels`, o `order` recebe os três
+números nesta ordem:
+
+| ARIMA | O que faz | MAE |
+|---|---|---|
+| (0,1,0) | repete o último dia: é a previsão ingênua | R$ 121,28 |
+| (1,0,0) | olha ontem, mas volta para a média dos três anos | R$ 166,82 |
+| (1,1,1) | prevê a mudança, com ontem e com o erro de ontem | R$ 116,45 |
+
+Nenhum deles passa perto da régua. Todos olham só os últimos dias, e por
+isso nenhum enxerga a semana.
 
 A versão sazonal
 
-Nesta série, o ARIMA(1,1,1) decepciona: MAE de R$ 116,45, empatado com a
-previsão ingênua. Ele olha só os últimos dias, e por isso não enxerga a
-semana.
+A solução é a **versão sazonal**. Ela faz as mesmas três perguntas, só
+que com um passo do tamanho do ciclo: em vez de comparar hoje com ontem,
+compara hoje com o mesmo dia da semana passada. No código, é um segundo
+grupo de quatro números, o `seasonal_order=(P, D, Q, s)`.
 
-A solução é a **versão sazonal**. Ela repete as mesmas três ideias com um
-passo de 7 dias: compara hoje com o mesmo dia da semana passada, e não só
-com ontem. O quarto número do `seasonal_order` é o tamanho do ciclo.
+| Número | Igual a | Mas olhando para |
+|---|---|---|
+| `P` | `p` | o mesmo dia da semana, 1, 2... semanas atrás |
+| `D` | `d` | a mudança contra 7 dias atrás, e não contra ontem |
+| `Q` | `q` | o erro do mesmo dia da semana passada |
+| `s` | (novo) | o tamanho do ciclo: 7 dias |
 
-Com o ciclo de 7 dias, o erro cai para R$ 57,57, e o ARIMA vence a
-régua. Mas repare no Natal: o ARIMA sazonal passa reto por ele. O modelo
-só conhece o passado da série, e o passado recente não avisa que o dia
-25 é feriado.
+A diferença sazonal (`D = 1`) é a peça mais importante:
+
+$$\Delta_7 y_t = y_t - y_{t-7}$$
+
+| Símbolo | Significado |
+|---|---|
+| `Δ₇yₜ` | a mudança de hoje em relação ao mesmo dia da semana passada |
+| `yₜ₋₇` | a venda de 7 dias atrás |
+
+Exemplo: no sábado passado a cafeteria vendeu R$ 1.400; neste sábado,
+R$ 1.450. A diferença sazonal é R$ 50. O salto de sexta para sábado some
+da conta, porque o modelo compara sábado com sábado.
+
+Montando o modelo peça por peça:
+
+| ARIMA | O que faz | MAE |
+|---|---|---|
+| (0,0,0)(0,1,0,7) | repete a semana passada: é a sazonal ingênua | R$ 63,78 |
+| (0,0,0)(0,1,1,7) | repete a semana passada e corrige com o erro dela | R$ 61,12 |
+| (1,1,1)(0,1,1,7) | junta tudo: ontem, a semana passada e os erros | R$ 57,57 |
+
+A régua era, o tempo todo, um ARIMA sazonal sem nenhum peso. Cada número a
+mais corrige um pouco dela.
+
+Com o ciclo de 7 dias, o ARIMA vence a régua. Mas repare no Natal: o
+ARIMA sazonal passa reto por ele. O modelo só conhece o passado da série,
+e o passado recente não avisa que o dia 25 é feriado.
+
+Como escolher os números
+
+Não existe fórmula mágica, mas existe um roteiro:
+
+1. **`d` e `D` saem do gráfico.** A série sobe ou desce? `d = 1`. Tem um
+   ciclo que se repete? `D = 1` e `s` igual ao tamanho do ciclo.
+2. **`p`, `q`, `P` e `Q` começam em 0 ou 1.** Números grandes raramente
+   ajudam: o ARIMA(2,1,1) erra R$ 118,61, mais que o (1,1,1).
+3. **Compare poucas combinações contra a régua**, numa janela de
+   validação: as últimas semanas do treino, nunca o teste.
 
 ### Aula 5 — Conceitos de Séries Temporais > O placar
 Oito previsões, os mesmos 28 dias de teste:
