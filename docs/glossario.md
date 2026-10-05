@@ -95,6 +95,11 @@ nesta página do que voltar a reler uma aula inteira.
 | Época | Uma passada completa por todos os exemplos de treino |
 | Lote (*batch*) | Quantos exemplos entram antes de cada ajuste dos pesos |
 | Normalização | Pôr as colunas na mesma escala antes de treinar uma rede |
+| Dropout | Camada que desliga ao acaso uma fração dos neurônios a cada passo de treino, para a rede não decorar |
+| Callback | Objeto que o Keras chama ao fim de cada época para olhar as métricas e agir, como parar o treino |
+| Parada antecipada (*early stopping*) | Callback que para o treino quando a perda de validação passa várias épocas sem melhorar |
+| `ReduceLROnPlateau` | Callback que encolhe a taxa de aprendizado quando a perda de validação trava |
+| `ModelCheckpoint` | Callback que grava o modelo em arquivo cada vez que a validação bate um recorde |
 | Achatar (*flatten*) | Enfileirar a tabela de pixels de uma imagem, perdendo a informação de quem era vizinho de quem |
 | Convolução | Passar o mesmo filtro por toda a imagem, uma janela por vez |
 | Filtro (*kernel*) | O quadradinho de nove pesos que a rede aprende e usa na imagem inteira |

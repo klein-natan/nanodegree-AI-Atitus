@@ -17,7 +17,9 @@ exclui da publicação. Consulte essas fontes ao alterar uma aula.
   exercícios com `# SEU CODIGO AQUI`. Na Aula 4 os exercícios ficam ao
   longo do código, em células "Sua vez". As Aulas 5 e 6 não têm
   exercício nenhum: são demonstração, com código direto, sem funções
-  próprias e com as métricas do `sklearn.metrics`.
+  próprias e com as métricas do `sklearn.metrics`. A Aula 7 também não
+  tem exercício: ela demonstra a rede densa, a regularização (L2 e
+  dropout) e os callbacks do Keras.
   Os links Colab nas páginas e no `README.md` precisam apontar para o
   nome real do notebook.
 - `data/`: dados dos notebooks e artefatos do pequeno modelo de linguagem.

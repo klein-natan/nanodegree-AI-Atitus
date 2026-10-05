@@ -1,5 +1,5 @@
 ---
-description: Neurônio, ativação, camadas e treino, com Keras
+description: Neurônio, ativação, camadas, treino, regularização e callbacks, com Keras
 ---
 
 # Aula 7 — Fundamentos de Redes Neurais
@@ -9,7 +9,9 @@ description: Neurônio, ativação, camadas e treino, com Keras
 
 Você vai entender o que é um neurônio (spoiler: é a soma da Aula 2 com uma
 dobra em cima), por que empilhar neurônios resolve problemas que uma reta
-não resolve, e como treinar uma rede em cinco linhas de Keras.
+não resolve, e como treinar uma rede em cinco linhas de Keras. Vai ver
+também como segurar uma rede que decora, com L2 e dropout, e como deixar o
+treino em piloto automático com callbacks.
 {% endhint %}
 
 ## Para que serve
@@ -166,7 +168,8 @@ Com 600 torras e lote de 32, uma época tem 19 passos. Em 120 épocas, são
 
 Repare que existem duas linhas em cada gráfico. A de treino usa as torras
 que a rede viu; a de validação usa 25% que ela nunca viu. Enquanto as duas
-caem juntas, está tudo bem.
+caem juntas, está tudo bem. Quando a de validação para de cair e a de treino
+continua, a rede começou a decorar. A próxima seção mostra como evitar isso.
 
 {% hint style="warning" %}
 **Erro do dia**
@@ -177,6 +180,218 @@ mal, porque o gradiente fica dominado pela variável de número maior. A
 correção é uma linha, antes do treino: subtraia a média e divida pelo
 desvio padrão de cada coluna. Faça isso **sempre** em rede neural.
 {% endhint %}
+
+## Quando a rede decora
+
+Uma rede com liberdade demais faz o que o modelo simples nunca faria:
+decora. Para ver isso, dê a ela três camadas de 128 neurônios, mais de 33
+mil pesos, e só 420 torras para aprender. Separe outras 180 como
+validação e treine por 300 épocas.
+
+<figure><img src="../assets/aula-07/sobreajuste.png" alt="Gráfico com a perda de treino caindo ao longo de 300 épocas e a perda de validação subindo depois da época 13"><figcaption>O treino cai sem parar. A validação tem o melhor momento na época 13 e piora dali em diante.</figcaption></figure>
+
+A perda de validação foi mínima na época 13, com 0,213. Na época 300 ela
+estava em 0,374. A acurácia no treino chegou a 96,7%, e na validação ficou
+em 87,8%. A rede parou de aprender o formato da ilha e passou a decorar o
+ruído de cada torra.
+
+A defesa se chama **regularização** (*regularization*): qualquer técnica
+que torne decorar mais caro. Duas delas mexem na própria rede, o L2 e o
+dropout. A terceira mexe no treino, e vem na próxima seção.
+
+### L2: pesos pequenos
+
+Você já conhece esse freio da Aula 2, onde ele aparecia como Ridge. Uma
+rede que decora costuma ter pesos enormes, porque precisa de curvas
+bruscas para encostar em cada ponto. O L2 soma à perda um castigo para cada
+peso grande.
+
+$$\text{perda total} = \text{perda} + \lambda \sum_{j} w_j^2$$
+
+| Símbolo | Significado |
+|---|---|
+| `λ` | a força do castigo. Zero desliga o L2 |
+| `wⱼ` | cada peso da rede. A soma passa por todos eles |
+
+Na Aula 2 essa força se chamava `α`. Aqui ela é `λ` (lambda), para não
+confundir com a taxa de aprendizado, que também é `α`.
+
+Exemplo com `λ = 0,01`: dois pesos de 3 e −2 custam `0,01 × (9 + 4) = 0,13`.
+Dois pesos de 0,5 custam `0,01 × (0,25 + 0,25) = 0,005`. Pesos pequenos
+saem baratos, e a rede aprende a usá-los.
+
+No Keras, o L2 é um argumento da camada:
+
+```python
+keras.layers.Dense(128, activation="relu",
+                   kernel_regularizer=keras.regularizers.l2(0.001))
+```
+
+Com `λ = 0,001`, a perda de validação na época 300 caiu de 0,374 para
+0,250.
+
+### Dropout: neurônios sorteados
+
+Imagine um time em que, a cada treino, alguns jogadores sorteados ficam no
+banco. Ninguém pode depender de um único colega, e todos aprendem a
+jogar bem com qualquer formação. O **dropout** faz isso com os neurônios.
+
+A cada passo de treino, ele desliga ao acaso uma fração dos neurônios da
+camada. Com `Dropout(0.3)`, 30% ficam em zero naquele passo, e outros 30%
+no seguinte. É uma camada nova, que entra depois de cada `Dense`:
+
+```python
+modelo = keras.Sequential([
+    keras.layers.Input(shape=(2,)),
+    keras.layers.Dense(128, activation="relu"),
+    keras.layers.Dropout(0.3),
+    keras.layers.Dense(128, activation="relu"),
+    keras.layers.Dropout(0.3),
+    keras.layers.Dense(1, activation="sigmoid"),
+])
+```
+
+O Keras só sorteia durante o treino. Na hora de prever, todos os neurônios
+ficam ligados. Com dropout de 0,3, a perda de validação na época 300 foi de
+0,257, e a acurácia de validação subiu de 87,8% para 91,1%.
+
+<figure><img src="../assets/aula-07/regularizacao.png" alt="Três painéis com a fronteira de uma mesma rede: solta, com fronteira irregular e um buraco dentro da ilha; com L2 e com dropout, com a fronteira mais lisa"><figcaption>Mesma rede, mesmos dados. A solta desenha um buraco dentro da ilha. Com freio, a fronteira fica lisa.</figcaption></figure>
+
+Dois pontos de partida para ajustar:
+
+| Técnica | Ponto de partida | Aumente se |
+|---|---|---|
+| L2 | `λ` entre 0,0001 e 0,01 | a rede ainda decora |
+| Dropout | taxa entre 0,2 e 0,5 | a rede ainda decora |
+
+Se a rede passar a errar até no treino, você freou demais. Diminua o
+valor. Duas defesas fora da rede também funcionam: uma rede menor, como a
+da seção de capacidade, e mais dados, que é a mais forte e nem sempre está
+ao seu alcance.
+
+## Callbacks: o piloto automático do treino
+
+Até aqui o treino foi cego: 300 épocas, aconteça o que acontecer. Um
+**callback** é um objeto que o Keras chama ao fim de cada época. Ele olha as
+métricas e decide algo, como parar o treino. Você entrega os callbacks ao
+`fit`, numa lista:
+
+```python
+modelo.fit(entradas, alvo, epochs=300, validation_data=(entradas_val, alvo_val),
+           callbacks=[callback_1, callback_2])
+```
+
+### EarlyStopping: parar quando não melhora mais
+
+É a terceira defesa contra a decoreba. O `EarlyStopping` (parada antecipada)
+acompanha a perda de validação. Se ela passa `patience` épocas sem bater o
+recorde, o treino para.
+
+<figure><img src="../assets/aula-07/early_stopping.png" alt="Gráfico com as perdas de treino e validação nas primeiras 58 épocas, com uma linha amarela na época 13, o melhor momento, e uma linha tracejada na época 28, onde o treino parou"><figcaption>O melhor momento foi a época 13. Quinze épocas depois, sem recorde, o treino parou.</figcaption></figure>
+
+```python
+parar_cedo = keras.callbacks.EarlyStopping(
+    monitor="val_loss", patience=15, restore_best_weights=True)
+```
+
+| Argumento | O que faz |
+|---|---|
+| `monitor` | a métrica que ele vigia. `"val_loss"` é a escolha de sempre |
+| `patience` | quantas épocas sem recorde ele espera antes de parar |
+| `restore_best_weights` | devolve os pesos da melhor época, e não os da última |
+
+Sem o último argumento, você fica com os pesos de 15 épocas depois do
+melhor ponto, um pouco piores. Esquecer dele é o erro mais comum com este
+callback.
+
+Neste exemplo o treino parou na época 28, de 300 possíveis, com perda de
+validação de 0,213 e acurácia de 91,1%. Economizou 90% do tempo, e ficou
+melhor que a rede solta.
+
+Há um cuidado. Como você escolhe o ponto de parada olhando a validação, a
+acurácia de validação fica um pouco otimista. Para um número final
+honesto, guarde um terceiro pedaço dos dados, o teste, que ninguém olhou.
+
+### ReduceLROnPlateau: encolher o passo quando trava
+
+Lembra da regra da Aula 1, `w ← w − α · inclinação`? O `α` é a **taxa de
+aprendizado** (*learning rate*), o tamanho do passo. Passo grande anda
+rápido no começo. No fim, ele pula por cima do vale sem conseguir descer
+até o fundo.
+
+O `ReduceLROnPlateau` vigia a perda de validação. Quando ela trava por
+`patience` épocas, ele encolhe o passo:
+
+$$\alpha_{\text{novo}} = \alpha \times \text{fator}$$
+
+| Símbolo | Significado |
+|---|---|
+| `α` | a taxa de aprendizado atual |
+| `fator` | quanto ela encolhe a cada platô. Com 0,5, cai pela metade |
+
+Exemplo com `α = 0,01` e fator 0,5: a taxa vai a 0,005 no primeiro platô,
+a 0,0025 no segundo, e assim por diante, até o piso `min_lr`.
+
+```python
+reduzir_passo = keras.callbacks.ReduceLROnPlateau(
+    monitor="val_loss", factor=0.5, patience=5, min_lr=0.00001)
+```
+
+<figure><img src="../assets/aula-07/reduce_lr.png" alt="À esquerda, a perda de validação balançando com taxa fixa e estável com o ReduceLROnPlateau; à direita, a taxa de aprendizado caindo em degraus de 0,01 até 0,00001"><figcaption>Com a taxa fixa em 0,01, a validação balança. Com a redução, ela assenta.</figcaption></figure>
+
+O teste usou uma taxa propositalmente alta, 0,01, dez vezes a padrão do
+Adam. A perda de validação final foi de 0,253 com a taxa fixa e de 0,224
+com a redução. Com a taxa padrão, o ganho é menor: o callback é um seguro
+contra passo grande demais.
+
+### ModelCheckpoint: guardar o melhor modelo
+
+O `EarlyStopping` devolve os melhores pesos na memória. Se o Colab
+desconectar, eles somem. O `ModelCheckpoint` grava o modelo em arquivo
+cada vez que a perda de validação bate um recorde:
+
+```python
+guardar_melhor = keras.callbacks.ModelCheckpoint(
+    "melhor_rede.keras", monitor="val_loss", save_best_only=True)
+```
+
+Depois, em qualquer notebook, você carrega o modelo e usa sem treinar de
+novo:
+
+```python
+modelo = keras.models.load_model("melhor_rede.keras")
+```
+
+### Os três juntos
+
+A regra que faz os callbacks combinarem: o `ReduceLROnPlateau` espera
+**menos** que o `EarlyStopping`. Primeiro a rede tenta andar com passos
+menores. Só depois o treino desiste.
+
+```python
+reduzir_passo = keras.callbacks.ReduceLROnPlateau(
+    monitor="val_loss", factor=0.5, patience=8, min_lr=0.00001)
+parar_cedo = keras.callbacks.EarlyStopping(
+    monitor="val_loss", patience=25, restore_best_weights=True)
+guardar_melhor = keras.callbacks.ModelCheckpoint(
+    "melhor_rede.keras", monitor="val_loss", save_best_only=True)
+
+modelo.fit(entradas_treino, alvo_treino, epochs=300,
+           validation_data=(entradas_val, alvo_val),
+           callbacks=[reduzir_passo, parar_cedo, guardar_melhor])
+```
+
+Com dropout na rede e esses três callbacks, o treino parou na época 68, e
+o melhor modelo ficou com perda de validação de 0,208.
+
+Outros callbacks que valem um minuto de leitura:
+
+| Callback | O que faz |
+|---|---|
+| `LearningRateScheduler` | muda a taxa de aprendizado por uma receita sua, época a época |
+| `CSVLogger` | grava as métricas de cada época num arquivo CSV |
+| `TensorBoard` | grava um painel interativo do treino |
+| `TerminateOnNaN` | para o treino se a perda virar `nan` |
 
 ## Quando a rede não é a resposta
 
