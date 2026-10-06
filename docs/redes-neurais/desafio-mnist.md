@@ -8,7 +8,7 @@ description: Um desafio em dupla: treinar uma rede densa que lê dígitos escrit
 **Como funciona**
 
 Em dupla, no Colab, você treina uma rede neural densa que lê dígitos
-escritos à mão. São uns 45 minutos. Você completa o código, escreve uma
+escritos à mão. Você completa o código, escreve uma
 previsão antes de cada treino e muda uma coisa por vez. Não tem placar:
 vale entender o que muda.
 {% endhint %}
