@@ -25,9 +25,35 @@ conjunto público de 70.000 fotos de roupa em dez categorias:
 
 ## A foto por dentro
 
-Antes de qualquer modelo, olhe o que existe ali de verdade.
+Antes de qualquer modelo, olhe o que existe ali de verdade. Uma imagem é
+uma grade de quadradinhos, os **pixels**, e cada pixel é um número.
 
-<figure><img src="../assets/aula-08/pixels.png" alt="À esquerda a foto de um tênis com um quadrado vermelho marcando um pedaço; à direita esse pedaço mostrado como uma grade de números entre 0 e 1"><figcaption>Cada quadradinho da foto é um número. Preto é 1, branco é 0.</figcaption></figure>
+### Preto e branco: um número por pixel
+
+<figure><img src="../assets/aula-08/grade_cinza.png" alt="À esquerda, um desenho de 5 por 5 pixels com uma bolinha escura; à direita, a mesma imagem como uma grade de números inteiros: 255 no fundo branco, 150 na borda cinza e 40 no centro escuro"><figcaption>Cada pixel é um número inteiro de 0 a 255. O 0 é preto e o 255 é branco.</figcaption></figure>
+
+Numa imagem em preto e branco, cada pixel guarda um número inteiro de 0 a
+255. O 0 é preto, o 255 é branco, e os valores no meio são os cinzas. O
+desenho acima tem 5 por 5 pixels, ou seja, 25 números.
+
+### Em cor: três números por pixel
+
+<figure><img src="../assets/aula-08/grade_rgb.png" alt="À esquerda, o mesmo desenho em cor, com uma bolinha vermelha sobre fundo azul-claro; à direita, três grades de números inteiros, uma para o vermelho, uma para o verde e uma para o azul, com o pixel do centro destacado"><figcaption>O mesmo desenho em cor. Cada pixel tem três números, e cada grade vai de 0 a 255.</figcaption></figure>
+
+Uma foto colorida guarda três números por pixel: quanto de vermelho (R,
+de *red*), de verde (G) e de azul (B). Cada um vai de 0 a 255. É como três
+grades empilhadas, uma por cor. O pixel do centro tem R = 220, G = 40 e
+B = 40: muito vermelho e quase nada dos outros dois. Cada grade dessas se
+chama **canal**, e o nome volta mais adiante.
+
+### As fotos desta aula
+
+<figure><img src="../assets/aula-08/pixels.png" alt="À esquerda a foto de um tênis em tons de cinza com um quadrado amarelo marcando um pedaço; à direita esse pedaço mostrado como uma grade de números inteiros entre 0 e 255"><figcaption>Cada quadradinho da foto é um número inteiro. O 0 é o fundo preto, e os valores altos são a peça.</figcaption></figure>
+
+As fotos do brechó são em tons de cinza, como o primeiro exemplo: 28 por
+28 pixels, ou 784 números inteiros de 0 a 255. Neste conjunto, a peça é
+clara sobre um fundo preto. Nos outros gráficos desta aula, invertemos as
+cores só para a peça aparecer escura no papel branco.
 
 Uma foto de 28 por 28 é uma tabela de 784 números. Nada além disso. O que
 você chama de "bico do tênis" é uma região onde alguns números vizinhos
@@ -52,6 +78,9 @@ A vizinhança sumiu.
 Escolha uma ordem aleatória e embaralhe os 784 pixels de todas as fotos,
 sempre com a mesma ordem. Uma pessoa não reconhece mais nada. A rede densa
 aprende exatamente igual, porque para ela a ordem nunca significou nada.
+
+Se você fez o [Desafio MNIST](desafio-mnist.md), já rodou esse teste com a
+sua própria rede.
 {% endhint %}
 
 Essa rede não é inútil. Treinada nas 60.000 fotos, ela acerta 87,6%. Mas
@@ -64,26 +93,28 @@ A convolução resolve o problema de um jeito quase bobo. Em vez de olhar a
 foto inteira de uma vez, você olha um quadradinho de 3 por 3 por vez, e
 faz sempre a mesma conta.
 
-Esse quadradinho de nove pesos é o **filtro** (*kernel*). Cada resultado é
-a soma de nove multiplicações:
+Esse quadradinho de nove pesos é o **filtro** (*kernel*). Em cada posição,
+a conta é a mesma: multiplica cada peso pelo pixel que está embaixo dele e
+soma as nove multiplicações. O resultado é um número só.
 
-$$s_{i,j} = \sum_{a=0}^{2}\sum_{b=0}^{2} k_{a,b} \cdot x_{i+a,\,j+b}$$
+Veja a janela passeando por uma imagem pequena. Para a conta caber na tela,
+ela só tem 0 e 1, como uma foto depois de dividida por 255. O filtro tem
+uma coluna de `−1`, uma de `0` e uma de `+1`.
 
-| Símbolo | Significado |
-|---|---|
-| `x` | a foto, com `xᵢⱼ` sendo o pixel da linha `i`, coluna `j` |
-| `k` | o filtro, com os nove pesos `k₀₀` até `k₂₂` |
-| `sᵢⱼ` | o número que sai quando a janela para na posição `i`, `j` |
-| `a`, `b` | percorrem as três linhas e as três colunas do filtro |
+<figure><img src="../assets/aula-08/convolucao_animada.gif" alt="Animação: uma janela de 3 por 3 passa pela imagem de 6 por 6, uma posição por vez. Em cada posição aparecem as três contas, uma por linha da janela, a soma, e o resultado entrando numa grade de 4 por 4"><figcaption>A janela passa por 16 posições. Em cada uma, três contas e uma soma viram um número do resultado.</figcaption></figure>
 
-Exemplo, com a janela parada em cima de uma borda:
+Em cada posição, são três passos:
 
-<figure><img src="../assets/aula-08/janela.png" alt="Três painéis: a imagem 6 por 6 com metade preenchida de 1, o filtro 3 por 3 com colunas menos um, zero e mais um, e o resultado 4 por 4"><figcaption>Multiplica casa com casa, soma tudo, escreve um número. Depois desliza uma casa e repete.</figcaption></figure>
+1. Encoste o filtro numa janela de 3 por 3 da imagem.
+2. Multiplique casa com casa, e some tudo.
+3. Escreva o resultado numa casa nova, e deslize a janela uma casa.
 
-A imagem da esquerda é escura de um lado e clara do outro. O filtro tem
-uma coluna de `−1`, uma de `0` e uma de `+1`. Na janela em destaque, cada
-linha contribui com `(−1×0) + (0×0) + (1×1) = 1`, e as três linhas somam
-3. Nas janelas que ficam inteiras dentro do lado escuro, tudo dá zero.
+Na segunda posição, a janela pega duas colunas de zeros e uma de uns. Cada
+linha contribui com `(−1×0) + (0×0) + (1×1) = 1`, e as três linhas somam 3.
+Nas posições em que a janela cai inteira num lado só, o resultado é zero,
+porque o `−1` e o `+1` cancelam.
+
+<figure><img src="../assets/aula-08/janela.png" alt="Três painéis: a imagem 6 por 6 com metade preenchida de 1, o filtro 3 por 3 com colunas menos um, zero e mais um, e o resultado 4 por 4"><figcaption>A mesma conta, congelada com a janela na linha 2, coluna 2. O resultado ali é 3.</figcaption></figure>
 
 Esse filtro só reage onde a imagem muda. Ele encontra bordas verticais.
 
@@ -150,8 +181,9 @@ modelo = keras.Sequential([
 ```
 
 O `1` no final de `shape=(28, 28, 1)` é o **canal**: quantos números tem
-cada pixel. Foto em tons de cinza tem um. Foto colorida tem três, um para
-vermelho, um para verde e um para azul.
+cada pixel. Lembra das grades de cor do começo da aula? Cada grade é um
+canal. Foto em tons de cinza tem um. Foto colorida tem três, um para
+vermelho, um para verde e um para azul, e seria `shape=(28, 28, 3)`.
 
 | Camada | O que sai dela | Pesos |
 |---|---|---|
@@ -190,6 +222,39 @@ Exemplo com três categorias, para caber na conta. Os números crus foram 2,
 1 e 0. Elevando `e` a cada um: 7,39, 2,72 e 1,00. A soma é 11,11. As
 probabilidades ficam 0,67, 0,24 e 0,09. A maior ganha, e a resposta é a
 primeira categoria.
+
+### Um exemplo de verdade
+
+Agora a mesma conta com uma foto real do conjunto de teste, uma bota. A
+tabela mostra os três passos, linha por linha:
+
+<figure><img src="../assets/aula-08/softmax.png" alt="Uma foto de bota e uma tabela com as dez categorias. A primeira coluna mostra o número cru da rede, a segunda mostra o e elevado a esse número, e a terceira mostra a probabilidade, com a bota em 83,2%, o tênis em 16,8% e as outras oito em 0,0%"><figcaption>Dez números crus viram dez probabilidades que somam 100%. Os números são os da rede da aula, arredondados.</figcaption></figure>
+
+| Passo | O que acontece | Na linha da bota |
+|---|---|---|
+| 1 | a rede produz um número cru por categoria | 8,4 |
+| 2 | eleva `e` a cada número, e soma tudo | `e` elevado a 8,4 dá 4.447, e a soma das dez é 5.348 |
+| 3 | divide cada linha pela soma | 4.447 ÷ 5.348 = 83,2% |
+
+Repare em dois efeitos. Primeiro, elevar `e` aumenta as distâncias: 8,4
+contra 6,8 parece pouco, e vira 4.447 contra 898, cinco vezes mais. Segundo,
+só duas categorias ficaram com probabilidade que se enxerga: a bota e o
+tênis. Faz sentido, são peças parecidas. As outras oito somam menos de
+0,1%.
+
+A resposta da rede é a categoria de maior probabilidade: bota.
+
+### Quando a rede hesita
+
+Nem toda foto é tão clara. Veja uma camisa:
+
+<figure><img src="../assets/aula-08/softmax_duvida.png" alt="Uma foto de camisa e um gráfico de barras com as dez probabilidades: camisa 51%, pulôver 40%, camiseta 8% e as outras sete com menos de 1%"><figcaption>A resposta foi camisa, mas a rede quase disse pulôver.</figcaption></figure>
+
+A rede respondeu camisa, com 51%, e acertou. Mas pulôver ficou com 40%. A
+probabilidade conta a **dúvida**, e isso é útil. Você pode, por exemplo,
+mandar para uma pessoa toda foto em que a maior probabilidade fique abaixo
+de 70%. É o mesmo canto de erros que a matriz de confusão vai mostrar mais
+adiante.
 
 ## O resultado
 
@@ -272,6 +337,7 @@ ideia, e ela funciona pelo mesmo motivo.
 
 - **Notebook desta aula, no Google Colab:** [![Abrir no Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-08-redes-convolucionais.ipynb)
 - Slides desta aula: entregues em sala.
+- **Parte prática:** você treina uma rede convolucional no MNIST e compara com a rede densa do [Desafio MNIST](desafio-mnist.md).
 - Dados: o Fashion-MNIST vem dentro do Keras, com `keras.datasets.fashion_mnist.load_data()`. Não há arquivo para baixar.
 
 ## Para ir além

@@ -19,7 +19,10 @@ exclui da publicação. Consulte essas fontes ao alterar uma aula.
   exercício nenhum: são demonstração, com código direto, sem funções
   próprias e com as métricas do `sklearn.metrics`. A Aula 7 também não
   tem exercício: ela demonstra a rede densa, a regularização (L2 e
-  dropout) e os callbacks do Keras.
+  dropout) e os callbacks do Keras. O `desafio-mnist.ipynb` (entre as
+  Aulas 7 e 8) e a Parte B da Aula 8 usam lacunas `____` no código, com
+  previsões escritas antes dos treinos. As fontes e as notas para o
+  professor ficam em `aulas/07b-desafio-mnist/` e `aulas/08-.../`.
   Os links Colab nas páginas e no `README.md` precisam apontar para o
   nome real do notebook.
 - `data/`: dados dos notebooks e artefatos do pequeno modelo de linguagem.

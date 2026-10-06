@@ -211,6 +211,19 @@ Este é o primeiro dataset do curso que não mora em `data/`. O Keras baixa
 e guarda em cache na própria máquina do aluno, então não há URL para
 configurar nem arquivo para versionar. Nada a regenerar.
 
+## MNIST (não há arquivo nesta pasta)
+
+| | |
+|---|---|
+| **Origem** | Público, de Yann LeCun e colegas. Vem dentro do Keras: `keras.datasets.mnist.load_data()` |
+| **Usado em** | Módulo Redes Neurais, Desafio MNIST (rede densa) e Parte B da Aula 8 (rede convolucional) |
+| **Linhas** | 60.000 imagens de treino e 10.000 de teste |
+| **Licença** | Uso livre para ensino e pesquisa, ver [a página do MNIST](http://yann.lecun.com/exdb/mnist/) |
+
+Cada imagem tem 28 por 28 pixels em tons de cinza, com valores inteiros de 0
+a 255, e mostra um dígito escrito à mão. O rótulo é o próprio dígito, de 0 a
+9. Como o Fashion-MNIST, o Keras baixa e guarda em cache na máquina do aluno.
+
 ## machado.txt
 
 | | |

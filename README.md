@@ -44,6 +44,7 @@ sem download nenhum.
 | 5. Conceitos de Séries Temporais | [Colab](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-05-conceitos-series-temporais.ipynb) |
 | 6. Séries Temporais com Prophet e TimesFM | [Colab](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-06-series-temporais-prophet.ipynb) |
 | 7. Fundamentos de Redes Neurais | [Colab](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-07-redes-neurais.ipynb) |
+| Desafio MNIST (depois da Aula 7) | [Colab](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/desafio-mnist.ipynb) |
 | 8. Redes Convolucionais | [Colab](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-08-redes-convolucionais.ipynb) |
 | 9. Do Texto aos Números | [Colab](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-09-do-texto-aos-numeros.ipynb) |
 | 10. Atenção | [Colab](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-10-atencao.ipynb) |

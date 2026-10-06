@@ -11,4 +11,6 @@ como essa cadeia aprende, e como ela enxerga uma imagem.
 | Aula | Conteúdo | Status |
 |---|---|---|
 | [Aula 7 — Fundamentos de Redes Neurais](aula-07-redes-neurais-densas.md) | Do neurônio artificial à primeira rede treinada com Keras | Disponível |
+| [Desafio MNIST](desafio-mnist.md) | 45 minutos em dupla: uma rede densa que lê dígitos escritos à mão, com previsões e experimentos | Disponível |
 | [Aula 8 — Redes Convolucionais](aula-08-redes-convolucionais.md) | Convolução, filtros e pooling: como uma rede aprende a olhar uma foto | Disponível |
+| [Quiz — Redes Neurais](quiz-redes-neurais.md) | 10 perguntas de interpretação sobre as duas aulas | Disponível |

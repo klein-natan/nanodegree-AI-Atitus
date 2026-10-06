@@ -412,6 +412,7 @@ equivalente. Você ganhou formato e perdeu explicação.
 
 - **Notebook desta aula, no Google Colab:** [![Abrir no Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-07-redes-neurais.ipynb)
 - Slides desta aula: entregues em sala.
+- **Depois da aula:** o [Desafio MNIST](desafio-mnist.md), em que você treina a sua própria rede densa.
 - Dataset: [`torra_cafe.csv`](https://github.com/klein-natan/nanodegree-AI-Atitus/blob/main/data/torra_cafe.csv)
 
 ## Para ir além

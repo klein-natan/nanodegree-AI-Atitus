@@ -36,7 +36,9 @@
 
 * [Visão geral](redes-neurais/README.md)
 * [Aula 7 — Fundamentos de Redes Neurais](redes-neurais/aula-07-redes-neurais-densas.md)
+* [Desafio MNIST](redes-neurais/desafio-mnist.md)
 * [Aula 8 — Redes Convolucionais](redes-neurais/aula-08-redes-convolucionais.md)
+* [Quiz — Redes Neurais](redes-neurais/quiz-redes-neurais.md)
 
 ## LLM do Zero
 

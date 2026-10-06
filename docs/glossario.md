@@ -100,6 +100,7 @@ nesta página do que voltar a reler uma aula inteira.
 | Parada antecipada (*early stopping*) | Callback que para o treino quando a perda de validação passa várias épocas sem melhorar |
 | `ReduceLROnPlateau` | Callback que encolhe a taxa de aprendizado quando a perda de validação trava |
 | `ModelCheckpoint` | Callback que grava o modelo em arquivo cada vez que a validação bate um recorde |
+| Pixel | Cada quadradinho de uma imagem digital. Em tons de cinza é um número de 0 (preto) a 255 (branco); em cor, são três números, um para cada canal |
 | Achatar (*flatten*) | Enfileirar a tabela de pixels de uma imagem, perdendo a informação de quem era vizinho de quem |
 | Convolução | Passar o mesmo filtro por toda a imagem, uma janela por vez |
 | Filtro (*kernel*) | O quadradinho de nove pesos que a rede aprende e usa na imagem inteira |

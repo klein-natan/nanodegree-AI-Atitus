@@ -3452,6 +3452,7 @@ equivalente. Você ganhou formato e perdeu explicação.
 ### Aula 7 — Fundamentos de Redes Neurais > Materiais
 - **Notebook desta aula, no Google Colab:** [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-07-redes-neurais.ipynb)
 - Slides desta aula: entregues em sala.
+- **Depois da aula:** o Desafio MNIST, em que você treina a sua própria rede densa.
 - Dataset: `torra_cafe.csv`
 
 ### Aula 7 — Fundamentos de Redes Neurais > Para ir além
@@ -3469,7 +3470,29 @@ Vamos construir o etiquetador. As fotos são as do Fashion-MNIST, um
 conjunto público de 70.000 fotos de roupa em dez categorias:
 
 ### Aula 8 — Redes Convolucionais > A foto por dentro
-Antes de qualquer modelo, olhe o que existe ali de verdade.
+Antes de qualquer modelo, olhe o que existe ali de verdade. Uma imagem é
+uma grade de quadradinhos, os **pixels**, e cada pixel é um número.
+
+Preto e branco: um número por pixel
+
+Numa imagem em preto e branco, cada pixel guarda um número inteiro de 0 a
+255. O 0 é preto, o 255 é branco, e os valores no meio são os cinzas. O
+desenho acima tem 5 por 5 pixels, ou seja, 25 números.
+
+Em cor: três números por pixel
+
+Uma foto colorida guarda três números por pixel: quanto de vermelho (R,
+de *red*), de verde (G) e de azul (B). Cada um vai de 0 a 255. É como três
+grades empilhadas, uma por cor. O pixel do centro tem R = 220, G = 40 e
+B = 40: muito vermelho e quase nada dos outros dois. Cada grade dessas se
+chama **canal**, e o nome volta mais adiante.
+
+As fotos desta aula
+
+As fotos do brechó são em tons de cinza, como o primeiro exemplo: 28 por
+28 pixels, ou 784 números inteiros de 0 a 255. Neste conjunto, a peça é
+clara sobre um fundo preto. Nos outros gráficos desta aula, invertemos as
+cores só para a peça aparecer escura no papel branco.
 
 Uma foto de 28 por 28 é uma tabela de 784 números. Nada além disso. O que
 você chama de "bico do tênis" é uma região onde alguns números vizinhos
@@ -3493,6 +3516,9 @@ Escolha uma ordem aleatória e embaralhe os 784 pixels de todas as fotos,
 sempre com a mesma ordem. Uma pessoa não reconhece mais nada. A rede densa
 aprende exatamente igual, porque para ela a ordem nunca significou nada.
 
+Se você fez o Desafio MNIST, já rodou esse teste com a
+sua própria rede.
+
 Essa rede não é inútil. Treinada nas 60.000 fotos, ela acerta 87,6%. Mas
 gasta 101.770 pesos para chegar lá, quase todos na primeira camada, que
 liga cada um dos 784 pixels a cada um dos 128 neurônios.
@@ -3502,24 +3528,24 @@ A convolução resolve o problema de um jeito quase bobo. Em vez de olhar a
 foto inteira de uma vez, você olha um quadradinho de 3 por 3 por vez, e
 faz sempre a mesma conta.
 
-Esse quadradinho de nove pesos é o **filtro** (*kernel*). Cada resultado é
-a soma de nove multiplicações:
+Esse quadradinho de nove pesos é o **filtro** (*kernel*). Em cada posição,
+a conta é a mesma: multiplica cada peso pelo pixel que está embaixo dele e
+soma as nove multiplicações. O resultado é um número só.
 
-$$s_{i,j} = \sum_{a=0}^{2}\sum_{b=0}^{2} k_{a,b} \cdot x_{i+a,\,j+b}$$
+Veja a janela passeando por uma imagem pequena. Para a conta caber na tela,
+ela só tem 0 e 1, como uma foto depois de dividida por 255. O filtro tem
+uma coluna de `−1`, uma de `0` e uma de `+1`.
 
-| Símbolo | Significado |
-|---|---|
-| `x` | a foto, com `xᵢⱼ` sendo o pixel da linha `i`, coluna `j` |
-| `k` | o filtro, com os nove pesos `k₀₀` até `k₂₂` |
-| `sᵢⱼ` | o número que sai quando a janela para na posição `i`, `j` |
-| `a`, `b` | percorrem as três linhas e as três colunas do filtro |
+Em cada posição, são três passos:
 
-Exemplo, com a janela parada em cima de uma borda:
+1. Encoste o filtro numa janela de 3 por 3 da imagem.
+2. Multiplique casa com casa, e some tudo.
+3. Escreva o resultado numa casa nova, e deslize a janela uma casa.
 
-A imagem da esquerda é escura de um lado e clara do outro. O filtro tem
-uma coluna de `−1`, uma de `0` e uma de `+1`. Na janela em destaque, cada
-linha contribui com `(−1×0) + (0×0) + (1×1) = 1`, e as três linhas somam
-3. Nas janelas que ficam inteiras dentro do lado escuro, tudo dá zero.
+Na segunda posição, a janela pega duas colunas de zeros e uma de uns. Cada
+linha contribui com `(−1×0) + (0×0) + (1×1) = 1`, e as três linhas somam 3.
+Nas posições em que a janela cai inteira num lado só, o resultado é zero,
+porque o `−1` e o `+1` cancelam.
 
 Esse filtro só reage onde a imagem muda. Ele encontra bordas verticais.
 
@@ -3563,8 +3589,9 @@ outros só na borda de cima. Ninguém programou isso.
 
 ### Aula 8 — Redes Convolucionais > A rede convolucional inteira
 O `1` no final de `shape=(28, 28, 1)` é o **canal**: quantos números tem
-cada pixel. Foto em tons de cinza tem um. Foto colorida tem três, um para
-vermelho, um para verde e um para azul.
+cada pixel. Lembra das grades de cor do começo da aula? Cada grade é um
+canal. Foto em tons de cinza tem um. Foto colorida tem três, um para
+vermelho, um para verde e um para azul, e seria `shape=(28, 28, 3)`.
 
 | Camada | O que sai dela | Pesos |
 |---|---|---|
@@ -3602,6 +3629,35 @@ Exemplo com três categorias, para caber na conta. Os números crus foram 2,
 1 e 0. Elevando `e` a cada um: 7,39, 2,72 e 1,00. A soma é 11,11. As
 probabilidades ficam 0,67, 0,24 e 0,09. A maior ganha, e a resposta é a
 primeira categoria.
+
+Um exemplo de verdade
+
+Agora a mesma conta com uma foto real do conjunto de teste, uma bota. A
+tabela mostra os três passos, linha por linha:
+
+| Passo | O que acontece | Na linha da bota |
+|---|---|---|
+| 1 | a rede produz um número cru por categoria | 8,4 |
+| 2 | eleva `e` a cada número, e soma tudo | `e` elevado a 8,4 dá 4.447, e a soma das dez é 5.348 |
+| 3 | divide cada linha pela soma | 4.447 ÷ 5.348 = 83,2% |
+
+Repare em dois efeitos. Primeiro, elevar `e` aumenta as distâncias: 8,4
+contra 6,8 parece pouco, e vira 4.447 contra 898, cinco vezes mais. Segundo,
+só duas categorias ficaram com probabilidade que se enxerga: a bota e o
+tênis. Faz sentido, são peças parecidas. As outras oito somam menos de
+0,1%.
+
+A resposta da rede é a categoria de maior probabilidade: bota.
+
+Quando a rede hesita
+
+Nem toda foto é tão clara. Veja uma camisa:
+
+A rede respondeu camisa, com 51%, e acertou. Mas pulôver ficou com 40%. A
+probabilidade conta a **dúvida**, e isso é útil. Você pode, por exemplo,
+mandar para uma pessoa toda foto em que a maior probabilidade fique abaixo
+de 70%. É o mesmo canto de erros que a matriz de confusão vai mostrar mais
+adiante.
 
 ### Aula 8 — Redes Convolucionais > O resultado
 Mesmas 60.000 fotos, mesmas 8 épocas de treino, mesmo otimizador:
@@ -3671,6 +3727,7 @@ ideia, e ela funciona pelo mesmo motivo.
 ### Aula 8 — Redes Convolucionais > Materiais
 - **Notebook desta aula, no Google Colab:** [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-08-redes-convolucionais.ipynb)
 - Slides desta aula: entregues em sala.
+- **Parte prática:** você treina uma rede convolucional no MNIST e compara com a rede densa do Desafio MNIST.
 - Dados: o Fashion-MNIST vem dentro do Keras, com `keras.datasets.fashion_mnist.load_data()`. Não há arquivo para baixar.
 
 ### Aula 8 — Redes Convolucionais > Para ir além
@@ -3678,6 +3735,57 @@ ideia, e ela funciona pelo mesmo motivo.
 - Convolutions, de Victor Powell: mexa nos nove pesos de um filtro e veja o efeito na hora, no navegador.
 - CNN Explainer: uma rede convolucional inteira rodando no navegador. Clique em cada camada e veja o filtro passear.
 - Glossário: para revisar qualquer termo novo desta aula.
+
+### Desafio MNIST > O desafio
+O MNIST é um conjunto clássico: 70.000 imagens de 28 por 28 pixels, cada
+uma com um dígito de 0 a 9. A tarefa é a da Aula 7, com dez respostas
+possíveis em vez de duas.
+
+| Entra | Sai |
+|---|---|
+| uma imagem de 28 × 28 pixels | o dígito, de 0 a 9 |
+
+### Desafio MNIST > Como participar
+1. Abra o notebook no Colab (o botão está em **Materiais**) e salve uma
+   cópia no seu Drive.
+2. Preencha os `____` do código, de cima para baixo.
+3. Antes de cada treino, escreva a sua previsão. Depois, explique o que
+   viu.
+4. Faça três experimentos, mudando uma coisa por vez, e preencha a tabela.
+5. Rode o teste do embaralhamento e anote a acurácia da sua rede. Você vai
+   usá-la na Aula 8.
+
+### Desafio MNIST > O que você vai ver
+| Parte | O que você faz |
+|---|---|
+| 0 e 1 | olha as imagens e leva os pixels de 0 a 255 para 0 a 1 |
+| 2 e 3 | monta e compila uma rede densa |
+| 4 e 5 | treina, lê as curvas e olha onde a rede erra |
+| 6 | três experimentos: neurônios, camadas e épocas |
+| 7 | embaralha os pixels e descobre o que a rede densa não vê |
+
+### Desafio MNIST > Depois do desafio
+Na Aula 8 você treina uma rede
+convolucional no mesmo MNIST e compara com a sua rede densa. Guarde a
+acurácia e o número de parâmetros que você anotou.
+
+### Desafio MNIST > Materiais
+- **Notebook do desafio, no Google Colab:** [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/desafio-mnist.ipynb)
+- Dados: o MNIST vem dentro do Keras, com `keras.datasets.mnist.load_data()`. Não há arquivo para baixar.
+- Antes: a Aula 7, que ensina a rede densa.
+
+### Quiz — Redes Neurais > Onde revisar
+| Se errou a questão | Releia |
+|---|---|
+| 1 | Aula 7: por que a reta não basta |
+| 2 | Aula 7: a dobra, funções de ativação |
+| 3 e 4 | Aula 7: quando a rede decora |
+| 5 | Aula 7: EarlyStopping |
+| 6 | Aula 7: ReduceLROnPlateau |
+| 7 | Aula 8: por que a rede da Aula 7 é ruim nisso |
+| 8 | Aula 8: três ideias em uma |
+| 9 | Aula 8: o teste do deslocamento |
+| 10 | Aula 8: onde ela erra |
 
 ### Aula 5 — Conceitos de Séries Temporais > Para que serve
 Uma cafeteria perto de escritórios abre todo dia e precisa decidir quanto
