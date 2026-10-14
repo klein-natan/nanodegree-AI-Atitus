@@ -111,12 +111,14 @@ nesta página do que voltar a reler uma aula inteira.
 | Matriz de confusão | Tabela que mostra, para cada categoria real, o que o modelo respondeu |
 | Modelo de linguagem | Modelo que devolve a probabilidade de cada continuação possível de um texto |
 | Corpus | O conjunto de textos usado para treinar um modelo de linguagem |
+| Limpeza do texto | Tirar do corpus o que não é texto (cabeçalhos, menus, cópias repetidas), mantendo maiúsculas, acentos e pontuação |
+| Normalização Unicode (NFC) | Garantir que a mesma letra, como o "ã", seja sempre guardada com os mesmos bytes |
 | Token | A peça mínima de texto que o modelo manipula: um pedaço de palavra, em geral |
 | Tokenizador | O programa que converte texto em tokens, e os tokens de volta em texto |
 | BPE (*byte pair encoding*) | Treinar o tokenizador juntando repetidas vezes o par de peças mais comum |
 | Vocabulário | Quantos tokens diferentes existem na tabela do tokenizador |
 | Janela de contexto | Quantos tokens o modelo consegue enxergar de uma vez |
-| Embutimento (*embedding*) | A tabela que troca cada token por um vetor de números |
+| Embutimento (*embedding*) | A tabela que troca cada token por um vetor de números: o id do token é só o endereço da linha |
 | Atenção | O mecanismo em que cada posição escolhe para onde olhar, com pesos aprendidos |
 | Produto escalar | Multiplicar casa com casa e somar: a medida de parecença entre dois vetores |
 | Máscara causal | Zera, antes da softmax, tudo o que aponta para o futuro |

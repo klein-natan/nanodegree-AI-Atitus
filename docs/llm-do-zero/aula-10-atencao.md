@@ -27,8 +27,9 @@ neural. Depois, a rede ganha a atenção.
 ### O embutimento: o token vira vetor
 
 Cada token da Aula 9 é um número inteiro, e número inteiro não serve para
-fazer conta de parecença. O primeiro passo do modelo é trocar cada token
-por uma linha de uma tabela:
+fazer conta de parecença. Como a Aula 9 terminou mostrando, o número é só
+um endereço. O primeiro passo do modelo é trocar cada token pela linha
+dele numa tabela:
 
 ```python
 embutir = nn.Embedding(1024, 128)   # 1.024 tokens, 128 números cada

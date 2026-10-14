@@ -116,6 +116,50 @@ o que ele viu. Guarde essa observação. Ela é a coisa mais importante que
 este curso tem a dizer sobre modelos de linguagem.
 {% endhint %}
 
+## Limpar o texto, sem estragar o texto
+
+Quem já viu processamento de texto antigo espera uma faxina antes de
+tudo: passar para minúsculas, tirar acentos e pontuação, apagar as
+palavras muito comuns ("de", "a", "que") e cortar cada palavra no radical
+("casamento", "casado" e "casar" viram `cas`). Fazia sentido quando o
+objetivo era classificar um texto contando palavras, como nos modelos de
+saco de palavras: a maiúscula e a vírgula só atrapalhavam a contagem.
+
+Um modelo de linguagem não faz nada disso, porque ele precisa **escrever**.
+Se nunca vir uma vírgula, não sabe onde pôr uma. Se tudo estiver em
+minúsculas, não sabe que frase começa com maiúscula, nem que "Capitu" é
+um nome. As palavras comuns são justamente as que mais aparecem no texto
+que ele vai gerar. A regra de hoje é: **tirar o que não é texto, nunca o
+que é**.
+
+O que se tira, então? Nos modelos grandes, que leem bilhões de páginas da
+internet, a limpeza é pesada, mas é limpeza de lixo:
+
+| O que sai | Por quê |
+|---|---|
+| menus, propaganda, código de página, rodapés | não é texto escrito por alguém para ser lido |
+| páginas repetidas | o modelo decoraria o que aparece mil vezes |
+| texto de baixa qualidade ou em outra língua | ensina o que não se quer |
+| dados pessoais (e-mails, telefones) | o modelo poderia repetir |
+
+Com os livros de Machado, o trabalho foi pequeno. O script
+`data/scripts/baixar_machado.py` faz cinco coisas:
+
+1. Tira o cabeçalho e o rodapé em inglês que o Project Gutenberg cola em
+   todo livro (licença, créditos).
+2. **Normaliza o Unicode**. Existem dois jeitos de guardar o "ã" no
+   computador: uma letra só, ou um "a" seguido de um til solto. Na tela
+   são iguais, mas para o tokenizador seriam peças diferentes. A
+   normalização (chamada NFC) escolhe sempre o primeiro jeito.
+3. Troca aspas curvas (“ ”) e travessões tipográficos pelas versões
+   simples (`"` e `--`). Significam a mesma coisa, e não vale gastar
+   vocabulário com variantes.
+4. Tira o sublinhado (`_assim_`) que o Gutenberg usa para marcar itálico.
+5. Tira os espaços no fim das linhas e as linhas em branco repetidas.
+
+Maiúsculas, acentos, pontuação, quebras de parágrafo e a grafia de 1900
+ficaram exatamente como estavam.
+
 ## A unidade errada, duas vezes
 
 Antes de qualquer conta, uma decisão: qual é a peça mínima que o modelo
@@ -283,6 +327,37 @@ texto em inglês que em português, então a mesma frase em português costuma
 gastar mais tokens. Mais tokens querem dizer resposta mais cara e menos
 texto cabendo na janela.
 
+## Depois do número, um vetor
+
+Os tokens viraram números, mas o modelo não usa esses números como
+quantidades. Se usasse, ele acharia que `·men` (600) vale quase oito
+vezes `O` (79), o que não quer dizer nada: os números são só a ordem em
+que o BPE criou cada peça.
+
+O número é um **endereço**. O modelo guarda uma tabela com uma linha por
+token (1.024 linhas) e 128 colunas. Cada token é trocado pela sua linha,
+uma lista de 128 números chamada **embutimento** do token (em inglês,
+*embedding*). É esse vetor que entra no modelo.
+
+<figure><img src="../assets/aula-09/texto_ao_vetor.png" alt="Fluxo de cima para baixo: a frase O menino era pai do homem, os tokens O, men, in, o, era, os números 79, 600, 281, 111 e 354, e embaixo de cada número uma coluna de valores como menos 0,09 e mais 0,17, coloridos de azul a vermelho, com uma seta para o modelo"><figcaption>Texto, tokens, ids e vetores. Os valores são do modelo treinado: as 6 primeiras das 128 colunas de cada linha.</figcaption></figure>
+
+No começo do treino a tabela é sorteada, e os vetores não significam
+nada. O treino ajusta cada número dela, como ajusta qualquer outro peso.
+No fim, tokens que aparecem em lugares parecidos acabam com vetores
+parecidos. No modelo treinado da disciplina, o vetor mais parecido com o
+de `·elle` é o de `·ella`; o de `·dous` é o de `·tres`; o de `·era` é o
+de `·foi`. Ninguém ensinou gramática ao modelo: ele achou sozinho que
+essas palavras fazem o mesmo papel. Você monta essa tabela na Aula 10,
+com uma linha de PyTorch.
+
+O caminho inteiro, então, é este:
+
+```
+texto  →  tokens  →  ids  →  vetores (embutimentos)  →  modelo
+```
+
+Esta aula cuida das três primeiras setas.
+
 ## Do texto ao lote de treino
 
 Falta uma peça: como esses números viram exemplos de treino.
@@ -318,7 +393,18 @@ olhando o 1, prevê o 3 olhando o 1 e o 2, e assim por diante, tudo na
 mesma passada.
 
 Com janelas de 128 tokens e lotes de 32, cada passo de treino corrige os
-pesos usando 4.096 previsões de uma vez.
+pesos usando 4.096 previsões de uma vez. O lote é uma matriz: cada linha
+é uma janela sorteada do texto de treino, cada coluna é uma posição
+dentro da janela. O alvo é outra matriz do mesmo tamanho, com cada linha
+andada uma casa.
+
+<figure><img src="../assets/aula-09/lote_janela.png" alt="Duas matrizes de tokens lado a lado, entrada e alvo, cada uma com formato 32 por 128. As linhas são janelas sorteadas do texto, as colunas são posições, e cada linha do alvo é a linha da entrada começando um token depois"><figcaption>Um lote de verdade, com tokens do corpus: 32 janelas por 128 posições. Cada casa da entrada prevê a casa igual do alvo.</figcaption></figure>
+
+Leia a figura de dois jeitos. Uma **linha** é a figura da janela de
+antes, só que com 128 casas. Uma **coluna** é a mesma posição em 32
+trechos diferentes dos livros. O modelo faz as 4.096 previsões ao mesmo
+tempo, mede o erro de todas, e corrige os pesos uma vez: isso é um passo
+de treino. No passo seguinte, outras 32 janelas são sorteadas.
 
 <figure><video src="../assets/aula-09/janela.mp4" poster="../assets/aula-09/janela.jpg" controls preload="none" playsinline aria-label="Animação da janela de treino, da janela de contexto e do lote"></video><figcaption>Cada posição prevê a seguinte, a janela anda pelo texto, e várias janelas formam um lote.</figcaption></figure>
 
@@ -343,6 +429,27 @@ $$\text{perda} = -\frac{1}{n}\sum_{i=1}^{n} \log P(\text{token certo}_i)$$
 Exemplo com três previsões. O modelo deu 50%, 25% e 10% ao token certo.
 Os logaritmos, com o sinal trocado, são 0,69, 1,39 e 2,30. A média é
 (0,69 + 1,39 + 2,30) / 3 = 1,46.
+
+### Por que o log
+
+Por que não usar a chance direto? Olhe a curva de `-log(chance)`:
+
+<figure><img src="../assets/aula-09/log_perda.png" alt="Curva decrescente da perda em função da chance dada ao token certo: vale 0 quando a chance é 1, 0,69 em 0,5, 1,39 em 0,25, 2,30 em 0,1, e sobe até 6,93 quando a chance é 1 em 1024, disparando perto de zero"><figcaption>Certeza no token certo custa zero. Chance quase nula custa caro.</figcaption></figure>
+
+São três razões, e a primeira se vê na figura:
+
+1. **Errar com confiança custa muito mais que hesitar.** Passar de 0,5
+   para 0,25 aumenta a perda em 0,69. Passar de 0,01 para 0,001 aumenta
+   em 2,30. O modelo é castigado com força quando aposta contra a resposta
+   certa, e é isso que o obriga a nunca descartar uma continuação
+   possível.
+2. **Produto vira soma.** A chance de um texto inteiro é a chance do
+   primeiro token, vezes a do segundo, vezes a do terceiro... Multiplicar
+   milhares de números menores que 1 dá um número tão pequeno que o
+   computador arredonda para zero. O log transforma esse produto numa
+   soma, e a soma dividida por `n` vira a média da fórmula.
+3. **Zero é o ideal.** Chance 1 no token certo dá perda 0. A perda nunca
+   é negativa, então quanto mais perto de zero, melhor.
 
 A animação abaixo faz a mesma conta com três previsões do modelo treinado:
 
@@ -373,6 +480,7 @@ mesmo da Aula 9 à Aula 12.
 |---|---|
 | Modelo de linguagem | recebe texto e devolve as chances de cada próximo token |
 | Modelo de contagem | conta o que vem depois de cada símbolo; não escala para contexto longo |
+| Limpeza do texto | tira o que não é texto; maiúsculas, acentos e pontuação ficam |
 | Token | a peça mínima que o modelo manipula |
 | BPE | funde o par vizinho mais comum, e repete |
 | Bytes | a base do vocabulário: 256 peças que cobrem qualquer texto |
@@ -380,10 +488,12 @@ mesmo da Aula 9 à Aula 12.
 | Separar antes de fundir | as fusões ficam dentro das palavras |
 | Codificar | aplica as fusões na ordem em que o treino aprendeu |
 | Tabela de fusões | a mesma no treino e no uso, sempre |
+| Embutimento (*embedding*) | a linha da tabela que o id escolhe: o vetor que entra no modelo |
 | Tensor | a lista do PyTorch, com formato (`shape`) |
 | Janela | o alvo é a entrada andada uma casa |
 | Lote | 32 janelas de 128: 4.096 previsões por passo |
 | Perda | média de `-log P(token certo)`; chute ao acaso = 6,93 |
+| Por que o log | castiga o erro confiante e troca produto por soma |
 | O número a bater | 4,48, a perda do contador de pares de tokens |
 
 ## Materiais
@@ -400,9 +510,9 @@ Os quatro exercícios do notebook:
 | Exercício | O que você constrói |
 |---|---|
 | 9.1 | o modelo de contagem, que já gera texto |
-| 9.2 | o BPE no computador: a tabela do "banana", e as primeiras fusões em Machado |
-| 9.3 | codificar e decodificar frases com o tokenizador oficial |
-| 9.4 | o lote de treino, e o número a bater |
+| 9.2 | o texto como ele chega ao tokenizador, o BPE no computador (a tabela do "banana") e as primeiras fusões em Machado |
+| 9.3 | codificar e decodificar frases com o tokenizador oficial, e o primeiro passo de número para vetor |
+| 9.4 | o lote de treino, a perda e por que o log, e o número a bater |
 
 ## Para ir além
 
@@ -500,12 +610,12 @@ Qual é a regra do BPE?
 ```
 
 ```quiz
-Em "casa casada casamento", os pares "c + a", "a + s" e "s + a" aparecem 3 vezes cada. O que o BPE faz?
-- Funde os três de uma vez.
-- Para, porque não sabe qual escolher.
-+ Usa uma regra fixa de desempate e funde um deles.
-- Sorteia um par diferente a cada vez que roda.
-? Empates acontecem em textos pequenos. O programa desempata por uma regra fixa (no nosso caso, o par que aparece primeiro), para sair sempre a mesma tabela.
+Antes de treinar um modelo de linguagem, o que se faz com as maiúsculas, os acentos e a pontuação do texto?
+- Passa tudo para minúsculas e tira os acentos, para o vocabulário ficar menor.
+- Tira a pontuação, porque ela não carrega significado.
++ Deixa como está: o modelo vai ter que escrever tudo isso, então precisa ver tudo isso.
+- Tira as palavras mais comuns, como "de" e "que".
+? A faxina pesada é do processamento de texto antigo, feito para classificar. Um LLM escreve, então só sai o que não é texto (cabeçalhos, menus, cópias repetidas). Nos livros de Machado, maiúsculas, acentos e pontuação ficaram intactos.
 ```
 
 ```quiz
@@ -533,12 +643,12 @@ Por que o BPE começa dos bytes, e não das letras?
 ```
 
 ```quiz
-O vocabulário do curso tem 1.024 tokens. De onde vem esse número?
-- 1.024 palavras escolhidas de Machado.
-- 1.024 letras diferentes do corpus.
-+ 256 bytes mais 768 fusões.
-- 512 sílabas mais 512 palavras.
-? Os 256 bytes são a base. Cada fusão acrescenta uma peça. O professor decidiu parar em 1.024, um tamanho que cabe no Colab.
+Dentro do modelo, o que acontece com o número de cada token, como o 600 de "·men"?
+- Ele entra no modelo como está, e 600 vale mais que 79.
++ Ele é um endereço: escolhe uma linha de uma tabela, o embutimento, e é essa lista de números que entra no modelo.
+- Ele é dividido por 1.024, para virar uma chance.
+- Ele é trocado de volta pelas letras antes de entrar no modelo.
+? O número é só a ordem em que o BPE criou a peça. Cada token vira uma linha de 128 números, que o treino ajusta. No fim, tokens que aparecem em lugares parecidos ganham linhas parecidas, como "·elle" e "·ella".
 ```
 
 ```quiz
@@ -602,12 +712,12 @@ Na janela de treino, o que é o alvo?
 ```
 
 ```quiz
-Quantas previsões o modelo corrige num passo de treino com 32 janelas de 128 tokens?
-- 32
-- 128
-+ 4.096
-- 1.024
-? 32 × 128 = 4.096. Cada posição de cada janela é um exemplo, e todos entram no mesmo passo.
+Por que a perda usa o log da chance do token certo, e não a chance direto?
+- Porque o log deixa a conta mais rápida no Colab.
+- Porque o log transforma toda chance num número positivo maior que 1.
++ Porque castiga com força quem dá chance quase zero à resposta certa, e troca o produto das chances por uma soma.
+- Porque sem o log a perda de um chute daria zero.
+? Chance 1 dá perda 0; chance 0,1 dá 2,30; chance 0,001 dá 6,93. Perto de zero a curva dispara. E a chance de um texto é o produto das chances de cada token: o log vira esse produto numa soma, que o computador consegue fazer.
 ```
 
 ```quiz
