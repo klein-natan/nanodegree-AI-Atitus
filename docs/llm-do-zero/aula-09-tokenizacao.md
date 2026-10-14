@@ -157,15 +157,15 @@ Num texto minúsculo como esse, vários pares empatam (`na` também aparece 6
 vezes no passo 1) e o programa desempata por uma regra fixa. Em texto de
 verdade o empate no topo quase nunca acontece.
 
-O algoritmo inteiro são duas funções. A primeira conta os pares vizinhos
-de uma lista; a segunda troca cada ocorrência de um par por um número
-novo. O treino repete as duas:
+No computador, cada passo da tabela são três linhas: contar os pares
+vizinhos, achar o mais comum, e trocar cada ocorrência dele por um número
+novo. O treino repete as três:
 
 ```python
-for k in range(quantas_fusoes):
-    pares = contar_pares(ids)
-    par = max(pares, key=pares.get)      # o par mais comum
-    ids = fundir(ids, par, 256 + k)      # vira o token 256, 257, ...
+for novo in [256, 257, 258]:
+    pares = contar_pares(ids)          # conta os pares vizinhos
+    par = par_mais_comum(pares)        # acha o mais comum
+    ids = fundir(ids, par, novo)       # troca o par pelo número novo
 ```
 
 Rodando isso no corpus inteiro até chegar a 1.024 peças, é isto o que sai:
@@ -389,8 +389,8 @@ Os quatro exercícios do notebook:
 | Exercício | O que você constrói |
 |---|---|
 | 9.1 | o modelo de contagem, que já gera texto |
-| 9.2 | o algoritmo do BPE: contar pares, fundir, repetir |
-| 9.3 | codificar e decodificar com a tabela oficial |
+| 9.2 | o BPE no computador: a tabela do "banana", e as primeiras fusões em Machado |
+| 9.3 | codificar e decodificar frases com o tokenizador oficial |
 | 9.4 | o lote de treino, e o número a bater |
 
 ## Para ir além

@@ -896,9 +896,9 @@ Num texto minúsculo como esse, vários pares empatam (`na` também aparece 6
 vezes no passo 1) e o programa desempata por uma regra fixa. Em texto de
 verdade o empate no topo quase nunca acontece.
 
-O algoritmo inteiro são duas funções. A primeira conta os pares vizinhos
-de uma lista; a segunda troca cada ocorrência de um par por um número
-novo. O treino repete as duas:
+No computador, cada passo da tabela são três linhas: contar os pares
+vizinhos, achar o mais comum, e trocar cada ocorrência dele por um número
+novo. O treino repete as três:
 
 Rodando isso no corpus inteiro até chegar a 1.024 peças, é isto o que sai:
 
@@ -1097,8 +1097,8 @@ Os quatro exercícios do notebook:
 | Exercício | O que você constrói |
 |---|---|
 | 9.1 | o modelo de contagem, que já gera texto |
-| 9.2 | o algoritmo do BPE: contar pares, fundir, repetir |
-| 9.3 | codificar e decodificar com a tabela oficial |
+| 9.2 | o BPE no computador: a tabela do "banana", e as primeiras fusões em Machado |
+| 9.3 | codificar e decodificar frases com o tokenizador oficial |
 | 9.4 | o lote de treino, e o número a bater |
 
 ### Aula 9 — Do Texto aos Números > Para ir além
@@ -2174,115 +2174,112 @@ Se o ❌ apareceu e você não sabe por quê, leia a pista que vem com ele:
 ela foi escrita para o erro mais comum daquele passo.
 
 ### Colas dos Exercícios > Aula 9 — Do Texto aos Números
+As células marcadas com 🧰 **Ferramentas** trazem código pronto: rode e
+siga. As lacunas desta aula são sempre uma palavra ou um número.
+
 Exercício 9.1
 
 O modelo de linguagem mais simples: contar que letra vem depois de qual.
 
-**1.b Contar o que vem depois de cada letra**
+**1.b O que vem depois do "q"?**
 
 Dica 1: a ideia
 
-A contagem separa as letras pela letra atual. Dentro dela, você soma 1 para a
-letra que veio **em seguida**.
-
-Dica 2: no código
-
-O laço já entrega as duas letras em `atual` e `seguinte`. Na lacuna vai uma
-delas, e não é a `atual` (ela já está no colchete de fora).
+A letra atual está na posição `i`. A letra seguinte está uma posição
+depois.
 
 Resposta
 
-**1.c Da contagem para a probabilidade**
+**1.c Da contagem para a chance**
 
 Dica 1: a ideia
 
-Probabilidade é "quantas vezes aconteceu" dividido por "quantas vezes
-podia ter acontecido". Se depois de "q" vieram 100 letras e 99 eram "u", a
-chance de "u" é 99/100.
+Chance é "quantas vezes aconteceu" dividido por "quantas vezes podia ter
+acontecido". O segundo número já está numa variável, calculada na linha
+de cima.
 
 Resposta
 
-**1.d Gerar texto**
-
-Dica 1: a ideia
-
-O sorteio precisa saber a chance de cada letra. Essas chances já estão
-numa lista, criada na linha de cima.
+**1.d O modelo escreve**
 
 Resposta
+
+Qualquer letra entre as aspas serve. Por exemplo:
 
 Exercício 9.2
 
-O algoritmo do BPE: contar pares, fundir o mais comum, repetir.
+O BPE no computador: contar pares, fundir o mais comum, repetir.
 
-**2.a Contar os pares vizinhos**
+**2.b Conte os pares vizinhos**
 
 Dica 1: a ideia
 
-O `zip(ids, ids[1:])` entrega cada par de vizinhos, um por vez, na
-variável `par`. Cada par encontrado soma 1 na contagem dele.
+Cada vez que o laço encontra um par, a contagem desse par aumenta em uma
+unidade.
 
 Resposta
 
-**2.b Fundir um par**
+**2.c Uma fusão**
 
 Dica 1: a ideia
 
-Duas perguntas. Qual é o segundo elemento do par que você procura? E,
-quando achar o par, o que entra na lista nova no lugar dos dois números?
-
-Dica 2: no código
-
-O par é uma tupla de dois números: `par[0]` é o primeiro e `par[1]` o
-segundo. O número que substitui os dois chegou na função com o nome
-`novo`.
+Os números de 0 a 255 já são os bytes. O primeiro número livre para uma
+peça nova vem logo depois.
 
 Resposta
 
-**2.c O treino do BPE**
+Se a verificação falhar, rode de novo a célula 2.a antes: ela volta a
+lista para o texto original.
+
+**2.d Mais duas fusões**
 
 Dica 1: a ideia
 
-A cada volta, a lista inteira passa pela `fundir` e é substituída pela
-versão fundida. A `fundir` precisa de três coisas: a lista, o par e o
-número novo.
+O par mais comum sai da contagem que a linha de cima acabou de fazer.
+Como ela se chama?
 
 Resposta
 
 Exercício 9.3
 
-Codificar e decodificar com a tabela oficial de 1.024 tokens.
+Codificar e decodificar com o tokenizador oficial de 1.024 tokens.
 
-**3.a Carregar a tabela**
-
-Dica 1: a ideia
-
-Um token novo é a junção de dois tokens antigos, `a` e `b`. Os bytes dele
-são os bytes de `a` seguidos dos bytes de `b`.
+**3.a Uma frase vira números**
 
 Resposta
 
-**3.b Decodificar**
+A frase já está guardada na variável `frase`:
 
-Dica 1: a ideia
-
-Para cada número da lista, pegue os bytes dele na `tabela` e cole no fim.
+**3.b Cada número é um pedaço de texto**
 
 Resposta
 
-**3.c Codificar**
+O laço entrega cada número na variável `numero`:
+
+**3.c E de volta**
+
+Resposta
+
+Decodifique a lista que saiu do 3.a:
+
+**3.d O tokenizador tem sotaque**
+
+Resposta
+
+Qualquer palavra serve. Escolha uma moderna, para ver a diferença:
+
+**3.e O corpus inteiro vira números**
 
 Dica 1: a ideia
 
-Quando você funde um par, ele vira o token que a tabela oficial dá a esse
-par. Ninguém inventa esse número: ele está guardado no dicionário
-`fusoes`.
+Caracteres por token é o número de caracteres dividido pelo número de
+tokens. A lista de tokens do corpus se chama `ids_corpus`.
 
 Resposta
 
 Exercício 9.4
 
-Do texto ao lote de treino.
+Do texto ao lote de treino, e o número a bater.
 
 **4.a Treino e validação**
 
@@ -2293,31 +2290,27 @@ treino parou e vai até o fim.
 
 Resposta
 
-**4.b Uma janela, entrada e alvo**
+**4.b Entrada e alvo**
 
 Dica 1: a ideia
 
-O alvo tem o mesmo tamanho da entrada e começa uma casa depois. Então ele
-também termina uma casa depois.
-
-Dica 2: no código
-
-A entrada vai de `inicio` até `inicio + BLOCO`. Some 1 nos dois lados.
+A entrada vai da posição 5000 até a 5008. O alvo é igual, andado uma
+casa: some 1 nos dois números.
 
 Resposta
 
-**4.c Um lote**
+**4.c O lote**
 
 Resposta
 
-É a mesma conta do 4.b, para cada um dos 32 inícios sorteados:
+Os números do slide: 32 janelas de 128 tokens.
 
-**4.d Desafio: o número a bater**
+**4.d A perda**
 
 Dica 1: a ideia
 
-A perda é a média de `-log` da probabilidade que o modelo deu ao token
-certo. Essas probabilidades já estão no tensor `p_certo`.
+As três chances são 50%, 25% e 10%. No Python, porcentagem se escreve
+como fração: 50% é 0.50.
 
 Resposta
 

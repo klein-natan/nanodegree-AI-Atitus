@@ -54,79 +54,70 @@ ela foi escrita para o erro mais comum daquele passo.
 
 ## Aula 9 — Do Texto aos Números
 
+As células marcadas com 🧰 **Ferramentas** trazem código pronto: rode e
+siga. As lacunas desta aula são sempre uma palavra ou um número.
+
 ### Exercício 9.1
 
 O modelo de linguagem mais simples: contar que letra vem depois de qual.
 
-**1.b Contar o que vem depois de cada letra**
+**1.b O que vem depois do "q"?**
 
 <details><summary>Dica 1: a ideia</summary>
 
-A contagem separa as letras pela letra atual. Dentro dela, você soma 1 para a
-letra que veio **em seguida**.
-
-</details>
-
-<details><summary>Dica 2: no código</summary>
-
-O laço já entrega as duas letras em `atual` e `seguinte`. Na lacuna vai uma
-delas, e não é a `atual` (ela já está no colchete de fora).
+A letra atual está na posição `i`. A letra seguinte está uma posição
+depois.
 
 </details>
 
 <details><summary>Resposta</summary>
 
 ```python
-contagem[atual][seguinte] += 1
+letra_seguinte = corpus[i + 1]
 ```
 
 </details>
 
-**1.c Da contagem para a probabilidade**
+**1.c Da contagem para a chance**
 
 <details><summary>Dica 1: a ideia</summary>
 
-Probabilidade é "quantas vezes aconteceu" dividido por "quantas vezes
-podia ter acontecido". Se depois de "q" vieram 100 letras e 99 eram "u", a
-chance de "u" é 99/100.
+Chance é "quantas vezes aconteceu" dividido por "quantas vezes podia ter
+acontecido". O segundo número já está numa variável, calculada na linha
+de cima.
 
 </details>
 
 <details><summary>Resposta</summary>
 
 ```python
-probabilidades[seguinte] = quantas / total
+chance_do_u = depois_do_q["u"] / total
 ```
 
 </details>
 
-**1.d Gerar texto**
-
-<details><summary>Dica 1: a ideia</summary>
-
-O sorteio precisa saber a chance de cada letra. Essas chances já estão
-numa lista, criada na linha de cima.
-
-</details>
+**1.d O modelo escreve**
 
 <details><summary>Resposta</summary>
 
+Qualquer letra entre as aspas serve. Por exemplo:
+
 ```python
-proxima = random.choices(letras, weights=chances)[0]
+texto_gerado = gerar_letras("A", 300)
 ```
 
 </details>
 
 ### Exercício 9.2
 
-O algoritmo do BPE: contar pares, fundir o mais comum, repetir.
+O BPE no computador: contar pares, fundir o mais comum, repetir.
 
-**2.a Contar os pares vizinhos**
+**2.b Conte os pares vizinhos**
 
 <details><summary>Dica 1: a ideia</summary>
 
-O `zip(ids, ids[1:])` entrega cada par de vizinhos, um por vez, na
-variável `par`. Cada par encontrado soma 1 na contagem dele.
+Cada vez que o laço encontra um par, a contagem desse par aumenta em uma
+unidade.
 
 </details>
 
@@ -138,109 +129,115 @@ pares[par] += 1
 
 </details>
 
-**2.b Fundir um par**
+**2.c Uma fusão**
 
 <details><summary>Dica 1: a ideia</summary>
 
-Duas perguntas. Qual é o segundo elemento do par que você procura? E,
-quando achar o par, o que entra na lista nova no lugar dos dois números?
-
-</details>
-
-<details><summary>Dica 2: no código</summary>
-
-O par é uma tupla de dois números: `par[0]` é o primeiro e `par[1]` o
-segundo. O número que substitui os dois chegou na função com o nome
-`novo`.
+Os números de 0 a 255 já são os bytes. O primeiro número livre para uma
+peça nova vem logo depois.
 
 </details>
 
 <details><summary>Resposta</summary>
 
 ```python
-achou = i < len(ids) - 1 and ids[i] == par[0] and ids[i + 1] == par[1]
-if achou:
-    saida.append(novo)
+ids = fundir(ids, par, 256)
 ```
 
+Se a verificação falhar, rode de novo a célula 2.a antes: ela volta a
+lista para o texto original.
+
 </details>
 
-**2.c O treino do BPE**
+**2.d Mais duas fusões**
 
 <details><summary>Dica 1: a ideia</summary>
 
-A cada volta, a lista inteira passa pela `fundir` e é substituída pela
-versão fundida. A `fundir` precisa de três coisas: a lista, o par e o
-número novo.
+O par mais comum sai da contagem que a linha de cima acabou de fazer.
+Como ela se chama?
 
 </details>
 
 <details><summary>Resposta</summary>
 
 ```python
-ids = fundir(ids, par, novo)
+par = par_mais_comum(pares)
 ```
 
 </details>
 
 ### Exercício 9.3
 
-Codificar e decodificar com a tabela oficial de 1.024 tokens.
+Codificar e decodificar com o tokenizador oficial de 1.024 tokens.
 
-**3.a Carregar a tabela**
-
-<details><summary>Dica 1: a ideia</summary>
-
-Um token novo é a junção de dois tokens antigos, `a` e `b`. Os bytes dele
-são os bytes de `a` seguidos dos bytes de `b`.
-
-</details>
+**3.a Uma frase vira números**
 
 <details><summary>Resposta</summary>
 
+A frase já está guardada na variável `frase`:
+
 ```python
-tabela[novo] = tabela[a] + tabela[b]
+numeros = codificar(frase)
 ```
 
 </details>
 
-**3.b Decodificar**
-
-<details><summary>Dica 1: a ideia</summary>
-
-Para cada número da lista, pegue os bytes dele na `tabela` e cole no fim.
-
-</details>
+**3.b Cada número é um pedaço de texto**
 
 <details><summary>Resposta</summary>
 
+O laço entrega cada número na variável `numero`:
+
 ```python
-juntos = juntos + tabela[i]
+print(numero, "->", mostrar(numero))
 ```
 
 </details>
 
-**3.c Codificar**
+**3.c E de volta**
+
+<details><summary>Resposta</summary>
+
+Decodifique a lista que saiu do 3.a:
+
+```python
+de_volta = decodificar(numeros)
+```
+
+</details>
+
+**3.d O tokenizador tem sotaque**
+
+<details><summary>Resposta</summary>
+
+Qualquer palavra serve. Escolha uma moderna, para ver a diferença:
+
+```python
+minha_palavra = "smartphone"
+```
+
+</details>
+
+**3.e O corpus inteiro vira números**
 
 <details><summary>Dica 1: a ideia</summary>
 
-Quando você funde um par, ele vira o token que a tabela oficial dá a esse
-par. Ninguém inventa esse número: ele está guardado no dicionário
-`fusoes`.
+Caracteres por token é o número de caracteres dividido pelo número de
+tokens. A lista de tokens do corpus se chama `ids_corpus`.
 
 </details>
 
 <details><summary>Resposta</summary>
 
 ```python
-ids = fundir(ids, par, fusoes[par])
+caracteres_por_token = len(corpus) / len(ids_corpus)
 ```
 
 </details>
 
 ### Exercício 9.4
 
-Do texto ao lote de treino.
+Do texto ao lote de treino, e o número a bater.
 
 **4.a Treino e validação**
 
@@ -259,54 +256,49 @@ dados_validacao = tokens[corte:]
 
 </details>
 
-**4.b Uma janela, entrada e alvo**
+**4.b Entrada e alvo**
 
 <details><summary>Dica 1: a ideia</summary>
 
-O alvo tem o mesmo tamanho da entrada e começa uma casa depois. Então ele
-também termina uma casa depois.
-
-</details>
-
-<details><summary>Dica 2: no código</summary>
-
-A entrada vai de `inicio` até `inicio + BLOCO`. Some 1 nos dois lados.
+A entrada vai da posição 5000 até a 5008. O alvo é igual, andado uma
+casa: some 1 nos dois números.
 
 </details>
 
 <details><summary>Resposta</summary>
 
 ```python
-alvo = dados_treino[inicio + 1 : inicio + BLOCO + 1]
+alvo = dados_treino[5001:5009]
 ```
 
 </details>
 
-**4.c Um lote**
+**4.c O lote**
 
 <details><summary>Resposta</summary>
 
-É a mesma conta do 4.b, para cada um dos 32 inícios sorteados:
+Os números do slide: 32 janelas de 128 tokens.
 
 ```python
-alvos.append(dados[inicio + 1 : inicio + BLOCO + 1])
+LOTE = 32
+BLOCO = 128
 ```
 
 </details>
 
-**4.d Desafio: o número a bater**
+**4.d A perda**
 
 <details><summary>Dica 1: a ideia</summary>
 
-A perda é a média de `-log` da probabilidade que o modelo deu ao token
-certo. Essas probabilidades já estão no tensor `p_certo`.
+As três chances são 50%, 25% e 10%. No Python, porcentagem se escreve
+como fração: 50% é 0.50.
 
 </details>
 
 <details><summary>Resposta</summary>
 
 ```python
-perda_bigramas = -torch.log(p_certo).mean().item()
+perda = (-math.log(0.50) - math.log(0.25) - math.log(0.10)) / 3
 ```
 
 </details>

@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-<!-- fonte-docs: 57c1c84962e46964 -->
+<!-- fonte-docs: 5ab8a9e42c5694d0 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Nanodegree de IA &amp; ML</title>
@@ -7831,13 +7831,13 @@ escolheu essas peças: elas saíram da contagem.</p>
 <p>Num texto minúsculo como esse, vários pares empatam (<code>na</code> também aparece 6
 vezes no passo 1) e o programa desempata por uma regra fixa. Em texto de
 verdade o empate no topo quase nunca acontece.</p>
-<p>O algoritmo inteiro são duas funções. A primeira conta os pares vizinhos
-de uma lista; a segunda troca cada ocorrência de um par por um número
-novo. O treino repete as duas:</p>
-<div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">quantas_fusoes</span><span class="p">):</span>
-    <span class="n">pares</span> <span class="o">=</span> <span class="n">contar_pares</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span>
-    <span class="n">par</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">pares</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">pares</span><span class="o">.</span><span class="n">get</span><span class="p">)</span>      <span class="c1"># o par mais comum</span>
-    <span class="n">ids</span> <span class="o">=</span> <span class="n">fundir</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">par</span><span class="p">,</span> <span class="mi">256</span> <span class="o">+</span> <span class="n">k</span><span class="p">)</span>      <span class="c1"># vira o token 256, 257, ...</span>
+<p>No computador, cada passo da tabela são três linhas: contar os pares
+vizinhos, achar o mais comum, e trocar cada ocorrência dele por um número
+novo. O treino repete as três:</p>
+<div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="k">for</span> <span class="n">novo</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">256</span><span class="p">,</span> <span class="mi">257</span><span class="p">,</span> <span class="mi">258</span><span class="p">]:</span>
+    <span class="n">pares</span> <span class="o">=</span> <span class="n">contar_pares</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span>          <span class="c1"># conta os pares vizinhos</span>
+    <span class="n">par</span> <span class="o">=</span> <span class="n">par_mais_comum</span><span class="p">(</span><span class="n">pares</span><span class="p">)</span>        <span class="c1"># acha o mais comum</span>
+    <span class="n">ids</span> <span class="o">=</span> <span class="n">fundir</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">par</span><span class="p">,</span> <span class="n">novo</span><span class="p">)</span>       <span class="c1"># troca o par pelo número novo</span>
 </code></pre></div>
 <p>Rodando isso no corpus inteiro até chegar a 1.024 peças, é isto o que sai:</p>
 <figure><img src="docs/assets/aula-09/fusoes.png" alt="Três colunas com os tokens aprendidos: as primeiras fusões são pedaços curtos como espaço-d e ra, no meio aparecem dous e tal, e no fim palavras inteiras como fazer, sei e filha"><figcaption>As primeiras fusões são pedaços de duas letras. As últimas já são palavras inteiras.</figcaption></figure>
@@ -8148,11 +8148,11 @@ mesmo da Aula 9 à Aula 12.</p>
 </tr>
 <tr>
   <td>9.2</td>
-  <td>o algoritmo do BPE: contar pares, fundir, repetir</td>
+  <td>o BPE no computador: a tabela do &quot;banana&quot;, e as primeiras fusões em Machado</td>
 </tr>
 <tr>
   <td>9.3</td>
-  <td>codificar e decodificar com a tabela oficial</td>
+  <td>codificar e decodificar frases com o tokenizador oficial</td>
 </tr>
 <tr>
   <td>9.4</td>
@@ -9912,88 +9912,86 @@ partir da preparação, sem carregar o corpus duas vezes.</li>
 <p>Se o ❌ apareceu e você não sabe por quê, leia a pista que vem com ele:
 ela foi escrita para o erro mais comum daquele passo.</p>
 <h2 id="aula-9-do-texto-aos-numeros">Aula 9 — Do Texto aos Números<a class="ancora" href="#aula-9-do-texto-aos-numeros" aria-label="Link para esta secao">#</a></h2>
+<p>As células marcadas com 🧰 <strong>Ferramentas</strong> trazem código pronto: rode e
+siga. As lacunas desta aula são sempre uma palavra ou um número.</p>
 <h3 id="exercicio-9-1">Exercício 9.1<a class="ancora" href="#exercicio-9-1" aria-label="Link para esta secao">#</a></h3>
 <p>O modelo de linguagem mais simples: contar que letra vem depois de qual.</p>
-<p><strong>1.b Contar o que vem depois de cada letra</strong></p>
-<details class="expansivel"><summary>Dica 1: a ideia</summary><p>A contagem separa as letras pela letra atual. Dentro dela, você soma 1 para a
-letra que veio <strong>em seguida</strong>.</p>
+<p><strong>1.b O que vem depois do &quot;q&quot;?</strong></p>
+<details class="expansivel"><summary>Dica 1: a ideia</summary><p>A letra atual está na posição <code>i</code>. A letra seguinte está uma posição
+depois.</p>
 </details>
-<details class="expansivel"><summary>Dica 2: no código</summary><p>O laço já entrega as duas letras em <code>atual</code> e <code>seguinte</code>. Na lacuna vai uma
-delas, e não é a <code>atual</code> (ela já está no colchete de fora).</p>
-</details>
-<details class="expansivel"><summary>Resposta</summary><div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">contagem</span><span class="p">[</span><span class="n">atual</span><span class="p">][</span><span class="n">seguinte</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+<details class="expansivel"><summary>Resposta</summary><div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">letra_seguinte</span> <span class="o">=</span> <span class="n">corpus</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
 </code></pre></div>
 </details>
-<p><strong>1.c Da contagem para a probabilidade</strong></p>
-<details class="expansivel"><summary>Dica 1: a ideia</summary><p>Probabilidade é &quot;quantas vezes aconteceu&quot; dividido por &quot;quantas vezes
-podia ter acontecido&quot;. Se depois de &quot;q&quot; vieram 100 letras e 99 eram &quot;u&quot;, a
-chance de &quot;u&quot; é 99/100.</p>
+<p><strong>1.c Da contagem para a chance</strong></p>
+<details class="expansivel"><summary>Dica 1: a ideia</summary><p>Chance é &quot;quantas vezes aconteceu&quot; dividido por &quot;quantas vezes podia ter
+acontecido&quot;. O segundo número já está numa variável, calculada na linha
+de cima.</p>
 </details>
-<details class="expansivel"><summary>Resposta</summary><div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">probabilidades</span><span class="p">[</span><span class="n">seguinte</span><span class="p">]</span> <span class="o">=</span> <span class="n">quantas</span> <span class="o">/</span> <span class="n">total</span>
+<details class="expansivel"><summary>Resposta</summary><div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">chance_do_u</span> <span class="o">=</span> <span class="n">depois_do_q</span><span class="p">[</span><span class="s2">"u"</span><span class="p">]</span> <span class="o">/</span> <span class="n">total</span>
 </code></pre></div>
 </details>
-<p><strong>1.d Gerar texto</strong></p>
-<details class="expansivel"><summary>Dica 1: a ideia</summary><p>O sorteio precisa saber a chance de cada letra. Essas chances já estão
-numa lista, criada na linha de cima.</p>
-</details>
-<details class="expansivel"><summary>Resposta</summary><div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">proxima</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choices</span><span class="p">(</span><span class="n">letras</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">chances</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<p><strong>1.d O modelo escreve</strong></p>
+<details class="expansivel"><summary>Resposta</summary><p>Qualquer letra entre as aspas serve. Por exemplo:</p>
+<div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">texto_gerado</span> <span class="o">=</span> <span class="n">gerar_letras</span><span class="p">(</span><span class="s2">"A"</span><span class="p">,</span> <span class="mi">300</span><span class="p">)</span>
 </code></pre></div>
 </details>
 <h3 id="exercicio-9-2">Exercício 9.2<a class="ancora" href="#exercicio-9-2" aria-label="Link para esta secao">#</a></h3>
-<p>O algoritmo do BPE: contar pares, fundir o mais comum, repetir.</p>
-<p><strong>2.a Contar os pares vizinhos</strong></p>
-<details class="expansivel"><summary>Dica 1: a ideia</summary><p>O <code>zip(ids, ids[1:])</code> entrega cada par de vizinhos, um por vez, na
-variável <code>par</code>. Cada par encontrado soma 1 na contagem dele.</p>
+<p>O BPE no computador: contar pares, fundir o mais comum, repetir.</p>
+<p><strong>2.b Conte os pares vizinhos</strong></p>
+<details class="expansivel"><summary>Dica 1: a ideia</summary><p>Cada vez que o laço encontra um par, a contagem desse par aumenta em uma
+unidade.</p>
 </details>
 <details class="expansivel"><summary>Resposta</summary><div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">pares</span><span class="p">[</span><span class="n">par</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
 </code></pre></div>
 </details>
-<p><strong>2.b Fundir um par</strong></p>
-<details class="expansivel"><summary>Dica 1: a ideia</summary><p>Duas perguntas. Qual é o segundo elemento do par que você procura? E,
-quando achar o par, o que entra na lista nova no lugar dos dois números?</p>
+<p><strong>2.c Uma fusão</strong></p>
+<details class="expansivel"><summary>Dica 1: a ideia</summary><p>Os números de 0 a 255 já são os bytes. O primeiro número livre para uma
+peça nova vem logo depois.</p>
 </details>
-<details class="expansivel"><summary>Dica 2: no código</summary><p>O par é uma tupla de dois números: <code>par[0]</code> é o primeiro e <code>par[1]</code> o
-segundo. O número que substitui os dois chegou na função com o nome
-<code>novo</code>.</p>
-</details>
-<details class="expansivel"><summary>Resposta</summary><div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">achou</span> <span class="o">=</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">ids</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">par</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="n">ids</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">par</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-<span class="k">if</span> <span class="n">achou</span><span class="p">:</span>
-    <span class="n">saida</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">novo</span><span class="p">)</span>
+<details class="expansivel"><summary>Resposta</summary><div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">ids</span> <span class="o">=</span> <span class="n">fundir</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">par</span><span class="p">,</span> <span class="mi">256</span><span class="p">)</span>
 </code></pre></div>
+<p>Se a verificação falhar, rode de novo a célula 2.a antes: ela volta a
+lista para o texto original.</p>
 </details>
-<p><strong>2.c O treino do BPE</strong></p>
-<details class="expansivel"><summary>Dica 1: a ideia</summary><p>A cada volta, a lista inteira passa pela <code>fundir</code> e é substituída pela
-versão fundida. A <code>fundir</code> precisa de três coisas: a lista, o par e o
-número novo.</p>
+<p><strong>2.d Mais duas fusões</strong></p>
+<details class="expansivel"><summary>Dica 1: a ideia</summary><p>O par mais comum sai da contagem que a linha de cima acabou de fazer.
+Como ela se chama?</p>
 </details>
-<details class="expansivel"><summary>Resposta</summary><div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">ids</span> <span class="o">=</span> <span class="n">fundir</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">par</span><span class="p">,</span> <span class="n">novo</span><span class="p">)</span>
+<details class="expansivel"><summary>Resposta</summary><div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">par</span> <span class="o">=</span> <span class="n">par_mais_comum</span><span class="p">(</span><span class="n">pares</span><span class="p">)</span>
 </code></pre></div>
 </details>
 <h3 id="exercicio-9-3">Exercício 9.3<a class="ancora" href="#exercicio-9-3" aria-label="Link para esta secao">#</a></h3>
-<p>Codificar e decodificar com a tabela oficial de 1.024 tokens.</p>
-<p><strong>3.a Carregar a tabela</strong></p>
-<details class="expansivel"><summary>Dica 1: a ideia</summary><p>Um token novo é a junção de dois tokens antigos, <code>a</code> e <code>b</code>. Os bytes dele
-são os bytes de <code>a</code> seguidos dos bytes de <code>b</code>.</p>
-</details>
-<details class="expansivel"><summary>Resposta</summary><div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">tabela</span><span class="p">[</span><span class="n">novo</span><span class="p">]</span> <span class="o">=</span> <span class="n">tabela</span><span class="p">[</span><span class="n">a</span><span class="p">]</span> <span class="o">+</span> <span class="n">tabela</span><span class="p">[</span><span class="n">b</span><span class="p">]</span>
+<p>Codificar e decodificar com o tokenizador oficial de 1.024 tokens.</p>
+<p><strong>3.a Uma frase vira números</strong></p>
+<details class="expansivel"><summary>Resposta</summary><p>A frase já está guardada na variável <code>frase</code>:</p>
+<div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">numeros</span> <span class="o">=</span> <span class="n">codificar</span><span class="p">(</span><span class="n">frase</span><span class="p">)</span>
 </code></pre></div>
 </details>
-<p><strong>3.b Decodificar</strong></p>
-<details class="expansivel"><summary>Dica 1: a ideia</summary><p>Para cada número da lista, pegue os bytes dele na <code>tabela</code> e cole no fim.</p>
-</details>
-<details class="expansivel"><summary>Resposta</summary><div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">juntos</span> <span class="o">=</span> <span class="n">juntos</span> <span class="o">+</span> <span class="n">tabela</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+<p><strong>3.b Cada número é um pedaço de texto</strong></p>
+<details class="expansivel"><summary>Resposta</summary><p>O laço entrega cada número na variável <code>numero</code>:</p>
+<div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="nb">print</span><span class="p">(</span><span class="n">numero</span><span class="p">,</span> <span class="s2">"-&gt;"</span><span class="p">,</span> <span class="n">mostrar</span><span class="p">(</span><span class="n">numero</span><span class="p">))</span>
 </code></pre></div>
 </details>
-<p><strong>3.c Codificar</strong></p>
-<details class="expansivel"><summary>Dica 1: a ideia</summary><p>Quando você funde um par, ele vira o token que a tabela oficial dá a esse
-par. Ninguém inventa esse número: ele está guardado no dicionário
-<code>fusoes</code>.</p>
+<p><strong>3.c E de volta</strong></p>
+<details class="expansivel"><summary>Resposta</summary><p>Decodifique a lista que saiu do 3.a:</p>
+<div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">de_volta</span> <span class="o">=</span> <span class="n">decodificar</span><span class="p">(</span><span class="n">numeros</span><span class="p">)</span>
+</code></pre></div>
 </details>
-<details class="expansivel"><summary>Resposta</summary><div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">ids</span> <span class="o">=</span> <span class="n">fundir</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">par</span><span class="p">,</span> <span class="n">fusoes</span><span class="p">[</span><span class="n">par</span><span class="p">])</span>
+<p><strong>3.d O tokenizador tem sotaque</strong></p>
+<details class="expansivel"><summary>Resposta</summary><p>Qualquer palavra serve. Escolha uma moderna, para ver a diferença:</p>
+<div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">minha_palavra</span> <span class="o">=</span> <span class="s2">"smartphone"</span>
+</code></pre></div>
+</details>
+<p><strong>3.e O corpus inteiro vira números</strong></p>
+<details class="expansivel"><summary>Dica 1: a ideia</summary><p>Caracteres por token é o número de caracteres dividido pelo número de
+tokens. A lista de tokens do corpus se chama <code>ids_corpus</code>.</p>
+</details>
+<details class="expansivel"><summary>Resposta</summary><div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">caracteres_por_token</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">ids_corpus</span><span class="p">)</span>
 </code></pre></div>
 </details>
 <h3 id="exercicio-9-4">Exercício 9.4<a class="ancora" href="#exercicio-9-4" aria-label="Link para esta secao">#</a></h3>
-<p>Do texto ao lote de treino.</p>
+<p>Do texto ao lote de treino, e o número a bater.</p>
 <p><strong>4.a Treino e validação</strong></p>
 <details class="expansivel"><summary>Dica 1: a ideia</summary><p>O treino vai do começo até <code>corte</code>. A validação começa exatamente onde o
 treino parou e vai até o fim.</p>
@@ -10001,25 +9999,24 @@ treino parou e vai até o fim.</p>
 <details class="expansivel"><summary>Resposta</summary><div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">dados_validacao</span> <span class="o">=</span> <span class="n">tokens</span><span class="p">[</span><span class="n">corte</span><span class="p">:]</span>
 </code></pre></div>
 </details>
-<p><strong>4.b Uma janela, entrada e alvo</strong></p>
-<details class="expansivel"><summary>Dica 1: a ideia</summary><p>O alvo tem o mesmo tamanho da entrada e começa uma casa depois. Então ele
-também termina uma casa depois.</p>
+<p><strong>4.b Entrada e alvo</strong></p>
+<details class="expansivel"><summary>Dica 1: a ideia</summary><p>A entrada vai da posição 5000 até a 5008. O alvo é igual, andado uma
+casa: some 1 nos dois números.</p>
 </details>
-<details class="expansivel"><summary>Dica 2: no código</summary><p>A entrada vai de <code>inicio</code> até <code>inicio + BLOCO</code>. Some 1 nos dois lados.</p>
-</details>
-<details class="expansivel"><summary>Resposta</summary><div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">alvo</span> <span class="o">=</span> <span class="n">dados_treino</span><span class="p">[</span><span class="n">inicio</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:</span> <span class="n">inicio</span> <span class="o">+</span> <span class="n">BLOCO</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+<details class="expansivel"><summary>Resposta</summary><div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">alvo</span> <span class="o">=</span> <span class="n">dados_treino</span><span class="p">[</span><span class="mi">5001</span><span class="p">:</span><span class="mi">5009</span><span class="p">]</span>
 </code></pre></div>
 </details>
-<p><strong>4.c Um lote</strong></p>
-<details class="expansivel"><summary>Resposta</summary><p>É a mesma conta do 4.b, para cada um dos 32 inícios sorteados:</p>
-<div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">alvos</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dados</span><span class="p">[</span><span class="n">inicio</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:</span> <span class="n">inicio</span> <span class="o">+</span> <span class="n">BLOCO</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+<p><strong>4.c O lote</strong></p>
+<details class="expansivel"><summary>Resposta</summary><p>Os números do slide: 32 janelas de 128 tokens.</p>
+<div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">LOTE</span> <span class="o">=</span> <span class="mi">32</span>
+<span class="n">BLOCO</span> <span class="o">=</span> <span class="mi">128</span>
 </code></pre></div>
 </details>
-<p><strong>4.d Desafio: o número a bater</strong></p>
-<details class="expansivel"><summary>Dica 1: a ideia</summary><p>A perda é a média de <code>-log</code> da probabilidade que o modelo deu ao token
-certo. Essas probabilidades já estão no tensor <code>p_certo</code>.</p>
+<p><strong>4.d A perda</strong></p>
+<details class="expansivel"><summary>Dica 1: a ideia</summary><p>As três chances são 50%, 25% e 10%. No Python, porcentagem se escreve
+como fração: 50% é 0.50.</p>
 </details>
-<details class="expansivel"><summary>Resposta</summary><div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">perda_bigramas</span> <span class="o">=</span> <span class="o">-</span><span class="n">torch</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">p_certo</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+<details class="expansivel"><summary>Resposta</summary><div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">perda</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">0.50</span><span class="p">)</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">0.25</span><span class="p">)</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">0.10</span><span class="p">))</span> <span class="o">/</span> <span class="mi">3</span>
 </code></pre></div>
 </details>
 <h2 id="aula-10-atencao">Aula 10 — Atenção<a class="ancora" href="#aula-10-atencao" aria-label="Link para esta secao">#</a></h2>
