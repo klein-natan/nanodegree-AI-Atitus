@@ -44,9 +44,13 @@
 
 * [Visão geral](llm-do-zero/README.md)
 * [Aula 9 — Do Texto aos Números](llm-do-zero/aula-09-tokenizacao.md)
+* [Quizzes da Aula 9](llm-do-zero/quiz-aula-09.md)
 * [Aula 10 — Atenção](llm-do-zero/aula-10-atencao.md)
+* [Quizzes da Aula 10](llm-do-zero/quiz-aula-10.md)
 * [Aula 11 — O Transformer e o Treino](llm-do-zero/aula-11-transformer-treino.md)
+* [Quizzes da Aula 11](llm-do-zero/quiz-aula-11.md)
 * [Aula 12 — Geração e Limites](llm-do-zero/aula-12-geracao-limites.md)
+* [Quizzes da Aula 12](llm-do-zero/quiz-aula-12.md)
 * [Colas dos Exercícios](llm-do-zero/colas-dos-exercicios.md)
 
 ## IA Generativa

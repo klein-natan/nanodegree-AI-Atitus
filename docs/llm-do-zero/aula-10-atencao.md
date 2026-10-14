@@ -169,6 +169,10 @@ terços de `gato`. A palavra deixou de ser só ela mesma e virou ela mesma
 
 <figure><img src="../assets/aula-10/conta.png" alt="Quatro painéis em sequência: os produtos 0, 4 e 2; divididos por 2 dando 0, 2 e 1; a softmax dando 9%, 67% e 24%; e a saída como mistura dos três vetores"><figcaption>Quatro passos, três palavras, números pequenos. É a atenção inteira, e ainda não há um peso treinável.</figcaption></figure>
 
+Os mesmos quatro passos, em movimento:
+
+<figure><video src="../assets/aula-10/atencao.mp4" poster="../assets/aula-10/atencao.jpg" controls preload="none" playsinline aria-label="Animação dos quatro passos da atenção sem pesos"></video><figcaption>Produto escalar, divisão por √d, softmax e mistura: "dorme" sai carregando dois terços de "gato".</figcaption></figure>
+
 **Por que dividir pela raiz de `d`?** Quanto mais dimensões, maiores os
 produtos escalares, só por haver mais parcelas na soma. Números grandes
 fazem a softmax virar tudo-ou-nada: a softmax de (0, 20, 10) é
@@ -294,6 +298,8 @@ $$\text{softmax}(1,\; 2,\; -\infty) = (27\%,\; 73\%,\; 0\%)$$
 Exemplo: `e¹ = 2,72`, `e² = 7,39` e `e^(−∞) = 0`. A soma é 10,11. Divididos
 por ela: 27%, 73% e 0%. A posição do futuro some da mistura, e as outras
 duas dividem os 100% entre si.
+
+<figure><video src="../assets/aula-10/mascara.mp4" poster="../assets/aula-10/mascara.jpg" controls preload="none" playsinline aria-label="Animação da máscara causal numa matriz de atenção"></video><figcaption>O futuro vira −∞, a softmax transforma em 0%, e cada linha só olha para trás.</figcaption></figure>
 
 ```python
 futuro = torch.triu(torch.ones(n, n), diagonal=1).bool()
@@ -479,6 +485,7 @@ janela dele como se fosse uma conquista. É.
 ## Materiais
 
 - **Notebook desta aula, no Google Colab:** [![Abrir no Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-10-atencao.ipynb)
+- **Quiz de cada microaula:** [Quizzes da Aula 10](quiz-aula-10.md), 5 perguntas depois de cada explicação, antes do exercício.
 - **Travou num exercício?** [Colas dos exercícios](colas-dos-exercicios.md#aula-10-atencao), com dicas que você abre uma de cada vez.
 - Slides desta aula: entregues em sala.
 - Modelo treinado, usado nas figuras: [`mini_llm.pt`](https://github.com/klein-natan/nanodegree-AI-Atitus/blob/main/data/mini_llm.pt)

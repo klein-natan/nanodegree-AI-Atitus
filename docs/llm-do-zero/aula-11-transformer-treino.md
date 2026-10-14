@@ -307,6 +307,10 @@ a validação for a melhor até ali**. Duas consequências práticas: se o
 Colab cair no meio, o melhor modelo já está salvo; e o arquivo guarda o
 modelo que melhor generaliza, e não o último.
 
+O laço inteiro, e o que ele faz com a perda e com o texto:
+
+<figure><video src="../assets/aula-11/treino.mp4" poster="../assets/aula-11/treino.jpg" controls preload="none" playsinline aria-label="Animação do laço de treino com a curva da perda caindo"></video><figcaption>Cinco passos por volta, milhares de voltas. A curva e as amostras são do treino de referência.</figcaption></figure>
+
 ## O treino de verdade
 
 Quantos passos cabem em 35 minutos depende da máquina. No teste deste
@@ -405,6 +409,7 @@ Nada nessa tabela é uma ideia nova. É a mesma ideia, com mais dinheiro.
 ## Materiais
 
 - **Notebook desta aula, no Google Colab:** [![Abrir no Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-11-transformer-e-treino.ipynb)
+- **Quiz de cada microaula:** [Quizzes da Aula 11](quiz-aula-11.md), 5 perguntas depois de cada explicação, antes do exercício.
 - **Travou num exercício?** [Colas dos exercícios](colas-dos-exercicios.md#aula-11-o-transformer-e-o-treino), com dicas que você abre uma de cada vez.
 - Slides desta aula: entregues em sala.
 - Modelo de referência, treinado: [`mini_llm.pt`](https://github.com/klein-natan/nanodegree-AI-Atitus/blob/main/data/mini_llm.pt)

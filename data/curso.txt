@@ -896,6 +896,8 @@ Num texto minúsculo como esse, vários pares empatam (`na` também aparece 6
 vezes no passo 1) e o programa desempata por uma regra fixa. Em texto de
 verdade o empate no topo quase nunca acontece.
 
+Veja o BPE trabalhando, devagar, em outra frase:
+
 No computador, cada passo da tabela são três linhas: contar os pares
 vizinhos, achar o mais comum, e trocar cada ocorrência dele por um número
 novo. O treino repete as três:
@@ -1050,6 +1052,8 @@ Exemplo com três previsões. O modelo deu 50%, 25% e 10% ao token certo.
 Os logaritmos, com o sinal trocado, são 0,69, 1,39 e 2,30. A média é
 (0,69 + 1,39 + 2,30) / 3 = 1,46.
 
+A animação abaixo faz a mesma conta com três previsões do modelo treinado:
+
 Quanto menor, melhor. Um modelo que chuta igual entre 1.024 tokens dá
 1/1024 a cada um, e a perda dele é `ln(1024) = 6,93`. É dali que todo
 treino das próximas aulas começa.
@@ -1087,6 +1091,7 @@ mesmo da Aula 9 à Aula 12.
 
 ### Aula 9 — Do Texto aos Números > Materiais
 - **Notebook desta aula, no Google Colab:** [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-09-do-texto-aos-numeros.ipynb)
+- **Quiz de cada microaula:** Quizzes da Aula 9, 5 perguntas depois de cada explicação, antes do exercício.
 - **Travou num exercício?** Colas dos exercícios, com dicas que você abre uma de cada vez.
 - Slides desta aula: entregues em sala.
 - Corpus: `machado.txt`
@@ -1225,6 +1230,8 @@ $$z = 0{,}09 \cdot (2,0,0,0) + 0{,}67 \cdot (0,3,1,0) + 0{,}24 \cdot (0,1,1,0)$$
 O resultado é `(0,18, 2,24, 0,91, 0)`. Repare: `dorme` saiu carregando dois
 terços de `gato`. A palavra deixou de ser só ela mesma e virou ela mesma
 **mais o contexto**.
+
+Os mesmos quatro passos, em movimento:
 
 **Por que dividir pela raiz de `d`?** Quanto mais dimensões, maiores os
 produtos escalares, só por haver mais parcelas na soma. Números grandes
@@ -1475,6 +1482,7 @@ janela dele como se fosse uma conquista. É.
 
 ### Aula 10 — Atenção > Materiais
 - **Notebook desta aula, no Google Colab:** [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-10-atencao.ipynb)
+- **Quiz de cada microaula:** Quizzes da Aula 10, 5 perguntas depois de cada explicação, antes do exercício.
 - **Travou num exercício?** Colas dos exercícios, com dicas que você abre uma de cada vez.
 - Slides desta aula: entregues em sala.
 - Modelo treinado, usado nas figuras: `mini_llm.pt`
@@ -1717,6 +1725,8 @@ a validação for a melhor até ali**. Duas consequências práticas: se o
 Colab cair no meio, o melhor modelo já está salvo; e o arquivo guarda o
 modelo que melhor generaliza, e não o último.
 
+O laço inteiro, e o que ele faz com a perda e com o texto:
+
 ### Aula 11 — O Transformer e o Treino > O treino de verdade
 Quantos passos cabem em 35 minutos depende da máquina. No teste deste
 curso, com duas linhas de execução (as mesmas do Colab gratuito), foram
@@ -1804,6 +1814,7 @@ Nada nessa tabela é uma ideia nova. É a mesma ideia, com mais dinheiro.
 
 ### Aula 11 — O Transformer e o Treino > Materiais
 - **Notebook desta aula, no Google Colab:** [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-11-transformer-e-treino.ipynb)
+- **Quiz de cada microaula:** Quizzes da Aula 11, 5 perguntas depois de cada explicação, antes do exercício.
 - **Travou num exercício?** Colas dos exercícios, com dicas que você abre uma de cada vez.
 - Slides desta aula: entregues em sala.
 - Modelo de referência, treinado: `mini_llm.pt`
@@ -2119,6 +2130,7 @@ que qualquer ajuste de temperatura, e é de graça.
 
 ### Aula 12 — Geração e Limites > Materiais
 - **Notebook desta aula, no Google Colab:** [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-12-geracao-e-limites.ipynb)
+- **Quiz de cada microaula:** Quizzes da Aula 12, 5 perguntas depois de cada explicação, antes do exercício.
 - **Travou num exercício?** Colas dos exercícios, com dicas que você abre uma de cada vez.
 - Slides desta aula: entregues em sala.
 - O seu modelo: o `meu_llm.pt` que você baixou na Aula 11. O do professor: `mini_llm.pt`
@@ -2627,8 +2639,9 @@ menor perda:
 
 ### LLM do Zero > Como as aulas funcionam
 Cada aula alterna uma explicação curta, de 20 a 25 minutos, e um exercício
-que você faz sozinho no notebook, também de uns 20 minutos. São quatro
-pares por aula, e cada exercício acrescenta uma peça ao **mesmo** modelo:
+que você faz sozinho no notebook, também de uns 20 minutos. Entre os dois,
+um quiz de 5 perguntas no site confere se a explicação assentou. São quatro
+rodadas por aula, e cada exercício acrescenta uma peça ao **mesmo** modelo:
 
 | Aula | Os quatro exercícios |
 |---|---|
@@ -2668,6 +2681,7 @@ para muito além de LLM:
 | Aula 10 — Atenção | O primeiro modelo em PyTorch, e como ele decide para onde olhar | Disponível |
 | Aula 11 — O Transformer e o Treino | Montar o modelo inteiro e treiná-lo no processador | Disponível |
 | Aula 12 — Geração e Limites | Do logit ao texto, o ajuste fino, e o que o modelo não sabe fazer | Disponível |
+| Quizzes das Aulas 9, 10, 11 e 12 | 5 perguntas depois de cada microaula, uma de cada vez | Disponível |
 | Colas dos Exercícios | Dicas para cada passo dos 16 exercícios | Disponível |
 
 ### Aula 1 — Regressão Linear Simples > Para que serve

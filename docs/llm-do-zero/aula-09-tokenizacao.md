@@ -157,6 +157,10 @@ Num texto minúsculo como esse, vários pares empatam (`na` também aparece 6
 vezes no passo 1) e o programa desempata por uma regra fixa. Em texto de
 verdade o empate no topo quase nunca acontece.
 
+Veja o BPE trabalhando, devagar, em outra frase:
+
+<figure><video src="../assets/aula-09/bpe.mp4" poster="../assets/aula-09/bpe.jpg" controls preload="none" playsinline aria-label="Animação do BPE sobre a frase casa casada casamento"></video><figcaption>"casa casada casamento": quatro rodadas de contar, escolher e fundir. As peças "ca", "cas", "casa" e "·casa" saem da contagem, e 21 peças viram 10.</figcaption></figure>
+
 No computador, cada passo da tabela são três linhas: contar os pares
 vizinhos, achar o mais comum, e trocar cada ocorrência dele por um número
 novo. O treino repete as três:
@@ -316,6 +320,8 @@ mesma passada.
 Com janelas de 128 tokens e lotes de 32, cada passo de treino corrige os
 pesos usando 4.096 previsões de uma vez.
 
+<figure><video src="../assets/aula-09/janela.mp4" poster="../assets/aula-09/janela.jpg" controls preload="none" playsinline aria-label="Animação da janela de treino, da janela de contexto e do lote"></video><figcaption>Cada posição prevê a seguinte, a janela anda pelo texto, e várias janelas formam um lote.</figcaption></figure>
+
 O tamanho da janela tem nome: **janela de contexto**. É o quanto o modelo
 consegue olhar para trás. A sua vai ser de 128 tokens, uns 300 caracteres.
 Os modelos comerciais estão na casa das centenas de milhares.
@@ -337,6 +343,10 @@ $$\text{perda} = -\frac{1}{n}\sum_{i=1}^{n} \log P(\text{token certo}_i)$$
 Exemplo com três previsões. O modelo deu 50%, 25% e 10% ao token certo.
 Os logaritmos, com o sinal trocado, são 0,69, 1,39 e 2,30. A média é
 (0,69 + 1,39 + 2,30) / 3 = 1,46.
+
+A animação abaixo faz a mesma conta com três previsões do modelo treinado:
+
+<figure><video src="../assets/aula-09/perda.mp4" poster="../assets/aula-09/perda.jpg" controls preload="none" playsinline aria-label="Animação das previsões do modelo e do cálculo da perda"></video><figcaption>Chance alta no token certo, surpresa pequena. Chance baixa, surpresa grande. A perda é a média.</figcaption></figure>
 
 Quanto menor, melhor. Um modelo que chuta igual entre 1.024 tokens dá
 1/1024 a cada um, e a perda dele é `ln(1024) = 6,93`. É dali que todo
@@ -379,6 +389,7 @@ mesmo da Aula 9 à Aula 12.
 ## Materiais
 
 - **Notebook desta aula, no Google Colab:** [![Abrir no Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-09-do-texto-aos-numeros.ipynb)
+- **Quiz de cada microaula:** [Quizzes da Aula 9](quiz-aula-09.md), 5 perguntas depois de cada explicação, antes do exercício.
 - **Travou num exercício?** [Colas dos exercícios](colas-dos-exercicios.md#aula-9-do-texto-aos-numeros), com dicas que você abre uma de cada vez.
 - Slides desta aula: entregues em sala.
 - Corpus: [`machado.txt`](https://github.com/klein-natan/nanodegree-AI-Atitus/blob/main/data/machado.txt)

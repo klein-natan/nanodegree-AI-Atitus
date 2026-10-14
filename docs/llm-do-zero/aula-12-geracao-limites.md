@@ -59,6 +59,8 @@ que explica muito: o token sorteado no passo 4 vira entrada do passo 1
 seguinte. Se ele foi ruim, o modelo não tem como voltar atrás. Ele agora
 precisa continuar coerentemente a partir do erro.
 
+<figure><video src="../assets/aula-12/geracao.mp4" poster="../assets/aula-12/geracao.jpg" controls preload="none" playsinline aria-label="Animação da geração de texto, um token sorteado de cada vez"></video><figcaption>Oito passos reais do modelo, sorteando com temperatura 0,8: "A casa de" vira "A casa de Natividade continuou a". Repare no primeiro sorteio: saiu um token com 2,2% de chance.</figcaption></figure>
+
 ## Duas escolhas ruins
 
 **Sempre o mais provável.** Troque o sorteio por `argmax`. Chama-se
@@ -104,6 +106,8 @@ candidatos, só a distância entre eles.
 Olhe a barra cinza, a dos 1.018 tokens restantes. Com temperatura 0,3 ela
 quase some; com 1,5 ela engorda até 86%. É dali que vêm as palavras que
 não existem.
+
+<figure><video src="../assets/aula-12/temperatura.mp4" poster="../assets/aula-12/temperatura.jpg" controls preload="none" playsinline aria-label="Animação das chances mudando com a temperatura"></video><figcaption>A temperatura vai de 1 para 0,3, depois para 1,5 e 0,8. A ordem das barras nunca muda.</figcaption></figure>
 
 | Temperatura | O que acontece |
 |---|---|
@@ -365,6 +369,7 @@ que qualquer ajuste de temperatura, e é de graça.
 ## Materiais
 
 - **Notebook desta aula, no Google Colab:** [![Abrir no Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-12-geracao-e-limites.ipynb)
+- **Quiz de cada microaula:** [Quizzes da Aula 12](quiz-aula-12.md), 5 perguntas depois de cada explicação, antes do exercício.
 - **Travou num exercício?** [Colas dos exercícios](colas-dos-exercicios.md#aula-12-geracao-e-limites), com dicas que você abre uma de cada vez.
 - Slides desta aula: entregues em sala.
 - O seu modelo: o `meu_llm.pt` que você baixou na Aula 11. O do professor: [`mini_llm.pt`](https://github.com/klein-natan/nanodegree-AI-Atitus/blob/main/data/mini_llm.pt)
