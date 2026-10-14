@@ -154,3 +154,9 @@ nesta página do que voltar a reler uma aula inteira.
 | Modelo de mentira | O esqueleto do modelo, com os blocos devolvendo a entrada sem fazer nada. Roda, tem o formato certo e gera lixo: serve para você preencher uma peça de cada vez |
 | Gradiente que desaparece | O encolhimento do gradiente conforme ele volta pelas camadas. Sem atalho, a primeira camada quase não aprende |
 | Escalar no momento de responder | Melhorar a resposta gastando mais tokens na hora de responder (raciocínio, votação, revisão), sem treinar nada |
+| Modelo de contagem (bigramas) | O modelo de linguagem mais simples: conta, no corpus, o que veio depois de cada símbolo, e sorteia com essas chances |
+| Tensor | A lista de números do PyTorch: faz conta rápido, calcula gradientes e sabe o próprio formato (`shape`) |
+| Conjunto de validação | O pedaço do corpus que o modelo nunca vê no treino; a perda nele diz se o modelo aprendeu ou decorou |
+| Pesos amarrados | Usar a mesma tabela no embutimento da entrada e na cabeça da saída |
+| Aquecimento e resfriamento | Começar o treino com passos pequenos, crescer, e diminuir de novo até o fim |
+| Ajuste fino (*fine-tuning*) | Continuar o treino de um modelo pronto com outro texto, para mudar o que ele escreve |

@@ -38,7 +38,7 @@ repositório que o produz.
 
 **Toda afirmação do tipo "isto ajuda" vem com a medida.** É fácil escrever
 que uma conexão residual melhora o treino. A Aula 11 mostra o gradiente
-chegando 359 vezes menor na primeira camada sem ela.
+chegando quase mil vezes menor no primeiro bloco sem ela.
 
 **O que não funcionou continua escrito.** A Aula 3 termina mostrando que,
 naquele problema, ligar para todos os clientes custa quase o mesmo que usar

@@ -7,37 +7,24 @@ description: Como o modelo decide para onde olhar
 {% hint style="info" %}
 **O que você leva desta aula**
 
-Você vai calcular à mão o peso de atenção de uma palavra, entender por que
-a máscara causal é obrigatória, e ler o mapa de atenção do modelo que
-vamos treinar. É a única peça realmente nova de um transformer.
+Você vai escrever o seu primeiro modelo em PyTorch, calcular à mão o peso
+de atenção de uma palavra, e montar uma cabeça de atenção com máscara. No
+fim, vai medir que um modelo que olha para trás erra menos que um que não
+olha. É a única peça realmente nova de um transformer.
 {% endhint %}
 
 ## Onde estamos
 
 <figure><img src="../assets/aula-10/mapa.png" alt="Quatro quadros lado a lado, um por aula: do texto para números, para onde olhar, montar e treinar, gerar e duvidar. O segundo está aceso"><figcaption>A Aula 9 entregou uma fila de números. Esta aula ensina o modelo a escolher para onde olhar dentro dela.</figcaption></figure>
 
-## O problema
+A Aula 9 terminou com um problema: o modelo de contagem só olha um token
+para trás, e olhar mais longe com uma tabela é impossível. Esta aula
+resolve isso em dois passos. Primeiro, o modelo de contagem vira uma rede
+neural. Depois, a rede ganha a atenção.
 
-Leia esta frase e complete a última palavra:
+## O primeiro modelo em PyTorch
 
-<figure><img src="../assets/aula-10/olhar_para_tras.png" alt="Uma frase de 26 palavras sobre a casa de Capitú e uma janela, com quatro palavras destacadas e setas ligando elas à última posição, que está em branco"><figcaption>Para completar a última palavra, o modelo precisa voltar 22 posições.</figcaption></figure>
-
-Você completou sem esforço, porque leu a frase inteira e reteve as quatro
-palavras que importam. O modelo precisa fazer o mesmo, e tem duas saídas
-ruins pela frente.
-
-**Saída ruim 1: olhar só as últimas palavras.** Barato, e perde tudo o que
-está longe. Foi assim que os modelos funcionavam antes de 2017.
-
-**Saída ruim 2: somar todas as palavras anteriores por igual.** Aí "de",
-"uma" e "para" pesam tanto quanto "Capitú". A informação some no meio da
-média.
-
-A resposta é uma terceira coisa: deixar cada posição **escolher** para onde
-olhar, com pesos que o treino ajusta. Isso se chama **atenção**
-(*attention*).
-
-## Antes: a palavra vira um vetor
+### O embutimento: o token vira vetor
 
 Cada token da Aula 9 é um número inteiro, e número inteiro não serve para
 fazer conta de parecença. O primeiro passo do modelo é trocar cada token
@@ -49,8 +36,84 @@ embutir = nn.Embedding(1024, 128)   # 1.024 tokens, 128 números cada
 
 Essa tabela se chama **embutimento** (*embedding*). São 131.072 pesos, que
 o treino ajusta como quaisquer outros. Depois dela, o token 600 deixou de
-ser "o número 600" e virou um ponto num espaço de 128 dimensões, onde
-palavras parecidas ficam perto.
+ser "o número 600" e virou um ponto num espaço de 128 dimensões. Tokens
+que aparecem em contextos parecidos acabam com linhas parecidas, sem
+ninguém mandar, do mesmo jeito que os filtros da Aula 8 apareceram sozinhos.
+
+### Uma camada que dá uma pontuação para cada token
+
+O modelo mais simples possível pega o vetor do token atual e o transforma
+em 1.024 pontuações, uma para cada token que pode vir em seguida. A
+softmax transforma as pontuações em probabilidades. As pontuações cruas
+têm nome: **logits**.
+
+No Keras você empilhava camadas numa lista. No PyTorch você escreve uma
+classe com duas partes: o `__init__` cria as camadas, e o `forward` diz o
+caminho dos números.
+
+```python
+class ModeloBigrama(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.embutir = nn.Embedding(1024, 128)
+        self.cabeca = nn.Linear(128, 1024)
+
+    def forward(self, indices, alvos):
+        logits = self.cabeca(self.embutir(indices))
+        perda = F.cross_entropy(logits.view(-1, 1024), alvos.view(-1))
+        return logits, perda
+```
+
+Esse modelo faz o mesmo que o contador da Aula 9: prevê o próximo token
+olhando só o atual. A diferença é que ele **aprende** a tabela por
+gradiente, em vez de contar.
+
+### O laço de treino
+
+O `model.fit` do Keras fazia cinco coisas escondido. No PyTorch você vê
+todas:
+
+```python
+for passo in range(500):
+    entrada, alvo = sortear_lote(dados_treino)   # 1. um lote
+    logits, perda = modelo(entrada, alvo)        # 2. a perda
+    otimizador.zero_grad()                       # 3. apaga o gradiente anterior
+    perda.backward()                             # 4. calcula o gradiente
+    otimizador.step()                            # 5. dá o passo
+```
+
+É o gradiente descendente da Aula 1. O `zero_grad` existe porque o PyTorch
+soma os gradientes de uma chamada para outra. Sem ele, cada passo carrega
+a soma de todos os anteriores, e o treino desanda.
+
+Antes de treinar, confira o **passo zero**. Um modelo recém-criado não
+sabe nada e chuta igual entre 1.024 tokens, então a perda dele tem que
+dar perto de `ln(1024) = 6,93`. No exercício da aula, o modelo novo dá
+7,1. Em 500 passos, a perda cai para 4,2, que já está abaixo dos 4,48 do
+contador da Aula 9. O texto que ele gera tem palavras de verdade e frases
+sem sentido, porque o modelo escolhe cada token olhando só o anterior.
+
+## O problema
+
+Leia esta frase e complete a última palavra:
+
+<figure><img src="../assets/aula-10/olhar_para_tras.png" alt="Uma frase de 25 palavras em duas linhas, sobre a casa de Capitú e uma janela, com quatro palavras destacadas e setas ligando a lacuna no fim a cada uma delas"><figcaption>Para completar a última palavra, o modelo precisa voltar mais de vinte palavras.</figcaption></figure>
+
+Você completou sem esforço, porque leu a frase inteira e reteve as quatro
+palavras que importam. O modelo precisa fazer o mesmo, e tem duas saídas
+ruins pela frente.
+
+**Saída ruim 1: olhar só as últimas palavras.** Barato, e perde tudo o que
+está longe. É o modelo que você acabou de treinar, e é como os modelos
+funcionavam antes de 2017.
+
+**Saída ruim 2: somar todas as palavras anteriores por igual.** Aí "de",
+"uma" e "para" pesam tanto quanto "Capitú". A informação some no meio da
+média.
+
+A resposta é uma terceira coisa: deixar cada posição **escolher** para onde
+olhar, com pesos que o treino ajusta. Isso se chama **atenção**
+(*attention*).
 
 ## Primeiro, a versão sem peso nenhum
 
@@ -85,7 +148,7 @@ Exemplo: `dorme` com `o` dá `0·2 + 1·0 + 1·0 + 0·0 = 0`. Com `gato` dá
 apontando para o mesmo lado dão número alto; perpendiculares dão zero.
 
 **Passo 2: dividir pela raiz de `d`.** Aqui, `√4 = 2`. Os três números
-viram 0, 2 e 1. Já explico por quê.
+viram 0, 2 e 1. O motivo vem logo abaixo.
 
 **Passo 3: passar pela softmax**, a mesma da Aula 8, que transforma
 qualquer trio de números em pesos que somam 100%: **9%, 67% e 24%**.
@@ -108,9 +171,19 @@ terços de `gato`. A palavra deixou de ser só ela mesma e virou ela mesma
 
 **Por que dividir pela raiz de `d`?** Quanto mais dimensões, maiores os
 produtos escalares, só por haver mais parcelas na soma. Números grandes
-fazem a softmax virar tudo-ou-nada: 99,9% numa palavra e quase zero nas
-outras. A divisão mantém a distribuição espalhada, e com isso o gradiente
-continua existindo.
+fazem a softmax virar tudo-ou-nada: a softmax de (0, 20, 10) é
+praticamente (0%, 100%, 0%), enquanto a de (0, 2, 1) é (9%, 67%, 24%).
+Com os pesos colados no zero e no um, o gradiente some. A divisão mantém
+a distribuição espalhada, e com isso o modelo continua aprendendo.
+
+No PyTorch, os quatro passos cabem em quatro linhas:
+
+```python
+pontos = frase @ dorme                   # 1. produto com cada palavra
+pontos = pontos / math.sqrt(4)           # 2. divide pela raiz de d
+pesos = F.softmax(pontos, dim=0)         # 3. vira peso
+saida = pesos @ frase                    # 4. mistura
+```
 
 ## Os dois buracos da versão sem pesos
 
@@ -129,7 +202,7 @@ resto da aula é tapar um de cada vez.
 
 Em duas das três linhas, a palavra olha principalmente para si mesma. Não é
 azar: o produto escalar de um vetor com ele mesmo é o comprimento dele ao
-quadrado, o maior valor que ele consegue tirar de qualquer comparação.
+quadrado, o maior valor que ele costuma tirar de qualquer comparação.
 
 E tem um problema mais fundo por trás. Parecença de embutimento é **uma**
 relação: palavras de sentido próximo ficam perto. Mas `dorme` não precisa
@@ -141,9 +214,6 @@ isso.
 para "dorme gato o" e refaça a conta. A saída de cada palavra é idêntica.
 Nada na fórmula diz onde cada palavra está, então "o gato mordeu o
 cachorro" e "o cachorro mordeu o gato" são a mesma coisa para ela.
-
-Tapamos o buraco 1 agora, com pesos treináveis. O buraco 2 fica para o fim
-da aula.
 
 ## Os três papéis
 
@@ -160,24 +230,47 @@ livros mais parecidos, e lê o **conteúdo** deles (o V).
 A diferença para a biblioteca de verdade: aqui você não escolhe um livro
 só. Você lê todos, em proporções diferentes.
 
+Cada papel sai de uma multiplicação por uma tabela própria:
+
+$$q = x\,W_Q \qquad k = x\,W_K \qquad v = x\,W_V$$
+
+| Símbolo | Significado |
+|---|---|
+| `x` | o vetor da palavra, que sai do embutimento |
+| `W_Q`, `W_K`, `W_V` | as três tabelas de pesos que o treino ajusta |
+| `q`, `k`, `v` | a pergunta, a etiqueta e o conteúdo da palavra |
+
+Exemplo com dois números. A palavra é `x = (1, 2)`. Suponha que `W_Q`
+troque os dois números de lugar e que `W_K` não mexa em nada. Então
+`q = (2, 1)` e `k = (1, 2)`, e o produto `q · k` dá `2 + 2 = 4`. Sem as
+tabelas, a palavra comparada com ela mesma dava `1 + 4 = 5`. Com tabelas
+diferentes, o produto de uma palavra com ela mesma deixa de ser
+automaticamente o maior. **É isso que tapa o buraco 1**: o treino decide
+quem olha para quem.
+
+No código, cada tabela é um `nn.Linear` sem viés:
+
+```python
+self.pergunta = nn.Linear(128, 32, bias=False)
+self.etiqueta = nn.Linear(128, 32, bias=False)
+self.conteudo = nn.Linear(128, 32, bias=False)
+```
+
 ## A fórmula inteira
 
 $$\text{Atenção}(Q, K, V) = \text{softmax}\!\left(\frac{Q K^{\top}}{\sqrt{d}}\right) V$$
 
 | Símbolo | Significado |
 |---|---|
-| `Q K^T` | todos os produtos escalares de todas as perguntas com todas as etiquetas |
+| `Q Kᵀ` | todos os produtos escalares de todas as perguntas com todas as etiquetas |
 | `√d` | a raiz da dimensão, que segura o tamanho dos números |
 | `softmax` | transforma os números em pesos que somam 1 |
 
-São os mesmos quatro passos que você já fez à mão. A única diferença: em
-vez de comparar as palavras com elas mesmas, o modelo compara o `Q` de uma
-com o `K` da outra, e entrega o `V`. Três tabelas a mais, e nada de
-conceito novo.
-
-E é isso que resolve o espelho da seção anterior. Como `Q` e `K` saem de
-tabelas diferentes, o produto de uma palavra com ela mesma deixa de ser
-automaticamente o maior. O treino é quem decide quem olha para quem.
+São os mesmos quatro passos que você já fez à mão, para todas as posições
+de uma vez. O `Kᵀ` (K transposta) é a tabela de etiquetas deitada, para que
+cada pergunta encontre cada etiqueta. Numa frase de 6 tokens, `Q Kᵀ` é uma
+tabela de 6 × 6: uma linha por posição que pergunta, uma coluna por
+posição consultada.
 
 ## A máscara: não vale olhar a resposta
 
@@ -185,19 +278,35 @@ Existe um problema que o desenho acima esconde. Se cada posição olha todas
 as outras, a posição 3 olha a posição 4, que é justamente a palavra que ela
 deveria prever.
 
-<figure><img src="../assets/aula-10/mascara.png" alt="Duas matrizes de atenção lado a lado: à esquerda todos os pesos preenchidos, à direita só o triângulo inferior, com o resto em branco"><figcaption>À esquerda o modelo cola. À direita, cada linha só enxerga o que veio antes dela.</figcaption></figure>
+<figure><img src="../assets/aula-10/mascara.png" alt="Duas matrizes de atenção lado a lado, em porcentagem: à esquerda todos os pesos preenchidos, à direita só o triângulo inferior, com o resto em branco"><figcaption>À esquerda o modelo cola. À direita, cada linha só enxerga o que veio antes dela.</figcaption></figure>
 
 A correção é a **máscara causal**: antes da softmax, troque por menos
-infinito todos os produtos que apontam para o futuro. A softmax de menos
-infinito é zero, então esses pesos somem.
+infinito todos os produtos que apontam para o futuro. A softmax eleva `e`
+a cada número, e `e` elevado a menos infinito é zero:
+
+$$\text{softmax}(1,\; 2,\; -\infty) = (27\%,\; 73\%,\; 0\%)$$
+
+| Símbolo | Significado |
+|---|---|
+| `1`, `2` | os produtos de duas posições do passado |
+| `−∞` | o produto com uma posição do futuro, apagado pela máscara |
+
+Exemplo: `e¹ = 2,72`, `e² = 7,39` e `e^(−∞) = 0`. A soma é 10,11. Divididos
+por ela: 27%, 73% e 0%. A posição do futuro some da mistura, e as outras
+duas dividem os 100% entre si.
 
 ```python
-mascara = torch.triu(torch.ones(n, n), diagonal=1).bool()
-pontos = pontos.masked_fill(mascara, float("-inf"))
+futuro = torch.triu(torch.ones(n, n), diagonal=1).bool()
+pontos = pontos.masked_fill(futuro, float("-inf"))
 ```
 
 O nome "causal" vem daí: a informação só corre do passado para o futuro,
 nunca ao contrário.
+
+Dá para conferir que a máscara funciona com um teste simples, que o
+exercício da aula usa: troque **só a última palavra** da frase e rode a
+cabeça de novo. Se as saídas das posições anteriores mudarem, alguma delas
+está olhando o futuro.
 
 {% hint style="warning" %}
 **Erro do dia**
@@ -205,7 +314,8 @@ nunca ao contrário.
 Esquecer a máscara. O modelo treina lindamente, a perda cai para quase
 zero, e você comemora. Na hora de gerar texto, ele não tem mais o futuro
 para copiar, e a saída vira lixo. É o erro mais frustrante desta aula,
-porque o sintoma aparece longe da causa.
+porque o sintoma aparece longe da causa. O teste da última palavra pega o
+erro na hora.
 {% endhint %}
 
 ## Quatro cabeças, quatro olhares
@@ -215,13 +325,26 @@ o modelo roda várias em paralelo, cada uma com sua própria tabela de Q, K e
 V, e junta os resultados no fim. Cada uma se chama **cabeça** (*head*).
 
 O nosso modelo tem 4 cabeças por camada. Como o vetor tem 128 números,
-cada cabeça trabalha com 32. O custo total é o mesmo de uma cabeça de 128,
-e o que se ganha é a variedade:
+cada cabeça trabalha com 32. As quatro saídas de 32, lado a lado, voltam a
+ser 128, e uma última tabela (`saida`) mistura o que as quatro acharam:
+
+```python
+resultados = []
+for cabeca in self.cabecas:
+    resultados.append(cabeca(x))
+juntos = torch.cat(resultados, dim=-1)    # 4 × 32 = 128
+return self.saida(juntos)
+```
+
+A conta dos pesos: cada cabeça tem três tabelas de 128 × 32 (12.288
+pesos), e as quatro somam 49.152. A tabela de saída tem 128 × 128 =
+16.384. Uma camada de atenção inteira tem **65.536 pesos**, o mesmo custo
+de uma cabeça grande de 128. O que se ganha é a variedade:
 
 <figure><img src="../assets/aula-10/cabecas.png" alt="Oito mapas de atenção em duas linhas: quatro cabeças da camada 1 e quatro da camada 4, cada uma com um padrão diferente"><figcaption>As oito cabeças, na mesma frase. Nenhuma faz o que a outra faz.</figcaption></figure>
 
 Agora olhe de perto duas delas, na frase "A casa de Capitú tinha uma janela
-para a rua":
+para a rua.":
 
 <figure><img src="../assets/aula-10/mapa_atencao.png" alt="Dois mapas de atenção grandes, com os tokens da frase nos dois eixos, mostrando padrões diferentes e todo o canto superior direito em branco"><figcaption>Cada linha é uma posição prevendo. Cada coluna é para onde ela olhou.</figcaption></figure>
 
@@ -236,13 +359,15 @@ quão longe cada cabeça olha:
 
 | Camada | Distância média | Peso na palavra anterior |
 |---|---|---|
-| 1 | 5,5 tokens | 17% |
-| 2 | 2,8 tokens | 33% |
-| 3 | 2,2 tokens | 39% |
-| 4 | 2,8 tokens | 31% |
+| 1 | 7,4 tokens | 9% |
+| 2 | 3,2 tokens | 36% |
+| 3 | 4,3 tokens | 25% |
+| 4 | 4,7 tokens | 26% |
 
-A primeira camada espalha o peso por toda a frase. As de cima ficam bem
-mais locais, com um terço do peso na palavra imediatamente anterior.
+A primeira camada espalha o peso pela frase e quase não olha a palavra
+imediatamente anterior. A segunda é a mais local, com mais de um terço do
+peso na anterior. As de cima ficam no meio do caminho.
+
 Ninguém programou essa divisão de trabalho: ela sai do treino.
 
 ## O buraco 2, enfim: a posição
@@ -253,19 +378,71 @@ dá o mesmo. Todas essas peças mexem em *quem olha para quem*, e nenhuma
 delas sabe *onde* cada palavra está.
 
 A correção precisa entrar antes dos produtos escalares, mexendo nos
-vetores. A solução moderna se chama **RoPE** (*rotary position embedding*):
-gire o vetor de cada palavra por um ângulo proporcional à posição dela.
+vetores. A solução moderna se chama **RoPE** (*rotary position embedding*,
+embutimento rotativo de posição): gire a pergunta e a etiqueta de cada
+palavra por um ângulo proporcional à posição dela.
 
-<figure><img src="../assets/aula-10/rope.png" alt="À esquerda três setas saindo da origem com ângulos diferentes, marcadas como posição 0, 2 e 6; à direita uma curva mostrando a parecença caindo conforme a distância aumenta"><figcaption>Duas palavras próximas giram ângulos parecidos, e continuam parecidas. Longe, a parecença cai.</figcaption></figure>
+<figure><img src="../assets/aula-10/rope.png" alt="À esquerda quatro setas saindo da origem, a mesma palavra nas posições 0 a 3, cada uma girada um pouco mais; à direita uma curva da parecença média entre duas posições, que começa em 1 e cai com a distância"><figcaption>Duas palavras próximas giram ângulos parecidos, e continuam parecidas. Longe, a parecença cai.</figcaption></figure>
+
+O giro trabalha em pares de números. Cada par `(a, b)` do vetor gira por
+um ângulo `θ`, que é a posição vezes uma velocidade:
+
+$$(a',\; b') = (a\cos\theta - b\sin\theta,\;\; a\sin\theta + b\cos\theta), \qquad \theta = p \cdot \omega$$
+
+| Símbolo | Significado |
+|---|---|
+| `a`, `b` | um par de números do vetor |
+| `p` | a posição da palavra na janela (0, 1, 2...) |
+| `ω` | a velocidade de giro daquele par; cada par tem a sua |
+| `θ` | o ângulo, em radianos |
+
+Exemplo: o par `(1, 0)`, com velocidade `ω = 0,5`, na posição 2. O ângulo
+é `θ = 2 × 0,5 = 1`. O par girado é `(cos 1, sen 1) = (0,54, 0,84)`. Na
+posição 0, não gira nada.
 
 Girar tem uma propriedade que serve à perfeição aqui: quando você gira
-dois vetores e compara os dois, o que sobra na comparação é a **diferença**
-entre os dois ângulos. Ou seja, o produto escalar passa a depender da
-distância entre as duas palavras, e não da posição absoluta de cada uma. O
-modelo trata igual uma frase que aparece no começo e no fim do texto.
+dois vetores e calcula o produto entre eles, o que sobra é a **diferença**
+entre os dois ângulos. Uma palavra na posição 3 comparada com outra na
+posição 1 dá o mesmo produto que as mesmas palavras nas posições 13 e 11.
+O produto passa a depender da distância entre as palavras, e não da
+posição de cada uma. O modelo trata igual uma frase que aparece no começo
+e no fim do texto.
 
-Não precisa saber a fórmula do giro para seguir adiante. Precisa saber o
-buraco que ele tampa, e você acabou de medir esse buraco.
+Cada par gira numa velocidade diferente: os primeiros rápido, os últimos
+devagar. Na média de todos os pares, palavras próximas continuam parecidas
+e palavras distantes ficam menos parecidas, que é a curva da direita na
+figura.
+
+O RoPE entra em duas linhas da cabeça de atenção. O conteúdo (`v`) não
+gira, porque ele é o que a palavra entrega, e não o que entra na comparação:
+
+```python
+q = girar(self.pergunta(x))
+k = girar(self.etiqueta(x))
+```
+
+## A prova
+
+Hora de medir se tudo isso vale a pena. Pegue o modelo do começo da aula,
+que só olha o token atual, e acrescente **uma** camada de atenção:
+
+```python
+x = self.embutir(indices)
+x = x + self.atencao(x)        # a palavra, mais o que ela viu para trás
+logits = self.cabeca(x)
+```
+
+Treine os dois do zero, do mesmo jeito, por 600 passos cada, e meça a
+perda na validação:
+
+| Modelo | Perda na validação |
+|---|---|
+| Só o token atual (bigrama) | 4,38 |
+| Com uma camada de atenção | **4,17** |
+
+Mesmo treino, mesmos dados. A única diferença é olhar para trás, e ela
+baixou a perda em 0,2. Na Aula 11 o modelo ganha mais três camadas e um
+treino de meia hora, e essa diferença cresce muito.
 
 ## O preço da janela
 
@@ -282,16 +459,41 @@ custo.
 É por isso que janela grande é caro, e por que cada modelo novo anuncia a
 janela dele como se fosse uma conquista. É.
 
+## Cola da aula
+
+| Conceito | Em uma frase |
+|---|---|
+| Embutimento | troca cada token por uma linha de 128 números de uma tabela treinável |
+| Logits | as pontuações cruas, uma por token, antes da softmax |
+| `nn.Module` | `__init__` cria as camadas, `forward` diz o caminho |
+| Laço de treino | lote, perda, `zero_grad`, `backward`, `step` |
+| Passo zero | um modelo novo tem perda perto de `ln(1024) = 6,93` |
+| Produto escalar | mede a parecença entre dois vetores |
+| `√d` | segura o tamanho dos produtos para a softmax não saturar |
+| Q, K, V | pergunta, etiqueta e conteúdo, de três tabelas de pesos |
+| Máscara causal | o futuro vira `−∞` antes da softmax, e some |
+| Cabeças | várias atenções em paralelo, juntadas e misturadas no fim |
+| RoPE | gira Q e K pela posição; no produto sobra a distância |
+| Custo da janela | `n × n` produtos: dobrar a janela quadruplica a conta |
+
 ## Materiais
 
 - **Notebook desta aula, no Google Colab:** [![Abrir no Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-10-atencao.ipynb)
+- **Travou num exercício?** [Colas dos exercícios](colas-dos-exercicios.md#aula-10-atencao), com dicas que você abre uma de cada vez.
 - Slides desta aula: entregues em sala.
-- Modelo treinado: [`mini_llm.pt`](https://github.com/klein-natan/nanodegree-AI-Atitus/blob/main/data/mini_llm.pt)
+- Modelo treinado, usado nas figuras: [`mini_llm.pt`](https://github.com/klein-natan/nanodegree-AI-Atitus/blob/main/data/mini_llm.pt)
+
+Os quatro exercícios do notebook:
+
+| Exercício | O que você constrói |
+|---|---|
+| 10.1 | o primeiro modelo em PyTorch e o laço de treino |
+| 10.2 | a conta da atenção, à mão, com os números desta página |
+| 10.3 | uma cabeça de atenção com máscara, e o teste da cola |
+| 10.4 | o giro, quatro cabeças, e a prova contra o bigrama |
 
 ## Para ir além
 
-- [Attention Is All You Need](https://arxiv.org/abs/1706.03762): o artigo de 2017 que apresentou o transformer. Difícil, mas vale ver o desenho da página 3.
 - [The Illustrated Transformer](https://jalammar.github.io/illustrated-transformer/): a explicação visual mais conhecida, com animações de cada passo.
 - [Attention in transformers, step-by-step (3Blue1Brown)](https://www.youtube.com/watch?v=eMlx5fFNoYc): a conta desta aula, animada. Em inglês, com legendas.
-- [Build a Large Language Model (From Scratch)](https://www.manning.com/books/build-a-large-language-model-from-scratch): o livro que inspirou a ordem desta aula. Constrói um GPT em PyTorch, peça por peça, em inglês.
-- [Glossário](../glossario.md): para revisar qualquer termo novo desta aula.
+- [Attention Is All You Need](https://arxiv.org/abs/1706.03762): o artigo de 2017 que apresentou o transformer. Difícil, mas vale ver o desenho da página 3.

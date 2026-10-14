@@ -14,7 +14,7 @@ com um deles, e sair sabendo escrever um prompt que funciona.
 
 ## De 787 mil para 494 milhões
 
-Na Aula 11 você treinou um modelo de 787.584 pesos, em 40 minutos de
+Na Aula 11 você treinou um modelo de 787.584 pesos, em 35 minutos de
 processador. Ele continua texto e escreve com a grafia de 1899. É um
 modelo de verdade, e é pequeno.
 

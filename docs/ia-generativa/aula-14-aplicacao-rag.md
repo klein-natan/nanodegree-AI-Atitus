@@ -163,7 +163,7 @@ O placar honesto: **quatro certas, uma parcial, uma errada**.
 |---|---|---|
 | Máscara causal | "manipulação digital" | certo |
 | BPE | "Bilingual Processing Engine" | certo |
-| Perplexidade da Aula 11 | divagou | **errado**: pegou 1.024 em vez de 31,8 |
+| Perplexidade da Aula 11 | divagou | **errado**: pegou o 1.024 do chute ao acaso, e não a perplexidade do treino |
 | Categorias do Fashion-MNIST | certo | certo |
 | Pooling | genérico | quase: inventou "ajudando a prever melhor as categorias" |
 | Pesos do modelo do curso | "Alibaba Cloud Language Model" | certo |

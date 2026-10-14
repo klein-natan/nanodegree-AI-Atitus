@@ -47,6 +47,7 @@
 * [Aula 10 — Atenção](llm-do-zero/aula-10-atencao.md)
 * [Aula 11 — O Transformer e o Treino](llm-do-zero/aula-11-transformer-treino.md)
 * [Aula 12 — Geração e Limites](llm-do-zero/aula-12-geracao-limites.md)
+* [Colas dos Exercícios](llm-do-zero/colas-dos-exercicios.md)
 
 ## IA Generativa
 

@@ -593,7 +593,7 @@ Huyen, C. (2022). _Designing machine learning systems: An iterative process for 
 Kleppmann, M., & Riccomini, C. (2026). _Designing data-intensive applications: The big ideas behind reliable, scalable, and maintainable systems_ (2nd ed.). O'Reilly Media.
 
 ### Aula 13 — Modelos de Fundação > De 787 mil para 494 milhões
-Na Aula 11 você treinou um modelo de 787.584 pesos, em 40 minutos de
+Na Aula 11 você treinou um modelo de 787.584 pesos, em 35 minutos de
 processador. Ele continua texto e escreve com a grafia de 1899. É um
 modelo de verdade, e é pequeno.
 
@@ -758,7 +758,7 @@ repositório que o produz.
 
 **Toda afirmação do tipo "isto ajuda" vem com a medida.** É fácil escrever
 que uma conexão residual melhora o treino. A Aula 11 mostra o gradiente
-chegando 359 vezes menor na primeira camada sem ela.
+chegando quase mil vezes menor no primeiro bloco sem ela.
 
 **O que não funcionou continua escrito.** A Aula 3 termina mostrando que,
 naquele problema, ligar para todos os clientes custa quase o mesmo que usar
@@ -772,6 +772,13 @@ Todo o material, incluindo os scripts que geram os dados, as figuras e os
 modelos, está no
 repositório do curso no GitHub.
 Os notebooks abrem direto no Google Colab pelos links de cada aula.
+
+### Aula 9 — Do Texto aos Números > Onde estamos
+Nestas quatro aulas você constrói um modelo de linguagem do zero, em
+PyTorch, e treina no processador do Colab. Cada aula alterna explicações
+curtas e exercícios, e cada exercício acrescenta uma peça ao mesmo modelo.
+No fim da Aula 12, o modelo é seu: você escreveu cada parte e apertou o
+botão do treino.
 
 ### Aula 9 — Do Texto aos Números > O que um LLM faz
 Um modelo de linguagem grande faz **uma** coisa: recebe um pedaço de texto
@@ -789,10 +796,56 @@ saída do modelo é uma **distribuição de probabilidade**, exatamente como a
 softmax da Aula 8 produzia para as dez categorias de roupa. Só que aqui as
 categorias são todas as continuações possíveis.
 
+### Aula 9 — Do Texto aos Números > O modelo mais simples: contar
+Antes de qualquer rede neural, dá para construir um modelo de linguagem
+com uma tabela de contagem. Percorra o livro inteiro e anote, para cada
+letra, qual letra veio logo depois dela.
+
+A contagem vira probabilidade com uma divisão. A chance de uma letra vir
+depois de outra é quantas vezes isso aconteceu, dividido por quantas vezes
+a primeira apareceu:
+
+$$P(\text{seguinte} \mid \text{atual}) = \frac{\text{contagem}(\text{atual}, \text{seguinte})}{\text{contagem}(\text{atual})}$$
+
+| Símbolo | Significado |
+|---|---|
+| `P(seguinte ∣ atual)` | a chance da próxima letra, sabendo qual é a atual (a barra se lê "sabendo que") |
+| `contagem(atual, seguinte)` | quantas vezes o par apareceu, nessa ordem, no corpus |
+| `contagem(atual)` | quantas vezes a letra atual apareceu |
+
+Exemplo: o "q" aparece 33.847 vezes nos livros de Machado. Em 33.842
+delas, a letra seguinte é "u". A chance é 33.842 / 33.847 = 99,99%. O
+modelo nunca leu uma regra de ortografia, e achou a regra do "qu" sozinho.
+
+Para **gerar** texto, você sorteia a próxima letra com essas chances, cola
+no fim e repete. É o Exercício 1 da aula, e o resultado é este:
+
+Parece português visto de longe: letras frequentes, espaços no lugar, um
+"ão" aqui e ali. De perto, não tem uma palavra. O defeito é óbvio: o
+modelo só olha **uma** letra para trás.
+
+### Aula 9 — Do Texto aos Números > Por que contar não escala
+A correção parece simples: olhar mais letras para trás. O problema é o
+tamanho da tabela. Cada letra a mais de contexto multiplica o número de
+linhas por 118, que é a quantidade de caracteres diferentes no corpus.
+
+| Olhando para trás | Linhas na tabela | Quantas o corpus já mostrou |
+|---|---|---|
+| 1 letra | 118 | todas |
+| 3 letras | 1,6 milhão | uma fração pequena |
+| 10 letras | 5 × 10²⁰ | quase nenhuma |
+
+Com dez letras de contexto, quase toda combinação que o modelo encontrar é
+nova, e a tabela não tem nada a dizer sobre ela. Contar não generaliza:
+"o gato dorme" e "o cão dorme" são linhas diferentes, sem nada em comum.
+
+Uma rede neural resolve isso. Ela troca a tabela por pesos que vários
+contextos parecidos dividem, então o que ela aprende num contexto vale
+para os vizinhos. As próximas três aulas constroem essa rede.
+
 ### Aula 9 — Do Texto aos Números > O material da obra
-Nas próximas quatro aulas você constrói um modelo desses do zero. Ele vai
-ser pequeno (787.584 pesos, contra centenas de bilhões dos modelos
-comerciais) e vai treinar no processador do seu computador, sem placa de
+O modelo que você vai construir é pequeno (787.584 pesos, contra centenas
+de bilhões dos modelos comerciais) e treina no processador, sem placa de
 vídeo.
 
 O texto que ele vai ler é toda a prosa de Machado de Assis: onze obras,
@@ -843,12 +896,17 @@ Num texto minúsculo como esse, vários pares empatam (`na` também aparece 6
 vezes no passo 1) e o programa desempata por uma regra fixa. Em texto de
 verdade o empate no topo quase nunca acontece.
 
+O algoritmo inteiro são duas funções. A primeira conta os pares vizinhos
+de uma lista; a segunda troca cada ocorrência de um par por um número
+novo. O treino repete as duas:
+
 Rodando isso no corpus inteiro até chegar a 1.024 peças, é isto o que sai:
 
 Leia as três colunas na ordem. No começo o algoritmo junta o que é comum
-em qualquer texto em português (`ra`, `os`, `qu`). No fim, já sobrou
-espaço para palavras inteiras que Machado usa muito (`fazer`, `sei`,
-`filha`). O vocabulário é um retrato do corpus.
+em qualquer texto em português (`ra`, `os`, `qu`). No meio já aparece a
+grafia da época (`·dous`). No fim sobrou espaço para palavras inteiras que
+Machado usa muito (`fazer`, `sei`, `filha`). O vocabulário é um retrato do
+corpus.
 
 ### Aula 9 — Do Texto aos Números > Bytes, para nada ficar de fora
 Um detalhe que parece técnico e não é. O BPE não começa das letras: começa
@@ -860,8 +918,14 @@ modelo nunca encontra um caractere que ele não saiba representar. Um
 emoji, um ideograma chinês ou um nome próprio esquisito viram vários
 bytes, e o modelo processa sem reclamar.
 
-Um efeito colateral divertido: `ã` ocupa dois bytes em UTF-8, então no
-começo do treino ele é duas peças. A fusão número 268 junta os dois. O
+| Texto | Bytes em UTF-8 | Quantos |
+|---|---|---|
+| `a` | 97 | 1 |
+| `ã` | 195, 163 | 2 |
+| `🙂` | 240, 159, 153, 130 | 4 |
+
+Um efeito colateral divertido: como o `ã` ocupa dois bytes, no começo do
+treino ele é duas peças. Uma das primeiras fusões junta as duas. O
 algoritmo aprendeu a letra `ã` sozinho, contando.
 
 $$\text{vocabulário} = 256 \text{ bytes} + 768 \text{ fusões} = 1024$$
@@ -875,8 +939,33 @@ $$\text{vocabulário} = 256 \text{ bytes} + 768 \text{ fusões} = 1024$$
 Exemplo: com 768 fusões, o corpus de 3.676.878 caracteres vira 1.484.827
 tokens. São 2,48 caracteres por token.
 
+### Aula 9 — Do Texto aos Números > Antes de juntar, separar as palavras
+Se você rodar o BPE direto sobre o texto corrido, ele aprende peças que
+atravessam a pontuação. No exercício da aula, com um trecho de Machado,
+as primeiras fusões saem assim: `e·`, `a·`, `o·`, `,·`, e logo depois
+`o,·`, que junta o fim de uma palavra, a vírgula e o espaço.
+
+Isso desperdiça vocabulário. "dele." e "dele," viram peças diferentes, sem
+nada em comum. Por isso o tokenizador oficial corta o texto em palavras
+**antes** de fundir: cada palavra com o espaço da frente, cada número,
+cada sinal de pontuação, separados. As fusões só acontecem dentro de um
+pedaço.
+
+O corte é feito por uma expressão regular, guardada junto com a tabela de
+fusões no arquivo `machado_bpe.json`. É por isso que, na figura das três
+unidades, o espaço aparece grudado no **começo** das palavras (`·men`,
+`·era`).
+
 ### Aula 9 — Do Texto aos Números > Codificar e decodificar
 Com a tabela pronta, converter texto em números é mecânico:
+
+**Decodificar** é o caminho fácil: cada número vira os bytes dele, e os
+bytes juntos viram texto.
+
+**Codificar** tem uma regra que importa. Dentro de cada palavra, você
+aplica as fusões **na ordem em que o treino aprendeu cada uma**: das
+fusões possíveis, sempre a de número menor. É essa ordem que garante que a mesma
+palavra seja cortada do mesmo jeito que o modelo viu no treino.
 
 Uma regra que não tem exceção: **codificar e decodificar têm que usar a
 mesma tabela de fusões**. Se você treinar o modelo com uma tabela e usar
@@ -888,15 +977,54 @@ vocabulário é minúsculo mas o texto fica longo. Por palavra, o texto fica
 curto mas o vocabulário explode. O BPE não vence em nenhum dos dois, e é
 aceitável nos dois.
 
-### Aula 9 — Do Texto aos Números > Do texto para o lote de treino
+### Aula 9 — Do Texto aos Números > O tokenizador também tem sotaque
+Como as fusões saem da contagem, o tokenizador fica bom no texto que ele
+leu e ruim no resto. O de Machado corta assim:
+
+| Palavra | Tokens | Como ficou |
+|---|---|---|
+| `·elle` | 1 | `·elle` |
+| `·ele` | 2 | `·e` `le` |
+| `·cousa` | 1 | `·cousa` |
+| `·internet` | 4 | `·inter` `n` `e` `t` |
+| `·smartphone` | 7 | `·s` `mar` `t` `p` `ho` `n` `e` |
+
+A grafia de 1899 sai barata, e a de hoje sai cara. Isso acontece com os
+modelos comerciais também: o tokenizador deles aprendeu com muito mais
+texto em inglês que em português, então a mesma frase em português costuma
+gastar mais tokens. Mais tokens querem dizer resposta mais cara e menos
+texto cabendo na janela.
+
+### Aula 9 — Do Texto aos Números > Do texto ao lote de treino
 Falta uma peça: como esses números viram exemplos de treino.
+
+Tensores
+
+Daqui até a Aula 12 os números moram em **tensores**, a lista do
+PyTorch. Um tensor faz conta rápido, calcula gradientes sozinho e sabe o
+próprio formato, o `shape`. O corpus inteiro é um tensor de formato
+`[1484827]`. Um lote de 32 janelas de 128 tokens é um tensor de formato
+`[32, 128]`. Ler o formato é metade de entender o código.
+
+Treino e validação
+
+Os primeiros 90% dos tokens são para treinar. Os últimos 10% ficam
+guardados, e o modelo nunca treina neles: são 1.336.344 tokens de treino e
+148.483 de validação. É o conjunto de teste das aulas anteriores. A perda
+na validação diz se o modelo aprendeu português ou decorou o livro.
+
+O corte é no fim, e não sorteado, porque tokens vizinhos são quase o mesmo
+texto. Sortear misturaria pedaços da mesma frase nos dois lados.
+
+A janela
 
 A tarefa é prever o próximo token. Então o exemplo é simplesmente a mesma
 sequência, andada uma casa:
 
-Repare no detalhe que faz a coisa toda ser barata: uma janela de 8 tokens
-não dá **um** exemplo de treino. Dá 7. O modelo prevê o token 2 olhando o
-1, prevê o 3 olhando o 1 e o 2, e assim por diante, tudo na mesma passada.
+Repare no detalhe que faz a coisa toda ser barata: nove tokens de texto
+não dão **um** exemplo de treino. Dão oito. O modelo prevê o token 2
+olhando o 1, prevê o 3 olhando o 1 e o 2, e assim por diante, tudo na
+mesma passada.
 
 Com janelas de 128 tokens e lotes de 32, cada passo de treino corrige os
 pesos usando 4.096 previsões de uma vez.
@@ -905,25 +1033,128 @@ O tamanho da janela tem nome: **janela de contexto**. É o quanto o modelo
 consegue olhar para trás. A sua vai ser de 128 tokens, uns 300 caracteres.
 Os modelos comerciais estão na casa das centenas de milhares.
 
+### Aula 9 — Do Texto aos Números > O número a bater
+Falta uma régua. Para saber se um modelo é bom, você mede quanto ele se
+surpreende com o texto de validação. Essa medida é a **perda**, a mesma
+entropia cruzada das Aulas 3 e 8:
+
+$$\text{perda} = -\frac{1}{n}\sum_{i=1}^{n} \log P(\text{token certo}_i)$$
+
+| Símbolo | Significado |
+|---|---|
+| `n` | quantas previsões o modelo fez |
+| `P(token certo)` | a chance que o modelo deu ao token que de fato veio |
+| `log` | o logaritmo natural, que castiga com força a chance baixa na resposta certa |
+
+Exemplo com três previsões. O modelo deu 50%, 25% e 10% ao token certo.
+Os logaritmos, com o sinal trocado, são 0,69, 1,39 e 2,30. A média é
+(0,69 + 1,39 + 2,30) / 3 = 1,46.
+
+Quanto menor, melhor. Um modelo que chuta igual entre 1.024 tokens dá
+1/1024 a cada um, e a perda dele é `ln(1024) = 6,93`. É dali que todo
+treino das próximas aulas começa.
+
+Agora o número a bater. Refaça o contador do começo da aula com tokens em
+vez de letras, conte os pares no treino e meça na validação. A perda dele
+é **4,48**. Sem rede neural nenhuma, só contando, o modelo já sai de 6,93.
+O transformer da Aula 11 vai ter que fazer melhor que isso.
+
 **Erro do dia**
 
 Treinar o tokenizador de novo antes de usar o modelo. Cada treino de BPE
-sorteia empates de um jeito, e a tabela sai diferente. O tokenizador é
-parte do modelo: salve os dois juntos, sempre. Nesta aula, o arquivo é
-`data/machado_bpe.json`.
+pode sair com uma tabela diferente (basta um corpus um pouco diferente, ou
+outra regra de desempate). O tokenizador é parte do modelo: salve os dois
+juntos, sempre. Nesta disciplina, o arquivo é `data/machado_bpe.json`, o
+mesmo da Aula 9 à Aula 12.
+
+### Aula 9 — Do Texto aos Números > Cola da aula
+| Conceito | Em uma frase |
+|---|---|
+| Modelo de linguagem | recebe texto e devolve as chances de cada próximo token |
+| Modelo de contagem | conta o que vem depois de cada símbolo; não escala para contexto longo |
+| Token | a peça mínima que o modelo manipula |
+| BPE | funde o par vizinho mais comum, e repete |
+| Bytes | a base do vocabulário: 256 peças que cobrem qualquer texto |
+| Vocabulário | 256 bytes + 768 fusões = 1.024 tokens |
+| Separar antes de fundir | as fusões ficam dentro das palavras |
+| Codificar | aplica as fusões na ordem em que o treino aprendeu |
+| Tabela de fusões | a mesma no treino e no uso, sempre |
+| Tensor | a lista do PyTorch, com formato (`shape`) |
+| Janela | o alvo é a entrada andada uma casa |
+| Lote | 32 janelas de 128: 4.096 previsões por passo |
+| Perda | média de `-log P(token certo)`; chute ao acaso = 6,93 |
+| O número a bater | 4,48, a perda do contador de pares de tokens |
 
 ### Aula 9 — Do Texto aos Números > Materiais
 - **Notebook desta aula, no Google Colab:** [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-09-do-texto-aos-numeros.ipynb)
+- **Travou num exercício?** Colas dos exercícios, com dicas que você abre uma de cada vez.
 - Slides desta aula: entregues em sala.
 - Corpus: `machado.txt`
 - Tokenizador pronto: `machado_bpe.json`
 
+Os quatro exercícios do notebook:
+
+| Exercício | O que você constrói |
+|---|---|
+| 9.1 | o modelo de contagem, que já gera texto |
+| 9.2 | o algoritmo do BPE: contar pares, fundir, repetir |
+| 9.3 | codificar e decodificar com a tabela oficial |
+| 9.4 | o lote de treino, e o número a bater |
+
 ### Aula 9 — Do Texto aos Números > Para ir além
-- Tiktokenizer: cole qualquer texto e veja como o tokenizador do GPT o corta, token por token.
-- Machado de Assis no Project Gutenberg: as obras completas de onde saiu o corpus.
+- Tiktokenizer: cole qualquer texto e veja como o tokenizador do GPT o corta, token por token. Compare uma frase em português e a mesma em inglês.
 - Let's build the GPT Tokenizer (Andrej Karpathy): duas horas construindo o mesmo BPE desta aula, com todos os detalhes que ficaram de fora. Em inglês.
-- Build a Large Language Model (From Scratch): o livro que inspirou a ordem desta aula. Constrói um GPT em PyTorch, peça por peça, em inglês.
-- Glossário: para revisar qualquer termo novo desta aula.
+- Build a Large Language Model (From Scratch): o livro que inspirou a ordem destas aulas. Constrói um GPT em PyTorch, peça por peça, em inglês.
+
+### Aula 10 — Atenção > Onde estamos
+A Aula 9 terminou com um problema: o modelo de contagem só olha um token
+para trás, e olhar mais longe com uma tabela é impossível. Esta aula
+resolve isso em dois passos. Primeiro, o modelo de contagem vira uma rede
+neural. Depois, a rede ganha a atenção.
+
+### Aula 10 — Atenção > O primeiro modelo em PyTorch
+O embutimento: o token vira vetor
+
+Cada token da Aula 9 é um número inteiro, e número inteiro não serve para
+fazer conta de parecença. O primeiro passo do modelo é trocar cada token
+por uma linha de uma tabela:
+
+Essa tabela se chama **embutimento** (*embedding*). São 131.072 pesos, que
+o treino ajusta como quaisquer outros. Depois dela, o token 600 deixou de
+ser "o número 600" e virou um ponto num espaço de 128 dimensões. Tokens
+que aparecem em contextos parecidos acabam com linhas parecidas, sem
+ninguém mandar, do mesmo jeito que os filtros da Aula 8 apareceram sozinhos.
+
+Uma camada que dá uma pontuação para cada token
+
+O modelo mais simples possível pega o vetor do token atual e o transforma
+em 1.024 pontuações, uma para cada token que pode vir em seguida. A
+softmax transforma as pontuações em probabilidades. As pontuações cruas
+têm nome: **logits**.
+
+No Keras você empilhava camadas numa lista. No PyTorch você escreve uma
+classe com duas partes: o `__init__` cria as camadas, e o `forward` diz o
+caminho dos números.
+
+Esse modelo faz o mesmo que o contador da Aula 9: prevê o próximo token
+olhando só o atual. A diferença é que ele **aprende** a tabela por
+gradiente, em vez de contar.
+
+O laço de treino
+
+O `model.fit` do Keras fazia cinco coisas escondido. No PyTorch você vê
+todas:
+
+É o gradiente descendente da Aula 1. O `zero_grad` existe porque o PyTorch
+soma os gradientes de uma chamada para outra. Sem ele, cada passo carrega
+a soma de todos os anteriores, e o treino desanda.
+
+Antes de treinar, confira o **passo zero**. Um modelo recém-criado não
+sabe nada e chuta igual entre 1.024 tokens, então a perda dele tem que
+dar perto de `ln(1024) = 6,93`. No exercício da aula, o modelo novo dá
+7,1. Em 500 passos, a perda cai para 4,2, que já está abaixo dos 4,48 do
+contador da Aula 9. O texto que ele gera tem palavras de verdade e frases
+sem sentido, porque o modelo escolhe cada token olhando só o anterior.
 
 ### Aula 10 — Atenção > O problema
 Leia esta frase e complete a última palavra:
@@ -933,7 +1164,8 @@ palavras que importam. O modelo precisa fazer o mesmo, e tem duas saídas
 ruins pela frente.
 
 **Saída ruim 1: olhar só as últimas palavras.** Barato, e perde tudo o que
-está longe. Foi assim que os modelos funcionavam antes de 2017.
+está longe. É o modelo que você acabou de treinar, e é como os modelos
+funcionavam antes de 2017.
 
 **Saída ruim 2: somar todas as palavras anteriores por igual.** Aí "de",
 "uma" e "para" pesam tanto quanto "Capitú". A informação some no meio da
@@ -942,16 +1174,6 @@ média.
 A resposta é uma terceira coisa: deixar cada posição **escolher** para onde
 olhar, com pesos que o treino ajusta. Isso se chama **atenção**
 (*attention*).
-
-### Aula 10 — Atenção > Antes: a palavra vira um vetor
-Cada token da Aula 9 é um número inteiro, e número inteiro não serve para
-fazer conta de parecença. O primeiro passo do modelo é trocar cada token
-por uma linha de uma tabela:
-
-Essa tabela se chama **embutimento** (*embedding*). São 131.072 pesos, que
-o treino ajusta como quaisquer outros. Depois dela, o token 600 deixou de
-ser "o número 600" e virou um ponto num espaço de 128 dimensões, onde
-palavras parecidas ficam perto.
 
 ### Aula 10 — Atenção > Primeiro, a versão sem peso nenhum
 Antes de qualquer coisa treinável, vale ver que a ideia central da atenção
@@ -985,7 +1207,7 @@ Exemplo: `dorme` com `o` dá `0·2 + 1·0 + 1·0 + 0·0 = 0`. Com `gato` dá
 apontando para o mesmo lado dão número alto; perpendiculares dão zero.
 
 **Passo 2: dividir pela raiz de `d`.** Aqui, `√4 = 2`. Os três números
-viram 0, 2 e 1. Já explico por quê.
+viram 0, 2 e 1. O motivo vem logo abaixo.
 
 **Passo 3: passar pela softmax**, a mesma da Aula 8, que transforma
 qualquer trio de números em pesos que somam 100%: **9%, 67% e 24%**.
@@ -1006,9 +1228,12 @@ terços de `gato`. A palavra deixou de ser só ela mesma e virou ela mesma
 
 **Por que dividir pela raiz de `d`?** Quanto mais dimensões, maiores os
 produtos escalares, só por haver mais parcelas na soma. Números grandes
-fazem a softmax virar tudo-ou-nada: 99,9% numa palavra e quase zero nas
-outras. A divisão mantém a distribuição espalhada, e com isso o gradiente
-continua existindo.
+fazem a softmax virar tudo-ou-nada: a softmax de (0, 20, 10) é
+praticamente (0%, 100%, 0%), enquanto a de (0, 2, 1) é (9%, 67%, 24%).
+Com os pesos colados no zero e no um, o gradiente some. A divisão mantém
+a distribuição espalhada, e com isso o modelo continua aprendendo.
+
+No PyTorch, os quatro passos cabem em quatro linhas:
 
 ### Aula 10 — Atenção > Os dois buracos da versão sem pesos
 A versão de cima funciona, e tem dois defeitos. Os dois dá para medir, e o
@@ -1024,7 +1249,7 @@ resto da aula é tapar um de cada vez.
 
 Em duas das três linhas, a palavra olha principalmente para si mesma. Não é
 azar: o produto escalar de um vetor com ele mesmo é o comprimento dele ao
-quadrado, o maior valor que ele consegue tirar de qualquer comparação.
+quadrado, o maior valor que ele costuma tirar de qualquer comparação.
 
 E tem um problema mais fundo por trás. Parecença de embutimento é **uma**
 relação: palavras de sentido próximo ficam perto. Mas `dorme` não precisa
@@ -1036,9 +1261,6 @@ isso.
 para "dorme gato o" e refaça a conta. A saída de cada palavra é idêntica.
 Nada na fórmula diz onde cada palavra está, então "o gato mordeu o
 cachorro" e "o cachorro mordeu o gato" são a mesma coisa para ela.
-
-Tapamos o buraco 1 agora, com pesos treináveis. O buraco 2 fica para o fim
-da aula.
 
 ### Aula 10 — Atenção > Os três papéis
 A atenção de verdade dá três vetores a cada palavra, obtidos multiplicando
@@ -1052,23 +1274,40 @@ livros mais parecidos, e lê o **conteúdo** deles (o V).
 A diferença para a biblioteca de verdade: aqui você não escolhe um livro
 só. Você lê todos, em proporções diferentes.
 
+Cada papel sai de uma multiplicação por uma tabela própria:
+
+$$q = x\,W_Q \qquad k = x\,W_K \qquad v = x\,W_V$$
+
+| Símbolo | Significado |
+|---|---|
+| `x` | o vetor da palavra, que sai do embutimento |
+| `W_Q`, `W_K`, `W_V` | as três tabelas de pesos que o treino ajusta |
+| `q`, `k`, `v` | a pergunta, a etiqueta e o conteúdo da palavra |
+
+Exemplo com dois números. A palavra é `x = (1, 2)`. Suponha que `W_Q`
+troque os dois números de lugar e que `W_K` não mexa em nada. Então
+`q = (2, 1)` e `k = (1, 2)`, e o produto `q · k` dá `2 + 2 = 4`. Sem as
+tabelas, a palavra comparada com ela mesma dava `1 + 4 = 5`. Com tabelas
+diferentes, o produto de uma palavra com ela mesma deixa de ser
+automaticamente o maior. **É isso que tapa o buraco 1**: o treino decide
+quem olha para quem.
+
+No código, cada tabela é um `nn.Linear` sem viés:
+
 ### Aula 10 — Atenção > A fórmula inteira
 $$\text{Atenção}(Q, K, V) = \text{softmax}\!\left(\frac{Q K^{\top}}{\sqrt{d}}\right) V$$
 
 | Símbolo | Significado |
 |---|---|
-| `Q K^T` | todos os produtos escalares de todas as perguntas com todas as etiquetas |
+| `Q Kᵀ` | todos os produtos escalares de todas as perguntas com todas as etiquetas |
 | `√d` | a raiz da dimensão, que segura o tamanho dos números |
 | `softmax` | transforma os números em pesos que somam 1 |
 
-São os mesmos quatro passos que você já fez à mão. A única diferença: em
-vez de comparar as palavras com elas mesmas, o modelo compara o `Q` de uma
-com o `K` da outra, e entrega o `V`. Três tabelas a mais, e nada de
-conceito novo.
-
-E é isso que resolve o espelho da seção anterior. Como `Q` e `K` saem de
-tabelas diferentes, o produto de uma palavra com ela mesma deixa de ser
-automaticamente o maior. O treino é quem decide quem olha para quem.
+São os mesmos quatro passos que você já fez à mão, para todas as posições
+de uma vez. O `Kᵀ` (K transposta) é a tabela de etiquetas deitada, para que
+cada pergunta encontre cada etiqueta. Numa frase de 6 tokens, `Q Kᵀ` é uma
+tabela de 6 × 6: uma linha por posição que pergunta, uma coluna por
+posição consultada.
 
 ### Aula 10 — Atenção > A máscara: não vale olhar a resposta
 Existe um problema que o desenho acima esconde. Se cada posição olha todas
@@ -1076,18 +1315,35 @@ as outras, a posição 3 olha a posição 4, que é justamente a palavra que ela
 deveria prever.
 
 A correção é a **máscara causal**: antes da softmax, troque por menos
-infinito todos os produtos que apontam para o futuro. A softmax de menos
-infinito é zero, então esses pesos somem.
+infinito todos os produtos que apontam para o futuro. A softmax eleva `e`
+a cada número, e `e` elevado a menos infinito é zero:
+
+$$\text{softmax}(1,\; 2,\; -\infty) = (27\%,\; 73\%,\; 0\%)$$
+
+| Símbolo | Significado |
+|---|---|
+| `1`, `2` | os produtos de duas posições do passado |
+| `−∞` | o produto com uma posição do futuro, apagado pela máscara |
+
+Exemplo: `e¹ = 2,72`, `e² = 7,39` e `e^(−∞) = 0`. A soma é 10,11. Divididos
+por ela: 27%, 73% e 0%. A posição do futuro some da mistura, e as outras
+duas dividem os 100% entre si.
 
 O nome "causal" vem daí: a informação só corre do passado para o futuro,
 nunca ao contrário.
+
+Dá para conferir que a máscara funciona com um teste simples, que o
+exercício da aula usa: troque **só a última palavra** da frase e rode a
+cabeça de novo. Se as saídas das posições anteriores mudarem, alguma delas
+está olhando o futuro.
 
 **Erro do dia**
 
 Esquecer a máscara. O modelo treina lindamente, a perda cai para quase
 zero, e você comemora. Na hora de gerar texto, ele não tem mais o futuro
 para copiar, e a saída vira lixo. É o erro mais frustrante desta aula,
-porque o sintoma aparece longe da causa.
+porque o sintoma aparece longe da causa. O teste da última palavra pega o
+erro na hora.
 
 ### Aula 10 — Atenção > Quatro cabeças, quatro olhares
 Uma atenção só tem que decidir tudo com um conjunto de pesos. Na prática,
@@ -1095,11 +1351,16 @@ o modelo roda várias em paralelo, cada uma com sua própria tabela de Q, K e
 V, e junta os resultados no fim. Cada uma se chama **cabeça** (*head*).
 
 O nosso modelo tem 4 cabeças por camada. Como o vetor tem 128 números,
-cada cabeça trabalha com 32. O custo total é o mesmo de uma cabeça de 128,
-e o que se ganha é a variedade:
+cada cabeça trabalha com 32. As quatro saídas de 32, lado a lado, voltam a
+ser 128, e uma última tabela (`saida`) mistura o que as quatro acharam:
+
+A conta dos pesos: cada cabeça tem três tabelas de 128 × 32 (12.288
+pesos), e as quatro somam 49.152. A tabela de saída tem 128 × 128 =
+16.384. Uma camada de atenção inteira tem **65.536 pesos**, o mesmo custo
+de uma cabeça grande de 128. O que se ganha é a variedade:
 
 Agora olhe de perto duas delas, na frase "A casa de Capitú tinha uma janela
-para a rua":
+para a rua.":
 
 Duas coisas para reparar. Primeira: o canto de cima à direita é todo
 branco. É a máscara funcionando, no modelo de verdade. Segunda: "Capitú"
@@ -1112,13 +1373,15 @@ quão longe cada cabeça olha:
 
 | Camada | Distância média | Peso na palavra anterior |
 |---|---|---|
-| 1 | 5,5 tokens | 17% |
-| 2 | 2,8 tokens | 33% |
-| 3 | 2,2 tokens | 39% |
-| 4 | 2,8 tokens | 31% |
+| 1 | 7,4 tokens | 9% |
+| 2 | 3,2 tokens | 36% |
+| 3 | 4,3 tokens | 25% |
+| 4 | 4,7 tokens | 26% |
 
-A primeira camada espalha o peso por toda a frase. As de cima ficam bem
-mais locais, com um terço do peso na palavra imediatamente anterior.
+A primeira camada espalha o peso pela frase e quase não olha a palavra
+imediatamente anterior. A segunda é a mais local, com mais de um terço do
+peso na anterior. As de cima ficam no meio do caminho.
+
 Ninguém programou essa divisão de trabalho: ela sai do treino.
 
 ### Aula 10 — Atenção > O buraco 2, enfim: a posição
@@ -1128,17 +1391,57 @@ dá o mesmo. Todas essas peças mexem em *quem olha para quem*, e nenhuma
 delas sabe *onde* cada palavra está.
 
 A correção precisa entrar antes dos produtos escalares, mexendo nos
-vetores. A solução moderna se chama **RoPE** (*rotary position embedding*):
-gire o vetor de cada palavra por um ângulo proporcional à posição dela.
+vetores. A solução moderna se chama **RoPE** (*rotary position embedding*,
+embutimento rotativo de posição): gire a pergunta e a etiqueta de cada
+palavra por um ângulo proporcional à posição dela.
+
+O giro trabalha em pares de números. Cada par `(a, b)` do vetor gira por
+um ângulo `θ`, que é a posição vezes uma velocidade:
+
+$$(a',\; b') = (a\cos\theta - b\sin\theta,\;\; a\sin\theta + b\cos\theta), \qquad \theta = p \cdot \omega$$
+
+| Símbolo | Significado |
+|---|---|
+| `a`, `b` | um par de números do vetor |
+| `p` | a posição da palavra na janela (0, 1, 2...) |
+| `ω` | a velocidade de giro daquele par; cada par tem a sua |
+| `θ` | o ângulo, em radianos |
+
+Exemplo: o par `(1, 0)`, com velocidade `ω = 0,5`, na posição 2. O ângulo
+é `θ = 2 × 0,5 = 1`. O par girado é `(cos 1, sen 1) = (0,54, 0,84)`. Na
+posição 0, não gira nada.
 
 Girar tem uma propriedade que serve à perfeição aqui: quando você gira
-dois vetores e compara os dois, o que sobra na comparação é a **diferença**
-entre os dois ângulos. Ou seja, o produto escalar passa a depender da
-distância entre as duas palavras, e não da posição absoluta de cada uma. O
-modelo trata igual uma frase que aparece no começo e no fim do texto.
+dois vetores e calcula o produto entre eles, o que sobra é a **diferença**
+entre os dois ângulos. Uma palavra na posição 3 comparada com outra na
+posição 1 dá o mesmo produto que as mesmas palavras nas posições 13 e 11.
+O produto passa a depender da distância entre as palavras, e não da
+posição de cada uma. O modelo trata igual uma frase que aparece no começo
+e no fim do texto.
 
-Não precisa saber a fórmula do giro para seguir adiante. Precisa saber o
-buraco que ele tampa, e você acabou de medir esse buraco.
+Cada par gira numa velocidade diferente: os primeiros rápido, os últimos
+devagar. Na média de todos os pares, palavras próximas continuam parecidas
+e palavras distantes ficam menos parecidas, que é a curva da direita na
+figura.
+
+O RoPE entra em duas linhas da cabeça de atenção. O conteúdo (`v`) não
+gira, porque ele é o que a palavra entrega, e não o que entra na comparação:
+
+### Aula 10 — Atenção > A prova
+Hora de medir se tudo isso vale a pena. Pegue o modelo do começo da aula,
+que só olha o token atual, e acrescente **uma** camada de atenção:
+
+Treine os dois do zero, do mesmo jeito, por 600 passos cada, e meça a
+perda na validação:
+
+| Modelo | Perda na validação |
+|---|---|
+| Só o token atual (bigrama) | 4,38 |
+| Com uma camada de atenção | **4,17** |
+
+Mesmo treino, mesmos dados. A única diferença é olhar para trás, e ela
+baixou a perda em 0,2. Na Aula 11 o modelo ganha mais três camadas e um
+treino de meia hora, e essa diferença cresce muito.
 
 ### Aula 10 — Atenção > O preço da janela
 Uma conta que explica muita notícia. Para uma janela de `n` tokens, a
@@ -1154,25 +1457,50 @@ custo.
 É por isso que janela grande é caro, e por que cada modelo novo anuncia a
 janela dele como se fosse uma conquista. É.
 
+### Aula 10 — Atenção > Cola da aula
+| Conceito | Em uma frase |
+|---|---|
+| Embutimento | troca cada token por uma linha de 128 números de uma tabela treinável |
+| Logits | as pontuações cruas, uma por token, antes da softmax |
+| `nn.Module` | `__init__` cria as camadas, `forward` diz o caminho |
+| Laço de treino | lote, perda, `zero_grad`, `backward`, `step` |
+| Passo zero | um modelo novo tem perda perto de `ln(1024) = 6,93` |
+| Produto escalar | mede a parecença entre dois vetores |
+| `√d` | segura o tamanho dos produtos para a softmax não saturar |
+| Q, K, V | pergunta, etiqueta e conteúdo, de três tabelas de pesos |
+| Máscara causal | o futuro vira `−∞` antes da softmax, e some |
+| Cabeças | várias atenções em paralelo, juntadas e misturadas no fim |
+| RoPE | gira Q e K pela posição; no produto sobra a distância |
+| Custo da janela | `n × n` produtos: dobrar a janela quadruplica a conta |
+
 ### Aula 10 — Atenção > Materiais
 - **Notebook desta aula, no Google Colab:** [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-10-atencao.ipynb)
+- **Travou num exercício?** Colas dos exercícios, com dicas que você abre uma de cada vez.
 - Slides desta aula: entregues em sala.
-- Modelo treinado: `mini_llm.pt`
+- Modelo treinado, usado nas figuras: `mini_llm.pt`
+
+Os quatro exercícios do notebook:
+
+| Exercício | O que você constrói |
+|---|---|
+| 10.1 | o primeiro modelo em PyTorch e o laço de treino |
+| 10.2 | a conta da atenção, à mão, com os números desta página |
+| 10.3 | uma cabeça de atenção com máscara, e o teste da cola |
+| 10.4 | o giro, quatro cabeças, e a prova contra o bigrama |
 
 ### Aula 10 — Atenção > Para ir além
-- Attention Is All You Need: o artigo de 2017 que apresentou o transformer. Difícil, mas vale ver o desenho da página 3.
 - The Illustrated Transformer: a explicação visual mais conhecida, com animações de cada passo.
 - Attention in transformers, step-by-step (3Blue1Brown): a conta desta aula, animada. Em inglês, com legendas.
-- Build a Large Language Model (From Scratch): o livro que inspirou a ordem desta aula. Constrói um GPT em PyTorch, peça por peça, em inglês.
-- Glossário: para revisar qualquer termo novo desta aula.
+- Attention Is All You Need: o artigo de 2017 que apresentou o transformer. Difícil, mas vale ver o desenho da página 3.
 
 ### Aula 11 — O Transformer e o Treino > Todas as peças já existem
 Esta aula não tem quase nada de novo, e vale começar por aí:
 
 | Peça | De onde veio |
 |---|---|
-| Tokenizador | Aula 9 |
-| Atenção com máscara | Aula 10 |
+| Tokenizador e lote de treino | Aula 9 |
+| Atenção com máscara, várias cabeças, RoPE | Aula 10 |
+| Laço de treino em PyTorch | Aula 10 |
 | Camada densa com ativação | Aula 7 |
 | Normalização | Aula 7 |
 | Gradiente descendente | Aula 1 |
@@ -1181,187 +1509,265 @@ Esta aula não tem quase nada de novo, e vale começar por aí:
 O que falta é a montagem: em que ordem colocar as peças, e como treinar
 sem que nada exploda.
 
-### Aula 11 — O Transformer e o Treino > Comece por um modelo de mentira
-Antes de escrever qualquer coisa difícil, escreva o modelo inteiro com um
-buraco no meio. O bloco não faz nada: recebe e devolve.
-
-Isso **roda**. Você passa uma frase e recebe 1.024 pontuações por posição,
-com o formato certo. Dá até para gerar texto, e o texto sai assim:
-
-Lixo, e lixo com o formato correto. Três coisas ficaram estabelecidas de
-graça: os pesos entram e saem pela mesma tabela, os blocos são
-intercambiáveis, e o que sai da última camada tem um número por token do
-vocabulário.
-
-Daqui para a frente o trabalho é um só: **trocar o `return x` por algo que
-valha a pena**. Todo o resto do arquivo já está no lugar, e a cada peça que
-você encaixa dá para rodar de novo e ver a perda cair um pouco mais.
-
-**Por que começar pelo esqueleto**
-
-É a diferença entre montar um móvel com o manual aberto e montar peça por
-peça torcendo para encaixar no fim. Com o esqueleto rodando, todo erro que
-aparecer daqui em diante veio da peça que você acabou de escrever, e não
-de mais nada. Isso corta o tempo de depuração pela metade.
-
 ### Aula 11 — O Transformer e o Treino > O bloco transformer
 Um **transformer** é um bloco repetido várias vezes. Cada bloco tem duas
 metades, e as duas seguem o mesmo desenho: normaliza, faz alguma coisa,
 soma de volta.
 
 Duas linhas. Repare no `x +` das duas: é o **atalho** (conexão residual).
-A entrada inteira atravessa o bloco por fora, e o modelo soma ela ao
-que saiu.
+A entrada inteira atravessa o bloco por fora, e o modelo soma a ela o que
+saiu.
 
-**Para que serve o atalho.** Sem ele, o gradiente da Aula 1 precisa
-atravessar todas as camadas para chegar à primeira, e vai encolhendo pelo
-caminho. Com ele, existe um caminho direto da saída até qualquer camada.
+As duas metades
 
-Isso não é para acreditar: é para medir. Monte uma rede de cinco camadas,
-faça um passo para trás e imprima o gradiente médio que chega em cada uma:
-
-| Camada | Sem atalho | Com atalho |
-|---|---|---|
-| 1 (a primeira) | 0,00002 | **0,00053** |
-| 2 | 0,00001 | 0,00070 |
-| 3 | 0,00017 | 0,00078 |
-| 4 | 0,00059 | 0,00075 |
-| 5 (a última) | 0,00854 | 0,01401 |
-
-Leia a coluna do meio de baixo para cima: o gradiente encolhe 359 vezes no
-caminho até a primeira camada. Ela quase não aprende. Com o atalho, a
-primeira camada recebe **22 vezes mais** gradiente, e as quatro primeiras
-ficam na mesma ordem de grandeza.
-
-Esse é o **gradiente que desaparece**, e foi ele que travou as redes
-profundas por anos. A ideia do atalho, de 2015, é o que permitiu empilhar
-dezenas de camadas.
-
-Uma segunda leitura, mais intuitiva: cada bloco não reescreve o vetor da
-palavra. Ele **acrescenta** alguma coisa ao que já estava lá.
-
-### Aula 11 — O Transformer e o Treino > As duas metades do bloco
 A **primeira metade é a atenção** da Aula 10: é onde as posições conversam
 entre si. É a única parte do modelo em que uma palavra vê outra.
 
-A **segunda metade é uma camada densa** da Aula 7, aplicada a cada posição
-**separadamente**. Ela não olha para os vizinhos: pega o vetor que a
-atenção montou e pensa sobre ele sozinho.
+A **segunda metade é uma camada densa** da Aula 7 (o MLP), aplicada a cada
+posição **separadamente**. Ela não olha para os vizinhos: pega o vetor que
+a atenção montou e pensa sobre ele sozinho.
 
 Essa divisão de trabalho é o transformer inteiro, e vale decorar assim:
 
 > A atenção **junta** informação de outras posições. A camada densa
 > **pensa** sobre essa mistura, uma posição de cada vez.
 
-E a normalização antes de cada metade faz o de sempre, desde a Aula 7:
-mantém os números num tamanho parecido, para o treino não desandar.
+Para que serve o atalho
 
-**O que os modelos de hoje trocaram (e por que você não precisa decorar)**
+Sem o atalho, o gradiente da Aula 1 precisa atravessar todos os blocos
+para chegar ao primeiro, e vai encolhendo pelo caminho. Com ele, existe um
+caminho direto da saída até qualquer bloco.
 
-O desenho de 2017 usava LayerNorm e ReLU. Llama, Qwen e quase todo modelo
-aberto de hoje, o nosso incluído, usam duas substituições:
+Isso não é para acreditar: é para medir. Empilhe cinco blocos com os pesos
+pequenos do modelo de verdade, faça um passo para trás e meça quanto
+gradiente chega na entrada de cada bloco:
 
-- **RMSNorm** no lugar da LayerNorm: a mesma normalização da Aula 7, sem a
-  subtração da média. Faz quase a mesma coisa e custa menos conta.
-- **SwiGLU** no lugar da ReLU: além do caminho que carrega o conteúdo, um
-  segundo caminho vira uma **porta**, que decide dimensão por dimensão
-  quanto passa adiante. Custa uma tabela de pesos a mais e rende melhor.
+| Bloco | Sem atalho | Com atalho | O atalho entrega |
+|---|---|---|---|
+| 1 (o primeiro) | 0,00000005 | 0,000049 | **922 vezes mais** |
+| 2 | 0,0000031 | 0,000049 | 16 vezes mais |
+| 3 | 0,0000022 | 0,000049 | 23 vezes mais |
+| 4 | 0,0000014 | 0,000049 | 34 vezes mais |
+| 5 (o último) | 0,0000009 | 0,000049 | 52 vezes mais |
 
-São otimizações, não conceitos. Se você trocasse as duas pelas versões de
-2017, o modelo desta aula ainda treinaria e ainda escreveria português. Ele
-só ficaria um pouco pior e um pouco mais lento.
+Leia a coluna do meio: sem atalho, até o último bloco já recebe 52 vezes
+menos gradiente, e o primeiro recebe quase mil vezes menos. Com o atalho,
+os cinco recebem exatamente o mesmo.
+
+Esse é o **gradiente que desaparece**, e foi ele que travou as redes
+profundas por anos. A ideia do atalho, de 2015, é o que permitiu empilhar
+dezenas de camadas. O primeiro bloco e o embutimento, que ficam embaixo de
+tudo, são justamente os que mais precisam do gradiente para aprender.
+
+Uma segunda leitura, mais intuitiva: cada bloco não reescreve o vetor da
+palavra. Ele **acrescenta** alguma coisa ao que já estava lá.
+
+RMSNorm: a normalização enxuta
+
+A normalização antes de cada metade faz o de sempre, desde a Aula 7:
+mantém os números num tamanho parecido, para o treino não desandar. A
+versão que os modelos de hoje usam divide cada número pelo tamanho típico
+do vetor:
+
+$$\hat{x}_i = \frac{x_i}{\sqrt{\frac{1}{d}\sum_{j=1}^{d} x_j^2}}$$
+
+| Símbolo | Significado |
+|---|---|
+| `xᵢ` | um dos números do vetor que entra |
+| `d` | quantos números o vetor tem (128 no nosso modelo) |
+| `x̂ᵢ` | o mesmo número, depois de normalizado |
+
+Exemplo com um vetor de dois números, `x = (3, 4)`. A média dos quadrados
+é (9 + 16) / 2 = 12,5. A raiz é 3,54. O vetor normalizado é
+(3 / 3,54, 4 / 3,54) = (0,85, 1,13). Depois disso, cada número ainda é
+multiplicado por um peso que o treino ajusta: são os 128 pesos de cada
+RMSNorm.
+
+O nome vem de *root mean square*, raiz da média dos quadrados. É a
+normalização da Aula 7 sem a subtração da média: faz quase o mesmo e custa
+menos conta.
+
+SwiGLU: a camada densa com porta
+
+A camada densa do bloco tem dois caminhos. Um leva o conteúdo (`subida`).
+O outro passa por uma ativação suave e vira uma **porta** (`porta`), que
+decide, número a número, quanto do conteúdo passa adiante. No fim, uma
+terceira tabela (`descida`) volta para 128 números:
+
+RMSNorm e SwiGLU são otimizações, não conceitos. Llama, Qwen e quase todo
+modelo aberto de hoje usam as duas. Se você trocasse pelas versões de 2017
+(LayerNorm e ReLU), o modelo desta aula ainda treinaria e ainda escreveria
+português, só que um pouco pior.
 
 ### Aula 11 — O Transformer e o Treino > O modelo inteiro
-A última linha merece explicação. A tabela de entrada troca token por
-vetor; a cabeça de saída faz o contrário, troca vetor por pontuação de
-cada token. Usar a **mesma** tabela nos dois sentidos economiza 131.072
-pesos e costuma melhorar o resultado, porque a tabela recebe gradiente
-das duas pontas.
+Com o bloco pronto, o modelo é uma lista de quatro blocos entre o
+embutimento e a cabeça de saída:
+
+A linha dos pesos amarrados merece explicação. A tabela de entrada troca
+token por vetor; a cabeça de saída faz o contrário, troca vetor por uma
+pontuação para cada token. Usar a **mesma** tabela nos dois sentidos
+economiza 131.072 pesos e costuma melhorar o resultado, porque a tabela
+recebe gradiente das duas pontas.
+
+Onde moram os pesos
+
+A conta inteira cabe numa tabela:
+
+| Peça | Conta | Pesos |
+|---|---|---|
+| Embutimento (e cabeça, amarrada) | 1.024 × 128 | 131.072 |
+| Atenção, por bloco | 4 cabeças × 3 × 128 × 32 + 128 × 128 | 65.536 |
+| MLP, por bloco | 3 × 128 × 256 | 98.304 |
+| Normalizações | 2 × 128 por bloco, mais 128 no fim | 1.152 |
+| **Total**, com 4 blocos | 131.072 + 4 × (65.536 + 98.304) + 1.152 | **787.584** |
 
 Isso costuma surpreender. A atenção é o que dá nome ao artigo e o que
 todo mundo explica, mas o modelo gasta mais pesos nas camadas densas que
 vêm depois dela.
 
-### Aula 11 — O Transformer e o Treino > A perda: entropia cruzada com 1.024 categorias
-É a mesma perda da Aula 8, só que agora as categorias são os 1.024 tokens
-do vocabulário, e a previsão acontece em cada uma das 128 posições da
-janela.
+Pesos pequenos no começo
 
-$$\text{perda} = -\frac{1}{n}\sum_{i=1}^{n} \log P(\text{token certo}_i)$$
+Antes do treino, o modelo sorteia todos os pesos perto de zero, com desvio de
+0,02. As duas tabelas que somam no atalho (`saida`, da atenção, e
+`descida`, do MLP) começam ainda menores. Sem isso, cada bloco soma um
+vetor grande ao atalho, os números crescem bloco a bloco, e a primeira
+perda explode.
 
-| Símbolo | Significado |
-|---|---|
-| `n` | quantas previsões o lote tem: 32 × 128 = 4.096 |
-| `P(token certo)` | a probabilidade que o modelo deu ao token que de fato veio |
-| `log` | o logaritmo, que castiga com força quem erra com confiança |
+### Aula 11 — O Transformer e o Treino > A perda e o teste do passo zero
+É a mesma perda da Aula 9: a entropia cruzada, com 1.024 categorias,
+calculada em cada uma das 128 posições de cada uma das 32 janelas do lote.
 
 Antes de qualquer treino, o modelo chuta igual entre os 1.024 tokens.
 Então a probabilidade do token certo é `1/1024`, e a perda tem que dar
-`ln(1024) = 6,93`. O nosso deu 6,95 no passo 0, o que confirma que a
+`ln(1024) = 6,93`. O modelo recém-montado dá 6,95, o que confirma que a
 montagem está certa.
 
 **Um teste que vale ouro**
 
 Sempre confira a perda no passo 0 contra `ln(vocabulário)`. Se der muito
 diferente, tem erro de montagem ou de inicialização, e é muito mais fácil
-achar agora do que depois de duas horas de treino.
+achar agora do que depois de meia hora de treino.
 
 ### Aula 11 — O Transformer e o Treino > Perplexidade: a perda em português
-Perda de 3,46 não diz nada a ninguém. Tire a exponencial e ela vira um
+Perda de 3,4 não diz nada a ninguém. Tire a exponencial e ela vira um
 número com significado:
 
 $$\text{perplexidade} = e^{\text{perda}}$$
 
-| Valor | Significa |
+| Símbolo | Significado |
 |---|---|
-| perda 6,93 | perplexidade 1.024: o modelo não sabe nada |
-| perda 3,46 | perplexidade 31,8: ele está escolhendo entre uns 32 candidatos |
-| perda 0 | perplexidade 1: ele acerta sempre, o que só acontece se decorou |
+| `perda` | a entropia cruzada média na validação |
+| `e` | o número de Euler, 2,718 |
+
+Exemplo:
+
+| Perda | Perplexidade | Significa |
+|---|---|---|
+| 6,93 | 1.024 | o modelo não sabe nada |
+| 4,48 | 88 | o contador de pares da Aula 9 |
+| 3,40 | 30 | ele está escolhendo entre uns 30 candidatos |
+| 0 | 1 | ele acerta sempre, o que só acontece se decorou |
 
 Perplexidade é "entre quantos tokens o modelo está efetivamente na
-dúvida". Sair de 1.024 para 31,8 quer dizer que o modelo eliminou 97% dos
+dúvida". Sair de 1.024 para 30 quer dizer que o modelo eliminou 97% dos
 candidatos antes de escolher.
 
 ### Aula 11 — O Transformer e o Treino > O laço de treino
-Seis linhas, e todas já apareceram no curso. Duas merecem comentário.
+É o laço da Aula 10, com quatro proteções a mais:
 
-**AdamW** é o otimizador. Ele é o gradiente descendente da Aula 1 com duas
-melhorias: guarda uma média dos gradientes recentes (o que suaviza o
-caminho) e dá passos maiores nas direções em que o gradiente é
-consistentemente pequeno.
+AdamW
 
-**O corte de gradiente** (`clip_grad_norm_`) limita o tamanho do passo
-quando um lote sai muito fora do normal. Sem ele, um único lote estranho
-pode jogar os pesos para longe e estragar horas de treino.
+O **AdamW** é o otimizador. Ele é o gradiente descendente da Aula 1 com
+duas melhorias: guarda uma média dos gradientes recentes, o que suaviza o
+caminho, e dá passos maiores nas direções em que o gradiente é pequeno mas
+constante. O "W" é um empurrão leve de todos os pesos em direção ao zero
+(*weight decay*), que ajuda o modelo a não decorar.
 
-### Aula 11 — O Transformer e o Treino > O tamanho do passo muda ao longo do treino
+O corte do gradiente
+
+De vez em quando um lote sai muito fora do normal, e o gradiente fica
+enorme. Um passo desses joga os pesos para longe e estraga o que já foi
+aprendido. O **corte de gradiente** (`clip_grad_norm_`) limita o tamanho
+total do gradiente. Se ele passar de 1, o corte divide todos os números
+pelo mesmo fator até o tamanho dar 1. A direção do passo não muda; só o
+tamanho.
+
+Exemplo: o gradiente tem tamanho 5. O corte divide cada número dele por 5,
+e o passo sai cinco vezes menor, na mesma direção.
+
+O tamanho do passo segue o relógio
+
 No começo os pesos são aleatórios, e passo grande em direção errada só faz
-estrago: por isso o **aquecimento**, com a taxa subindo do zero nos
-primeiros 200 passos. No fim, o modelo está perto de um bom lugar e passo
+estrago: por isso o **aquecimento**, com a taxa subindo do zero no
+primeiro minuto. No fim, o modelo está perto de um bom lugar e passo
 grande faz ele passar do ponto: por isso o **resfriamento**, com a taxa
-descendo até quase zero.
+descendo até um décimo do máximo.
+
+O treino desta aula tem uma diferença em relação aos treinos de
+referência: ele dura um **tempo fixo**, 35 minutos, e não um número fixo
+de passos. A taxa depende da fração do tempo que já passou. Assim o treino
+termina na hora certa em qualquer Colab, rápido ou lento, e quem tem uma
+máquina mais rápida simplesmente dá mais passos.
+
+Conferir e salvar o melhor
+
+A cada 200 passos, o laço mede a perda em lotes de treino e de validação,
+anota as duas no histórico, e salva o modelo no arquivo `meu_llm.pt` **se
+a validação for a melhor até ali**. Duas consequências práticas: se o
+Colab cair no meio, o melhor modelo já está salvo; e o arquivo guarda o
+modelo que melhor generaliza, e não o último.
 
 ### Aula 11 — O Transformer e o Treino > O treino de verdade
-Repare no formato: a perda despenca no começo e depois vai ficando cada
-vez mais difícil melhorar. Sair de 6,95 para 4,0 custou uns poucos
-minutos. Sair de 4,0 para 3,46 custou o resto das quatro dezenas.
+Quantos passos cabem em 35 minutos depende da máquina. No teste deste
+curso, com duas linhas de execução (as mesmas do Colab gratuito), foram
+5.600 passos e perda de validação 3,28 com o processador livre, e 2.100
+passos e perda 3,39 com o processador dividido com outro programa. O seu
+Colab deve cair nessa faixa: perplexidade perto de 30, bem abaixo dos 88
+do contador de pares da Aula 9. O modelo de referência, treinado por mais
+tempo num processador maior, mostra a curva inteira:
 
-Essa curva explica por que treinar modelos grandes é caro. Cada ponto a
-menos custa mais que o anterior, e não existe atalho.
+Repare no formato: a perda despenca no começo e depois vai ficando cada
+vez mais difícil melhorar. Essa curva explica por que treinar modelos
+grandes é caro. Cada ponto a menos custa mais que o anterior, e não existe
+atalho.
 
 E veja o que sai do modelo em cada momento:
 
 No passo 0 é ruído. Em 200 passos já existem palavras curtas e vírgulas em
-lugares plausíveis. Em 1.000 aparecem frases inteiras erradas mas
+lugares plausíveis. Em 1.000 aparecem frases inteiras, erradas mas
 gramaticais. No fim, ele escreve com a grafia de 1899, porque foi isso que
-leu.
+leu. A ordem é sempre a mesma: primeiro a forma, depois as palavras, e o
+sentido por último.
 
 **Erro do dia**
 
-Julgar o modelo pela perda de treino. No nosso, ela terminou em 2,96
-enquanto a de validação parou em 3,46. Essa diferença é o modelo decorando
-trechos do corpus. Enquanto as duas caem juntas, tudo bem. Quando a de
-validação começa a subir, pare o treino: o que vem depois é decoreba.
+Julgar o modelo pela perda de treino. No modelo de referência, ela
+estava em 2,66 no melhor ponto, enquanto a de validação parou em 3,33.
+Essa diferença é o modelo decorando trechos do corpus. Enquanto as duas
+caem juntas, tudo bem. Quando a de validação para ou sobe, o que vem
+depois é decoreba. É por isso que o treino salva pela validação.
+
+### Aula 11 — O Transformer e o Treino > Quanto custa treinar
+Existe uma regra de bolso que bate bem com a realidade. Cada token que o
+modelo lê no treino custa umas seis contas por peso: duas para ir (o
+`forward`) e quatro para voltar com o gradiente (o `backward`).
+
+$$\text{operações} \approx 6 \cdot N \cdot T$$
+
+| Símbolo | Significado |
+|---|---|
+| `N` | quantos pesos o modelo tem |
+| `T` | quantos tokens ele leu no treino |
+
+Exemplo com o seu modelo. São 787.584 pesos e uns 2.100 passos de
+4.096 tokens, ou 8,6 milhões de tokens. A conta dá
+6 × 787.584 × 8,6 milhões ≈ 4 × 10¹³ operações. O GPT-3, de 2020, tem 175 bilhões de pesos e leu
+300 bilhões de tokens: 6 × 175 bilhões × 300 bilhões ≈ 3 × 10²³. Bilhões
+de vezes mais.
+
+O custo cresce com o tamanho do modelo **e** com o texto, ao mesmo tempo.
+É por isso que um modelo grande custa milhões de reais para treinar, e
+por que dobrar o modelo sem dobrar o texto rende pouco.
 
 ### Aula 11 — O Transformer e o Treino > O que muda quando o modelo é grande
 O nosso tem 787.584 pesos e leu 3,7 milhões de caracteres. Um modelo
@@ -1374,50 +1780,100 @@ arquitetura, essa, é a mesma que você acabou de montar.
 | Dimensão | 128 | 4.000 a 16.000 |
 | Cabeças | 4 | 32 a 128 |
 | Janela | 128 tokens | centenas de milhares |
-| Treino | 40 minutos, um processador | meses, milhares de placas |
+| Treino | 35 minutos, um processador | meses, milhares de placas |
 
 Nada nessa tabela é uma ideia nova. É a mesma ideia, com mais dinheiro.
 
+### Aula 11 — O Transformer e o Treino > Cola da aula
+| Conceito | Em uma frase |
+|---|---|
+| Bloco transformer | normaliza, atenção, soma; normaliza, MLP, soma |
+| Atenção e MLP | a atenção junta informação das posições; o MLP pensa sobre cada uma |
+| Atalho | soma a entrada à saída; deixa o gradiente chegar ao primeiro bloco |
+| RMSNorm | divide o vetor pela raiz da média dos quadrados |
+| SwiGLU | camada densa com porta, que decide quanto de cada número passa |
+| Pesos amarrados | a mesma tabela no embutimento e na cabeça de saída |
+| 787.584 pesos | metade no MLP, um terço na atenção, um sexto no embutimento |
+| Passo zero | a perda do modelo novo tem que dar perto de `ln(1024) = 6,93` |
+| Perplexidade | `e` elevado à perda: entre quantos tokens o modelo tem dúvida |
+| AdamW | gradiente descendente com memória e um empurrão para o zero |
+| Corte de gradiente | limita o tamanho do passo, sem mudar a direção |
+| Aquecimento e resfriamento | passo pequeno no começo e no fim |
+| Validação | o número que vale; o treino salva o melhor por ela |
+| Custo | umas `6 × N × T` contas para treinar |
+
 ### Aula 11 — O Transformer e o Treino > Materiais
 - **Notebook desta aula, no Google Colab:** [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-11-transformer-e-treino.ipynb)
+- **Travou num exercício?** Colas dos exercícios, com dicas que você abre uma de cada vez.
 - Slides desta aula: entregues em sala.
-- Modelo treinado: `mini_llm.pt`
+- Modelo de referência, treinado: `mini_llm.pt`
+
+Os quatro exercícios do notebook:
+
+| Exercício | O que você constrói |
+|---|---|
+| 11.1 | o MLP, o bloco com os dois atalhos, e a medida do gradiente |
+| 11.2 | o MiniLLM inteiro, a conta dos pesos e a perplexidade do passo zero |
+| 11.3 | a função de treino, o teste de 1 minuto e o treino de 35 minutos |
+| 11.4 | a curva do seu treino, o seu modelo escrevendo, e o arquivo `meu_llm.pt` |
+
+**Leve o seu modelo para casa**
+
+No fim do Exercício 4, baixe o arquivo `meu_llm.pt`. O Colab apaga tudo
+quando a aba fecha, e a Aula 12 começa carregando esse arquivo. Se você
+perder, a Aula 12 oferece o modelo do professor, que tem o mesmo formato.
 
 ### Aula 11 — O Transformer e o Treino > Para ir além
-- nanoGPT, de Andrej Karpathy: o repositório que inspirou o modelo desta aula, com 300 linhas de PyTorch.
-- Let's build GPT, from scratch: duas horas de vídeo montando a mesma coisa, linha por linha.
+- Let's build GPT, from scratch (Andrej Karpathy): duas horas de vídeo montando a mesma coisa, linha por linha. Em inglês.
 - Transformers, the tech behind LLMs (3Blue1Brown): o modelo inteiro, do token à previsão, em animação. Em inglês, com legendas.
-- Build a Large Language Model (From Scratch): o livro que inspirou a ordem desta aula. Constrói um GPT em PyTorch, peça por peça, em inglês.
-- Glossário: para revisar qualquer termo novo desta aula.
+- nanoGPT, de Andrej Karpathy: o repositório que inspirou o modelo desta aula, com 300 linhas de PyTorch.
+
+### Aula 12 — Geração e Limites > Onde estamos
+A aula começa carregando o arquivo `meu_llm.pt`, o modelo que você treinou
+na Aula 11. Se você perdeu o arquivo, o notebook carrega o modelo do
+professor, que tem exatamente as mesmas classes e os mesmos nomes de
+pesos. Tudo o que vem a seguir funciona com qualquer um dos dois.
 
 ### Aula 12 — Geração e Limites > O modelo não devolve uma palavra
 Este é o mal-entendido mais comum sobre modelos de linguagem, e vale
-desfazer com um gráfico. Dê ao modelo treinado na Aula 11 o começo "Não
-sei se a senhora" e olhe o que ele produz:
+desfazer com um gráfico. Dê ao modelo treinado o começo "Não sei se a
+senhora" e olhe o que ele produz:
 
-Nenhuma continuação chega a 11%. As dez melhores juntas dão 42%, e o resto
-da probabilidade está espalhado por mais de mil tokens.
+O favorito, `·é`, tem só 7,6%. As dez melhores continuações juntas dão
+37%, e são precisos 116 tokens para somar 90% da probabilidade.
 
-Escolher **qual** desses 1.024 vai para a tela é um problema separado, que
-nada tem a ver com o treino. Ele tem nome: **amostragem** (*sampling*), e é
-o assunto da primeira metade desta aula.
+Escolher **qual** desses 1.024 vai para a tela é um problema separado,
+que nada tem a ver com o treino. Ele tem nome: **amostragem**
+(*sampling*), e é o assunto da primeira metade desta aula.
+
+### Aula 12 — Geração e Limites > Gerar é repetir um passo
+O modelo devolve uma previsão para cada posição do texto. Para gerar,
+só interessa a da **última** posição: é ela que viu o texto inteiro. O
+resto do mecanismo é um laço:
+
+O `[-128:]` corta o texto nos últimos 128 tokens, o tamanho da janela de
+contexto. Isso se chama **geração autorregressiva**, e tem uma consequência
+que explica muito: o token sorteado no passo 4 vira entrada do passo 1
+seguinte. Se ele foi ruim, o modelo não tem como voltar atrás. Ele agora
+precisa continuar coerentemente a partir do erro.
 
 ### Aula 12 — Geração e Limites > Duas escolhas ruins
-**Sempre o mais provável.** Chama-se decodificação gulosa (*greedy*). É
-determinística e parece segura, e o resultado é ruim: o texto entra em
-laço, repetindo a mesma frase. Um modelo que só escolhe o topo acaba num
-lugar de onde o topo aponta de volta para si.
+**Sempre o mais provável.** Troque o sorteio por `argmax`. Chama-se
+decodificação gulosa (*greedy*). É determinística e parece segura, e o
+resultado é ruim: o texto entra em laço, repetindo a mesma frase. Um texto
+que só escolhe o topo acaba num lugar de onde o topo aponta de volta para
+si.
 
 **Sortear direto da distribuição.** O oposto: cada token tem exatamente a
-chance que o modelo deu. O problema está na cauda. Nesta posição, os
-tokens fora dos 40 melhores somam 33% da probabilidade, espalhados por
-984 candidatos. Um a um eles são improváveis, mas juntos dão uma chance em
-três de o modelo escolher algo que ele mesmo considera ruim.
+chance que o modelo deu. O problema está na cauda. No exemplo do começo,
+os tokens fora dos 40 melhores somam 32% da probabilidade, espalhados por
+984 candidatos. Um a um eles são improváveis, mas juntos dão quase uma
+chance em três de o modelo escolher algo que ele mesmo considera ruim.
 
 A saída é ficar no meio, e existem três controles para isso.
 
 ### Aula 12 — Geração e Limites > Controle 1: a temperatura
-Antes da softmax, divida todos os números por `T`.
+Antes da softmax, divida todas as pontuações por `T`.
 
 $$P_j = \frac{e^{z_j / T}}{\sum_{k} e^{z_k / T}}$$
 
@@ -1439,7 +1895,9 @@ A última linha é a mesma conta das Aulas 8 e 10, com os mesmos três
 números. Repare no que a temperatura fez: ela não mudou a ordem dos
 candidatos, só a distância entre eles.
 
-Guarde a leitura em português:
+Olhe a barra cinza, a dos 1.018 tokens restantes. Com temperatura 0,3 ela
+quase some; com 1,5 ela engorda até 86%. É dali que vêm as palavras que
+não existem.
 
 | Temperatura | O que acontece |
 |---|---|
@@ -1449,41 +1907,34 @@ Guarde a leitura em português:
 
 ### Aula 12 — Geração e Limites > Controles 2 e 3: cortar a cauda
 A temperatura reescala tudo, inclusive o lixo. Os outros dois controles
-simplesmente eliminam candidatos antes do sorteio.
+eliminam candidatos antes do sorteio, do mesmo jeito que a máscara da
+Aula 10: trocando a pontuação por menos infinito.
 
 **Top-k**: fique com os `k` mais prováveis e zere o resto. Com `k = 40`,
 os outros 984 tokens deixam de existir, e com eles vai embora aquele um
-terço de risco. Simples, e sempre corta o mesmo
-tanto, mesmo quando o modelo está muito seguro.
+terço de risco. Simples, e sempre corta o mesmo tanto, mesmo quando o
+modelo está muito seguro.
 
 **Top-p** (ou núcleo, *nucleus*): pegue os mais prováveis até que a soma
-deles passe de `p`. Com `p = 0,9`, no exemplo do começo desta aula, isso
-daria 145 tokens; numa posição onde o modelo está certo do que vem, daria
-dois ou três. É a versão que se adapta.
+deles passe de `p`. É a versão que se adapta à dúvida do modelo. Com
+`p = 0,9`:
+
+| Começo | O favorito | Candidatos que sobram |
+|---|---|---|
+| "Não sei se a senhora" | `·é`, com 7,6% | 116 |
+| "Quincas Bor" | `ba`, com 98,6% | 1 |
+
+No primeiro caso o modelo está em dúvida, e o top-p deixa muita opção. No
+segundo, só existe uma continuação razoável ("Quincas Borba"), e o top-p
+deixa só ela.
 
 ### Aula 12 — Geração e Limites > Os quatro textos
 Mesmo modelo, mesmo início, quatro jeitos de escolher:
 
-Leia com atenção. Na temperatura 0,3 aparece "disse elle, disse elle": é a
-repetição chegando. Na 1,5 aparecem palavras que não existem. A 0,8 é a que
+Leia com atenção. A escolha gulosa entra em laço logo: "--Não, senhor.
+--Não, senhor. --Não, senhor." A temperatura 0,3 vai pelo mesmo caminho.
+Na 1,5 aparecem palavras que não existem ("todajoloder"). A 0,8 é a que
 lê melhor, e é por isso que ela é o padrão em quase toda ferramenta.
-
-### Aula 12 — Geração e Limites > Autorregressão: o erro vira entrada
-Uma palavra sobre o mecanismo. Gerar texto é repetir o mesmo passo:
-
-1. Passe o texto atual pelo modelo.
-2. Pegue os 1.024 números da última posição.
-3. Aplique temperatura e corte.
-4. Sorteie um token.
-5. Cole ele no fim do texto e volte ao passo 1.
-
-Isso se chama **geração autorregressiva**, e tem uma consequência que
-explica muito. O token sorteado no passo 4 vira entrada do passo 1
-seguinte. Se ele foi ruim, o modelo não tem como voltar atrás: ele agora
-precisa continuar coerentemente a partir do erro.
-
-É por isso que temperatura alta não produz "criatividade". Ela produz um
-erro que contamina tudo o que vem depois.
 
 **Erro do dia**
 
@@ -1493,11 +1944,11 @@ improvável, e a partir dali o texto tem que se justificar sozinho. Se você
 quer outra resposta, mude o começo, não a temperatura.
 
 ### Aula 12 — Geração e Limites > Ele copia ou inventa?
-É a pergunta que a turma sempre faz, e dá para medir. Pegue 200 tokens
-gerados pelo modelo e procure, para cada posição, o maior trecho que
+É a pergunta que a turma sempre faz, e dá para medir. Gere um texto com o
+modelo e procure, para cada palavra, o maior trecho a partir dela que
 aparece **literalmente** no corpus de Machado:
 
-A média é 1,85 palavras. O modelo não guarda o texto: ele guarda uma
+A média é 1,87 palavras. O modelo não guarda o texto: ele guarda uma
 estatística sobre o texto, em 787.584 números. Reconstruir uma frase
 inteira de Machado a partir disso é impossível, e produzir uma frase nova
 que soa como Machado é exatamente o que ele faz.
@@ -1507,7 +1958,7 @@ internet, conseguem reproduzir trechos longos. É um problema real de
 direito autoral, e a causa é a repetição no corpus, não a arquitetura.
 
 ### Aula 12 — Geração e Limites > Por que o modelo alucina
-Agora a parte que importa fora da sala de aula. Nosso modelo escreve
+Agora a parte que importa fora da sala de aula. O nosso modelo escreve
 frases confiantes sobre coisas que nunca existiram, e não há nada de
 errado com ele. Ele está fazendo exatamente o que o treino pediu.
 
@@ -1521,7 +1972,9 @@ errado com ele. Ele está fazendo exatamente o que o treino pediu.
 "Alucinação" é um nome ruim, porque sugere defeito. Uma frase falsa e
 fluente e uma frase verdadeira e fluente têm exatamente a mesma natureza
 para o modelo: as duas são sequências prováveis. Ele não tem como
-distinguir, porque nunca teve.
+distinguir, porque nunca teve. A Aula 14 mostra o remédio mais usado: dar
+ao modelo um lugar para consultar, colando trechos de um documento no
+começo do texto.
 
 ### Aula 12 — Geração e Limites > O modelo é o corpus
 Repare no que o nosso escreve: "elle", "cousa", "mettia", "pharmacia". Ele
@@ -1536,29 +1989,71 @@ preconceito, com a mesma fluência com que reproduz a gramática.
 
 Não existe modelo neutro. Existe corpus, e o modelo é o que ele diz.
 
-### Aula 12 — Geração e Limites > O que a escala compra
-As perplexidades vêm de conjuntos de teste diferentes, então valem como
-ordem de grandeza. O que a figura mostra é o formato da coisa: cada corte
-na dúvida custa ordens de grandeza mais treino que o anterior.
+### Aula 12 — Geração e Limites > Ajuste fino: o mesmo treino, outro texto
+Dá para provar essa frase em três minutos. Pegue o modelo pronto e
+continue o treino dele por 200 passos, com o mesmo laço da Aula 11, só que
+com outro texto: as páginas deste curso, em português de hoje, sobre
+regressão, redes e modelos de linguagem. Isso se chama **ajuste fino**
+(*fine-tuning*).
 
-E o que se ganha com isso não é só "menos dúvida". Com escala aparecem
+O mesmo começo, nos dois modelos:
+
+O ajustado fala de "variáveis" e "bilhões de pesos", e até aprendeu a
+pôr asteriscos e barras, que são a marcação de negrito e de tabela das
+páginas do curso. Ele aprendeu o assunto e o formato do texto novo.
+
+Quanto cada modelo estranha uma frase
+
+Dá para medir isso com a perda de uma frase inteira: a mesma conta do
+treino, aplicada a um texto só. Perda baixa quer dizer que o modelo acha a
+frase provável.
+
+| Frase | Modelo de Machado | Modelo ajustado |
+|---|---|---|
+| "Não sei se a senhora sabe que elle não veio hontem." | **3,30** | 3,58 |
+| "O modelo de linguagem prevê o próximo token do texto." | 4,42 | **1,91** |
+
+Cada modelo acha mais provável a frase do seu próprio corpus. A frase de
+hoje caiu de 4,42 para 1,91 com 200 passos de treino. A de 1899 ficou um
+pouco mais estranha para o modelo ajustado: ele começou a esquecer
+Machado.
+
+É assim que um modelo de uso geral vira um modelo de uma área: jurídico,
+médico, de atendimento. E é assim, também, que um modelo que continua
+texto vira um assistente.
+
+### Aula 12 — Geração e Limites > O que a escala compra
+Duas coisas para ler na figura. Primeira: a distância entre o nosso e os
+grandes é de cinco a seis ordens de grandeza, nos pesos e no texto. Pela
+regra das seis contas da Aula 11, o custo de treino cresce com o produto
+dos dois.
+
+Segunda: o Llama 3 8B, de 2024, é vinte vezes menor que o GPT-3, de 2020,
+e leu cinquenta vezes mais texto. Nos últimos anos, a alavanca principal
+deixou de ser o tamanho e passou a ser o texto: um modelo menor, treinado
+por mais tempo, sai mais barato de usar e responde tão bem quanto.
+
+O que se ganha com a escala não é só "menos dúvida". Com ela aparecem
 comportamentos que o modelo pequeno não tem: seguir uma instrução, manter
 o assunto por páginas, fazer uma conta de várias etapas.
 
 ### Aula 12 — Geração e Limites > O que falta para virar um assistente
-Nosso modelo continua texto. Ele não responde perguntas, e isso não é
+O nosso modelo continua texto. Ele não responde perguntas, e isso não é
 questão de tamanho: é questão de treino. Entre o modelo que você montou e
-um assistente existem duas etapas a mais:
+um assistente existem duas etapas a mais, e as duas são ajuste fino:
 
 | Etapa | O que faz |
 |---|---|
 | Pré-treino | o que fizemos: prever o próximo token, em muito texto |
-| Ajuste por instrução | treinar em pares de pergunta e resposta boa |
-| Ajuste por preferência | treinar com pessoas comparando duas respostas |
+| Ajuste por instrução | ajuste fino em milhares de conversas com boas respostas |
+| Ajuste por preferência | treinar com pessoas escolhendo a melhor de duas respostas |
 
-A segunda etapa é o que ensina o formato "alguém perguntou, agora
-responda". A terceira é o que ensina qual resposta as pessoas preferem. As
-duas usam o mesmo gradiente descendente da Aula 1, sobre os mesmos pesos.
+O texto da segunda etapa tem uma forma fixa, com marcadores de quem fala:
+
+Depois de ler milhares de textos nesse formato, o modelo aprende que,
+depois de `<|assistente|>`, vem uma resposta à pergunta de cima. É o mesmo
+truque do Exercício 3, com outro texto. As três etapas usam o mesmo
+gradiente descendente da Aula 1, sobre os mesmos pesos.
 
 ### Aula 12 — Geração e Limites > A novidade: gastar tempo em vez de peso
 Até 2023, melhorar um modelo queria dizer uma coisa só: mais pesos e mais
@@ -1576,11 +2071,22 @@ Três formas disso, da mais simples para a mais elaborada:
 | Truque | O que se faz |
 |---|---|
 | Escrever o passo a passo | pedir o raciocínio antes da resposta |
-| Votação | gerar a mesma resposta cinco vezes e ficar com a mais frequente |
+| Melhor de várias | gerar várias respostas e escolher uma, por votação ou pela nota do próprio modelo |
 | Revisão | gerar, criticar a própria resposta, e gerar de novo |
 
-Repare que os três funcionam **com o modelo já pronto**, sem treinar nada.
-O que eles gastam é tempo de máquina na hora de responder. Daí o nome:
+O exercício da aula faz o segundo, em miniatura: gera cinco continuações
+com temperatura alta, mede a perda de cada uma com o próprio modelo, e
+fica com a de menor perda, a que o modelo considera mais provável.
+
+O exercício mostra também o limite do truque. No gabarito, a escolhida foi
+a continuação com mais espaços e quebras de linha seguidos: espaço
+repetido é fácil de prever, então dá perda baixa, sem ser o melhor texto
+para quem lê. Escolher pela própria perda premia o previsível. Os modelos
+de verdade usam um juiz melhor: outro modelo treinado para dar nota, ou um
+teste que confere a resposta, como rodar o código que o modelo escreveu.
+
+Os três truques funcionam **com o modelo já pronto**, sem treinar nada. O
+que eles gastam é tempo de máquina na hora de responder. Daí o nome:
 *inference-time scaling*, ou escalar no momento de responder.
 
 É por isso que os modelos de raciocínio de hoje demoram e mostram um
@@ -1594,18 +2100,582 @@ O modelo que você usa no dia a dia não muda. O seu jeito de pedir muda.
 Pedir "explique o seu raciocínio antes de responder" costuma valer mais
 que qualquer ajuste de temperatura, e é de graça.
 
+### Aula 12 — Geração e Limites > Cola da aula
+| Conceito | Em uma frase |
+|---|---|
+| Amostragem | escolher um dos 1.024 tokens a partir das chances do modelo |
+| Autorregressão | cada token escolhido vira entrada do passo seguinte |
+| Guloso | sempre o mais provável; entra em laço |
+| Temperatura | divide os logits: baixa concentra, alta espalha a chance pela cauda |
+| Top-k | fica com os k melhores e zera o resto |
+| Top-p | fica com os melhores até a soma passar de p; se adapta à dúvida |
+| Copiar ou inventar | o nosso modelo copia no máximo 4 palavras seguidas |
+| Alucinação | frase provável e falsa: o modelo não tem como distinguir |
+| Ajuste fino | o mesmo treino, com outro texto; muda o que o modelo escreve |
+| Perda de uma frase | quanto o modelo estranha um texto; menor, mais provável |
+| Escala | mais pesos e, cada vez mais, mais texto |
+| Assistente | pré-treino, ajuste por instrução, ajuste por preferência |
+| Tempo em vez de peso | gerar mais antes de responder, sem treinar nada |
+
 ### Aula 12 — Geração e Limites > Materiais
 - **Notebook desta aula, no Google Colab:** [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-12-geracao-e-limites.ipynb)
+- **Travou num exercício?** Colas dos exercícios, com dicas que você abre uma de cada vez.
 - Slides desta aula: entregues em sala.
-- Modelo treinado: `mini_llm.pt`
+- O seu modelo: o `meu_llm.pt` que você baixou na Aula 11. O do professor: `mini_llm.pt`
+- O texto do ajuste fino: `curso.txt`
+
+Os quatro exercícios do notebook:
+
+| Exercício | O que você constrói |
+|---|---|
+| 12.1 | a última posição, a geração gulosa e a geração por sorteio |
+| 12.2 | temperatura, top-k, a função `gerar` completa, e o top-p como desafio |
+| 12.3 | a medida de cópia, e o ajuste fino com o texto do curso |
+| 12.4 | a perda de uma frase, a melhor de cinco, e o cartão do seu modelo |
 
 ### Aula 12 — Geração e Limites > Para ir além
 - The Curious Case of Neural Text Degeneration: o artigo que apresentou o top-p, com exemplos de texto degenerado que valem mais que a matemática.
-- Extracting Training Data from Large Language Models: quanto um modelo grande consegue reproduzir do que leu, medido.
-- Deep Dive into LLMs like ChatGPT (Andrej Karpathy): três horas sobre o que existe depois do pré-treino, incluindo as etapas que este curso só menciona. Em inglês.
-- Build a Large Language Model (From Scratch): o livro que inspirou a ordem desta aula. Constrói um GPT em PyTorch, peça por peça, em inglês.
+- Deep Dive into LLMs like ChatGPT (Andrej Karpathy): três horas sobre o que existe depois do pré-treino, incluindo as etapas que esta aula só mostra de longe. Em inglês.
 - Build a Reasoning Model (From Scratch): de onde veio a seção sobre gastar tempo em vez de peso. Em inglês.
-- Glossário: para revisar qualquer termo novo desta aula.
+
+### Colas dos Exercícios > Antes de abrir qualquer dica
+Metade dos travamentos não tem nada a ver com o exercício. Confira estas
+quatro coisas primeiro:
+
+1. **Você rodou a célula de preparação?** Nas Aulas 10, 11 e 12 a primeira
+   célula de código traz tudo das aulas anteriores. Sem ela, nada funciona.
+2. **Você rodou as células de cima, na ordem?** O Colab só conhece o que
+   já rodou. Uma função definida numa célula que você pulou não existe.
+3. **Você trocou todos os `____`?** Uma lacuna esquecida dá
+   `NameError: name '____' is not defined`.
+4. **Você leu a última linha do erro?** É lá que o Python diz o que
+   aconteceu. As primeiras linhas só mostram o caminho até o problema.
+
+### Colas dos Exercícios > Os erros mais comuns no Colab
+Procure a última linha do erro nesta lista:
+
+- `NameError: name 'x' is not defined`: uma célula de cima não rodou, ou o
+  nome está escrito diferente.
+- `NameError: name '____' is not defined`: sobrou uma lacuna sem
+  preencher.
+- `mat1 and mat2 shapes cannot be multiplied`: um `nn.Linear` recebeu um
+  vetor do tamanho errado. Confira os dois números da camada.
+- `The size of tensor a must match the size of tensor b`: você somou ou
+  multiplicou dois tensores de formatos diferentes.
+- `index out of range`: o índice passou do fim da lista ou do tensor.
+- `'Tensor' object is not callable`: faltou o `self.` antes do nome da
+  camada, ou você usou parênteses onde iam colchetes.
+- **A célula roda para sempre**: se é treino, espere. Se não for, aperte o
+  ■ e confira o laço.
+- **"Your session crashed after using all available RAM"**: rode de novo a
+  partir da preparação, sem carregar o corpus duas vezes.
+
+Se o ❌ apareceu e você não sabe por quê, leia a pista que vem com ele:
+ela foi escrita para o erro mais comum daquele passo.
+
+### Colas dos Exercícios > Aula 9 — Do Texto aos Números
+Exercício 9.1
+
+O modelo de linguagem mais simples: contar que letra vem depois de qual.
+
+**1.b Contar o que vem depois de cada letra**
+
+Dica 1: a ideia
+
+A contagem separa as letras pela letra atual. Dentro dela, você soma 1 para a
+letra que veio **em seguida**.
+
+Dica 2: no código
+
+O laço já entrega as duas letras em `atual` e `seguinte`. Na lacuna vai uma
+delas, e não é a `atual` (ela já está no colchete de fora).
+
+Resposta
+
+**1.c Da contagem para a probabilidade**
+
+Dica 1: a ideia
+
+Probabilidade é "quantas vezes aconteceu" dividido por "quantas vezes
+podia ter acontecido". Se depois de "q" vieram 100 letras e 99 eram "u", a
+chance de "u" é 99/100.
+
+Resposta
+
+**1.d Gerar texto**
+
+Dica 1: a ideia
+
+O sorteio precisa saber a chance de cada letra. Essas chances já estão
+numa lista, criada na linha de cima.
+
+Resposta
+
+Exercício 9.2
+
+O algoritmo do BPE: contar pares, fundir o mais comum, repetir.
+
+**2.a Contar os pares vizinhos**
+
+Dica 1: a ideia
+
+O `zip(ids, ids[1:])` entrega cada par de vizinhos, um por vez, na
+variável `par`. Cada par encontrado soma 1 na contagem dele.
+
+Resposta
+
+**2.b Fundir um par**
+
+Dica 1: a ideia
+
+Duas perguntas. Qual é o segundo elemento do par que você procura? E,
+quando achar o par, o que entra na lista nova no lugar dos dois números?
+
+Dica 2: no código
+
+O par é uma tupla de dois números: `par[0]` é o primeiro e `par[1]` o
+segundo. O número que substitui os dois chegou na função com o nome
+`novo`.
+
+Resposta
+
+**2.c O treino do BPE**
+
+Dica 1: a ideia
+
+A cada volta, a lista inteira passa pela `fundir` e é substituída pela
+versão fundida. A `fundir` precisa de três coisas: a lista, o par e o
+número novo.
+
+Resposta
+
+Exercício 9.3
+
+Codificar e decodificar com a tabela oficial de 1.024 tokens.
+
+**3.a Carregar a tabela**
+
+Dica 1: a ideia
+
+Um token novo é a junção de dois tokens antigos, `a` e `b`. Os bytes dele
+são os bytes de `a` seguidos dos bytes de `b`.
+
+Resposta
+
+**3.b Decodificar**
+
+Dica 1: a ideia
+
+Para cada número da lista, pegue os bytes dele na `tabela` e cole no fim.
+
+Resposta
+
+**3.c Codificar**
+
+Dica 1: a ideia
+
+Quando você funde um par, ele vira o token que a tabela oficial dá a esse
+par. Ninguém inventa esse número: ele está guardado no dicionário
+`fusoes`.
+
+Resposta
+
+Exercício 9.4
+
+Do texto ao lote de treino.
+
+**4.a Treino e validação**
+
+Dica 1: a ideia
+
+O treino vai do começo até `corte`. A validação começa exatamente onde o
+treino parou e vai até o fim.
+
+Resposta
+
+**4.b Uma janela, entrada e alvo**
+
+Dica 1: a ideia
+
+O alvo tem o mesmo tamanho da entrada e começa uma casa depois. Então ele
+também termina uma casa depois.
+
+Dica 2: no código
+
+A entrada vai de `inicio` até `inicio + BLOCO`. Some 1 nos dois lados.
+
+Resposta
+
+**4.c Um lote**
+
+Resposta
+
+É a mesma conta do 4.b, para cada um dos 32 inícios sorteados:
+
+**4.d Desafio: o número a bater**
+
+Dica 1: a ideia
+
+A perda é a média de `-log` da probabilidade que o modelo deu ao token
+certo. Essas probabilidades já estão no tensor `p_certo`.
+
+Resposta
+
+### Colas dos Exercícios > Aula 10 — Atenção
+Exercício 10.1
+
+O primeiro modelo em PyTorch, e o laço de treino.
+
+**1.a Montar o modelo**
+
+Dica 1: a ideia
+
+A cabeça dá uma pontuação para cada token que pode vir em seguida. Quantos
+tokens existem no vocabulário?
+
+Resposta
+
+**1.b O teste do passo zero**
+
+Resposta
+
+O chute ao acaso entre 1.024 tokens tem perda `ln(1024)`:
+
+**1.c O laço de treino**
+
+Dica 1: a ideia
+
+O modelo só calcula a perda se souber a resposta certa, então ele recebe a
+entrada e o alvo. O gradiente sai da perda, andando "para trás".
+
+Dica 2: no código
+
+"Para trás", em inglês, é *backward*. É um método da perda, então leva
+parênteses.
+
+Resposta
+
+Exercício 10.2
+
+A conta da atenção, à mão, em PyTorch.
+
+**2.a Parecença**
+
+Dica 1: a ideia
+
+Quem está perguntando é "dorme". Compare a frase inteira com o vetor
+dela.
+
+Resposta
+
+**2.b Raiz de d e softmax**
+
+Resposta
+
+Cada vetor tem quatro números, então `d = 4`:
+
+**2.c A mistura**
+
+Dica 1: a ideia
+
+A saída é uma mistura das próprias palavras, cada uma multiplicada pelo
+seu peso. Onde estão as palavras?
+
+Resposta
+
+Exercício 10.3
+
+Uma cabeça de atenção de verdade, com máscara.
+
+**3.a A máscara**
+
+Dica 1: a ideia
+
+A softmax de um número muito, muito negativo é zero. O mais negativo de
+todos é menos infinito.
+
+Resposta
+
+**3.b A cabeça inteira**
+
+Dica 1: a ideia
+
+Duas lacunas. A primeira: quais posições a máscara apaga? Você criou essa
+tabela de verdadeiro e falso na linha de cima. A segunda: depois dos pesos,
+o que entra na mistura: a pergunta, a etiqueta ou o conteúdo?
+
+Dica 2: no código
+
+A tabela da máscara se chama `futuro`. O conteúdo se chama `v`.
+
+Resposta
+
+**3.c O teste da cola**
+
+Se apareceu "as posições anteriores mudaram", a máscara não está agindo.
+Confira se a linha do `masked_fill` guarda o resultado de volta em
+`pontos` (o `masked_fill` não altera o tensor original: ele devolve um
+novo).
+
+Exercício 10.4
+
+Posição, várias cabeças, e a prova de que a atenção ajuda.
+
+**4.b A posição entra na cabeça**
+
+Resposta
+
+A etiqueta gira igual à pergunta. O conteúdo não gira:
+
+**4.c Quatro cabeças**
+
+Dica 1: a ideia
+
+Cada cabeça trabalha com uma fatia de 32 números, que já está calculada na
+variável `tamanho_cabeca`. No `forward`, cada cabeça recebe o mesmo `x` e
+devolve a sua parte.
+
+Resposta
+
+**4.d Atenção contra bigramas**
+
+Resposta
+
+O modelo soma ao vetor de cada token o que a atenção trouxe:
+
+### Colas dos Exercícios > Aula 11 — O Transformer e o Treino
+Exercício 11.1
+
+O bloco transformer.
+
+**1.a O MLP**
+
+Dica 1: a ideia
+
+A porta decide quanto passa, número a número. O que passa é o conteúdo.
+Os dois se multiplicam.
+
+Resposta
+
+**1.b O bloco**
+
+Dica 1: a ideia
+
+A segunda linha tem o mesmo desenho da primeira: normaliza, faz alguma
+coisa, soma de volta. Só trocam as peças.
+
+Resposta
+
+Exercício 11.2
+
+O modelo inteiro.
+
+**2.a Montar o MiniLLM**
+
+Dica 1: a ideia
+
+Duas lacunas. Na primeira, a lista recebe um bloco novo a cada volta. Na
+segunda, cada bloco transforma o `x` e devolve o `x` novo.
+
+Dica 2: no código
+
+Criar um bloco é chamar a classe: `Bloco()`. Usar um bloco é chamar o
+objeto: `bloco(x)`.
+
+Resposta
+
+Se o total de pesos saiu diferente de 787.584, a causa mais comum é uma
+camada com tamanho trocado em alguma classe da preparação que você editou.
+Rode a preparação de novo.
+
+**2.b Perplexidade**
+
+Resposta
+
+A perplexidade é a exponencial da perda. O `.item()` tira o número de
+dentro do tensor:
+
+Exercício 11.3
+
+O laço de treino e o treino de 35 minutos.
+
+**3.b A função de treino**
+
+Dica 1: a ideia
+
+São as três linhas do laço da Aula 10: o modelo recebe a entrada e o
+alvo, a perda calcula o gradiente, o otimizador dá o passo.
+
+Resposta
+
+**3.c O treino de verdade**
+
+Não há lacuna. Se a célula terminou em menos de 35 minutos sem você
+apertar nada, olhe a última linha: um erro ali quer dizer que o laço tem um
+problema, e o teste de 1 minuto do passo 3.b devia ter mostrado. Se o
+Colab desconectou no meio, o `meu_llm.pt` guarda o melhor modelo até a
+última conferência.
+
+Exercício 11.4
+
+O modelo treinado.
+
+**4.b Carregar o melhor modelo**
+
+Resposta
+
+O treino salvou o arquivo com o nome `meu_llm.pt`:
+
+**4.d Levar o modelo para casa**
+
+Se o download não começou, o navegador pode ter bloqueado: procure um
+aviso na barra de endereço e permita. Outro caminho: no menu da esquerda
+do Colab, clique no ícone de pasta, ache o `meu_llm.pt`, clique nos três
+pontos e escolha **Fazer download**.
+
+### Colas dos Exercícios > Aula 12 — Geração e Limites
+Exercício 12.1
+
+Do número ao texto.
+
+**Preparação: carregar o modelo**
+
+Se a janela de envio não abriu, rode a célula de novo. Se você não tem o
+`meu_llm.pt`, clique em Cancelar: o notebook carrega o modelo do
+professor, que tem o mesmo formato, e todos os exercícios funcionam igual.
+
+**1.a O que o modelo devolve**
+
+Dica 1: a ideia
+
+O modelo devolve pontuações para todas as posições. Você quer só a da
+última, a que viu o texto inteiro.
+
+Resposta
+
+**1.b Sempre o mais provável**
+
+Resposta
+
+O token escolhido entra no fim do texto, para a próxima volta:
+
+**1.c Sortear**
+
+Resposta
+
+Exercício 12.2
+
+Temperatura e top-k.
+
+**2.a A temperatura**
+
+Resposta
+
+O laço já entrega cada temperatura na variável `temperatura`:
+
+**2.b O top-k**
+
+Dica 1: a ideia
+
+A nota de corte já está calculada. Tudo o que tem pontuação menor que ela
+sai do sorteio.
+
+Resposta
+
+**2.c A função completa**
+
+Resposta
+
+Os dois botões chegam como argumentos da função:
+
+**2.e Desafio: top-p**
+
+Resposta
+
+Conta quantos tokens ficam abaixo de `p` na soma acumulada, mais o que faz
+a soma passar:
+
+Exercício 12.3
+
+O modelo é o corpus.
+
+**3.b O corpus novo**
+
+Resposta
+
+**3.c O ajuste fino**
+
+Dica 1: a ideia
+
+É o laço da Aula 11. A única diferença é de onde vêm os lotes: do texto
+novo, e não de Machado.
+
+Resposta
+
+Exercício 12.4
+
+Gastar tempo em vez de peso.
+
+**4.a Pontuar um texto**
+
+Dica 1: a ideia
+
+É a janela da Aula 9: o alvo é o texto andado uma casa. A entrada tira o
+último token; o alvo tira o primeiro.
+
+Resposta
+
+**4.b A melhor de cinco**
+
+Resposta
+
+Cada candidato entra na lista junto com a perda dele, e o `min` escolhe o de
+menor perda:
+
+### LLM do Zero > Como as aulas funcionam
+Cada aula alterna uma explicação curta, de 20 a 25 minutos, e um exercício
+que você faz sozinho no notebook, também de uns 20 minutos. São quatro
+pares por aula, e cada exercício acrescenta uma peça ao **mesmo** modelo:
+
+| Aula | Os quatro exercícios |
+|---|---|
+| 9 | o modelo de contagem, o BPE, codificar e decodificar, o lote de treino |
+| 10 | o primeiro modelo em PyTorch, a atenção à mão, a cabeça com máscara, várias cabeças |
+| 11 | o bloco, o modelo inteiro, o laço de treino, e o treino de 35 minutos |
+| 12 | gerar texto, temperatura e top-k, o ajuste fino, a melhor de cinco |
+
+No fim da Aula 11, o modelo é seu: você escreveu cada parte e apertou o
+botão do treino. Na Aula 12, você decide como ele escolhe as palavras e
+descobre do que ele não é capaz.
+
+Os exercícios têm lacunas (`____`) e uma célula de conferência depois de
+cada passo. Se travar, a página
+Colas dos Exercícios tem dicas para cada passo,
+que você abre uma de cada vez.
+
+### LLM do Zero > Os três hábitos do módulo
+As quatro aulas seguem a ordem de construção de *Build a Large Language
+Model (From Scratch)*, de Sebastian Raschka, adaptada ao tempo de aula e a
+quem está vendo isso pela primeira vez. Três hábitos vieram de lá, e valem
+para muito além de LLM:
+
+1. **Você sempre sabe onde está.** As quatro aulas abrem com o mesmo mapa,
+   mudando só o quadro aceso.
+2. **A versão simples primeiro.** Cada peça entra numa forma que funciona e
+   que dá para fazer à mão, e só depois ganha o que falta. O modelo começa
+   contando letras; a atenção começa sem peso nenhum.
+3. **Medir em vez de afirmar.** Toda vez que caberia dizer "isto ajuda",
+   mostramos o número: a perda dos bigramas que o transformer tem que
+   bater, a atenção contra o modelo que não olha para trás, o gradiente com
+   e sem atalho.
+
+| Aula | Conteúdo | Status |
+|---|---|---|
+| Aula 9 — Do Texto aos Números | O que um LLM faz, o modelo de contagem e o tokenizador BPE | Disponível |
+| Aula 10 — Atenção | O primeiro modelo em PyTorch, e como ele decide para onde olhar | Disponível |
+| Aula 11 — O Transformer e o Treino | Montar o modelo inteiro e treiná-lo no processador | Disponível |
+| Aula 12 — Geração e Limites | Do logit ao texto, o ajuste fino, e o que o modelo não sabe fazer | Disponível |
+| Colas dos Exercícios | Dicas para cada passo dos 16 exercícios | Disponível |
 
 ### Aula 1 — Regressão Linear Simples > Para que serve
 Você chama um carro por aplicativo. Antes de aceitar a corrida, o app já
