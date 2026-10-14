@@ -1091,7 +1091,7 @@ mesmo da Aula 9 à Aula 12.
 
 ### Aula 9 — Do Texto aos Números > Materiais
 - **Notebook desta aula, no Google Colab:** [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-09-do-texto-aos-numeros.ipynb)
-- **Quiz de cada microaula:** Quizzes da Aula 9, 5 perguntas depois de cada explicação, antes do exercício.
+- **Quiz de cada microaula:** no fim desta página, 5 perguntas depois de cada explicação, antes do exercício.
 - **Travou num exercício?** Colas dos exercícios, com dicas que você abre uma de cada vez.
 - Slides desta aula: entregues em sala.
 - Corpus: `machado.txt`
@@ -1110,6 +1110,20 @@ Os quatro exercícios do notebook:
 - Tiktokenizer: cole qualquer texto e veja como o tokenizador do GPT o corta, token por token. Compare uma frase em português e a mesma em inglês.
 - Let's build the GPT Tokenizer (Andrej Karpathy): duas horas construindo o mesmo BPE desta aula, com todos os detalhes que ficaram de fora. Em inglês.
 - Build a Large Language Model (From Scratch): o livro que inspirou a ordem destas aulas. Constrói um GPT em PyTorch, peça por peça, em inglês.
+
+### Aula 9 — Do Texto aos Números > Quizzes das microaulas
+Depois de cada microaula, e antes do exercício no Colab, responda o quiz
+dela. As perguntas aparecem uma de cada vez, como uma pilha de cartas:
+responda, leia a explicação e passe para a próxima. No fim aparece quantas
+você acertou. Nada fica gravado: dá para refazer quantas vezes quiser.
+
+Microaula 1: o que um LLM faz
+
+Microaula 2: a unidade certa
+
+Microaula 3: do texto aos números, e de volta
+
+Microaula 4: do texto ao lote de treino
 
 ### Aula 10 — Atenção > Onde estamos
 A Aula 9 terminou com um problema: o modelo de contagem só olha um token
@@ -1482,7 +1496,7 @@ janela dele como se fosse uma conquista. É.
 
 ### Aula 10 — Atenção > Materiais
 - **Notebook desta aula, no Google Colab:** [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-10-atencao.ipynb)
-- **Quiz de cada microaula:** Quizzes da Aula 10, 5 perguntas depois de cada explicação, antes do exercício.
+- **Quiz de cada microaula:** no fim desta página, 5 perguntas depois de cada explicação, antes do exercício.
 - **Travou num exercício?** Colas dos exercícios, com dicas que você abre uma de cada vez.
 - Slides desta aula: entregues em sala.
 - Modelo treinado, usado nas figuras: `mini_llm.pt`
@@ -1500,6 +1514,20 @@ Os quatro exercícios do notebook:
 - The Illustrated Transformer: a explicação visual mais conhecida, com animações de cada passo.
 - Attention in transformers, step-by-step (3Blue1Brown): a conta desta aula, animada. Em inglês, com legendas.
 - Attention Is All You Need: o artigo de 2017 que apresentou o transformer. Difícil, mas vale ver o desenho da página 3.
+
+### Aula 10 — Atenção > Quizzes das microaulas
+Depois de cada microaula, e antes do exercício no Colab, responda o quiz
+dela. As perguntas aparecem uma de cada vez, como uma pilha de cartas:
+responda, leia a explicação e passe para a próxima. No fim aparece quantas
+você acertou. Nada fica gravado: dá para refazer quantas vezes quiser.
+
+Microaula 1: o primeiro modelo em PyTorch
+
+Microaula 2: a conta da atenção
+
+Microaula 3: pergunta, etiqueta e conteúdo
+
+Microaula 4: várias cabeças e a posição
 
 ### Aula 11 — O Transformer e o Treino > Todas as peças já existem
 Esta aula não tem quase nada de novo, e vale começar por aí:
@@ -1814,7 +1842,7 @@ Nada nessa tabela é uma ideia nova. É a mesma ideia, com mais dinheiro.
 
 ### Aula 11 — O Transformer e o Treino > Materiais
 - **Notebook desta aula, no Google Colab:** [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-11-transformer-e-treino.ipynb)
-- **Quiz de cada microaula:** Quizzes da Aula 11, 5 perguntas depois de cada explicação, antes do exercício.
+- **Quiz de cada microaula:** no fim desta página, 5 perguntas depois de cada explicação, antes do exercício.
 - **Travou num exercício?** Colas dos exercícios, com dicas que você abre uma de cada vez.
 - Slides desta aula: entregues em sala.
 - Modelo de referência, treinado: `mini_llm.pt`
@@ -1838,6 +1866,20 @@ perder, a Aula 12 oferece o modelo do professor, que tem o mesmo formato.
 - Let's build GPT, from scratch (Andrej Karpathy): duas horas de vídeo montando a mesma coisa, linha por linha. Em inglês.
 - Transformers, the tech behind LLMs (3Blue1Brown): o modelo inteiro, do token à previsão, em animação. Em inglês, com legendas.
 - nanoGPT, de Andrej Karpathy: o repositório que inspirou o modelo desta aula, com 300 linhas de PyTorch.
+
+### Aula 11 — O Transformer e o Treino > Quizzes das microaulas
+Depois de cada microaula, e antes do exercício no Colab, responda o quiz
+dela. As perguntas aparecem uma de cada vez, como uma pilha de cartas:
+responda, leia a explicação e passe para a próxima. No fim aparece quantas
+você acertou. Nada fica gravado: dá para refazer quantas vezes quiser.
+
+Microaula 1: o bloco transformer
+
+Microaula 2: o modelo inteiro
+
+Microaula 3: o laço de treino
+
+Microaula 4: enquanto o modelo treina
 
 ### Aula 12 — Geração e Limites > Onde estamos
 A aula começa carregando o arquivo `meu_llm.pt`, o modelo que você treinou
@@ -2130,7 +2172,7 @@ que qualquer ajuste de temperatura, e é de graça.
 
 ### Aula 12 — Geração e Limites > Materiais
 - **Notebook desta aula, no Google Colab:** [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-12-geracao-e-limites.ipynb)
-- **Quiz de cada microaula:** Quizzes da Aula 12, 5 perguntas depois de cada explicação, antes do exercício.
+- **Quiz de cada microaula:** no fim desta página, 5 perguntas depois de cada explicação, antes do exercício.
 - **Travou num exercício?** Colas dos exercícios, com dicas que você abre uma de cada vez.
 - Slides desta aula: entregues em sala.
 - O seu modelo: o `meu_llm.pt` que você baixou na Aula 11. O do professor: `mini_llm.pt`
@@ -2149,6 +2191,20 @@ Os quatro exercícios do notebook:
 - The Curious Case of Neural Text Degeneration: o artigo que apresentou o top-p, com exemplos de texto degenerado que valem mais que a matemática.
 - Deep Dive into LLMs like ChatGPT (Andrej Karpathy): três horas sobre o que existe depois do pré-treino, incluindo as etapas que esta aula só mostra de longe. Em inglês.
 - Build a Reasoning Model (From Scratch): de onde veio a seção sobre gastar tempo em vez de peso. Em inglês.
+
+### Aula 12 — Geração e Limites > Quizzes das microaulas
+Depois de cada microaula, e antes do exercício no Colab, responda o quiz
+dela. As perguntas aparecem uma de cada vez, como uma pilha de cartas:
+responda, leia a explicação e passe para a próxima. No fim aparece quantas
+você acertou. Nada fica gravado: dá para refazer quantas vezes quiser.
+
+Microaula 1: do número à palavra
+
+Microaula 2: os botões
+
+Microaula 3: o modelo é o corpus
+
+Microaula 4: do modelo ao assistente
 
 ### Colas dos Exercícios > Antes de abrir qualquer dica
 Metade dos travamentos não tem nada a ver com o exercício. Confira estas
@@ -2640,7 +2696,8 @@ menor perda:
 ### LLM do Zero > Como as aulas funcionam
 Cada aula alterna uma explicação curta, de 20 a 25 minutos, e um exercício
 que você faz sozinho no notebook, também de uns 20 minutos. Entre os dois,
-um quiz de 5 perguntas no site confere se a explicação assentou. São quatro
+um quiz de 5 perguntas, no fim da página da aula, confere se a
+explicação assentou. São quatro
 rodadas por aula, e cada exercício acrescenta uma peça ao **mesmo** modelo:
 
 | Aula | Os quatro exercícios |
@@ -2681,7 +2738,6 @@ para muito além de LLM:
 | Aula 10 — Atenção | O primeiro modelo em PyTorch, e como ele decide para onde olhar | Disponível |
 | Aula 11 — O Transformer e o Treino | Montar o modelo inteiro e treiná-lo no processador | Disponível |
 | Aula 12 — Geração e Limites | Do logit ao texto, o ajuste fino, e o que o modelo não sabe fazer | Disponível |
-| Quizzes das Aulas 9, 10, 11 e 12 | 5 perguntas depois de cada microaula, uma de cada vez | Disponível |
 | Colas dos Exercícios | Dicas para cada passo dos 16 exercícios | Disponível |
 
 ### Aula 1 — Regressão Linear Simples > Para que serve

@@ -16,7 +16,8 @@ O texto usado no treino é a obra de Machado de Assis, em domínio público.
 
 Cada aula alterna uma explicação curta, de 20 a 25 minutos, e um exercício
 que você faz sozinho no notebook, também de uns 20 minutos. Entre os dois,
-um quiz de 5 perguntas no site confere se a explicação assentou. São quatro
+um quiz de 5 perguntas, no fim da página da aula, confere se a
+explicação assentou. São quatro
 rodadas por aula, e cada exercício acrescenta uma peça ao **mesmo** modelo:
 
 | Aula | Os quatro exercícios |
@@ -58,5 +59,4 @@ para muito além de LLM:
 | [Aula 10 — Atenção](aula-10-atencao.md) | O primeiro modelo em PyTorch, e como ele decide para onde olhar | Disponível |
 | [Aula 11 — O Transformer e o Treino](aula-11-transformer-treino.md) | Montar o modelo inteiro e treiná-lo no processador | Disponível |
 | [Aula 12 — Geração e Limites](aula-12-geracao-limites.md) | Do logit ao texto, o ajuste fino, e o que o modelo não sabe fazer | Disponível |
-| Quizzes das Aulas [9](quiz-aula-09.md), [10](quiz-aula-10.md), [11](quiz-aula-11.md) e [12](quiz-aula-12.md) | 5 perguntas depois de cada microaula, uma de cada vez | Disponível |
 | [Colas dos Exercícios](colas-dos-exercicios.md) | Dicas para cada passo dos 16 exercícios | Disponível |
