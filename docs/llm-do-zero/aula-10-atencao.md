@@ -1,5 +1,5 @@
 ---
-description: Como o modelo decide para onde olhar
+description: O lote de treino, o primeiro modelo, e como ele decide para onde olhar
 ---
 
 # Aula 10 — Atenção
@@ -7,20 +7,127 @@ description: Como o modelo decide para onde olhar
 {% hint style="info" %}
 **O que você leva desta aula**
 
-Você vai escrever o seu primeiro modelo em PyTorch, calcular à mão o peso
-de atenção de uma palavra, e montar uma cabeça de atenção com máscara. No
-fim, vai medir que um modelo que olha para trás erra menos que um que não
-olha. É a única peça realmente nova de um transformer.
+Você vai transformar a fila de números da Aula 9 em lotes de treino e
+medir o número que o seu modelo vai ter que bater. Depois vai escrever o
+seu primeiro modelo em PyTorch, calcular à mão o peso de atenção de uma
+palavra, e montar uma cabeça de atenção com máscara, a única peça
+realmente nova de um transformer.
 {% endhint %}
 
 ## Onde estamos
 
-<figure><img src="../assets/aula-10/mapa.png" alt="Quatro quadros lado a lado, um por aula: do texto para números, para onde olhar, montar e treinar, gerar e duvidar. O segundo está aceso"><figcaption>A Aula 9 entregou uma fila de números. Esta aula ensina o modelo a escolher para onde olhar dentro dela.</figcaption></figure>
+<figure><img src="../assets/aula-10/mapa.png" alt="Quatro quadros lado a lado, um por aula: do texto para números, o lote e a atenção, montar, treinar e escrever, ajustar e duvidar. O segundo está aceso"><figcaption>A Aula 9 entregou uma fila de números. Esta aula a transforma em exemplos de treino e ensina o modelo a escolher para onde olhar.</figcaption></figure>
 
-A Aula 9 terminou com um problema: o modelo de contagem só olha um token
-para trás, e olhar mais longe com uma tabela é impossível. Esta aula
-resolve isso em dois passos. Primeiro, o modelo de contagem vira uma rede
-neural. Depois, a rede ganha a atenção.
+A Aula 9 terminou com o texto virando números. Esta aula tem três
+passos. Primeiro, esses números viram exemplos de treino, e você mede o
+número a bater. Depois, o modelo de contagem vira uma rede neural. Por
+fim, a rede ganha a atenção, que deixa cada posição olhar para trás.
+
+## Do texto ao lote de treino
+
+O primeiro passo é transformar a fila de números em exemplos de treino.
+
+### Tensores
+
+Daqui até a Aula 12 os números moram em **tensores**, a lista do
+PyTorch. Um tensor faz conta rápido, calcula gradientes sozinho e sabe o
+próprio formato, o `shape`. O corpus inteiro é um tensor de formato
+`[1484827]`. Um lote de 32 janelas de 128 tokens é um tensor de formato
+`[32, 128]`. Ler o formato é metade de entender o código.
+
+### Treino e validação
+
+Os primeiros 90% dos tokens são para treinar. Os últimos 10% ficam
+guardados, e o modelo nunca treina neles: são 1.336.344 tokens de treino e
+148.483 de validação. É o conjunto de teste das aulas anteriores. A perda
+na validação diz se o modelo aprendeu português ou decorou o livro.
+
+O corte é no fim, e não sorteado, porque tokens vizinhos são quase o mesmo
+texto. Sortear misturaria pedaços da mesma frase nos dois lados.
+
+### A janela
+
+A tarefa é prever o próximo token. Então o exemplo é simplesmente a mesma
+sequência, andada uma casa:
+
+<figure><img src="../assets/aula-09/janela.png" alt="Duas fileiras de oito tokens: em cima a entrada, embaixo o alvo, que é a mesma sequência começando um token depois, com uma seta ligando cada entrada ao seu alvo"><figcaption>Entrada e alvo são o mesmo texto, com uma casa de diferença.</figcaption></figure>
+
+Repare no detalhe que faz a coisa toda ser barata: nove tokens de texto
+não dão **um** exemplo de treino. Dão oito. O modelo prevê o token 2
+olhando o 1, prevê o 3 olhando o 1 e o 2, e assim por diante, tudo na
+mesma passada.
+
+Com janelas de 128 tokens e lotes de 32, cada passo de treino corrige os
+pesos usando 4.096 previsões de uma vez. O lote é uma matriz: cada linha
+é uma janela sorteada do texto de treino, cada coluna é uma posição
+dentro da janela. O alvo é outra matriz do mesmo tamanho, com cada linha
+andada uma casa.
+
+<figure><img src="../assets/aula-09/lote_janela.png" alt="Duas matrizes de tokens lado a lado, entrada e alvo, cada uma com formato 32 por 128. As linhas são janelas sorteadas do texto, as colunas são posições, e cada linha do alvo é a linha da entrada começando um token depois"><figcaption>Um lote de verdade, com tokens do corpus: 32 janelas por 128 posições. Cada casa da entrada prevê a casa igual do alvo.</figcaption></figure>
+
+Leia a figura de dois jeitos. Uma **linha** é a figura da janela de
+antes, só que com 128 casas. Uma **coluna** é a mesma posição em 32
+trechos diferentes dos livros. O modelo faz as 4.096 previsões ao mesmo
+tempo, mede o erro de todas, e corrige os pesos uma vez: isso é um passo
+de treino. No passo seguinte, outras 32 janelas são sorteadas.
+
+<figure><video src="../assets/aula-09/janela.mp4" poster="../assets/aula-09/janela.jpg" controls preload="none" playsinline aria-label="Animação da janela de treino, da janela de contexto e do lote"></video><figcaption>Cada posição prevê a seguinte, a janela anda pelo texto, e várias janelas formam um lote.</figcaption></figure>
+
+O tamanho da janela tem nome: **janela de contexto**. É o quanto o modelo
+consegue olhar para trás. A sua vai ser de 128 tokens, uns 300 caracteres.
+Os modelos comerciais estão na casa das centenas de milhares.
+
+## O número a bater
+
+Falta uma régua. Para saber se um modelo é bom, você mede quanto ele se
+surpreende com o texto de validação. Essa medida é a **perda**, a mesma
+entropia cruzada das Aulas 3 e 8:
+
+$$\text{perda} = -\frac{1}{n}\sum_{i=1}^{n} \log P(\text{token certo}_i)$$
+
+| Símbolo | Significado |
+|---|---|
+| `n` | quantas previsões o modelo fez |
+| `P(token certo)` | a chance que o modelo deu ao token que de fato veio |
+| `log` | o logaritmo natural, que castiga com força a chance baixa na resposta certa |
+
+Exemplo com três previsões. O modelo deu 50%, 25% e 10% ao token certo.
+Os logaritmos, com o sinal trocado, são 0,69, 1,39 e 2,30. A média é
+(0,69 + 1,39 + 2,30) / 3 = 1,46.
+
+### Por que o log
+
+Por que não usar a chance direto? Olhe a curva de `-log(chance)`:
+
+<figure><img src="../assets/aula-09/log_perda.png" alt="Curva decrescente da perda em função da chance dada ao token certo: vale 0 quando a chance é 1, 0,69 em 0,5, 1,39 em 0,25, 2,30 em 0,1, e sobe até 6,93 quando a chance é 1 em 1024, disparando perto de zero"><figcaption>Certeza no token certo custa zero. Chance quase nula custa caro.</figcaption></figure>
+
+São três razões, e a primeira se vê na figura:
+
+1. **Errar com confiança custa muito mais que hesitar.** Passar de 0,5
+   para 0,25 aumenta a perda em 0,69. Passar de 0,01 para 0,001 aumenta
+   em 2,30. O modelo é castigado com força quando aposta contra a resposta
+   certa, e é isso que o obriga a nunca descartar uma continuação
+   possível.
+2. **Produto vira soma.** A chance de um texto inteiro é a chance do
+   primeiro token, vezes a do segundo, vezes a do terceiro... Multiplicar
+   milhares de números menores que 1 dá um número tão pequeno que o
+   computador arredonda para zero. O log transforma esse produto numa
+   soma, e a soma dividida por `n` vira a média da fórmula.
+3. **Zero é o ideal.** Chance 1 no token certo dá perda 0. A perda nunca
+   é negativa, então quanto mais perto de zero, melhor.
+
+A animação abaixo faz a mesma conta com três previsões do modelo treinado:
+
+<figure><video src="../assets/aula-09/perda.mp4" poster="../assets/aula-09/perda.jpg" controls preload="none" playsinline aria-label="Animação das previsões do modelo e do cálculo da perda"></video><figcaption>Chance alta no token certo, surpresa pequena. Chance baixa, surpresa grande. A perda é a média.</figcaption></figure>
+
+Quanto menor, melhor. Um modelo que chuta igual entre 1.024 tokens dá
+1/1024 a cada um, e a perda dele é `ln(1024) = 6,93`. É dali que todo
+treino das próximas aulas começa.
+
+Agora o número a bater. Refaça o contador do começo da Aula 9 com tokens em
+vez de letras, conte os pares no treino e meça na validação. A perda dele
+é **4,48**. Sem rede neural nenhuma, só contando, o modelo já sai de 6,93.
+O transformer da Aula 11 vai ter que fazer melhor que isso.
 
 ## O primeiro modelo em PyTorch
 
@@ -91,7 +198,7 @@ Antes de treinar, confira o **passo zero**. Um modelo recém-criado não
 sabe nada e chuta igual entre 1.024 tokens, então a perda dele tem que
 dar perto de `ln(1024) = 6,93`. No exercício da aula, o modelo novo dá
 7,1. Em 500 passos, a perda cai para 4,2, que já está abaixo dos 4,48 do
-contador da Aula 9. O texto que ele gera tem palavras de verdade e frases
+contador de pares. O texto que ele gera tem palavras de verdade e frases
 sem sentido, porque o modelo escolhe cada token olhando só o anterior.
 
 ## O problema
@@ -192,8 +299,8 @@ saida = pesos @ frase                    # 4. mistura
 
 ## Os dois buracos da versão sem pesos
 
-A versão de cima funciona, e tem dois defeitos. Os dois dá para medir, e o
-resto da aula é tapar um de cada vez.
+A versão de cima funciona, e tem dois defeitos. Os dois dá para medir. O resto
+desta aula tapa o primeiro; a Aula 11 tapa o segundo.
 
 <figure><img src="../assets/aula-10/espelho.png" alt="À esquerda uma matriz 3 por 3 de pesos de atenção com a diagonal destacada em duas das três linhas; à direita duas barras idênticas comparando a saída da palavra dorme na frase normal e na embaralhada"><figcaption>Buraco 1: a palavra olha para si mesma. Buraco 2: embaralhar a frase não muda nada.</figcaption></figure>
 
@@ -325,151 +432,16 @@ porque o sintoma aparece longe da causa. O teste da última palavra pega o
 erro na hora.
 {% endhint %}
 
-## Quatro cabeças, quatro olhares
-
-Uma atenção só tem que decidir tudo com um conjunto de pesos. Na prática,
-o modelo roda várias em paralelo, cada uma com sua própria tabela de Q, K e
-V, e junta os resultados no fim. Cada uma se chama **cabeça** (*head*).
-
-O nosso modelo tem 4 cabeças por camada. Como o vetor tem 128 números,
-cada cabeça trabalha com 32. As quatro saídas de 32, lado a lado, voltam a
-ser 128, e uma última tabela (`saida`) mistura o que as quatro acharam:
-
-```python
-resultados = []
-for cabeca in self.cabecas:
-    resultados.append(cabeca(x))
-juntos = torch.cat(resultados, dim=-1)    # 4 × 32 = 128
-return self.saida(juntos)
-```
-
-A conta dos pesos: cada cabeça tem três tabelas de 128 × 32 (12.288
-pesos), e as quatro somam 49.152. A tabela de saída tem 128 × 128 =
-16.384. Uma camada de atenção inteira tem **65.536 pesos**, o mesmo custo
-de uma cabeça grande de 128. O que se ganha é a variedade:
-
-<figure><img src="../assets/aula-10/cabecas.png" alt="Oito mapas de atenção em duas linhas: quatro cabeças da camada 1 e quatro da camada 4, cada uma com um padrão diferente"><figcaption>As oito cabeças, na mesma frase. Nenhuma faz o que a outra faz.</figcaption></figure>
-
-Agora olhe de perto duas delas, na frase "A casa de Capitú tinha uma janela
-para a rua.":
-
-<figure><img src="../assets/aula-10/mapa_atencao.png" alt="Dois mapas de atenção grandes, com os tokens da frase nos dois eixos, mostrando padrões diferentes e todo o canto superior direito em branco"><figcaption>Cada linha é uma posição prevendo. Cada coluna é para onde ela olhou.</figcaption></figure>
-
-Duas coisas para reparar. Primeira: o canto de cima à direita é todo
-branco. É a máscara funcionando, no modelo de verdade. Segunda: "Capitú"
-aparece cortado em quatro tokens (`·C`, `ap`, `it`, `ú`), porque um
-vocabulário de 1.024 não tem espaço para nomes próprios. Os pedaços de uma
-palavra costumam se olhar entre si, e é isso que remonta a palavra.
-
-Dá para medir o que cada camada faz. Numa frase de 34 tokens, a média de
-quão longe cada cabeça olha:
-
-| Camada | Distância média | Peso na palavra anterior |
-|---|---|---|
-| 1 | 7,4 tokens | 9% |
-| 2 | 3,2 tokens | 36% |
-| 3 | 4,3 tokens | 25% |
-| 4 | 4,7 tokens | 26% |
-
-A primeira camada espalha o peso pela frase e quase não olha a palavra
-imediatamente anterior. A segunda é a mais local, com mais de um terço do
-peso na anterior. As de cima ficam no meio do caminho.
-
-Ninguém programou essa divisão de trabalho: ela sai do treino.
-
-## O buraco 2, enfim: a posição
-
-Ficou uma dívida lá atrás. Nem Q, nem K, nem V, nem a máscara, nem as
-quatro cabeças resolveram o saco de palavras: embaralhe a frase e a conta
-dá o mesmo. Todas essas peças mexem em *quem olha para quem*, e nenhuma
-delas sabe *onde* cada palavra está.
-
-A correção precisa entrar antes dos produtos escalares, mexendo nos
-vetores. A solução moderna se chama **RoPE** (*rotary position embedding*,
-embutimento rotativo de posição): gire a pergunta e a etiqueta de cada
-palavra por um ângulo proporcional à posição dela.
-
-<figure><img src="../assets/aula-10/rope.png" alt="À esquerda quatro setas saindo da origem, a mesma palavra nas posições 0 a 3, cada uma girada um pouco mais; à direita uma curva da parecença média entre duas posições, que começa em 1 e cai com a distância"><figcaption>Duas palavras próximas giram ângulos parecidos, e continuam parecidas. Longe, a parecença cai.</figcaption></figure>
-
-O giro trabalha em pares de números. Cada par `(a, b)` do vetor gira por
-um ângulo `θ`, que é a posição vezes uma velocidade:
-
-$$(a',\; b') = (a\cos\theta - b\sin\theta,\;\; a\sin\theta + b\cos\theta), \qquad \theta = p \cdot \omega$$
-
-| Símbolo | Significado |
-|---|---|
-| `a`, `b` | um par de números do vetor |
-| `p` | a posição da palavra na janela (0, 1, 2...) |
-| `ω` | a velocidade de giro daquele par; cada par tem a sua |
-| `θ` | o ângulo, em radianos |
-
-Exemplo: o par `(1, 0)`, com velocidade `ω = 0,5`, na posição 2. O ângulo
-é `θ = 2 × 0,5 = 1`. O par girado é `(cos 1, sen 1) = (0,54, 0,84)`. Na
-posição 0, não gira nada.
-
-Girar tem uma propriedade que serve à perfeição aqui: quando você gira
-dois vetores e calcula o produto entre eles, o que sobra é a **diferença**
-entre os dois ângulos. Uma palavra na posição 3 comparada com outra na
-posição 1 dá o mesmo produto que as mesmas palavras nas posições 13 e 11.
-O produto passa a depender da distância entre as palavras, e não da
-posição de cada uma. O modelo trata igual uma frase que aparece no começo
-e no fim do texto.
-
-Cada par gira numa velocidade diferente: os primeiros rápido, os últimos
-devagar. Na média de todos os pares, palavras próximas continuam parecidas
-e palavras distantes ficam menos parecidas, que é a curva da direita na
-figura.
-
-O RoPE entra em duas linhas da cabeça de atenção. O conteúdo (`v`) não
-gira, porque ele é o que a palavra entrega, e não o que entra na comparação:
-
-```python
-q = girar(self.pergunta(x))
-k = girar(self.etiqueta(x))
-```
-
-## A prova
-
-Hora de medir se tudo isso vale a pena. Pegue o modelo do começo da aula,
-que só olha o token atual, e acrescente **uma** camada de atenção:
-
-```python
-x = self.embutir(indices)
-x = x + self.atencao(x)        # a palavra, mais o que ela viu para trás
-logits = self.cabeca(x)
-```
-
-Treine os dois do zero, do mesmo jeito, por 600 passos cada, e meça a
-perda na validação:
-
-| Modelo | Perda na validação |
-|---|---|
-| Só o token atual (bigrama) | 4,38 |
-| Com uma camada de atenção | **4,17** |
-
-Mesmo treino, mesmos dados. A única diferença é olhar para trás, e ela
-baixou a perda em 0,2. Na Aula 11 o modelo ganha mais três camadas e um
-treino de meia hora, e essa diferença cresce muito.
-
-## O preço da janela
-
-Uma conta que explica muita notícia. Para uma janela de `n` tokens, a
-atenção calcula `n × n` produtos escalares. Dobrar a janela quadruplica o
-custo.
-
-| Janela | Produtos por cabeça |
-|---|---|
-| 128 (o nosso) | 16.384 |
-| 1.000 | 1 milhão |
-| 100.000 | 10 bilhões |
-
-É por isso que janela grande é caro, e por que cada modelo novo anuncia a
-janela dele como se fosse uma conquista. É.
-
 ## Cola da aula
 
 | Conceito | Em uma frase |
 |---|---|
+| Tensor | a lista do PyTorch, com formato (`shape`) |
+| Janela | o alvo é a entrada andada uma casa |
+| Lote | 32 janelas de 128: 4.096 previsões por passo |
+| Perda | média de `-log P(token certo)`; chute ao acaso = 6,93 |
+| Por que o log | castiga o erro confiante e troca produto por soma |
+| O número a bater | 4,48, a perda do contador de pares de tokens |
 | Embutimento | troca cada token por uma linha de 128 números de uma tabela treinável |
 | Logits | as pontuações cruas, uma por token, antes da softmax |
 | `nn.Module` | `__init__` cria as camadas, `forward` diz o caminho |
@@ -479,9 +451,6 @@ janela dele como se fosse uma conquista. É.
 | `√d` | segura o tamanho dos produtos para a softmax não saturar |
 | Q, K, V | pergunta, etiqueta e conteúdo, de três tabelas de pesos |
 | Máscara causal | o futuro vira `−∞` antes da softmax, e some |
-| Cabeças | várias atenções em paralelo, juntadas e misturadas no fim |
-| RoPE | gira Q e K pela posição; no produto sobra a distância |
-| Custo da janela | `n × n` produtos: dobrar a janela quadruplica a conta |
 
 ## Materiais
 
@@ -491,14 +460,13 @@ janela dele como se fosse uma conquista. É.
 - Slides desta aula: entregues em sala.
 - Modelo treinado, usado nas figuras: [`mini_llm.pt`](https://github.com/klein-natan/nanodegree-AI-Atitus/blob/main/data/mini_llm.pt)
 
-Os quatro exercícios do notebook:
+Os três exercícios do notebook:
 
 | Exercício | O que você constrói |
 |---|---|
-| 10.1 | o primeiro modelo em PyTorch e o laço de treino |
-| 10.2 | a conta da atenção, à mão, com os números desta página |
-| 10.3 | uma cabeça de atenção com máscara, e o teste da cola |
-| 10.4 | o giro, quatro cabeças, e a prova contra o bigrama |
+| 10.1 | treino e validação, entrada e alvo, o lote, a perda e o número a bater |
+| 10.2 | o primeiro modelo em PyTorch e o laço de treino |
+| 10.3 | a conta da atenção à mão, e uma cabeça de atenção com máscara |
 
 ## Para ir além
 
@@ -513,9 +481,60 @@ dela. As perguntas aparecem uma de cada vez, como uma pilha de cartas:
 responda, leia a explicação e passe para a próxima. No fim aparece quantas
 você acertou. Nada fica gravado: dá para refazer quantas vezes quiser.
 
-### Microaula 1: o primeiro modelo em PyTorch
+### Microaula 1: do texto ao lote de treino
 
-{% pilha titulo="Microaula 1 · O primeiro modelo" %}
+{% pilha titulo="Microaula 1 · O lote de treino" %}
+
+```quiz
+Um lote de 32 janelas de 128 tokens é um tensor. Qual é o formato (shape) dele?
+- [128, 32]
++ [32, 128]
+- [4096]
+- [1024, 128]
+? Uma linha por janela (32) e uma coluna por token da janela (128). Ler o formato é metade de entender o código.
+```
+
+```quiz
+Por que os últimos 10% do corpus ficam fora do treino?
+- Para o treino ser mais rápido.
+- Porque o fim dos livros é menos importante.
++ Para medir se o modelo aprendeu português ou decorou o texto que viu.
+- Porque o tokenizador não consegue ler o fim.
+? É o conjunto de validação, como o conjunto de teste das aulas anteriores. O modelo nunca treina nele.
+```
+
+```quiz
+Na janela de treino, o que é o alvo?
+- A última palavra da frase.
+- Um token sorteado ao acaso.
+- A mesma janela de trás para a frente.
++ A mesma sequência da entrada, andada uma casa.
+? Cada posição tem que prever o token seguinte. Por isso nove tokens de texto dão oito exemplos de treino de uma vez.
+```
+
+```quiz
+Por que a perda usa o log da chance do token certo, e não a chance direto?
+- Porque o log deixa a conta mais rápida no Colab.
+- Porque o log transforma toda chance num número positivo maior que 1.
++ Porque castiga com força quem dá chance quase zero à resposta certa, e troca o produto das chances por uma soma.
+- Porque sem o log a perda de um chute daria zero.
+? Chance 1 dá perda 0; chance 0,1 dá 2,30; chance 0,001 dá 6,93. Perto de zero a curva dispara. E a chance de um texto é o produto das chances de cada token: o log vira esse produto numa soma, que o computador consegue fazer.
+```
+
+```quiz
+Um modelo que chuta igual entre os 1.024 tokens tem perda 6,93. O contador de pares de tokens tem perda 4,48. O que isso quer dizer?
++ Que contar já é bem melhor que chutar, e o transformer vai ter que fazer melhor que 4,48.
+- Que o contador é pior que o chute, porque 4,48 é menor.
+- Que a perda não serve para comparar modelos.
+- Que o transformer nunca passa de 4,48.
+? Quanto menor a perda, menos o modelo se surpreende com o token certo. O 4,48 é o número a bater na Aula 11.
+```
+
+{% endpilha %}
+
+### Microaula 2: o primeiro modelo em PyTorch
+
+{% pilha titulo="Microaula 2 · O primeiro modelo em PyTorch" %}
 
 ```quiz
 O que faz a camada nn.Embedding(1024, 128)?
@@ -564,27 +583,9 @@ Um modelo recém-criado, ainda sem treino, deu perda 31. O que isso indica?
 
 {% endpilha %}
 
-### Microaula 2: a conta da atenção
+### Microaula 3: a atenção
 
-{% pilha titulo="Microaula 2 · A conta" %}
-
-```quiz
-Por que "olhar só as últimas palavras" não basta para prever bem?
-+ Porque a informação que importa pode estar longe, como "Capitú" 21 palavras antes da lacuna.
-- Porque olhar as últimas palavras é caro demais.
-- Porque as últimas palavras são sempre artigos.
-- Porque o modelo não consegue olhar para trás.
-? Era assim antes de 2017, e é o que o modelo do Exercício 1 faz. As palavras que decidem a próxima podem estar a dezenas de posições.
-```
-
-```quiz
-E por que "somar todas as palavras anteriores por igual" também não serve?
-- Porque a soma fica grande demais para o computador.
-- Porque ela esquece o começo da frase.
-+ Porque "de" e "uma" passam a pesar tanto quanto "Capitú", e a informação some na média.
-- Porque a soma muda a ordem das palavras.
-? A saída é deixar cada posição escolher quanto olhar para cada palavra, com pesos que o treino ajusta. Isso é a atenção.
-```
+{% pilha titulo="Microaula 3 · A atenção" %}
 
 ```quiz
 O produto escalar de "dorme" = (0, 1, 1, 0) com "gato" = (0, 3, 1, 0) é:
@@ -605,36 +606,12 @@ Por que a atenção divide os produtos pela raiz de d?
 ```
 
 ```quiz
-Na atenção sem pesos, "o gato dorme" e "dorme gato o" dão a mesma saída para "dorme". O que isso mostra?
-- Que a conta está errada.
-- Que "dorme" é a palavra mais importante.
-- Que a atenção funciona perfeitamente.
-+ Que nada na fórmula sabe onde cada palavra está: a frase virou um saco de palavras.
-? É o buraco 2. Ele só é tapado na Microaula 4, com o RoPE, que gira os vetores conforme a posição.
-```
-
-{% endpilha %}
-
-### Microaula 3: pergunta, etiqueta e conteúdo
-
-{% pilha titulo="Microaula 3 · A cabeça de atenção" %}
-
-```quiz
 Na analogia da biblioteca, o que é a etiqueta (K)?
 - O que a posição atual está procurando.
 + O que cada palavra anterior oferece, como a etiqueta na lombada de um livro.
 - O texto que a palavra entrega quando é escolhida.
 - O número da página onde a palavra aparece.
 ? A pergunta (Q) procura, a etiqueta (K) anuncia, e o conteúdo (V) é o que se lê do livro escolhido.
-```
-
-```quiz
-De onde vêm a pergunta, a etiqueta e o conteúdo de uma palavra?
-- Do dicionário de português.
-- Da posição da palavra na frase.
-- Do tokenizador.
-+ Do vetor da palavra multiplicado por três tabelas de pesos diferentes (três nn.Linear).
-? q = x·W_Q, k = x·W_K e v = x·W_V. O treino ajusta as três tabelas.
 ```
 
 ```quiz
@@ -647,72 +624,12 @@ Por que usar tabelas diferentes para Q e K tapa o buraco 1 (a palavra olhando pa
 ```
 
 ```quiz
-A softmax de (1, 2, −∞) é:
-- (33%, 33%, 33%)
-- (0%, 0%, 100%)
-+ (27%, 73%, 0%)
-- (50%, 50%, 0%)
-? e elevado a menos infinito é zero. A posição do futuro some, e as outras duas dividem os 100% entre si.
-```
-
-```quiz
 Um modelo sem máscara causal treina com perda perto de zero e depois gera lixo. Por quê?
 - Porque a máscara deixa o treino mais lento.
 - Porque o modelo decorou o tokenizador.
 + Porque no treino ele colava, olhando o token que devia prever, e na geração não existe futuro para copiar.
 - Porque a perda perto de zero é sempre um bom sinal.
 ? É o erro do dia. O teste da cola pega esse erro: trocar só a última palavra não pode mudar a saída das posições anteriores.
-```
-
-{% endpilha %}
-
-### Microaula 4: várias cabeças e a posição
-
-{% pilha titulo="Microaula 4 · Várias cabeças" %}
-
-```quiz
-O nosso modelo usa 4 cabeças de 32 números em vez de uma cabeça de 128. O que se ganha?
-- Velocidade: quatro cabeças custam quatro vezes menos.
-+ Variedade: cada cabeça aprende a olhar para uma coisa diferente.
-- Mais pesos: quatro cabeças têm quatro vezes mais.
-- Nada: é só um jeito diferente de escrever.
-? O custo é o mesmo de uma cabeça de 128. Uma cabeça pode olhar a palavra anterior, outra o sujeito, outra os pedaços da mesma palavra.
-```
-
-```quiz
-Depois de juntar as 4 cabeças com torch.cat, para que serve a camada saida?
-- Para descartar três das quatro cabeças.
-- Para transformar os números em texto.
-- Para aplicar a máscara.
-+ Para misturar o que as quatro cabeças acharam.
-? As quatro saídas de 32, lado a lado, voltam a ser 128. A camada saida, de 128 × 128, mistura essas quatro partes.
-```
-
-```quiz
-O que o RoPE faz?
-- Apaga as palavras distantes.
-- Soma a posição ao número do token.
-+ Gira a pergunta e a etiqueta por um ângulo que cresce com a posição.
-- Ordena as palavras em ordem alfabética.
-? No produto de dois vetores girados sobra só a diferença dos ângulos. A atenção passa a saber a distância entre as palavras, e a ordem volta a importar.
-```
-
-```quiz
-Na prova da aula, o modelo só com o token atual teve perda 4,38, e o modelo com uma camada de atenção teve 4,17. O que mudou entre os dois?
-+ Só a atenção: mesmo treino, mesmos dados, mesmo número de passos.
-- O tokenizador.
-- O tamanho do vocabulário.
-- O texto de treino.
-? Olhar para trás baixou a perda em 0,2. Na Aula 11, com quatro blocos e meia hora de treino, essa diferença cresce muito.
-```
-
-```quiz
-Se a janela de contexto dobra de tamanho, o custo da atenção:
-- Fica igual.
-- Dobra.
-- Cai pela metade.
-+ Quadruplica.
-? A atenção calcula n × n produtos. Com o dobro de tokens, são quatro vezes mais produtos. É por isso que janela grande custa caro.
 ```
 
 {% endpilha %}

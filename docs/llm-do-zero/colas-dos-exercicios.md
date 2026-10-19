@@ -168,7 +168,7 @@ par = par_mais_comum(pares)
 
 ### Exercício 9.3
 
-Codificar e decodificar com o tokenizador oficial de 1.024 tokens.
+Codificar e decodificar com o tokenizador oficial.
 
 **3.a Uma frase vira números**
 
@@ -235,11 +235,13 @@ caracteres_por_token = len(corpus) / len(ids_corpus)
 
 </details>
 
-### Exercício 9.4
+## Aula 10 — Atenção
+
+### Exercício 10.1
 
 Do texto ao lote de treino, e o número a bater.
 
-**4.a Treino e validação**
+**1.a Treino e validação**
 
 <details><summary>Dica 1: a ideia</summary>
 
@@ -256,7 +258,7 @@ dados_validacao = tokens[corte:]
 
 </details>
 
-**4.b Entrada e alvo**
+**1.b Entrada e alvo**
 
 <details><summary>Dica 1: a ideia</summary>
 
@@ -273,7 +275,7 @@ alvo = dados_treino[5001:5009]
 
 </details>
 
-**4.c O lote**
+**1.c O lote**
 
 <details><summary>Resposta</summary>
 
@@ -286,7 +288,7 @@ BLOCO = 128
 
 </details>
 
-**4.d A perda**
+**1.d A perda**
 
 <details><summary>Dica 1: a ideia</summary>
 
@@ -303,13 +305,11 @@ perda = (-math.log(0.50) - math.log(0.25) - math.log(0.10)) / 3
 
 </details>
 
-## Aula 10 — Atenção
-
-### Exercício 10.1
+### Exercício 10.2
 
 O primeiro modelo em PyTorch, e o laço de treino.
 
-**1.a Montar o modelo**
+**2.a Montar o modelo**
 
 <details><summary>Dica 1: a ideia</summary>
 
@@ -326,7 +326,7 @@ self.cabeca = nn.Linear(DIMENSAO, TAMANHO_VOCABULARIO)
 
 </details>
 
-**1.b O teste do passo zero**
+**2.b O teste do passo zero**
 
 <details><summary>Resposta</summary>
 
@@ -338,7 +338,7 @@ perda_esperada = math.log(1024)
 
 </details>
 
-**1.c O laço de treino**
+**2.c O laço de treino**
 
 <details><summary>Dica 1: a ideia</summary>
 
@@ -365,11 +365,11 @@ otimizador.step()
 
 </details>
 
-### Exercício 10.2
+### Exercício 10.3
 
-A conta da atenção, à mão, em PyTorch.
+A conta da atenção à mão, e uma cabeça de atenção com máscara.
 
-**2.a Parecença**
+**3.a Parecença**
 
 <details><summary>Dica 1: a ideia</summary>
 
@@ -386,7 +386,7 @@ pontos = frase @ dorme
 
 </details>
 
-**2.b Raiz de d e softmax**
+**3.b Raiz de d e softmax**
 
 <details><summary>Resposta</summary>
 
@@ -398,7 +398,7 @@ pontos_divididos = pontos / math.sqrt(4)
 
 </details>
 
-**2.c A mistura**
+**3.c A mistura**
 
 <details><summary>Dica 1: a ideia</summary>
 
@@ -415,11 +415,7 @@ saida_dorme = pesos @ frase
 
 </details>
 
-### Exercício 10.3
-
-Uma cabeça de atenção de verdade, com máscara.
-
-**3.a A máscara**
+**3.d A máscara**
 
 <details><summary>Dica 1: a ideia</summary>
 
@@ -436,7 +432,7 @@ pontos_teste = pontos_teste.masked_fill(futuro, float("-inf"))
 
 </details>
 
-**3.b A cabeça inteira**
+**3.e A cabeça inteira**
 
 <details><summary>Dica 1: a ideia</summary>
 
@@ -462,18 +458,20 @@ return pesos @ v
 
 </details>
 
-**3.c O teste da cola**
+**O teste da cola, no fim do 3.e**
 
 Se apareceu "as posições anteriores mudaram", a máscara não está agindo.
 Confira se a linha do `masked_fill` guarda o resultado de volta em
 `pontos` (o `masked_fill` não altera o tensor original: ele devolve um
 novo).
 
-### Exercício 10.4
+## Aula 11 — O Transformer e o Treino
 
-Posição, várias cabeças, e a prova de que a atenção ajuda.
+### Exercício 11.1
 
-**4.b A posição entra na cabeça**
+Posição, quatro cabeças e o bloco transformer.
+
+**1.b A posição entra na cabeça**
 
 <details><summary>Resposta</summary>
 
@@ -485,7 +483,7 @@ k = girar(self.etiqueta(x))
 
 </details>
 
-**4.c Quatro cabeças**
+**1.c Quatro cabeças**
 
 <details><summary>Dica 1: a ideia</summary>
 
@@ -505,25 +503,7 @@ resultados.append(cabeca(x))
 
 </details>
 
-**4.d Atenção contra bigramas**
-
-<details><summary>Resposta</summary>
-
-O modelo soma ao vetor de cada token o que a atenção trouxe:
-
-```python
-x = x + self.atencao(x)
-```
-
-</details>
-
-## Aula 11 — O Transformer e o Treino
-
-### Exercício 11.1
-
-O bloco transformer.
-
-**1.a O MLP**
+**1.d O MLP**
 
 <details><summary>Dica 1: a ideia</summary>
 
@@ -540,7 +520,7 @@ return self.descida(porta * conteudo)
 
 </details>
 
-**1.b O bloco**
+**1.e O bloco**
 
 <details><summary>Dica 1: a ideia</summary>
 
@@ -559,7 +539,7 @@ x = x + self.mlp(self.norma2(x))
 
 ### Exercício 11.2
 
-O modelo inteiro.
+O modelo inteiro, o laço de treino e o treino de 35 minutos.
 
 **2.a Montar o MiniLLM**
 
@@ -604,11 +584,7 @@ perplexidade = math.exp(perda.item())
 
 </details>
 
-### Exercício 11.3
-
-O laço de treino e o treino de 35 minutos.
-
-**3.b A função de treino**
+**2.c A função de treino**
 
 <details><summary>Dica 1: a ideia</summary>
 
@@ -629,19 +605,19 @@ otimizador.step()
 
 </details>
 
-**3.c O treino de verdade**
+**2.d O treino de verdade**
 
 Não há lacuna. Se a célula terminou em menos de 35 minutos sem você
 apertar nada, olhe a última linha: um erro ali quer dizer que o laço tem um
-problema, e o teste de 1 minuto do passo 3.b devia ter mostrado. Se o
+problema, e o teste de 1 minuto do passo 2.c devia ter mostrado. Se o
 Colab desconectou no meio, o `meu_llm.pt` guarda o melhor modelo até a
 última conferência.
 
-### Exercício 11.4
+### Exercício 11.3
 
-O modelo treinado.
+O modelo treinado, escrevendo.
 
-**4.b Carregar o melhor modelo**
+**3.b Carregar o melhor modelo**
 
 <details><summary>Resposta</summary>
 
@@ -653,26 +629,7 @@ modelo.load_state_dict(torch.load("meu_llm.pt"))
 
 </details>
 
-**4.d Levar o modelo para casa**
-
-Se o download não começou, o navegador pode ter bloqueado: procure um
-aviso na barra de endereço e permita. Outro caminho: no menu da esquerda
-do Colab, clique no ícone de pasta, ache o `meu_llm.pt`, clique nos três
-pontos e escolha **Fazer download**.
-
-## Aula 12 — Geração e Limites
-
-### Exercício 12.1
-
-Do número ao texto.
-
-**Preparação: carregar o modelo**
-
-Se a janela de envio não abriu, rode a célula de novo. Se você não tem o
-`meu_llm.pt`, clique em Cancelar: o notebook carrega o modelo do
-professor, que tem o mesmo formato, e todos os exercícios funcionam igual.
-
-**1.a O que o modelo devolve**
+**3.c O que o modelo devolve**
 
 <details><summary>Dica 1: a ideia</summary>
 
@@ -689,7 +646,7 @@ ultimos = logits[0, -1, :]
 
 </details>
 
-**1.b Sempre o mais provável**
+**3.d Sempre o mais provável**
 
 <details><summary>Resposta</summary>
 
@@ -701,7 +658,7 @@ indices.append(proximo)
 
 </details>
 
-**1.c Sortear**
+**3.e Sortear**
 
 <details><summary>Resposta</summary>
 
@@ -711,11 +668,26 @@ proximo = torch.multinomial(probabilidades, 1).item()
 
 </details>
 
-### Exercício 12.2
+**3.f Levar o modelo para casa**
+
+Se o download não começou, o navegador pode ter bloqueado: procure um
+aviso na barra de endereço e permita. Outro caminho: no menu da esquerda
+do Colab, clique no ícone de pasta, ache o `meu_llm.pt`, clique nos três
+pontos e escolha **Fazer download**.
+
+## Aula 12 — Geração e Limites
+
+### Exercício 12.1
 
 Temperatura e top-k.
 
-**2.a A temperatura**
+**Preparação: carregar o modelo**
+
+Se a janela de envio não abriu, rode a célula de novo. Se você não tem o
+`meu_llm.pt`, clique em Cancelar: o notebook carrega o modelo do
+professor, que tem o mesmo formato, e todos os exercícios funcionam igual.
+
+**1.a A temperatura**
 
 <details><summary>Resposta</summary>
 
@@ -727,7 +699,7 @@ p = F.softmax(ultimos / temperatura, dim=-1)
 
 </details>
 
-**2.b O top-k**
+**1.b O top-k**
 
 <details><summary>Dica 1: a ideia</summary>
 
@@ -744,7 +716,7 @@ return pontuacoes.masked_fill(pontuacoes < corte, float("-inf"))
 
 </details>
 
-**2.c A função completa**
+**1.c A função completa**
 
 <details><summary>Resposta</summary>
 
@@ -757,7 +729,7 @@ pontuacoes = cortar_top_k(pontuacoes, top_k)
 
 </details>
 
-**2.e Desafio: top-p**
+**1.e Desafio: top-p**
 
 <details><summary>Resposta</summary>
 
@@ -770,11 +742,11 @@ return (acumulada < p).sum().item() + 1
 
 </details>
 
-### Exercício 12.3
+### Exercício 12.2
 
 O modelo é o corpus.
 
-**3.b O corpus novo**
+**2.b O corpus novo**
 
 <details><summary>Resposta</summary>
 
@@ -784,7 +756,7 @@ dados_curso = torch.tensor(codificar(texto_curso))
 
 </details>
 
-**3.c O ajuste fino**
+**2.c O ajuste fino**
 
 <details><summary>Dica 1: a ideia</summary>
 
@@ -801,15 +773,15 @@ entrada, alvo = sortear_lote(dados_curso)
 
 </details>
 
-### Exercício 12.4
+### Exercício 12.3
 
 Gastar tempo em vez de peso.
 
-**4.a Pontuar um texto**
+**3.a Pontuar um texto**
 
 <details><summary>Dica 1: a ideia</summary>
 
-É a janela da Aula 9: o alvo é o texto andado uma casa. A entrada tira o
+É a janela da Aula 10: o alvo é o texto andado uma casa. A entrada tira o
 último token; o alvo tira o primeiro.
 
 </details>
@@ -822,7 +794,7 @@ alvo = ids[:, 1:]
 
 </details>
 
-**4.b A melhor de cinco**
+**3.b A melhor de cinco**
 
 <details><summary>Resposta</summary>
 

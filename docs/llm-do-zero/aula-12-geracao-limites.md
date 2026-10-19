@@ -7,75 +7,25 @@ description: Do logit ao texto, o ajuste fino, e o que o modelo não sabe fazer
 {% hint style="info" %}
 **O que você leva desta aula**
 
-Você vai escrever a função que transforma a saída do seu modelo em texto,
-com os dois botões que toda ferramenta de IA tem: temperatura e corte.
+Você vai dar à sua função de gerar texto os dois botões que toda ferramenta de IA tem: temperatura e corte.
 Vai ajustar o seu modelo para escrever sobre outra coisa, e vai conseguir
 explicar por que um modelo de linguagem inventa fatos.
 {% endhint %}
 
 ## Onde estamos
 
-<figure><img src="../assets/aula-12/mapa.png" alt="Quatro quadros lado a lado, um por aula: do texto para números, para onde olhar, montar e treinar, gerar e duvidar. O quarto está aceso"><figcaption>O modelo está treinado. Falta transformar as probabilidades dele em texto, e saber do que ele não é capaz.</figcaption></figure>
+<figure><img src="../assets/aula-12/mapa.png" alt="Quatro quadros lado a lado, um por aula: do texto para números, o lote e a atenção, montar, treinar e escrever, ajustar e duvidar. O quarto está aceso"><figcaption>O modelo já escreve. Falta controlar como ele escolhe as palavras, e saber do que ele não é capaz.</figcaption></figure>
 
 A aula começa carregando o arquivo `meu_llm.pt`, o modelo que você treinou
 na Aula 11. Se você perdeu o arquivo, o notebook carrega o modelo do
 professor, que tem exatamente as mesmas classes e os mesmos nomes de
 pesos. Tudo o que vem a seguir funciona com qualquer um dos dois.
 
-## O modelo não devolve uma palavra
-
-Este é o mal-entendido mais comum sobre modelos de linguagem, e vale
-desfazer com um gráfico. Dê ao modelo treinado o começo "Não sei se a
-senhora" e olhe o que ele produz:
-
-<figure><img src="../assets/aula-12/distribuicao.png" alt="À esquerda, as dez continuações mais prováveis com suas porcentagens, a maior com 7,6%, e uma barra grande para as outras 1.014; à direita, a curva de probabilidade acumulada mostrando que 116 tokens somam 90%"><figcaption>Uma passada do modelo devolve 1.024 números, um por token do vocabulário.</figcaption></figure>
-
-O favorito, `·é`, tem só 7,6%. As dez melhores continuações juntas dão
-37%, e são precisos 116 tokens para somar 90% da probabilidade.
-
-Escolher **qual** desses 1.024 vai para a tela é um problema separado,
-que nada tem a ver com o treino. Ele tem nome: **amostragem**
-(*sampling*), e é o assunto da primeira metade desta aula.
-
-## Gerar é repetir um passo
-
-O modelo devolve uma previsão para cada posição do texto. Para gerar,
-só interessa a da **última** posição: é ela que viu o texto inteiro. O
-resto do mecanismo é um laço:
-
-```python
-indices = codificar("A casa de")
-for _ in range(100):
-    logits, _ = modelo(torch.tensor([indices[-128:]]))  # 1. passa o texto
-    pontuacoes = logits[0, -1]                          # 2. só a última posição
-    probabilidades = F.softmax(pontuacoes, dim=-1)      # 3. vira chance
-    proximo = torch.multinomial(probabilidades, 1)      # 4. sorteia um token
-    indices.append(proximo.item())                      # 5. cola no fim
-```
-
-O `[-128:]` corta o texto nos últimos 128 tokens, o tamanho da janela de
-contexto. Isso se chama **geração autorregressiva**, e tem uma consequência
-que explica muito: o token sorteado no passo 4 vira entrada do passo 1
-seguinte. Se ele foi ruim, o modelo não tem como voltar atrás. Ele agora
-precisa continuar coerentemente a partir do erro.
-
-<figure><video src="../assets/aula-12/geracao.mp4" poster="../assets/aula-12/geracao.jpg" controls preload="none" playsinline aria-label="Animação da geração de texto, um token sorteado de cada vez"></video><figcaption>Oito passos reais do modelo, sorteando com temperatura 0,8: "A casa de" vira "A casa de Natividade continuou a". Repare no primeiro sorteio: saiu um token com 2,2% de chance.</figcaption></figure>
-
-## Duas escolhas ruins
-
-**Sempre o mais provável.** Troque o sorteio por `argmax`. Chama-se
-decodificação gulosa (*greedy*). É determinística e parece segura, e o
-resultado é ruim: o texto entra em laço, repetindo a mesma frase. Um texto
-que só escolhe o topo acaba num lugar de onde o topo aponta de volta para
-si.
-
-**Sortear direto da distribuição.** O oposto: cada token tem exatamente a
-chance que o modelo deu. O problema está na cauda. No exemplo do começo,
-os tokens fora dos 40 melhores somam 32% da probabilidade, espalhados por
-984 candidatos. Um a um eles são improváveis, mas juntos dão quase uma
-chance em três de o modelo escolher algo que ele mesmo considera ruim.
-
-A saída é ficar no meio, e existem três controles para isso.
+No fim da Aula 11 apareceram as duas escolhas ruins. Sempre o mais
+provável entra em laço. Sortear direto da distribuição pega a cauda:
+depois de "Não sei se a senhora", o favorito tem só 7,6%, e os tokens fora
+dos 40 melhores somam 32% da chance. Esta aula começa no meio do caminho,
+com três controles.
 
 ## Controle 1: a temperatura
 
@@ -258,6 +208,45 @@ Machado.
 médico, de atendimento. E é assim, também, que um modelo que continua
 texto vira um assistente.
 
+## Quanto custa treinar
+
+Existe uma regra de bolso que bate bem com a realidade. Cada token que o
+modelo lê no treino custa umas seis contas por peso: duas para ir (o
+`forward`) e quatro para voltar com o gradiente (o `backward`).
+
+$$\text{operações} \approx 6 \cdot N \cdot T$$
+
+| Símbolo | Significado |
+|---|---|
+| `N` | quantos pesos o modelo tem |
+| `T` | quantos tokens ele leu no treino |
+
+Exemplo com o seu modelo. São 787.584 pesos e uns 2.100 passos de
+4.096 tokens, ou 8,6 milhões de tokens. A conta dá
+6 × 787.584 × 8,6 milhões ≈ 4 × 10¹³ operações. O GPT-3, de 2020, tem 175 bilhões de pesos e leu
+300 bilhões de tokens: 6 × 175 bilhões × 300 bilhões ≈ 3 × 10²³. Bilhões
+de vezes mais.
+
+O custo cresce com o tamanho do modelo **e** com o texto, ao mesmo tempo.
+É por isso que um modelo grande custa milhões de reais para treinar, e
+por que dobrar o modelo sem dobrar o texto rende pouco.
+
+## O que muda quando o modelo é grande
+
+O nosso tem 787.584 pesos e leu 3,7 milhões de caracteres. Um modelo
+comercial tem centenas de bilhões de pesos e leu trilhões de tokens. A
+arquitetura, essa, é a mesma que você acabou de montar.
+
+| Peça | O nosso | Um comercial |
+|---|---|---|
+| Camadas | 4 | 60 a 120 |
+| Dimensão | 128 | 4.000 a 16.000 |
+| Cabeças | 4 | 32 a 128 |
+| Janela | 128 tokens | centenas de milhares |
+| Treino | 35 minutos, um processador | meses, milhares de placas |
+
+Nada nessa tabela é uma ideia nova. É a mesma ideia, com mais dinheiro.
+
 ## O que a escala compra
 
 <figure><img src="../assets/aula-12/escala.png" alt="Dois gráficos de barras em escala logarítmica, para o nosso modelo, o GPT-3, o Llama 3 8B e o Llama 3 405B: à esquerda os pesos, de 787 mil a 405 bilhões; à direita os tokens de treino, de 22 milhões a 15,6 trilhões"><figcaption>Os números são os publicados pelos autores de cada modelo.</figcaption></figure>
@@ -297,7 +286,7 @@ O texto da segunda etapa tem uma forma fixa, com marcadores de quem fala:
 
 Depois de ler milhares de textos nesse formato, o modelo aprende que,
 depois de `<|assistente|>`, vem uma resposta à pergunta de cima. É o mesmo
-truque do Exercício 3, com outro texto. As três etapas usam o mesmo
+truque do Exercício 2, com outro texto. As três etapas usam o mesmo
 gradiente descendente da Aula 1, sobre os mesmos pesos.
 
 ## A novidade: gastar tempo em vez de peso
@@ -337,7 +326,7 @@ que eles gastam é tempo de máquina na hora de responder. Daí o nome:
 
 É por isso que os modelos de raciocínio de hoje demoram e mostram um
 "pensando" antes de falar. Não há mágica nova ali dentro: é o mesmo
-transformer desta aula, gerando um token de cada vez, só que gerando muito
+transformer que você montou, gerando um token de cada vez, só que gerando muito
 mais antes de mostrar o resultado.
 
 {% hint style="info" %}
@@ -352,9 +341,6 @@ que qualquer ajuste de temperatura, e é de graça.
 
 | Conceito | Em uma frase |
 |---|---|
-| Amostragem | escolher um dos 1.024 tokens a partir das chances do modelo |
-| Autorregressão | cada token escolhido vira entrada do passo seguinte |
-| Guloso | sempre o mais provável; entra em laço |
 | Temperatura | divide os logits: baixa concentra, alta espalha a chance pela cauda |
 | Top-k | fica com os k melhores e zera o resto |
 | Top-p | fica com os melhores até a soma passar de p; se adapta à dúvida |
@@ -362,6 +348,7 @@ que qualquer ajuste de temperatura, e é de graça.
 | Alucinação | frase provável e falsa: o modelo não tem como distinguir |
 | Ajuste fino | o mesmo treino, com outro texto; muda o que o modelo escreve |
 | Perda de uma frase | quanto o modelo estranha um texto; menor, mais provável |
+| Custo | umas `6 × N × T` contas para treinar |
 | Escala | mais pesos e, cada vez mais, mais texto |
 | Assistente | pré-treino, ajuste por instrução, ajuste por preferência |
 | Tempo em vez de peso | gerar mais antes de responder, sem treinar nada |
@@ -375,14 +362,13 @@ que qualquer ajuste de temperatura, e é de graça.
 - O seu modelo: o `meu_llm.pt` que você baixou na Aula 11. O do professor: [`mini_llm.pt`](https://github.com/klein-natan/nanodegree-AI-Atitus/blob/main/data/mini_llm.pt)
 - O texto do ajuste fino: [`curso.txt`](https://github.com/klein-natan/nanodegree-AI-Atitus/blob/main/data/curso.txt)
 
-Os quatro exercícios do notebook:
+Os três exercícios do notebook:
 
 | Exercício | O que você constrói |
 |---|---|
-| 12.1 | a última posição, a geração gulosa e a geração por sorteio |
-| 12.2 | temperatura, top-k, a função `gerar` completa, e o top-p como desafio |
-| 12.3 | a medida de cópia, e o ajuste fino com o texto do curso |
-| 12.4 | a perda de uma frase, a melhor de cinco, e o cartão do seu modelo |
+| 12.1 | temperatura, top-k, a função `gerar` completa, e o top-p como desafio |
+| 12.2 | a medida de cópia, e o ajuste fino com o texto do curso |
+| 12.3 | a perda de uma frase, a melhor de cinco, e o cartão do seu modelo |
 
 ## Para ir além
 
@@ -397,60 +383,9 @@ dela. As perguntas aparecem uma de cada vez, como uma pilha de cartas:
 responda, leia a explicação e passe para a próxima. No fim aparece quantas
 você acertou. Nada fica gravado: dá para refazer quantas vezes quiser.
 
-### Microaula 1: do número à palavra
+### Microaula 1: os botões
 
-{% pilha titulo="Microaula 1 · Do número à palavra" %}
-
-```quiz
-Depois de "Não sei se a senhora", o token favorito do modelo tem 7,6% de chance. O que isso mostra?
-- Que o modelo está com defeito.
-+ Que a saída é uma distribuição espalhada, e escolher o token é um problema à parte.
-- Que o modelo vai sempre escolher esse token.
-- Que faltou treino nessa frase.
-? Uma passada do modelo devolve 1.024 chances. São precisos 116 tokens para somar 90%. Escolher qual vai para a tela se chama amostragem.
-```
-
-```quiz
-Para gerar texto, de qual posição o modelo usa as pontuações?
-- Da primeira.
-- Da do meio.
-+ Da última, a que viu o texto inteiro.
-- De todas, somadas.
-? As outras posições servem ao treino. Para gerar, só interessa a previsão depois do último token: logits[0, -1].
-```
-
-```quiz
-O que acontece quando o modelo escolhe sempre o token mais provável (decodificação gulosa)?
-- O texto fica criativo e variado.
-- O texto fica cheio de palavras inventadas.
-- O modelo para de gerar.
-+ Sai sempre o mesmo texto, e ele costuma entrar em laço, repetindo um pedaço.
-? Um texto que só escolhe o topo acaba num lugar de onde o topo aponta de volta para si. No exemplo da aula: "--Não, senhor. --Não, senhor."
-```
-
-```quiz
-Qual é o problema de sortear direto da distribuição do modelo, sem corte nenhum?
-+ A cauda: centenas de tokens improváveis, somados, ganham com frequência.
-- O texto sai sempre igual.
-- O sorteio é lento demais.
-- O modelo deixa de usar a janela de contexto.
-? No exemplo da aula, os tokens fora dos 40 melhores somam 32% da chance. Quase uma vez em três sai algo que o próprio modelo considera ruim.
-```
-
-```quiz
-Por que um token ruim no começo da geração estraga o resto?
-- Porque o modelo apaga o texto anterior.
-- Porque a temperatura sobe sozinha.
-+ Porque ele entra de volta como texto, e o modelo precisa continuar coerente a partir do erro.
-- Porque o tokenizador não reconhece mais as palavras.
-? É a geração autorregressiva: cada token escolhido vira entrada do passo seguinte. Não existe voltar atrás.
-```
-
-{% endpilha %}
-
-### Microaula 2: os botões
-
-{% pilha titulo="Microaula 2 · Os botões" %}
+{% pilha titulo="Microaula 1 · Os botões" %}
 
 ```quiz
 Com logits 4, 2 e 0 e temperatura 2, as pontuações viram:
@@ -499,9 +434,9 @@ Subir a temperatura deixa o modelo mais criativo?
 
 {% endpilha %}
 
-### Microaula 3: o modelo é o corpus
+### Microaula 2: o modelo é o corpus
 
-{% pilha titulo="Microaula 3 · O modelo é o corpus" %}
+{% pilha titulo="Microaula 2 · O modelo é o corpus" %}
 
 ```quiz
 Medindo o texto gerado, o maior trecho igual a Machado tem 4 palavras. O que isso diz?
@@ -550,9 +485,9 @@ Depois do ajuste fino no texto do curso, a perda da frase "O modelo de linguagem
 
 {% endpilha %}
 
-### Microaula 4: do modelo ao assistente
+### Microaula 3: do modelo ao assistente
 
-{% pilha titulo="Microaula 4 · Do modelo ao assistente" %}
+{% pilha titulo="Microaula 3 · Do modelo ao assistente" %}
 
 ```quiz
 O Llama 3 8B (2024) é vinte vezes menor que o GPT-3 (2020) e leu cinquenta vezes mais texto. O que isso mostra?
@@ -578,7 +513,7 @@ Como o ajuste por instrução ensina o modelo a responder perguntas?
 - Desligando a máscara causal.
 + É ajuste fino com milhares de conversas marcadas (quem pergunta, quem responde).
 - Aumentando a temperatura.
-? É o Exercício 3 com outro texto. Depois de ler muitas conversas no mesmo formato, o modelo aprende que, depois do marcador do assistente, vem uma resposta.
+? É o Exercício 2 com outro texto. Depois de ler muitas conversas no mesmo formato, o modelo aprende que, depois do marcador do assistente, vem uma resposta.
 ```
 
 ```quiz

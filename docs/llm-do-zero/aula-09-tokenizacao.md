@@ -9,8 +9,7 @@ description: O que um LLM faz, e como o texto vira número
 
 Você vai entender o que um modelo de linguagem faz e escrever o mais
 simples de todos, que só conta letras. Vai escrever também o tokenizador
-que as próximas três aulas usam. E vai sair com um número que o seu
-transformer, na Aula 11, vai ter que bater.
+que as próximas três aulas usam.
 {% endhint %}
 
 ## Onde estamos
@@ -358,112 +357,6 @@ texto  →  tokens  →  ids  →  vetores (embutimentos)  →  modelo
 
 Esta aula cuida das três primeiras setas.
 
-## Do texto ao lote de treino
-
-Falta uma peça: como esses números viram exemplos de treino.
-
-### Tensores
-
-Daqui até a Aula 12 os números moram em **tensores**, a lista do
-PyTorch. Um tensor faz conta rápido, calcula gradientes sozinho e sabe o
-próprio formato, o `shape`. O corpus inteiro é um tensor de formato
-`[1484827]`. Um lote de 32 janelas de 128 tokens é um tensor de formato
-`[32, 128]`. Ler o formato é metade de entender o código.
-
-### Treino e validação
-
-Os primeiros 90% dos tokens são para treinar. Os últimos 10% ficam
-guardados, e o modelo nunca treina neles: são 1.336.344 tokens de treino e
-148.483 de validação. É o conjunto de teste das aulas anteriores. A perda
-na validação diz se o modelo aprendeu português ou decorou o livro.
-
-O corte é no fim, e não sorteado, porque tokens vizinhos são quase o mesmo
-texto. Sortear misturaria pedaços da mesma frase nos dois lados.
-
-### A janela
-
-A tarefa é prever o próximo token. Então o exemplo é simplesmente a mesma
-sequência, andada uma casa:
-
-<figure><img src="../assets/aula-09/janela.png" alt="Duas fileiras de oito tokens: em cima a entrada, embaixo o alvo, que é a mesma sequência começando um token depois, com uma seta ligando cada entrada ao seu alvo"><figcaption>Entrada e alvo são o mesmo texto, com uma casa de diferença.</figcaption></figure>
-
-Repare no detalhe que faz a coisa toda ser barata: nove tokens de texto
-não dão **um** exemplo de treino. Dão oito. O modelo prevê o token 2
-olhando o 1, prevê o 3 olhando o 1 e o 2, e assim por diante, tudo na
-mesma passada.
-
-Com janelas de 128 tokens e lotes de 32, cada passo de treino corrige os
-pesos usando 4.096 previsões de uma vez. O lote é uma matriz: cada linha
-é uma janela sorteada do texto de treino, cada coluna é uma posição
-dentro da janela. O alvo é outra matriz do mesmo tamanho, com cada linha
-andada uma casa.
-
-<figure><img src="../assets/aula-09/lote_janela.png" alt="Duas matrizes de tokens lado a lado, entrada e alvo, cada uma com formato 32 por 128. As linhas são janelas sorteadas do texto, as colunas são posições, e cada linha do alvo é a linha da entrada começando um token depois"><figcaption>Um lote de verdade, com tokens do corpus: 32 janelas por 128 posições. Cada casa da entrada prevê a casa igual do alvo.</figcaption></figure>
-
-Leia a figura de dois jeitos. Uma **linha** é a figura da janela de
-antes, só que com 128 casas. Uma **coluna** é a mesma posição em 32
-trechos diferentes dos livros. O modelo faz as 4.096 previsões ao mesmo
-tempo, mede o erro de todas, e corrige os pesos uma vez: isso é um passo
-de treino. No passo seguinte, outras 32 janelas são sorteadas.
-
-<figure><video src="../assets/aula-09/janela.mp4" poster="../assets/aula-09/janela.jpg" controls preload="none" playsinline aria-label="Animação da janela de treino, da janela de contexto e do lote"></video><figcaption>Cada posição prevê a seguinte, a janela anda pelo texto, e várias janelas formam um lote.</figcaption></figure>
-
-O tamanho da janela tem nome: **janela de contexto**. É o quanto o modelo
-consegue olhar para trás. A sua vai ser de 128 tokens, uns 300 caracteres.
-Os modelos comerciais estão na casa das centenas de milhares.
-
-## O número a bater
-
-Falta uma régua. Para saber se um modelo é bom, você mede quanto ele se
-surpreende com o texto de validação. Essa medida é a **perda**, a mesma
-entropia cruzada das Aulas 3 e 8:
-
-$$\text{perda} = -\frac{1}{n}\sum_{i=1}^{n} \log P(\text{token certo}_i)$$
-
-| Símbolo | Significado |
-|---|---|
-| `n` | quantas previsões o modelo fez |
-| `P(token certo)` | a chance que o modelo deu ao token que de fato veio |
-| `log` | o logaritmo natural, que castiga com força a chance baixa na resposta certa |
-
-Exemplo com três previsões. O modelo deu 50%, 25% e 10% ao token certo.
-Os logaritmos, com o sinal trocado, são 0,69, 1,39 e 2,30. A média é
-(0,69 + 1,39 + 2,30) / 3 = 1,46.
-
-### Por que o log
-
-Por que não usar a chance direto? Olhe a curva de `-log(chance)`:
-
-<figure><img src="../assets/aula-09/log_perda.png" alt="Curva decrescente da perda em função da chance dada ao token certo: vale 0 quando a chance é 1, 0,69 em 0,5, 1,39 em 0,25, 2,30 em 0,1, e sobe até 6,93 quando a chance é 1 em 1024, disparando perto de zero"><figcaption>Certeza no token certo custa zero. Chance quase nula custa caro.</figcaption></figure>
-
-São três razões, e a primeira se vê na figura:
-
-1. **Errar com confiança custa muito mais que hesitar.** Passar de 0,5
-   para 0,25 aumenta a perda em 0,69. Passar de 0,01 para 0,001 aumenta
-   em 2,30. O modelo é castigado com força quando aposta contra a resposta
-   certa, e é isso que o obriga a nunca descartar uma continuação
-   possível.
-2. **Produto vira soma.** A chance de um texto inteiro é a chance do
-   primeiro token, vezes a do segundo, vezes a do terceiro... Multiplicar
-   milhares de números menores que 1 dá um número tão pequeno que o
-   computador arredonda para zero. O log transforma esse produto numa
-   soma, e a soma dividida por `n` vira a média da fórmula.
-3. **Zero é o ideal.** Chance 1 no token certo dá perda 0. A perda nunca
-   é negativa, então quanto mais perto de zero, melhor.
-
-A animação abaixo faz a mesma conta com três previsões do modelo treinado:
-
-<figure><video src="../assets/aula-09/perda.mp4" poster="../assets/aula-09/perda.jpg" controls preload="none" playsinline aria-label="Animação das previsões do modelo e do cálculo da perda"></video><figcaption>Chance alta no token certo, surpresa pequena. Chance baixa, surpresa grande. A perda é a média.</figcaption></figure>
-
-Quanto menor, melhor. Um modelo que chuta igual entre 1.024 tokens dá
-1/1024 a cada um, e a perda dele é `ln(1024) = 6,93`. É dali que todo
-treino das próximas aulas começa.
-
-Agora o número a bater. Refaça o contador do começo da aula com tokens em
-vez de letras, conte os pares no treino e meça na validação. A perda dele
-é **4,48**. Sem rede neural nenhuma, só contando, o modelo já sai de 6,93.
-O transformer da Aula 11 vai ter que fazer melhor que isso.
-
 {% hint style="warning" %}
 **Erro do dia**
 
@@ -489,12 +382,6 @@ mesmo da Aula 9 à Aula 12.
 | Codificar | aplica as fusões na ordem em que o treino aprendeu |
 | Tabela de fusões | a mesma no treino e no uso, sempre |
 | Embutimento (*embedding*) | a linha da tabela que o id escolhe: o vetor que entra no modelo |
-| Tensor | a lista do PyTorch, com formato (`shape`) |
-| Janela | o alvo é a entrada andada uma casa |
-| Lote | 32 janelas de 128: 4.096 previsões por passo |
-| Perda | média de `-log P(token certo)`; chute ao acaso = 6,93 |
-| Por que o log | castiga o erro confiante e troca produto por soma |
-| O número a bater | 4,48, a perda do contador de pares de tokens |
 
 ## Materiais
 
@@ -505,14 +392,13 @@ mesmo da Aula 9 à Aula 12.
 - Corpus: [`machado.txt`](https://github.com/klein-natan/nanodegree-AI-Atitus/blob/main/data/machado.txt)
 - Tokenizador pronto: [`machado_bpe.json`](https://github.com/klein-natan/nanodegree-AI-Atitus/blob/main/data/machado_bpe.json)
 
-Os quatro exercícios do notebook:
+Os três exercícios do notebook:
 
 | Exercício | O que você constrói |
 |---|---|
 | 9.1 | o modelo de contagem, que já gera texto |
 | 9.2 | o texto como ele chega ao tokenizador, o BPE no computador (a tabela do "banana") e as primeiras fusões em Machado |
 | 9.3 | codificar e decodificar frases com o tokenizador oficial, e o primeiro passo de número para vetor |
-| 9.4 | o lote de treino, a perda e por que o log, e o número a bater |
 
 ## Para ir além
 
@@ -676,57 +562,6 @@ O que acontece se você treinar o modelo com uma tabela de fusões e usar outra 
 + Os números passam a significar outra coisa, e a saída vira lixo.
 - O modelo aprende a tabela nova sozinho.
 ? É o erro do dia. O tokenizador é parte do modelo: os dois andam juntos, sempre. Por isso o notebook carrega a tabela oficial em vez de treinar uma nova.
-```
-
-{% endpilha %}
-
-### Microaula 4: do texto ao lote de treino
-
-{% pilha titulo="Microaula 4 · O lote de treino" %}
-
-```quiz
-Um lote de 32 janelas de 128 tokens é um tensor. Qual é o formato (shape) dele?
-- [128, 32]
-+ [32, 128]
-- [4096]
-- [1024, 128]
-? Uma linha por janela (32) e uma coluna por token da janela (128). Ler o formato é metade de entender o código.
-```
-
-```quiz
-Por que os últimos 10% do corpus ficam fora do treino?
-- Para o treino ser mais rápido.
-- Porque o fim dos livros é menos importante.
-+ Para medir se o modelo aprendeu português ou decorou o texto que viu.
-- Porque o tokenizador não consegue ler o fim.
-? É o conjunto de validação, como o conjunto de teste das aulas anteriores. O modelo nunca treina nele.
-```
-
-```quiz
-Na janela de treino, o que é o alvo?
-- A última palavra da frase.
-- Um token sorteado ao acaso.
-- A mesma janela de trás para a frente.
-+ A mesma sequência da entrada, andada uma casa.
-? Cada posição tem que prever o token seguinte. Por isso nove tokens de texto dão oito exemplos de treino de uma vez.
-```
-
-```quiz
-Por que a perda usa o log da chance do token certo, e não a chance direto?
-- Porque o log deixa a conta mais rápida no Colab.
-- Porque o log transforma toda chance num número positivo maior que 1.
-+ Porque castiga com força quem dá chance quase zero à resposta certa, e troca o produto das chances por uma soma.
-- Porque sem o log a perda de um chute daria zero.
-? Chance 1 dá perda 0; chance 0,1 dá 2,30; chance 0,001 dá 6,93. Perto de zero a curva dispara. E a chance de um texto é o produto das chances de cada token: o log vira esse produto numa soma, que o computador consegue fazer.
-```
-
-```quiz
-Um modelo que chuta igual entre os 1.024 tokens tem perda 6,93. O contador de pares de tokens tem perda 4,48. O que isso quer dizer?
-+ Que contar já é bem melhor que chutar, e o transformer vai ter que fazer melhor que 4,48.
-- Que o contador é pior que o chute, porque 4,48 é menor.
-- Que a perda não serve para comparar modelos.
-- Que o transformer nunca passa de 4,48.
-? Quanto menor a perda, menos o modelo se surpreende com o token certo. O 4,48 é o número a bater na Aula 11.
 ```
 
 {% endpilha %}

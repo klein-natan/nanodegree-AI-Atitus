@@ -14,22 +14,22 @@ O texto usado no treino é a obra de Machado de Assis, em domínio público.
 
 ## Como as aulas funcionam
 
-Cada aula alterna uma explicação curta, de 20 a 25 minutos, e um exercício
-que você faz sozinho no notebook, também de uns 20 minutos. Entre os dois,
-um quiz de 5 perguntas, no fim da página da aula, confere se a
-explicação assentou. São quatro
-rodadas por aula, e cada exercício acrescenta uma peça ao **mesmo** modelo:
+Cada aula alterna uma explicação curta, de 20 a 30 minutos, e um exercício
+que você faz sozinho no notebook, de 20 a 25 minutos. Entre os dois, um
+quiz de 5 perguntas, no fim da página da aula, confere se a explicação
+assentou. São três rodadas por aula, e cada exercício acrescenta uma peça
+ao **mesmo** modelo:
 
-| Aula | Os quatro exercícios |
+| Aula | Os três exercícios |
 |---|---|
-| 9 | o modelo de contagem, o BPE, codificar e decodificar, o lote de treino |
-| 10 | o primeiro modelo em PyTorch, a atenção à mão, a cabeça com máscara, várias cabeças |
-| 11 | o bloco, o modelo inteiro, o laço de treino, e o treino de 35 minutos |
-| 12 | gerar texto, temperatura e top-k, o ajuste fino, a melhor de cinco |
+| 9 | o modelo de contagem, o BPE, codificar e decodificar |
+| 10 | o lote de treino, o primeiro modelo em PyTorch, a atenção com máscara |
+| 11 | posição e o bloco, o modelo inteiro e o treino de 35 minutos, gerar texto |
+| 12 | temperatura e top-k, o ajuste fino, a melhor de cinco |
 
-No fim da Aula 11, o modelo é seu: você escreveu cada parte e apertou o
-botão do treino. Na Aula 12, você decide como ele escolhe as palavras e
-descobre do que ele não é capaz.
+No fim da Aula 11, o modelo é seu: você escreveu cada parte, apertou o
+botão do treino e ouviu o modelo escrever. Na Aula 12, você decide como
+ele escolhe as palavras e descobre do que ele não é capaz.
 
 Os exercícios têm lacunas (`____`) e uma célula de conferência depois de
 cada passo. Se travar, a página
@@ -56,7 +56,7 @@ para muito além de LLM:
 | Aula | Conteúdo | Status |
 |---|---|---|
 | [Aula 9 — Do Texto aos Números](aula-09-tokenizacao.md) | O que um LLM faz, o modelo de contagem e o tokenizador BPE | Disponível |
-| [Aula 10 — Atenção](aula-10-atencao.md) | O primeiro modelo em PyTorch, e como ele decide para onde olhar | Disponível |
-| [Aula 11 — O Transformer e o Treino](aula-11-transformer-treino.md) | Montar o modelo inteiro e treiná-lo no processador | Disponível |
-| [Aula 12 — Geração e Limites](aula-12-geracao-limites.md) | Do logit ao texto, o ajuste fino, e o que o modelo não sabe fazer | Disponível |
-| [Colas dos Exercícios](colas-dos-exercicios.md) | Dicas para cada passo dos 16 exercícios | Disponível |
+| [Aula 10 — Atenção](aula-10-atencao.md) | O lote de treino, o primeiro modelo em PyTorch, e como ele decide para onde olhar | Disponível |
+| [Aula 11 — O Transformer e o Treino](aula-11-transformer-treino.md) | A posição, o modelo inteiro, o treino no processador, e o primeiro texto | Disponível |
+| [Aula 12 — Geração e Limites](aula-12-geracao-limites.md) | Os botões da geração, o ajuste fino, e o que o modelo não sabe fazer | Disponível |
+| [Colas dos Exercícios](colas-dos-exercicios.md) | Dicas para cada passo dos 12 exercícios | Disponível |
