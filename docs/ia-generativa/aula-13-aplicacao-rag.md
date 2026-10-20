@@ -2,7 +2,7 @@
 description: Buscar antes de responder, e medir se melhorou
 ---
 
-# Aula 14 — Uma Aplicação de Verdade
+# Aula 13 — Uma Aplicação de Verdade
 
 {% hint style="info" %}
 **O que você leva desta aula**
@@ -14,7 +14,7 @@ funciona, que é a parte que quase ninguém faz.
 
 ## O problema
 
-Pergunte ao modelo da Aula 13 o que significa a sigla BPE. Ele responde,
+Pergunte ao modelo da Aula 12 o que significa a sigla BPE. Ele responde,
 com toda a segurança do mundo, que é o *Bilingual Processing Engine*, uma
 ferramenta da Microsoft.
 
@@ -35,7 +35,7 @@ A resposta é bem mais simples. Antes de mandar a pergunta ao modelo,
 procure no seu documento os trechos que falam do assunto, e cole eles no
 prompt.
 
-<figure><img src="../assets/aula-14/arquitetura.png" alt="Quatro caixas em sequência: a pergunta do usuário, a busca dos trechos parecidos, a colagem dos trechos no prompt e a resposta do modelo, com uma seta vindo dos documentos para a busca"><figcaption>Quatro etapas. Só a última usa o modelo de linguagem.</figcaption></figure>
+<figure><img src="../assets/aula-13/arquitetura.png" alt="Quatro caixas em sequência: a pergunta do usuário, a busca dos trechos parecidos, a colagem dos trechos no prompt e a resposta do modelo, com uma seta vindo dos documentos para a busca"><figcaption>Quatro etapas. Só a última usa o modelo de linguagem.</figcaption></figure>
 
 Isso se chama **RAG** (*retrieval-augmented generation*, geração aumentada
 por busca). O nome é feio e a ideia é simples: o modelo continua sendo o
@@ -57,7 +57,7 @@ O primeiro passo é prático. Você não coloca o documento inteiro no prompt:
 não cabe na janela de contexto, e mesmo se coubesse, encheria de texto
 irrelevante.
 
-<figure><img src="../assets/aula-14/pedacos.png" alt="Histograma dos 187 pedaços do curso, com mediana de 763 caracteres, ao lado de um exemplo de trecho"><figcaption>Uma seção por pedaço; o título acompanha o texto na busca.</figcaption></figure>
+<figure><img src="../assets/aula-13/pedacos.png" alt="Histograma dos 187 pedaços do curso, com mediana de 763 caracteres, ao lado de um exemplo de trecho"><figcaption>Uma seção por pedaço; o título acompanha o texto na busca.</figcaption></figure>
 
 O tamanho do pedaço é a primeira decisão do projeto, e ela tem um
 compromisso claro:
@@ -96,7 +96,7 @@ tem 384 números, e o modelo que o produz é o `multilingual-e5-small`, com
 Depois de normalizar os vetores para tamanho 1, comparar dois textos é o
 produto escalar da Aula 10:
 
-<figure><img src="../assets/aula-14/parecenca.png" alt="Matriz 6 por 6 com a similaridade entre seis frases: os pares que falam do mesmo assunto têm valores altos, mesmo sem palavras em comum"><figcaption>"O gato dormiu no sofá" e "o cachorro cochilou no tapete" não têm palavra em comum, e ficam perto.</figcaption></figure>
+<figure><img src="../assets/aula-13/parecenca.png" alt="Matriz 6 por 6 com a similaridade entre seis frases: os pares que falam do mesmo assunto têm valores altos, mesmo sem palavras em comum"><figcaption>"O gato dormiu no sofá" e "o cachorro cochilou no tapete" não têm palavra em comum, e ficam perto.</figcaption></figure>
 
 Esse número tem nome: **similaridade do cosseno**. Com vetores de tamanho
 1, ela é exatamente o produto escalar, e vai de −1 (opostos) a 1
@@ -113,7 +113,7 @@ notas = vetores @ vetor_pergunta
 melhores = np.argsort(notas)[::-1][:3]     # os três maiores
 ```
 
-<figure><img src="../assets/aula-14/busca.png" alt="Gráfico de barras com os quatro pedaços mais parecidos com a pergunta sobre a máscara causal, com o primeiro sendo a seção certa da Aula 10"><figcaption>O primeiro é a seção certa. Os três melhores entram no prompt: os dois de apoio ajudam quando o primeiro erra.</figcaption></figure>
+<figure><img src="../assets/aula-13/busca.png" alt="Gráfico de barras com os quatro pedaços mais parecidos com a pergunta sobre a máscara causal, com o primeiro sendo a seção certa da Aula 10"><figcaption>O primeiro é a seção certa. Os três melhores entram no prompt: os dois de apoio ajudam quando o primeiro erra.</figcaption></figure>
 
 Num projeto grande, com milhões de pedaços, essa multiplicação vira lenta
 e você guarda os vetores numa **base vetorial**, que é um banco de dados
@@ -147,7 +147,7 @@ Três detalhes que fazem diferença, e todos vieram de tentar:
 | Cortar em 900 caracteres | prompt curto é mais rápido e o modelo se perde menos |
 | "Responda em uma frase curta" | sem isso, um modelo pequeno divaga |
 
-<figure><img src="../assets/aula-14/antes_depois.png" alt="Duas caixas com a resposta à pergunta sobre a máscara causal: sem RAG ele fala de manipulação digital, com RAG ele dá a definição certa"><figcaption>Mesmo modelo, mesmos pesos. A diferença inteira está no texto que entrou antes.</figcaption></figure>
+<figure><img src="../assets/aula-13/antes_depois.png" alt="Duas caixas com a resposta à pergunta sobre a máscara causal: sem RAG ele fala de manipulação digital, com RAG ele dá a definição certa"><figcaption>Mesmo modelo, mesmos pesos. A diferença inteira está no texto que entrou antes.</figcaption></figure>
 
 ## Medir, que é a parte que ninguém faz
 
@@ -155,7 +155,7 @@ Uma demonstração que funciona não prova nada. Monte um conjunto de
 perguntas cuja resposta você conhece, e conte quantas o sistema acerta.
 Aqui são seis, todas sobre aulas que você já assistiu:
 
-<figure><img src="../assets/aula-14/avaliacao.png" alt="Seis perguntas sobre o curso, cada uma com a resposta sem RAG em cinza e com RAG em vermelho"><figcaption>Seis perguntas, dois modos. Em cinza o modelo sozinho, em vermelho o mesmo modelo com os trechos.</figcaption></figure>
+<figure><img src="../assets/aula-13/avaliacao.png" alt="Seis perguntas sobre o curso, cada uma com a resposta sem RAG em cinza e com RAG em vermelho"><figcaption>Seis perguntas, dois modos. Em cinza o modelo sozinho, em vermelho o mesmo modelo com os trechos.</figcaption></figure>
 
 O placar honesto: **quatro certas, uma parcial, uma errada**.
 
@@ -222,7 +222,7 @@ Nenhuma dessas coisas é mágica, e você sabe disso porque montou todas.
 
 ## Materiais
 
-- **Notebook desta aula, no Google Colab:** [![Abrir no Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-14-aplicacao-rag.ipynb)
+- **Notebook desta aula, no Google Colab:** [![Abrir no Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-13-aplicacao-rag.ipynb)
 - Slides desta aula: entregues em sala.
 - Documento: [`curso.txt`](https://github.com/klein-natan/nanodegree-AI-Atitus/blob/main/data/curso.txt)
 

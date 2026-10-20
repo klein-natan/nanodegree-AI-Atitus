@@ -37,8 +37,9 @@ clientes e confere. Se um número aparece aqui, existe um script no
 repositório que o produz.
 
 **Toda afirmação do tipo "isto ajuda" vem com a medida.** É fácil escrever
-que uma conexão residual melhora o treino. A Aula 11 mostra o gradiente
-chegando quase mil vezes menor no primeiro bloco sem ela.
+que a máscara causal impede o modelo de olhar o futuro. O notebook da
+Aula 10 troca a última palavra da frase e confere que nada antes dela
+mudou.
 
 **O que não funcionou continua escrito.** A Aula 3 termina mostrando que,
 naquele problema, ligar para todos os clientes custa quase o mesmo que usar

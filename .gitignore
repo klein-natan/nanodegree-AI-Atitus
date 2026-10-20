@@ -51,3 +51,6 @@ render/
 # Sistema
 .DS_Store
 Thumbs.db
+
+# Material de estudo do professor (local, nunca publicar)
+estudo_professor/

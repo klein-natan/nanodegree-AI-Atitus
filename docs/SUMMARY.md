@@ -44,13 +44,12 @@
 
 * [Visão geral](llm-do-zero/README.md)
 * [Aula 9 — Do Texto aos Números](llm-do-zero/aula-09-tokenizacao.md)
-* [Aula 10 — Atenção](llm-do-zero/aula-10-atencao.md)
-* [Aula 11 — O Transformer e o Treino](llm-do-zero/aula-11-transformer-treino.md)
-* [Aula 12 — Geração e Limites](llm-do-zero/aula-12-geracao-limites.md)
+* [Aula 10 — Como Funciona um LLM](llm-do-zero/aula-10-como-funciona-um-llm.md)
+* [Aula 11 — Treinar e Usar um LLM](llm-do-zero/aula-11-treinar-e-usar.md)
 * [Colas dos Exercícios](llm-do-zero/colas-dos-exercicios.md)
 
 ## IA Generativa
 
 * [Visão geral](ia-generativa/README.md)
-* [Aula 13 — Modelos de Fundação](ia-generativa/aula-13-modelos-de-fundacao.md)
-* [Aula 14 — Uma Aplicação de Verdade](ia-generativa/aula-14-aplicacao-rag.md)
+* [Aula 12 — Modelos de Fundação](ia-generativa/aula-12-modelos-de-fundacao.md)
+* [Aula 13 — Uma Aplicação de Verdade](ia-generativa/aula-13-aplicacao-rag.md)

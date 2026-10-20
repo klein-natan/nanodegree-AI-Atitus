@@ -229,7 +229,7 @@ a 255, e mostra um dígito escrito à mão. O rótulo é o próprio dígito, de 
 | | |
 |---|---|
 | **Origem** | Project Gutenberg, baixado por [`scripts/baixar_machado.py`](scripts/baixar_machado.py) |
-| **Usado em** | Módulo LLM do Zero, Aulas 9 a 12 |
+| **Usado em** | Módulo LLM do Zero, Aulas 9 a 11 |
 | **Tamanho** | 3.676.878 caracteres, 623.120 palavras, 118 caracteres diferentes |
 | **Licença** | Domínio público (Machado de Assis morreu em 1908) |
 
@@ -238,11 +238,11 @@ só: *Memórias Pósthumas de Braz Cubas*, *Quincas Borba*, *Dom Casmurro*,
 *Memorial de Ayres*, *Esaú e Jacob*, *A Mão e a Luva*, *Helena*, *Yayá
 Garcia*, *Historias sem Data*, *Papeis Avulsos* e *Reliquias de Casa
 Velha*. A poesia ficou de fora: a quebra de linha dos versos atrapalharia
-um modelo com só 787.584 pesos.
+um modelo com só 809.728 pesos.
 
 O script tira o cabeçalho e o rodapé do Gutenberg, troca aspas e
 travessões tipográficos pelos caracteres simples e junta tudo. A grafia
-é a de 1899 ("elle", "cousa", "difficil"), e isso é proposital: a Aula 12
+é a de 1899 ("elle", "cousa", "difficil"), e isso é proposital: a Aula 11
 usa esse detalhe para mostrar que o modelo escreve como os dados que viu.
 
 ```bash
@@ -254,77 +254,68 @@ uv run python data/scripts/baixar_machado.py
 | | |
 |---|---|
 | **Origem** | Gerado por [`scripts/treinar_tokenizador.py`](scripts/treinar_tokenizador.py) a partir de `machado.txt` |
-| **Usado em** | Módulo LLM do Zero, Aulas 9 a 12 |
+| **Usado em** | Módulo LLM do Zero, Aulas 9 a 11 |
 | **Conteúdo** | As 768 fusões do tokenizador BPE, na ordem em que foram aprendidas |
 
 O vocabulário tem 1.024 tokens: 256 bytes mais 768 fusões. Com ele, o
 corpus vira 1.484.827 tokens, ou 2,48 caracteres por token.
 
 O tokenizador é parte do modelo. Retreiná-lo gera uma tabela diferente, e
-o modelo da Aula 12 deixa de funcionar. Use sempre este arquivo.
+o modelo das Aulas 10 e 11 deixa de funcionar. Use sempre este arquivo.
 
 ```bash
 uv run python data/scripts/treinar_tokenizador.py
-```
-
-## mini_llm.pt
-
-| | |
-|---|---|
-| **Origem** | Gerado por [`scripts/treinar_mini_llm.py`](scripts/treinar_mini_llm.py) |
-| **Usado em** | Módulo LLM do Zero: figuras e animações das Aulas 9 a 12, e a origem do `mini_llm.weights.h5` |
-| **Conteúdo** | Os 787.584 pesos do modelo (só o `state_dict`), no melhor ponto da validação |
-
-O modelo de referência das aulas de LLM: 6.000 passos, taxa 1e-3, melhor
-validação 3,325 no passo 5.250 (perplexidade 27,8). Uns 50 minutos em 6
-linhas de execução.
-
-Na Aula 11 cada aluno treina o próprio modelo por 35 minutos e baixa o
-`meu_llm.weights.h5`, em Keras. Este arquivo, em PyTorch, é a referência
-das figuras e das animações; a versão em Keras que a Aula 12 carrega é o
-`mini_llm.weights.h5`, logo abaixo. As classes de
-[`scripts/mini_llm.py`](scripts/mini_llm.py) e de
-[`scripts/mini_llm_keras.py`](scripts/mini_llm_keras.py) têm os mesmos
-nomes de atributos que os alunos escrevem nos notebooks (`pergunta`,
-`etiqueta`, `conteudo`, `cabecas`, `blocos`...). Se mudar um nome, mude
-nos notebooks e converta de novo.
-
-O histórico do treino (perda de treino e de validação a cada 250 passos, e
-o melhor passo) fica em `mini_llm_historico.json`, que a figura da curva
-de treino da Aula 11 usa.
-
-```bash
-uv run python data/scripts/treinar_mini_llm.py
 ```
 
 ## mini_llm.weights.h5
 
 | | |
 |---|---|
-| **Origem** | Gerado por [`scripts/mini_llm_keras.py`](scripts/mini_llm_keras.py), a partir do `mini_llm.pt` |
-| **Usado em** | Aula 12, para quem não tem o próprio `meu_llm.weights.h5` |
-| **Conteúdo** | Os mesmos 787.584 pesos do `mini_llm.pt`, no formato do Keras |
+| **Origem** | Gerado por [`scripts/treinar_mini_gpt.py`](scripts/treinar_mini_gpt.py) |
+| **Usado em** | Aulas 10 e 11 (o modelo do professor), figuras e animações das Aulas 9 a 11 |
+| **Conteúdo** | Os 809.728 pesos do modelo, no melhor ponto da validação, sem o estado do otimizador |
 
-Os notebooks das Aulas 9 a 12 são em Keras. Este arquivo é o modelo de
-referência em PyTorch com os pesos copiados para a classe em Keras de
-`mini_llm_keras.py`, que tem a mesma conta e os mesmos nomes de atributos
-dos notebooks. Os logits dos dois batem (diferença máxima de 0,0002 nas
-chances), então os números das figuras e das animações, feitas com o
-`mini_llm.pt`, valem para ele. O script converte e confere:
+O modelo de referência das aulas de LLM, em Keras, montado com as camadas
+prontas de [`scripts/mini_gpt.py`](scripts/mini_gpt.py): embedding de
+token e de posição, quatro blocos (`LayerNormalization`,
+`MultiHeadAttention` com máscara causal, `Dense` com GELU) e a saída. O
+treino é o mesmo dos notebooks (AdamW 1e-3, `global_clipnorm=1.0`, taxa
+com aquecimento e resfriamento pelo relógio, conferência a cada 200
+passos), só que mais longo: 60 minutos, 9.695 passos, melhor validação
+3,36 no último passo (3,39 medida com 300 lotes; perplexidade 29,5).
+
+Na Aula 11 cada aluno treina o próprio modelo por 35 minutos e baixa o
+`meu_llm.weights.h5`. Os nomes das camadas de `mini_gpt.py` são os mesmos
+que os notebooks usam (`embedding`, `atencao0`, `densa0`, `saida`...), e
+é isso que faz um arquivo carregar no modelo do outro. Se mudar um nome,
+mude nos notebooks e treine de novo.
+
+O histórico do treino (a perda de treino e de validação a cada 200 passos,
+o minuto de cada conferência, o melhor passo e quatro amostras de texto)
+fica em `mini_llm_historico.json`, que a curva e as amostras da Aula 11 e a
+animação do loop de treino usam. Os tokens do corpus ficam em cache em
+`scripts/_tokens_machado.npy`, para o treino não recodificar o texto.
 
 ```bash
-uv run python data/scripts/mini_llm_keras.py
+uv run python data/scripts/treinar_mini_gpt.py 60     # minutos de treino
 ```
+
+O modelo anterior, em PyTorch (`mini_llm.pt`, de `treinar_mini_llm.py`,
+com RoPE, RMSNorm e SwiGLU), e a conversão dele para Keras
+(`mini_llm_keras.py`) são das quatro aulas de LLM que existiam até outubro
+de 2026, guardadas em `aulas/_arquivo/`. Nenhuma aula atual usa os dois;
+o `Tokenizador` de [`scripts/mini_llm.py`](scripts/mini_llm.py) continua
+sendo o dos scripts de figura.
 
 ## curso.txt
 
 | | |
 |---|---|
 | **Origem** | As páginas de `docs/`, reunidas por `data/scripts/juntar_curso.py` |
-| **Usado em** | Aula 14 (Uma Aplicação de Verdade), e o ajuste fino da Aula 12 |
+| **Usado em** | Aula 13 (Uma Aplicação de Verdade), e o ajuste fino da Aula 11 |
 | **Tamanho** | 187 pedaços, mediana de 763 caracteres |
 
-O material do curso num arquivo só, para o assistente da Aula 14 responder
+O material do curso num arquivo só, para o assistente da Aula 13 responder
 perguntas sobre ele. Cada pedaço é uma seção de uma página, começa com
 `### ` e traz o título da aula e o da seção. O script tira as figuras, os
 blocos de código e a marcação do GitBook.
@@ -340,7 +331,7 @@ python data/scripts/juntar_curso.py
 
 ## Dataset novo
 
-Todas as catorze aulas do curso já têm a entrada delas aqui. Dataset novo
+Todas as treze aulas do curso já têm a entrada delas aqui. Dataset novo
 entra com a mesma ficha: origem, aula que usa, colunas e como regerar.
 Sintético precisa de gerador com semente fixa; real precisa de URL de
 origem, data do download e licença.

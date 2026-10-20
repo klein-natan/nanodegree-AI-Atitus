@@ -123,11 +123,11 @@ nesta página do que voltar a reler uma aula inteira.
 | Produto escalar | Multiplicar casa com casa e somar: a medida de similaridade entre dois vetores |
 | Máscara causal | Zera, antes da softmax, tudo o que aponta para o futuro |
 | Cabeça de atenção | Uma atenção independente; o modelo roda várias em paralelo |
-| RoPE | Codifica a posição girando o vetor por um ângulo proporcional a ela |
+| Embedding de posição | Uma segunda tabela, com uma linha por posição da janela, somada ao embedding do token: é como o modelo sabe quem veio antes |
 | Transformer | A arquitetura feita de blocos com atenção e camada densa, repetidos |
 | Conexão residual (atalho) | Somar a entrada de um bloco à saída dele |
-| RMSNorm | Põe cada vetor num tamanho padrão, dividindo pela raiz da média dos quadrados |
-| SwiGLU | Camada densa com uma porta que decide quanto de cada número passa |
+| LayerNorm | Põe cada vetor num tamanho padrão: subtrai a média dos números dele e divide pelo desvio padrão |
+| GELU | A ativação da camada densa do transformer: uma ReLU com a dobra arredondada |
 | AdamW | O otimizador padrão para modelos de linguagem |
 | Corte de gradiente | Limita o tamanho do passo quando um lote sai fora do normal |
 | Perplexidade | `e` elevado à perda: entre quantos tokens o modelo está na dúvida |
@@ -151,14 +151,11 @@ nesta página do que voltar a reler uma aula inteira.
 | Base vetorial | Banco de dados que acha vizinhos rápido, para milhões de pedaços |
 | Prompt aumentado | O prompt com os trechos buscados colados dentro |
 | Busca híbrida | Buscar por palavra e por vetor, e juntar os resultados |
-| Atenção sem pesos | A atenção na versão mais simples: compara os vetores das palavras com eles mesmos, sem tabela treinável. Funciona, e faz cada palavra olhar para si mesma |
 | Vetor de contexto | A saída de uma posição na atenção: a própria palavra misturada com o que ela escolheu olhar |
-| Modelo de mentira | O esqueleto do modelo, com os blocos devolvendo a entrada sem fazer nada. Roda, tem o formato certo e gera lixo: serve para você preencher uma peça de cada vez |
 | Gradiente que desaparece | O encolhimento do gradiente conforme ele volta pelas camadas. Sem atalho, a primeira camada quase não aprende |
 | Escalar no momento de responder | Melhorar a resposta gastando mais tokens na hora de responder (raciocínio, votação, revisão), sem treinar nada |
-| Modelo de contagem (bigramas) | O modelo de linguagem mais simples: conta, no corpus, o que veio depois de cada símbolo, e sorteia com essas chances |
+| Modelo de contagem | O modelo de linguagem mais simples: conta, no corpus, o que veio depois de cada símbolo, e sorteia com essas chances |
 | Tensor | A lista de números do Keras (e do TensorFlow, por baixo): faz conta rápido, calcula gradientes e sabe o próprio formato (`shape`) |
 | Conjunto de validação | O pedaço do corpus que o modelo nunca vê no treino; a perda nele diz se o modelo aprendeu ou decorou |
-| Pesos amarrados | Usar a mesma tabela no embedding da entrada e na cabeça da saída |
 | Aquecimento e resfriamento | Começar o treino com passos pequenos, crescer, e diminuir de novo até o fim |
 | Ajuste fino (*fine-tuning*) | Continuar o treino de um modelo pronto com outro texto, para mudar o que ele escreve |

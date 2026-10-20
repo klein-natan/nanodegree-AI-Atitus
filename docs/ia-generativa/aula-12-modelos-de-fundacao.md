@@ -2,7 +2,7 @@
 description: Rodar um modelo pronto, e aprender a falar com ele
 ---
 
-# Aula 13 — Modelos de Fundação
+# Aula 12 — Modelos de Fundação
 
 {% hint style="info" %}
 **O que você leva desta aula**
@@ -12,15 +12,15 @@ API nem cadastro, entender o que realmente acontece quando você "conversa"
 com um deles, e sair sabendo escrever um prompt que funciona.
 {% endhint %}
 
-## De 787 mil para 494 milhões
+## De 810 mil para 494 milhões
 
-Na Aula 11 você treinou um modelo de 787.584 pesos, em 35 minutos de
+Na Aula 11 você treinou um modelo de 809.728 pesos, em 35 minutos de
 processador. Ele continua texto e escreve com a grafia de 1899. É um
 modelo de verdade, e é pequeno.
 
-<figure><img src="../assets/aula-13/escalas.png" alt="Gráfico de barras em escala logarítmica com quatro modelos: o da Aula 11 com 8e5 pesos, o Qwen de 5e8, um aberto de 8e9 e um comercial de 1e12"><figcaption>Cada barra é cerca de mil vezes a anterior. A arquitetura é a mesma nas quatro.</figcaption></figure>
+<figure><img src="../assets/aula-12/escalas.png" alt="Gráfico de barras em escala logarítmica com quatro modelos: o da Aula 11 com 8e5 pesos, o Qwen de 5e8, um aberto de 8e9 e um comercial de 1e12"><figcaption>Cada barra é cerca de mil vezes a anterior. A arquitetura é a mesma nas quatro.</figcaption></figure>
 
-O modelo de hoje tem 627 vezes o tamanho do seu. Ele se chama
+O modelo de hoje tem 610 vezes o tamanho do seu. Ele se chama
 **Qwen2.5-0.5B-Instruct**, é aberto, e cabe em uma pasta de 1 gigabyte.
 
 Ele já tem sucessor: a família Qwen3 saiu em 2025, com um modelo de 0,6
@@ -47,7 +47,7 @@ treino a mais, e nenhuma delas usa técnica nova.
 
 O `-Instruct` no nome do modelo quer dizer exatamente isso: ele passou
 pelas três. A versão sem o sufixo passou só pela primeira, e se comporta
-como o seu modelo da Aula 12.
+como o seu modelo da Aula 11.
 
 ## Rodar: três linhas
 
@@ -76,9 +76,9 @@ só devagar.
 
 Este é o ponto que muda a forma de pensar. Quando você manda uma mensagem
 para um modelo, não existe conversa nenhuma. Existe um texto só, com
-marcadores, e o modelo continua esse texto exatamente como na Aula 12.
+marcadores, e o modelo continua esse texto exatamente como na Aula 11.
 
-<figure><img src="../assets/aula-13/molde.png" alt="O texto cru que entra no modelo, com as marcas im_start e im_end separando o papel system, o papel user e o começo da resposta do assistant"><figcaption>O que sai do molde de conversa é isto: um texto com marcadores de papel.</figcaption></figure>
+<figure><img src="../assets/aula-12/molde.png" alt="O texto cru que entra no modelo, com as marcas im_start e im_end separando o papel system, o papel user e o começo da resposta do assistant"><figcaption>O que sai do molde de conversa é isto: um texto com marcadores de papel.</figcaption></figure>
 
 Os "papéis" (`system`, `user`, `assistant`) são **tokens especiais** que o
 modelo aprendeu no ajuste por instrução. Nada mais. O molde termina em
@@ -111,7 +111,7 @@ antes da pergunta. Três peças, nesta ordem:
 
 Veja a diferença na mesma pergunta:
 
-<figure><img src="../assets/aula-13/prompts.png" alt="Três respostas do modelo para a mesma pergunta: sem instrução, com papel definido, e com papel mais formato pedido"><figcaption>Nenhum peso mudou entre as três. O que mudou foi o texto que entrou antes.</figcaption></figure>
+<figure><img src="../assets/aula-12/prompts.png" alt="Três respostas do modelo para a mesma pergunta: sem instrução, com papel definido, e com papel mais formato pedido"><figcaption>Nenhum peso mudou entre as três. O que mudou foi o texto que entrou antes.</figcaption></figure>
 
 Duas coisas para reparar, e as duas são honestas.
 
@@ -148,7 +148,7 @@ tornar o padrão óbvio para a continuação.
 
 ## Os parâmetros: já conhecidos
 
-Tudo o que a Aula 12 ensinou continua valendo, com os mesmos nomes.
+Tudo o que a Aula 11 ensinou continua valendo, com os mesmos nomes.
 
 | Parâmetro | O que faz |
 |---|---|
@@ -157,7 +157,7 @@ Tudo o que a Aula 12 ensinou continua valendo, com os mesmos nomes.
 | `max_new_tokens` | quantos tokens gerar antes de parar |
 | `do_sample=False` | desliga o sorteio: sempre o mais provável |
 
-<figure><img src="../assets/aula-13/temperaturas.png" alt="Duas caixas com três nomes de cafeteria cada: com temperatura 0,2 dois nomes se repetem, com temperatura 1,2 os três são diferentes"><figcaption>Três chamadas iguais em cada linha. A temperatura decide se elas dão a mesma resposta.</figcaption></figure>
+<figure><img src="../assets/aula-12/temperaturas.png" alt="Duas caixas com três nomes de cafeteria cada: com temperatura 0,2 dois nomes se repetem, com temperatura 1,2 os três são diferentes"><figcaption>Três chamadas iguais em cada linha. A temperatura decide se elas dão a mesma resposta.</figcaption></figure>
 
 Uma regra prática: para extrair informação de um texto, use
 `do_sample=False` e tenha respostas reproduzíveis. Para gerar variação,
@@ -168,10 +168,10 @@ suba a temperatura e aceite que cada chamada devolve outra coisa.
 Agora a parte que importa no trabalho. Pergunte um fato que dá para
 conferir:
 
-<figure><img src="../assets/aula-13/alucinacao.png" alt="Três respostas do modelo à pergunta sobre quantos capítulos tem Dom Casmurro: dez, três e três"><figcaption>Dom Casmurro tem 148 capítulos. Dá para contar em <code>data/machado.txt</code>.</figcaption></figure>
+<figure><img src="../assets/aula-12/alucinacao.png" alt="Três respostas do modelo à pergunta sobre quantos capítulos tem Dom Casmurro: dez, três e três"><figcaption>Dom Casmurro tem 148 capítulos. Dá para contar em <code>data/machado.txt</code>.</figcaption></figure>
 
 Ele respondeu 10, depois 3, depois 3. Nenhuma vez respondeu "não sei", e
-nenhuma vez hesitou. Não é aleatoriedade: é o que a Aula 12 já explicou.
+nenhuma vez hesitou. Não é aleatoriedade: é o que a Aula 11 já explicou.
 O modelo estima qual token é provável, e "10" é um número provável depois
 de "Dom Casmurro tem". Verdadeiro e falso não são categorias que existam
 ali dentro.
@@ -211,7 +211,7 @@ requisito.
 
 ## Materiais
 
-- **Notebook desta aula, no Google Colab:** [![Abrir no Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-13-modelos-de-fundacao.ipynb)
+- **Notebook desta aula, no Google Colab:** [![Abrir no Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-12-modelos-de-fundacao.ipynb)
 - Slides desta aula: entregues em sala.
 
 ## Para ir além

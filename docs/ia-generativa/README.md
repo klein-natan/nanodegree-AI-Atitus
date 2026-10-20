@@ -14,5 +14,5 @@ que agora você usa, em vez de treinar.
 
 | Aula | Conteúdo | Status |
 |---|---|---|
-| [Aula 13 — Modelos de Fundação](aula-13-modelos-de-fundacao.md) | Rodar um modelo pronto, e aprender a falar com ele | Disponível |
-| [Aula 14 — Uma Aplicação de Verdade](aula-14-aplicacao-rag.md) | Buscar antes de responder, e medir se melhorou | Disponível |
+| [Aula 12 — Modelos de Fundação](aula-12-modelos-de-fundacao.md) | Rodar um modelo pronto, e aprender a falar com ele | Disponível |
+| [Aula 13 — Uma Aplicação de Verdade](aula-13-aplicacao-rag.md) | Buscar antes de responder, e medir se melhorou | Disponível |

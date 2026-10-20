@@ -1,5 +1,5 @@
 ---
-description: Dicas para destravar cada exercício das Aulas 9 a 12, uma de cada vez
+description: Dicas para destravar cada exercício das Aulas 9 a 11, uma de cada vez
 ---
 
 # Colas dos Exercícios
@@ -20,7 +20,7 @@ que ver a linha certa e entender por que ela é certa.
 Metade dos travamentos não tem nada a ver com o exercício. Confira estas
 quatro coisas primeiro:
 
-1. **Você rodou a célula de preparação?** Nas Aulas 10, 11 e 12 a primeira
+1. **Você rodou a célula de preparação?** Nas Aulas 10 e 11 a primeira
    célula de código traz tudo das aulas anteriores. Sem ela, nada funciona.
 2. **Você rodou as células de cima, na ordem?** O Colab só conhece o que
    já rodou. Uma função definida numa célula que você pulou não existe.
@@ -44,8 +44,8 @@ Procure a última linha do erro nesta lista:
   você somou ou multiplicou dois arrays de formatos diferentes.
 - `index ... is out of bounds`: o índice passou do fim da lista ou do
   array.
-- `object is not callable`: faltou o `self.` antes do nome da camada, ou
-  você usou parênteses onde iam colchetes.
+- `object is not callable`: você usou parênteses onde iam colchetes, ou
+  deu a uma variável o nome de uma função (por exemplo, `gerar = ...`).
 - **A célula roda para sempre**: se é treino, espere. Se não for, aperte o
   ■ e confira o loop.
 - **"Your session crashed after using all available RAM"**: rode de novo a
@@ -237,351 +237,210 @@ caracteres_por_token = len(corpus) / len(ids_corpus)
 
 </details>
 
-## Aula 10 — Atenção
+## Aula 10 — Como Funciona um LLM
+
+As células 🧰 trazem código pronto: o tokenizador, o lote e o modelo
+treinado do professor (`professor`). As lacunas são uma palavra ou um
+número.
 
 ### Exercício 10.1
 
-Do texto ao lote de treino, e o número a bater.
+Entrada e alvo, o lote passando pelo embedding, e os vizinhos de cada
+token.
 
-**1.a Treino e validação**
-
-<details><summary>Dica 1: a ideia</summary>
-
-O treino vai do começo até `corte`. A validação começa exatamente onde o
-treino parou e vai até o fim.
-
-</details>
-
-<details><summary>Resposta</summary>
-
-```python
-dados_validacao = tokens[corte:]
-```
-
-</details>
-
-**1.b Entrada e alvo**
+**1.a Entrada e alvo**
 
 <details><summary>Dica 1: a ideia</summary>
 
-A entrada vai da posição 5000 até a 5008. O alvo é igual, andado uma
-casa: some 1 nos dois números.
+O alvo é a mesma frase, andada uma casa: o primeiro alvo é o segundo
+token.
+
+</details>
+
+<details><summary>Dica 2: no código</summary>
+
+`ids[:-1]` é tudo menos o último. O alvo é tudo menos o **primeiro**:
+começa no índice 1.
 
 </details>
 
 <details><summary>Resposta</summary>
 
 ```python
-alvo = dados_treino[5001:5009]
+alvo = ids[1:]
 ```
 
 </details>
 
-**1.c O lote**
-
-<details><summary>Resposta</summary>
-
-Os números do slide: 32 janelas de 128 tokens.
-
-```python
-LOTE = 32
-BLOCO = 128
-```
-
-</details>
-
-**1.d A perda**
+**1.b O lote passa pelo embedding**
 
 <details><summary>Dica 1: a ideia</summary>
 
-As três chances são 50%, 25% e 10%. No Python, porcentagem se escreve
-como fração: 50% é 0.50.
+A tabela tem uma linha para cada token que pode aparecer. Quantos tokens
+tem o vocabulário da Aula 9?
 
 </details>
 
 <details><summary>Resposta</summary>
 
 ```python
-perda = (-math.log(0.50) - math.log(0.25) - math.log(0.10)) / 3
+embedding = keras.layers.Embedding(input_dim=TAMANHO_VOCABULARIO, output_dim=128)
 ```
 
+`TAMANHO_VOCABULARIO` vale 1024. Escrever `1024` direto também dá certo.
+
 </details>
+
+**1.c e 1.d Os vizinhos e o espaço em 3D**
+
+Não há lacuna. Se `vizinhos` avisar que a palavra vira mais de um token,
+escolha outra: só palavras comuns ganharam um token próprio no BPE. E
+lembre do espaço no começo (`" casa"`, e não `"casa"`): é assim que a
+palavra aparece no meio do texto.
 
 ### Exercício 10.2
 
-O primeiro modelo em Keras, e o treino com `fit`.
+A atenção do Keras, a máscara, e para onde o modelo treinado olha.
 
-**2.a Montar o modelo**
-
-<details><summary>Dica 1: a ideia</summary>
-
-A cabeça dá uma pontuação para cada token que pode vir em seguida. Quantos
-tokens existem no vocabulário?
-
-</details>
-
-<details><summary>Resposta</summary>
-
-```python
-keras.layers.Dense(TAMANHO_VOCABULARIO),
-```
-
-</details>
-
-**2.b O teste do passo zero**
-
-<details><summary>Resposta</summary>
-
-O chute ao acaso entre 1.024 tokens tem perda `ln(1024)`:
-
-```python
-perda_esperada = math.log(1024)
-```
-
-</details>
-
-**2.c O treino**
+**2.a Quatro cabeças**
 
 <details><summary>Dica 1: a ideia</summary>
 
-O modelo só mede a perda se souber a resposta certa. Por isso o gerador
-entrega um par a cada passo: a entrada e o que o modelo devia prever.
+Cada vetor tem 128 números, e cada cabeça trabalha com 32 (`key_dim=32`).
+Quantas cabeças de 32 cabem em 128?
 
 </details>
 
 <details><summary>Resposta</summary>
 
 ```python
-yield entrada, alvo
+atencao = keras.layers.MultiHeadAttention(num_heads=4, key_dim=32)
 ```
 
 </details>
+
+**2.b A máscara causal**
+
+<details><summary>Dica 1: a ideia</summary>
+
+O argumento liga ou desliga a máscara. Ele recebe um valor de verdadeiro
+ou falso do Python.
+
+</details>
+
+<details><summary>Resposta</summary>
+
+```python
+saida, pesos = atencao(frase, frase, use_causal_mask=True, return_attention_scores=True)
+```
+
+</details>
+
+**2.c Para onde o modelo treinado olha**
+
+Não há lacuna. Mude o `camada=0` para 1, 2 ou 3 e compare os mapas. Se der
+erro dizendo que `professor` não existe, rode a célula de preparação de
+novo: é ela que carrega o modelo do professor.
 
 ### Exercício 10.3
 
-A conta da atenção à mão, e uma cabeça de atenção com máscara.
+O bloco, o modelo inteiro, o passo zero e os pesos do professor.
 
-**3.a Similaridade**
-
-<details><summary>Dica 1: a ideia</summary>
-
-Quem está perguntando é "dorme". Compare a frase inteira com o vetor
-dela.
-
-</details>
-
-<details><summary>Resposta</summary>
-
-```python
-pontos = frase @ dorme
-```
-
-</details>
-
-**3.b Raiz de d e softmax**
-
-<details><summary>Resposta</summary>
-
-Cada vetor tem quatro números, então `d = 4`:
-
-```python
-pontos_divididos = pontos / math.sqrt(4)
-```
-
-</details>
-
-**3.c A mistura**
+**3.a O bloco**
 
 <details><summary>Dica 1: a ideia</summary>
 
-A saída é uma mistura das próprias palavras, cada uma multiplicada pelo
-seu peso. Onde estão as palavras?
-
-</details>
-
-<details><summary>Resposta</summary>
-
-```python
-saida_dorme = pesos @ frase
-```
-
-</details>
-
-**3.d A máscara**
-
-<details><summary>Dica 1: a ideia</summary>
-
-A softmax de um número muito, muito negativo é zero. O mais negativo de
-todos é menos infinito.
-
-</details>
-
-<details><summary>Resposta</summary>
-
-```python
-pontos_teste = np.where(futuro, -np.inf, pontos_teste)
-```
-
-</details>
-
-**3.e A cabeça inteira**
-
-<details><summary>Dica 1: a ideia</summary>
-
-Duas lacunas. A primeira: quais posições a máscara apaga? Você criou essa
-tabela de verdadeiro e falso na linha de cima. A segunda: depois dos pesos,
-o que entra na mistura: a pergunta, a etiqueta ou o conteúdo?
+Duas lacunas. A camada densa abre de 128 para 256 números e precisa
+**voltar** para 128, senão não dá para somar com o `x`. E o bloco
+devolve a entrada mais o que a segunda metade calculou: o atalho.
 
 </details>
 
 <details><summary>Dica 2: no código</summary>
 
-A tabela da máscara se chama `futuro`. O conteúdo se chama `v`.
+A primeira metade do bloco já mostra o atalho: `x = x + h`. A segunda
+metade faz o mesmo, só que no `return`.
 
 </details>
 
 <details><summary>Resposta</summary>
 
 ```python
-pontos = ops.where(futuro, -np.inf, pontos)
-pesos = ops.softmax(pontos, axis=-1)
-return ops.matmul(pesos, v)
+h = keras.layers.Dense(DIMENSAO, name=f"volta{i}")(h)
+return x + h
 ```
 
 </details>
 
-**O teste da cola, no fim do 3.e**
+**3.b O modelo**
 
-Se apareceu "as posições anteriores mudaram", a máscara não está agindo.
-Confira se a linha do `ops.where` guarda o resultado de volta em `pontos`
-(o `ops.where` não altera o tensor original: ele devolve um novo).
+<details><summary>Dica 1: a ideia</summary>
 
-## Aula 11 — O Transformer e o Treino
+Quantos blocos o modelo tem? E quantas pontuações a saída precisa dar,
+uma para cada o quê?
+
+</details>
+
+<details><summary>Resposta</summary>
+
+```python
+for i in range(CAMADAS):
+...
+saida = keras.layers.Dense(TAMANHO_VOCABULARIO, name="saida")(x)
+```
+
+</details>
+
+Se o total de pesos saiu diferente de 809.728, confira as duas lacunas do
+passo 3.a: um `Dense` com tamanho trocado muda a conta inteira.
+
+**3.c O passo zero**
+
+<details><summary>Dica 1: a ideia</summary>
+
+O modelo devolve pontuações cruas, sem softmax. A perda precisa saber
+disso para fazer a softmax ela mesma.
+
+</details>
+
+<details><summary>Resposta</summary>
+
+```python
+modelo.compile(loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True))
+```
+
+</details>
+
+**3.d Os pesos do professor no seu modelo**
+
+Não há lacuna. Se a célula der erro ao carregar os pesos, o seu modelo
+ficou diferente do modelo do professor: confira os nomes e os tamanhos das
+camadas nos passos 3.a e 3.b, e rode as duas células de novo.
+
+## Aula 11 — Treinar e Usar um LLM
+
+A célula de preparação traz o tokenizador, o lote, o `montar_modelo` da
+Aula 10 e o modelo treinado do professor (`professor`). Hoje tem um treino
+de 35 minutos no fim do Exercício 2: não feche a aba enquanto ele roda.
 
 ### Exercício 11.1
 
-Posição, quatro cabeças e o bloco transformer.
+A função de treino pelo relógio, testada por um minuto.
 
-**1.b A posição entra na cabeça**
-
-<details><summary>Resposta</summary>
-
-A etiqueta gira igual à pergunta. O conteúdo não gira:
-
-```python
-k = girar(self.etiqueta(x))
-```
-
-</details>
-
-**1.c Quatro cabeças**
-
-<details><summary>Dica 1: a ideia</summary>
-
-Cada cabeça trabalha com uma fatia de 32 números, que já está calculada na
-variável `tamanho_cabeca`. No `forward`, cada cabeça recebe o mesmo `x` e
-devolve a sua parte.
-
-</details>
-
-<details><summary>Resposta</summary>
-
-```python
-lista.append(CabecaDeAtencao(tamanho_cabeca))
-...
-resultados.append(cabeca(x))
-```
-
-</details>
-
-**1.d O MLP**
-
-<details><summary>Dica 1: a ideia</summary>
-
-A porta decide quanto passa, número a número. O que passa é o conteúdo.
-Os dois se multiplicam.
-
-</details>
-
-<details><summary>Resposta</summary>
-
-```python
-return self.descida(porta * conteudo)
-```
-
-</details>
-
-**1.e O bloco**
-
-<details><summary>Dica 1: a ideia</summary>
-
-A segunda linha tem o mesmo desenho da primeira: normaliza, faz alguma
-coisa, soma de volta. Só trocam as peças.
-
-</details>
-
-<details><summary>Resposta</summary>
-
-```python
-x = x + self.mlp(self.norma2(x))
-```
-
-</details>
-
-### Exercício 11.2
-
-O modelo inteiro, o loop de treino e o treino de 35 minutos.
-
-**2.a Montar o MiniLLM**
-
-<details><summary>Dica 1: a ideia</summary>
-
-Duas lacunas. Na primeira, a lista recebe um bloco novo a cada volta. Na
-segunda, cada bloco transforma o `x` e devolve o `x` novo.
-
-</details>
-
-<details><summary>Dica 2: no código</summary>
-
-Criar um bloco é chamar a classe: `Bloco()`. Usar um bloco é chamar o
-objeto: `bloco(x)`.
-
-</details>
-
-<details><summary>Resposta</summary>
-
-```python
-lista.append(Bloco())
-...
-x = bloco(x)
-```
-
-</details>
-
-Se o total de pesos saiu diferente de 787.584, a causa mais comum é uma
-camada com tamanho trocado em alguma classe da preparação que você editou.
-Rode a preparação de novo.
-
-**2.b Perplexidade**
-
-<details><summary>Resposta</summary>
-
-A perplexidade é a exponencial da perda, que o `evaluate` já devolve como
-um número:
-
-```python
-perplexidade = math.exp(perda)
-```
-
-</details>
-
-**2.c A função de treino**
+**1.b A função de treino**
 
 <details><summary>Dica 1: a ideia</summary>
 
 Duas lacunas. A validação é medida em lotes do texto guardado para isso,
 que o modelo nunca vê no treino. E o "melhor" modelo é o de menor perda
 na validação, que o Keras chama de `val_loss`.
+
+</details>
+
+<details><summary>Dica 2: no código</summary>
+
+A preparação separou o texto em `dados_treino` e `dados_validacao`. O
+`lotes(...)` recebe um dos dois.
 
 </details>
 
@@ -596,23 +455,86 @@ validation_data=lotes(dados_validacao), validation_steps=10,
 
 </details>
 
-**2.d O treino de verdade**
+Se o teste de 1 minuto deu ❌ com a perda acima de 6, confira se a célula
+do `Relogio` (a 1.a) rodou: sem ela, a função de treino nem existe.
 
-Não há lacuna. Se a célula terminou em menos de 35 minutos sem você
-apertar nada, olhe a última linha: um erro ali quer dizer que o loop tem um
-problema, e o teste de 1 minuto do passo 2.c devia ter mostrado. Se o
-Colab desconectou no meio, o `meu_llm.weights.h5` guarda o melhor modelo
-até a última conferência.
+### Exercício 11.2
 
-### Exercício 11.3
+A função `gerar`, com temperatura e top-k, e o treino de verdade.
 
-O modelo treinado, escrevendo.
+**2.a A última posição**
 
-**3.b Carregar o melhor modelo**
+<details><summary>Dica 1: a ideia</summary>
+
+`logits[0]` é a primeira (e única) frase. Dentro dela, você quer a última
+posição. Em Python, o último item de uma lista tem índice `-1`.
+
+</details>
 
 <details><summary>Resposta</summary>
 
-O treino salvou o arquivo com o nome `meu_llm.weights.h5`:
+```python
+ultimos = logits[0, -1]
+```
+
+</details>
+
+**2.b A temperatura**
+
+<details><summary>Dica 1: a ideia</summary>
+
+A temperatura divide as pontuações antes do sorteio. O nome dela, dentro
+da função, é o do parâmetro.
+
+</details>
+
+<details><summary>Resposta</summary>
+
+```python
+sorteado = keras.random.categorical(ultimos / temperatura, 1)
+```
+
+</details>
+
+**2.c O top-k**
+
+<details><summary>Dica 1: a ideia</summary>
+
+`ops.top_k(pontuacoes, quantos)` devolve as maiores pontuações. Quantas?
+O número que a função recebeu como parâmetro.
+
+</details>
+
+<details><summary>Resposta</summary>
+
+```python
+melhores, candidatos = ops.top_k(ultimos, k)
+```
+
+</details>
+
+**2.d O treino de verdade**
+
+Não há lacuna. Se a célula terminou em menos de 35 minutos sem você
+apertar nada, olhe a última linha: um erro ali quer dizer que a função de
+treino tem um problema, e o teste de 1 minuto do passo 1.b devia ter
+mostrado. Se o Colab desconectou no meio, o `meu_llm.weights.h5` guarda o
+melhor modelo até a última conferência.
+
+### Exercício 11.3
+
+O seu modelo treinado, escrevendo e depois ajustado.
+
+**3.a A curva e o melhor modelo**
+
+<details><summary>Dica 1: a ideia</summary>
+
+O `ModelCheckpoint` do Exercício 1 salvou o melhor modelo num arquivo. O
+nome do arquivo está na função `treinar`.
+
+</details>
+
+<details><summary>Resposta</summary>
 
 ```python
 modelo.load_weights("meu_llm.weights.h5")
@@ -620,180 +542,24 @@ modelo.load_weights("meu_llm.weights.h5")
 
 </details>
 
-**3.c O que o modelo devolve**
+**3.c O ajuste fino**
 
 <details><summary>Dica 1: a ideia</summary>
 
-O modelo devolve pontuações para todas as posições. Você quer só a da
-última, a que viu o texto inteiro.
+O treino é o mesmo. A única coisa que muda é o texto de onde saem os
+lotes: o texto do curso, separado na célula de cima.
 
 </details>
 
 <details><summary>Resposta</summary>
 
 ```python
-ultimos = logits[0, -1, :]
+ajustado.fit(lotes(curso_treino), steps_per_epoch=50, epochs=4)
 ```
 
 </details>
 
-**3.d Sempre o mais provável**
-
-<details><summary>Resposta</summary>
-
-O token escolhido entra no fim do texto, para a próxima volta:
-
-```python
-indices.append(proximo)
-```
-
-</details>
-
-**3.e Sortear**
-
-<details><summary>Resposta</summary>
-
-```python
-proximo = int(np.random.choice(TAMANHO_VOCABULARIO, p=probabilidades))
-```
-
-</details>
-
-**3.f Levar o modelo para casa**
-
-Se o download não começou, o navegador pode ter bloqueado: procure um
-aviso na barra de endereço e permita. Outro caminho: no menu da esquerda
-do Colab, clique no ícone de pasta, ache o `meu_llm.weights.h5`, clique nos três
-pontos e escolha **Fazer download**.
-
-## Aula 12 — Geração e Limites
-
-### Exercício 12.1
-
-Temperatura e top-k.
-
-**Preparação: carregar o modelo**
-
-Se a janela de envio não abriu, rode a célula de novo. Se você não tem o
-`meu_llm.weights.h5`, clique em Cancelar: o notebook carrega o modelo do
-professor, que tem o mesmo formato, e todos os exercícios funcionam igual.
-
-**1.a A temperatura**
-
-<details><summary>Resposta</summary>
-
-O loop já entrega cada temperatura na variável `temperatura`:
-
-```python
-p = softmax(ultimos / temperatura)
-```
-
-</details>
-
-**1.b O top-k**
-
-<details><summary>Dica 1: a ideia</summary>
-
-A nota de corte já está calculada. Tudo o que tem pontuação menor que ela
-sai do sorteio.
-
-</details>
-
-<details><summary>Resposta</summary>
-
-```python
-return np.where(pontuacoes < corte, -np.inf, pontuacoes)
-```
-
-</details>
-
-**1.c A função completa**
-
-<details><summary>Resposta</summary>
-
-Os dois botões chegam como argumentos da função:
-
-```python
-pontuacoes = logits[0, -1] / temperatura
-pontuacoes = cortar_top_k(pontuacoes, top_k)
-```
-
-</details>
-
-**1.e Desafio: top-p**
-
-<details><summary>Resposta</summary>
-
-Conta quantos tokens ficam abaixo de `p` na soma acumulada, mais o que faz
-a soma passar:
-
-```python
-return int((acumulada < p).sum()) + 1
-```
-
-</details>
-
-### Exercício 12.2
-
-O modelo é o corpus.
-
-**2.b O corpus novo**
-
-<details><summary>Resposta</summary>
-
-```python
-dados_curso = np.array(codificar(texto_curso))
-```
-
-</details>
-
-**2.c O ajuste fino**
-
-<details><summary>Dica 1: a ideia</summary>
-
-É o loop da Aula 11. A única diferença é de onde vêm os lotes: do texto
-novo, e não de Machado.
-
-</details>
-
-<details><summary>Resposta</summary>
-
-```python
-ajuste = modelo_curso.fit(lotes(dados_curso), steps_per_epoch=50, epochs=4, shuffle=False, verbose=2)
-```
-
-</details>
-
-### Exercício 12.3
-
-Gastar tempo em vez de peso.
-
-**3.a Pontuar um texto**
-
-<details><summary>Dica 1: a ideia</summary>
-
-É a janela da Aula 10: o alvo é o texto andado uma casa. A entrada tira o
-último token; o alvo tira o primeiro.
-
-</details>
-
-<details><summary>Resposta</summary>
-
-```python
-alvo = ids[1:]
-```
-
-</details>
-
-**3.b A melhor de cinco**
-
-<details><summary>Resposta</summary>
-
-Cada candidato entra na lista junto com a perda dele, e o `min` escolhe o de
-menor perda:
-
-```python
-candidatos.append((pontuar(modelo, texto), texto))
-```
-
-</details>
+Se o Colab reiniciou e o `modelo` sumiu, rode a preparação, o
+`modelo = montar_modelo()` e o `modelo.load_weights("meu_llm.weights.h5")`
+de novo antes do ajuste. Sem o arquivo, use o modelo do professor:
+`modelo = professor`.

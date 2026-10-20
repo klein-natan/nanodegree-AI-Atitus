@@ -9,17 +9,17 @@ description: O que um LLM faz, e como o texto vira número
 
 Você vai entender o que um modelo de linguagem faz e escrever o mais
 simples de todos, que só conta letras. Vai escrever também o tokenizador
-que as próximas três aulas usam.
+que as próximas duas aulas usam.
 {% endhint %}
 
 ## Onde estamos
 
-<figure><img src="../assets/aula-09/mapa.png" alt="Quatro quadros lado a lado, um por aula: do texto para números, para onde olhar, montar e treinar, gerar e duvidar. O primeiro está aceso"><figcaption>Quatro aulas para construir a máquina inteira. Esta é a primeira peça.</figcaption></figure>
+<figure><img src="../assets/aula-09/mapa.png" alt="Três quadros lado a lado, um por aula: do texto para números, como funciona por dentro, treinar e usar. O primeiro está aceso"><figcaption>Três aulas para construir a máquina inteira. Esta é a primeira peça.</figcaption></figure>
 
-Nestas quatro aulas você constrói um modelo de linguagem do zero, em
+Nestas três aulas você constrói um modelo de linguagem do zero, em
 Keras, e treina no processador do Colab. Cada aula alterna explicações
 curtas e exercícios, e cada exercício acrescenta uma peça ao mesmo modelo.
-No fim da Aula 12, o modelo é seu: você escreveu cada parte e apertou o
+No fim da Aula 11, o modelo é seu: você escreveu cada parte e apertou o
 botão do treino.
 
 ## O que um LLM faz
@@ -94,11 +94,11 @@ nova, e a tabela não tem nada a dizer sobre ela. Contar não generaliza:
 
 Uma rede neural resolve isso. Ela troca a tabela por pesos que vários
 contextos parecidos dividem, então o que ela aprende num contexto vale
-para os vizinhos. As próximas três aulas constroem essa rede.
+para os vizinhos. As próximas duas aulas constroem essa rede.
 
 ## O material da obra
 
-O modelo que você vai construir é pequeno (787.584 pesos, contra centenas
+O modelo que você vai construir é pequeno (809.728 pesos, contra centenas
 de bilhões dos modelos comerciais) e treina no processador, sem placa de
 vídeo.
 
@@ -343,10 +343,10 @@ No começo do treino a tabela é sorteada, e os vetores não significam
 nada. O treino ajusta cada número dela, como ajusta qualquer outro peso.
 No fim, tokens que aparecem em lugares parecidos acabam com vetores
 parecidos. No modelo treinado da disciplina, o vetor mais parecido com o
-de `·elle` é o de `·ella`; o de `·dous` é o de `·tres`; o de `·era` é o
-de `·foi`. Ninguém ensinou gramática ao modelo: ele achou sozinho que
-essas palavras fazem o mesmo papel. Você monta essa tabela na Aula 10,
-com uma linha de Keras.
+de `·elle` é o de `·ella`; perto de `·dous` estão `·duas` e `·tres`; perto
+de `·era` estão `·fosse` e `·foi`. Ninguém ensinou gramática ao modelo:
+ele achou sozinho que essas palavras fazem o mesmo papel. Na Aula 10 você
+monta essa tabela, com uma linha de Keras, e vê esse espaço em 3D.
 
 O caminho inteiro, então, é este:
 
@@ -363,7 +363,7 @@ Treinar o tokenizador de novo antes de usar o modelo. Cada treino de BPE
 pode sair com uma tabela diferente (basta um corpus um pouco diferente, ou
 outra regra de desempate). O tokenizador é parte do modelo: salve os dois
 juntos, sempre. Nesta disciplina, o arquivo é `data/machado_bpe.json`, o
-mesmo da Aula 9 à Aula 12.
+mesmo da Aula 9 à Aula 11.
 {% endhint %}
 
 ## Cola da aula

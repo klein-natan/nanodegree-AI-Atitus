@@ -166,7 +166,7 @@ formato. Ele não mantém a informação atualizada. Para conhecimento que
 muda, use RAG. Técnicas de **PEFT** (*parameter-efficient fine-tuning*)
 baixam bastante o custo do treino, mas não mudam essa divisão de tarefas.
 
-Você constrói um RAG do zero na Aula 14.
+Você constrói um RAG do zero na Aula 13.
 
 ## O ciclo de uma aplicação de IA
 
@@ -243,7 +243,7 @@ pessoa e sistema entregam mais juntos do que separados.
 
 - [Um tokenizador no navegador](https://gpt-tokenizer.dev/): cole uma frase em português e a tradução em inglês, e compare a contagem.
 - [AI Engineering](https://www.oreilly.com/library/view/ai-engineering/9781098166298/), de Chip Huyen: o livro que organiza esta página.
-- [Aula 13, Modelos de Fundação](../ia-generativa/aula-13-modelos-de-fundacao.md) e [Aula 14, Uma Aplicação de Verdade](../ia-generativa/aula-14-aplicacao-rag.md): onde você constrói o RAG.
+- [Aula 12, Modelos de Fundação](../ia-generativa/aula-12-modelos-de-fundacao.md) e [Aula 13, Uma Aplicação de Verdade](../ia-generativa/aula-13-aplicacao-rag.md): onde você constrói o RAG.
 - [Glossário](../glossario.md): para revisar qualquer termo novo desta página.
 
 ## Bibliografia
