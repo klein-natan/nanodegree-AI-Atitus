@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-<!-- fonte-docs: 696ce7be269d1d5e -->
+<!-- fonte-docs: f747f5124954e30a -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Nanodegree de IA &amp; ML</title>
@@ -9381,25 +9381,25 @@ mesmo transformer, gerando muito mais antes de mostrar o resultado.</p>
 <li>Modelo treinado do professor: <a href="https://github.com/klein-natan/nanodegree-AI-Atitus/blob/main/data/mini_llm.weights.h5"><code>mini_llm.weights.h5</code></a></li>
 <li>O texto do curso, usado no ajuste fino: <a href="https://github.com/klein-natan/nanodegree-AI-Atitus/blob/main/data/curso.txt"><code>curso.txt</code></a></li>
 </ul>
-<p>Os três exercícios do notebook:</p>
+<p>Os três exercícios do notebook são experimentos:</p>
 <div class="tabela-rolavel"><table><thead>
 <tr>
   <th>Exercício</th>
-  <th>O que você constrói</th>
+  <th>O que você testa</th>
 </tr>
 </thead>
 <tbody>
 <tr>
   <td>11.1</td>
-  <td>a função de treino pelo relógio, que salva o melhor modelo, e um teste de um minuto</td>
+  <td>um minuto de treino num modelo novo, e uma taxa de aprendizado sua contra a padrão</td>
 </tr>
 <tr>
   <td>11.2</td>
-  <td>a função <code>gerar</code>, com temperatura e top-k, e o treino de 35 minutos do seu modelo</td>
+  <td>a temperatura em que o texto fica melhor, o top-k salvando a temperatura alta, e o treino de 35 minutos do seu modelo</td>
 </tr>
 <tr>
   <td>11.3</td>
-  <td>a curva do seu treino, o seu modelo escrevendo, e o ajuste fino no texto do curso</td>
+  <td>o seu modelo contra o do professor, e o ajuste fino medido numa frase sua</td>
 </tr>
 </tbody>
 </table></div>
@@ -9632,76 +9632,59 @@ num lugar em que muita coisa cabe (&quot;Não sei se a senhora&quot;).</p>
 <p>Se a célula 3.c ou a 3.d der erro ao carregar os pesos, rode a célula
 3.a de novo: o <code>montar_modelo</code> precisa existir antes.</p>
 <h2 id="aula-11-treinar-e-usar-um-llm">Aula 11 — Treinar e Usar um LLM<a class="ancora" href="#aula-11-treinar-e-usar-um-llm" aria-label="Link para esta secao">#</a></h2>
-<p>A célula de preparação traz o tokenizador, o lote, o <code>montar_modelo</code> da
-Aula 10 e o modelo treinado do professor (<code>professor</code>). Hoje tem um treino
-de 35 minutos no fim do Exercício 2: não feche a aba enquanto ele roda.</p>
+<p>Como na Aula 10, os exercícios são experimentos: onde aparece <code>____</code>, você
+escreve um começo de frase, um número ou uma frase sua. As funções prontas
+(<code>montar_modelo</code>, <code>treinar</code>, <code>desenhar_curva</code>, <code>gerar</code>, <code>ajuste_fino</code>,
+<code>estranheza</code>) vêm da célula de preparação. Hoje tem um treino de 35
+minutos no fim do Exercício 2: não feche a aba enquanto ele roda.</p>
 <h3 id="exercicio-11-1">Exercício 11.1<a class="ancora" href="#exercicio-11-1" aria-label="Link para esta secao">#</a></h3>
-<p>A função de treino pelo relógio, testada por um minuto.</p>
-<p><strong>1.b A função de treino</strong></p>
-<details class="expansivel"><summary>Dica 1: a ideia</summary><p>Duas lacunas. A validação é medida em lotes do texto guardado para isso,
-que o modelo nunca vê no treino. E o &quot;melhor&quot; modelo é o de menor perda
-na validação, que o Keras chama de <code>val_loss</code>.</p>
+<p>O treino acontecendo, e o que o tamanho do passo faz com ele.</p>
+<p><strong>1.a Um minuto de treino</strong></p>
+<details class="expansivel"><summary>Dica 1: a ideia</summary><p>Escreva o começo de uma frase entre as aspas, como &quot;A casa de&quot; ou &quot;Era uma
+vez&quot;. A célula leva pouco mais de um minuto: na primeira vez, mais uns 30
+segundos para transformar o livro em tokens.</p>
 </details>
-<details class="expansivel"><summary>Dica 2: no código</summary><p>A preparação separou o texto em <code>dados_treino</code> e <code>dados_validacao</code>. O
-<code>lotes(...)</code> recebe um dos dois.</p>
+<p><strong>1.b O tamanho do passo</strong></p>
+<details class="expansivel"><summary>Dica 1: a ideia</summary><p>Escreva um número sem aspas, com ponto e não vírgula: <code>0.05</code> (bem maior que
+o padrão) ou <code>0.00001</code> (bem menor). A célula treina dois modelos, um
+minuto cada.</p>
 </details>
-<details class="expansivel"><summary>Resposta</summary><div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">salvar_o_melhor</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">ModelCheckpoint</span><span class="p">(</span>
-    <span class="s2">"meu_llm.weights.h5"</span><span class="p">,</span> <span class="n">monitor</span><span class="o">=</span><span class="s2">"val_loss"</span><span class="p">,</span> <span class="n">save_best_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">save_weights_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="o">...</span>
-<span class="n">validation_data</span><span class="o">=</span><span class="n">lotes</span><span class="p">(</span><span class="n">dados_validacao</span><span class="p">),</span> <span class="n">validation_steps</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-</code></pre></div>
+<details class="expansivel"><summary>O que esperar</summary><p>Com 0.05, a perda empaca perto de 5,8: o passo é tão grande que pula por
+cima do lugar bom. Com 0.00001, ela quase não sai de 6,9. O padrão, 0.001,
+chega perto de 5,1 no mesmo minuto.</p>
 </details>
-<p>Se o teste de 1 minuto deu ❌ com a perda acima de 6, confira se a célula
-do <code>Relogio</code> (a 1.a) rodou: sem ela, a função de treino nem existe.</p>
 <h3 id="exercicio-11-2">Exercício 11.2<a class="ancora" href="#exercicio-11-2" aria-label="Link para esta secao">#</a></h3>
-<p>A função <code>gerar</code>, com temperatura e top-k, e o treino de verdade.</p>
-<p><strong>2.a A última posição</strong></p>
-<details class="expansivel"><summary>Dica 1: a ideia</summary><p><code>logits[0]</code> é a primeira (e única) frase. Dentro dela, você quer a última
-posição. Em Python, o último item de uma lista tem índice <code>-1</code>.</p>
+<p>Os dois botões da geração, e o treino de verdade.</p>
+<p><strong>2.a A temperatura</strong></p>
+<details class="expansivel"><summary>Dica 1: a ideia</summary><p>Um número sem aspas, entre 0.2 e 1.5. Rode algumas vezes com valores
+diferentes (0.5, 0.8, 1.0) e compare.</p>
 </details>
-<details class="expansivel"><summary>Resposta</summary><div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">ultimos</span> <span class="o">=</span> <span class="n">logits</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-</code></pre></div>
+<details class="expansivel"><summary>O que esperar</summary><p>Com 0.2, o texto entra em loop (&quot;e ahi a pouco, e ahi a pouco&quot;). Com 1.5,
+aparecem palavras que não existem. Entre 0.7 e 0.9 costuma ficar melhor:
+é o padrão da maioria das ferramentas.</p>
 </details>
-<p><strong>2.b A temperatura</strong></p>
-<details class="expansivel"><summary>Dica 1: a ideia</summary><p>A temperatura divide as pontuações antes do sorteio. O nome dela, dentro
-da função, é o do parâmetro.</p>
+<p><strong>2.b O top-k salva a temperatura alta</strong></p>
+<details class="expansivel"><summary>Dica 1: a ideia</summary><p>Um número inteiro, como 10 ou 40. Com k = 1, só o favorito entra no
+sorteio: é a escolha gulosa, sempre o mesmo texto.</p>
 </details>
-<details class="expansivel"><summary>Resposta</summary><div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">sorteado</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">categorical</span><span class="p">(</span><span class="n">ultimos</span> <span class="o">/</span> <span class="n">temperatura</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-</code></pre></div>
-</details>
-<p><strong>2.c O top-k</strong></p>
-<details class="expansivel"><summary>Dica 1: a ideia</summary><p><code>ops.top_k(pontuacoes, quantos)</code> devolve as maiores pontuações. Quantas?
-O número que a função recebeu como parâmetro.</p>
-</details>
-<details class="expansivel"><summary>Resposta</summary><div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">melhores</span><span class="p">,</span> <span class="n">candidatos</span> <span class="o">=</span> <span class="n">ops</span><span class="o">.</span><span class="n">top_k</span><span class="p">(</span><span class="n">ultimos</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
-</code></pre></div>
-</details>
-<p><strong>2.d O treino de verdade</strong></p>
+<p><strong>2.c O treino de verdade</strong></p>
 <p>Não há lacuna. Se a célula terminou em menos de 35 minutos sem você
-apertar nada, olhe a última linha: um erro ali quer dizer que a função de
-treino tem um problema, e o teste de 1 minuto do passo 1.b devia ter
-mostrado. Se o Colab desconectou no meio, o <code>meu_llm.weights.h5</code> guarda o
-melhor modelo até a última conferência.</p>
+apertar nada, olhe a última linha: um erro ali quer dizer que alguma
+célula de cima não rodou. Se o Colab desconectou no meio, o
+<code>meu_llm.weights.h5</code> guarda o melhor modelo até a última conferência.</p>
 <h3 id="exercicio-11-3">Exercício 11.3<a class="ancora" href="#exercicio-11-3" aria-label="Link para esta secao">#</a></h3>
-<p>O seu modelo treinado, escrevendo e depois ajustado.</p>
-<p><strong>3.a A curva e o melhor modelo</strong></p>
-<details class="expansivel"><summary>Dica 1: a ideia</summary><p>O <code>ModelCheckpoint</code> do Exercício 1 salvou o melhor modelo num arquivo. O
-nome do arquivo está na função <code>treinar</code>.</p>
+<p>O seu modelo treinado, e depois ajustado.</p>
+<p><strong>3.b Ajuste fino</strong></p>
+<details class="expansivel"><summary>Dica 1: a ideia</summary><p>Uma frase em português de hoje, sobre o que você viu no curso, com
+palavras como modelo, dados, treino, perda, rede.</p>
 </details>
-<details class="expansivel"><summary>Resposta</summary><div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">modelo</span><span class="o">.</span><span class="n">load_weights</span><span class="p">(</span><span class="s2">"meu_llm.weights.h5"</span><span class="p">)</span>
+<details class="expansivel"><summary>Exemplo</summary><div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">minha_frase</span> <span class="o">=</span> <span class="s2">"A rede neural aprende com os dados de treino."</span>
 </code></pre></div>
 </details>
-<p><strong>3.c O ajuste fino</strong></p>
-<details class="expansivel"><summary>Dica 1: a ideia</summary><p>O treino é o mesmo. A única coisa que muda é o texto de onde saem os
-lotes: o texto do curso, separado na célula de cima.</p>
-</details>
-<details class="expansivel"><summary>Resposta</summary><div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">ajustado</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">lotes</span><span class="p">(</span><span class="n">curso_treino</span><span class="p">),</span> <span class="n">steps_per_epoch</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
-</code></pre></div>
-</details>
-<p>Se o Colab reiniciou e o <code>modelo</code> sumiu, rode a preparação, o
-<code>modelo = montar_modelo()</code> e o <code>modelo.load_weights(&quot;meu_llm.weights.h5&quot;)</code>
-de novo antes do ajuste. Sem o arquivo, use o modelo do professor:
-<code>modelo = professor</code>.</p>
+<p>Se o Colab reiniciou e o <code>meu_modelo</code> sumiu, rode a preparação e
+<code>meu_modelo = montar_modelo()</code> e <code>meu_modelo.load_weights(&quot;meu_llm.weights.h5&quot;)</code>
+antes do ajuste. Sem o arquivo, use o modelo do professor:
+<code>meu_modelo = professor</code>.</p>
 </template>
 <template class="pagina" data-id="ia-generativa" data-titulo="IA Generativa" data-descricao="Visão geral do módulo de IA Generativa">
 <p>O curso fecha usando modelos que outra pessoa treinou. Nas duas aulas

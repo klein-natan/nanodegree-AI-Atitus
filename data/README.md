@@ -312,7 +312,7 @@ sendo o dos scripts de figura.
 | | |
 |---|---|
 | **Origem** | Escrito à mão; o modelo é o de [`scripts/mini_gpt.py`](scripts/mini_gpt.py) |
-| **Usado em** | Aula 10: o notebook baixa este arquivo na célula de preparação |
+| **Usado em** | Aulas 10 e 11: o notebook baixa este arquivo na célula de preparação |
 | **Conteúdo** | O tokenizador da Aula 9, o modelo do professor e as funções dos experimentos |
 
 Não é um dataset: é o código pronto que os notebooks de LLM importam
@@ -320,9 +320,11 @@ Não é um dataset: é o código pronto que os notebooks de LLM importam
 `codificar` e `decodificar`, `modelo_do_professor`, e as funções que
 desenham e medem: `exemplos_de_treino`, `vizinhos`, `mapa_3d`,
 `para_onde_olha`, `apostas`, `estranheza`, `chances`, `gerar` e
-`contar_pesos`. Os nomes das camadas são os de `mini_gpt.py`, para os
-pesos do professor carregarem. Mudou uma função, rode o gabarito da Aula
-10 de novo.
+`contar_pesos`, e para a Aula 11 `montar_modelo`, `treinar` (pelo relógio,
+com AdamW, corte do gradiente e `ModelCheckpoint`), `desenhar_curva` e
+`ajuste_fino`. Os nomes das camadas são os de `mini_gpt.py`, para os
+pesos do professor carregarem. Mudou uma função, rode os gabaritos das
+Aulas 10 e 11 de novo.
 
 ## curso.txt
 

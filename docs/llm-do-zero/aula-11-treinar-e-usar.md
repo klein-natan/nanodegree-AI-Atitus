@@ -427,13 +427,13 @@ mesmo transformer, gerando muito mais antes de mostrar o resultado.
 - Modelo treinado do professor: [`mini_llm.weights.h5`](https://github.com/klein-natan/nanodegree-AI-Atitus/blob/main/data/mini_llm.weights.h5)
 - O texto do curso, usado no ajuste fino: [`curso.txt`](https://github.com/klein-natan/nanodegree-AI-Atitus/blob/main/data/curso.txt)
 
-Os três exercícios do notebook:
+Os três exercícios do notebook são experimentos:
 
-| Exercício | O que você constrói |
+| Exercício | O que você testa |
 |---|---|
-| 11.1 | a função de treino pelo relógio, que salva o melhor modelo, e um teste de um minuto |
-| 11.2 | a função `gerar`, com temperatura e top-k, e o treino de 35 minutos do seu modelo |
-| 11.3 | a curva do seu treino, o seu modelo escrevendo, e o ajuste fino no texto do curso |
+| 11.1 | um minuto de treino num modelo novo, e uma taxa de aprendizado sua contra a padrão |
+| 11.2 | a temperatura em que o texto fica melhor, o top-k salvando a temperatura alta, e o treino de 35 minutos do seu modelo |
+| 11.3 | o seu modelo contra o do professor, e o ajuste fino medido numa frase sua |
 
 ## Para ir além
 

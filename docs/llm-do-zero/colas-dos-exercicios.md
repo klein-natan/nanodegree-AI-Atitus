@@ -387,147 +387,103 @@ Se a célula 3.c ou a 3.d der erro ao carregar os pesos, rode a célula
 
 ## Aula 11 — Treinar e Usar um LLM
 
-A célula de preparação traz o tokenizador, o lote, o `montar_modelo` da
-Aula 10 e o modelo treinado do professor (`professor`). Hoje tem um treino
-de 35 minutos no fim do Exercício 2: não feche a aba enquanto ele roda.
+Como na Aula 10, os exercícios são experimentos: onde aparece `____`, você
+escreve um começo de frase, um número ou uma frase sua. As funções prontas
+(`montar_modelo`, `treinar`, `desenhar_curva`, `gerar`, `ajuste_fino`,
+`estranheza`) vêm da célula de preparação. Hoje tem um treino de 35
+minutos no fim do Exercício 2: não feche a aba enquanto ele roda.
 
 ### Exercício 11.1
 
-A função de treino pelo relógio, testada por um minuto.
+O treino acontecendo, e o que o tamanho do passo faz com ele.
 
-**1.b A função de treino**
+**1.a Um minuto de treino**
 
 <details><summary>Dica 1: a ideia</summary>
 
-Duas lacunas. A validação é medida em lotes do texto guardado para isso,
-que o modelo nunca vê no treino. E o "melhor" modelo é o de menor perda
-na validação, que o Keras chama de `val_loss`.
+Escreva o começo de uma frase entre as aspas, como "A casa de" ou "Era uma
+vez". A célula leva pouco mais de um minuto: na primeira vez, mais uns 30
+segundos para transformar o livro em tokens.
 
 </details>
 
-<details><summary>Dica 2: no código</summary>
+**1.b O tamanho do passo**
 
-A preparação separou o texto em `dados_treino` e `dados_validacao`. O
-`lotes(...)` recebe um dos dois.
+<details><summary>Dica 1: a ideia</summary>
 
-</details>
-
-<details><summary>Resposta</summary>
-
-```python
-salvar_o_melhor = keras.callbacks.ModelCheckpoint(
-    "meu_llm.weights.h5", monitor="val_loss", save_best_only=True, save_weights_only=True)
-...
-validation_data=lotes(dados_validacao), validation_steps=10,
-```
+Escreva um número sem aspas, com ponto e não vírgula: `0.05` (bem maior que
+o padrão) ou `0.00001` (bem menor). A célula treina dois modelos, um
+minuto cada.
 
 </details>
 
-Se o teste de 1 minuto deu ❌ com a perda acima de 6, confira se a célula
-do `Relogio` (a 1.a) rodou: sem ela, a função de treino nem existe.
+<details><summary>O que esperar</summary>
+
+Com 0.05, a perda empaca perto de 5,8: o passo é tão grande que pula por
+cima do lugar bom. Com 0.00001, ela quase não sai de 6,9. O padrão, 0.001,
+chega perto de 5,1 no mesmo minuto.
+
+</details>
 
 ### Exercício 11.2
 
-A função `gerar`, com temperatura e top-k, e o treino de verdade.
+Os dois botões da geração, e o treino de verdade.
 
-**2.a A última posição**
-
-<details><summary>Dica 1: a ideia</summary>
-
-`logits[0]` é a primeira (e única) frase. Dentro dela, você quer a última
-posição. Em Python, o último item de uma lista tem índice `-1`.
-
-</details>
-
-<details><summary>Resposta</summary>
-
-```python
-ultimos = logits[0, -1]
-```
-
-</details>
-
-**2.b A temperatura**
+**2.a A temperatura**
 
 <details><summary>Dica 1: a ideia</summary>
 
-A temperatura divide as pontuações antes do sorteio. O nome dela, dentro
-da função, é o do parâmetro.
+Um número sem aspas, entre 0.2 e 1.5. Rode algumas vezes com valores
+diferentes (0.5, 0.8, 1.0) e compare.
 
 </details>
 
-<details><summary>Resposta</summary>
+<details><summary>O que esperar</summary>
 
-```python
-sorteado = keras.random.categorical(ultimos / temperatura, 1)
-```
+Com 0.2, o texto entra em loop ("e ahi a pouco, e ahi a pouco"). Com 1.5,
+aparecem palavras que não existem. Entre 0.7 e 0.9 costuma ficar melhor:
+é o padrão da maioria das ferramentas.
 
 </details>
 
-**2.c O top-k**
+**2.b O top-k salva a temperatura alta**
 
 <details><summary>Dica 1: a ideia</summary>
 
-`ops.top_k(pontuacoes, quantos)` devolve as maiores pontuações. Quantas?
-O número que a função recebeu como parâmetro.
+Um número inteiro, como 10 ou 40. Com k = 1, só o favorito entra no
+sorteio: é a escolha gulosa, sempre o mesmo texto.
 
 </details>
 
-<details><summary>Resposta</summary>
-
-```python
-melhores, candidatos = ops.top_k(ultimos, k)
-```
-
-</details>
-
-**2.d O treino de verdade**
+**2.c O treino de verdade**
 
 Não há lacuna. Se a célula terminou em menos de 35 minutos sem você
-apertar nada, olhe a última linha: um erro ali quer dizer que a função de
-treino tem um problema, e o teste de 1 minuto do passo 1.b devia ter
-mostrado. Se o Colab desconectou no meio, o `meu_llm.weights.h5` guarda o
-melhor modelo até a última conferência.
+apertar nada, olhe a última linha: um erro ali quer dizer que alguma
+célula de cima não rodou. Se o Colab desconectou no meio, o
+`meu_llm.weights.h5` guarda o melhor modelo até a última conferência.
 
 ### Exercício 11.3
 
-O seu modelo treinado, escrevendo e depois ajustado.
+O seu modelo treinado, e depois ajustado.
 
-**3.a A curva e o melhor modelo**
+**3.b Ajuste fino**
 
 <details><summary>Dica 1: a ideia</summary>
 
-O `ModelCheckpoint` do Exercício 1 salvou o melhor modelo num arquivo. O
-nome do arquivo está na função `treinar`.
+Uma frase em português de hoje, sobre o que você viu no curso, com
+palavras como modelo, dados, treino, perda, rede.
 
 </details>
 
-<details><summary>Resposta</summary>
+<details><summary>Exemplo</summary>
 
 ```python
-modelo.load_weights("meu_llm.weights.h5")
+minha_frase = "A rede neural aprende com os dados de treino."
 ```
 
 </details>
 
-**3.c O ajuste fino**
-
-<details><summary>Dica 1: a ideia</summary>
-
-O treino é o mesmo. A única coisa que muda é o texto de onde saem os
-lotes: o texto do curso, separado na célula de cima.
-
-</details>
-
-<details><summary>Resposta</summary>
-
-```python
-ajustado.fit(lotes(curso_treino), steps_per_epoch=50, epochs=4)
-```
-
-</details>
-
-Se o Colab reiniciou e o `modelo` sumiu, rode a preparação, o
-`modelo = montar_modelo()` e o `modelo.load_weights("meu_llm.weights.h5")`
-de novo antes do ajuste. Sem o arquivo, use o modelo do professor:
-`modelo = professor`.
+Se o Colab reiniciou e o `meu_modelo` sumiu, rode a preparação e
+`meu_modelo = montar_modelo()` e `meu_modelo.load_weights("meu_llm.weights.h5")`
+antes do ajuste. Sem o arquivo, use o modelo do professor:
+`meu_modelo = professor`.

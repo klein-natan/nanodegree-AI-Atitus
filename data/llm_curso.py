@@ -340,14 +340,148 @@ def chances(modelo, texto, quantos=5):
     return float(p.max())
 
 
-def gerar(modelo, texto, quantos=50, temperatura=0.8):
-    """Continua o texto, sorteando um token de cada vez."""
+def gerar(modelo, texto, quantos=50, temperatura=0.8, k=None):
+    """Continua o texto, sorteando um token de cada vez.
+
+    temperatura: divide as pontuações antes do sorteio (baixa concentra, alta espalha).
+    k: se der um número, só os k tokens mais prováveis entram no sorteio (top-k).
+    """
     indices = codificar(texto)
     for _ in range(quantos):
-        logits = modelo(np.array([indices[-BLOCO:]]))
-        sorteado = keras.random.categorical(logits[:, -1] / temperatura, 1)
-        indices.append(int(sorteado[0, 0]))
+        ultimos = modelo(np.array([indices[-BLOCO:]]))[0, -1]
+        if k:
+            melhores, candidatos = ops.top_k(ultimos, k)
+            sorteado = keras.random.categorical(melhores[None] / temperatura, 1)
+            indices.append(int(candidatos[int(sorteado[0, 0])]))
+        else:
+            sorteado = keras.random.categorical(ultimos[None] / temperatura, 1)
+            indices.append(int(sorteado[0, 0]))
     return decodificar(indices)
+
+
+# --------------------------------------------------------------------------
+# Aula 11: treinar
+# --------------------------------------------------------------------------
+
+def montar_modelo(camadas=4, dimensao=128, cabecas=4):
+    """O modelo da Aula 10, com pesos sorteados."""
+    return _montar(camadas, dimensao, cabecas)
+
+
+_dados = {}
+
+
+def _tokens(nome):
+    """O texto em tokens, separado em treino (90%) e validação (10%)."""
+    if nome not in _dados:
+        print(f"Transformando {nome} em tokens (uns 30 segundos, só na primeira vez)...")
+        tokens = np.array(codificar(baixar(nome)), dtype="int32")
+        corte = int(0.9 * len(tokens))
+        _dados[nome] = (tokens[:corte], tokens[corte:])
+    return _dados[nome]
+
+
+def _lotes(dados, lote=32):
+    while True:
+        inicios = np.random.randint(0, len(dados) - BLOCO - 1, lote)
+        yield (np.stack([dados[i:i + BLOCO] for i in inicios]),
+               np.stack([dados[i + 1:i + BLOCO + 1] for i in inicios]))
+
+
+def _taxa_no_momento(fracao, taxa_maxima):
+    if fracao < 0.03:
+        return taxa_maxima * fracao / 0.03                                         # aquecimento
+    resto = (fracao - 0.03) / 0.97
+    return taxa_maxima * (0.1 + 0.9 * 0.5 * (1 + np.cos(np.pi * resto)))         # resfriamento
+
+
+class _Relogio(keras.callbacks.Callback):
+    """Ajusta a taxa pela fração do tempo que passou, para na hora, e anota a curva."""
+
+    def __init__(self, minutos, taxa_maxima):
+        super().__init__()
+        self.minutos, self.taxa_maxima = minutos, taxa_maxima
+        self.historico = {"minuto": [], "treino": [], "validacao": []}
+
+    def on_train_begin(self, logs=None):
+        import time
+        self.relogio, self.inicio = time, time.time()
+
+    def on_train_batch_begin(self, passo, logs=None):
+        fracao = (self.relogio.time() - self.inicio) / (self.minutos * 60)
+        if fracao >= 1:
+            self.model.stop_training = True
+        self.model.optimizer.learning_rate.assign(_taxa_no_momento(min(fracao, 1), self.taxa_maxima))
+
+    def on_epoch_end(self, conferencia, logs=None):
+        minuto = (self.relogio.time() - self.inicio) / 60
+        self.historico["minuto"].append(minuto)
+        self.historico["treino"].append(float(logs["loss"]))
+        self.historico["validacao"].append(float(logs["val_loss"]))
+        print(f"   {minuto:4.1f} min   perda no treino {logs['loss']:.2f}   "
+              f"na validação {logs['val_loss']:.2f}")
+
+
+def treinar(modelo, minutos, taxa=1e-3, texto="machado.txt", arquivo=None, conferir_a_cada=200):
+    """Treina o modelo pelo relógio, com AdamW e corte do gradiente.
+
+    A cada `conferir_a_cada` passos, mede a perda na validação. Se `arquivo`
+    tiver um nome, salva ali o modelo sempre que a validação bater o recorde.
+    """
+    treino, validacao = _tokens(texto)
+    modelo.compile(optimizer=keras.optimizers.AdamW(learning_rate=taxa, weight_decay=0.1,
+                                                    beta_2=0.95, global_clipnorm=1.0),
+                   loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True))
+    relogio = _Relogio(minutos, taxa)
+    callbacks = [relogio]
+    if arquivo:
+        callbacks.append(keras.callbacks.ModelCheckpoint(arquivo, monitor="val_loss", save_best_only=True,
+                                                         save_weights_only=True))
+    try:
+        modelo.fit(_lotes(treino), steps_per_epoch=conferir_a_cada, epochs=100_000,
+                   validation_data=_lotes(validacao), validation_steps=10,
+                   callbacks=callbacks, verbose=0)
+    except KeyboardInterrupt:
+        print("Treino interrompido por você.")
+    if relogio.historico["validacao"]:
+        print(f"Fim: melhor perda na validação {min(relogio.historico['validacao']):.2f}")
+    return relogio.historico
+
+
+def desenhar_curva(*historicos, nomes=None):
+    """A perda na validação ao longo do tempo, de um ou mais treinos."""
+    plt.figure(figsize=(9, 4))
+    for n, historico in enumerate(historicos):
+        nome = nomes[n] if nomes else "validação"
+        plt.plot(historico["minuto"], historico["validacao"], marker="o", label=nome)
+    plt.axhline(np.log(1024), color="gray", linestyle=":", label="chute ao acaso (6,93)")
+    plt.xlabel("minutos de treino")
+    plt.ylabel("perda na validação")
+    plt.legend()
+    plt.show()
+
+
+def ajuste_fino(modelo, passos=200, texto="curso.txt", taxa=3e-4):
+    """Uma cópia do modelo, com o treino continuado em outro texto."""
+    treino, _ = _tokens(texto)
+    copia = montar_modelo()
+    copia.set_weights(modelo.get_weights())
+    copia.compile(optimizer=keras.optimizers.AdamW(learning_rate=taxa, global_clipnorm=1.0),
+                  loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True))
+    historia = copia.fit(_lotes(treino), steps_per_epoch=passos // 4, epochs=4, verbose=0)
+    print(f"Ajuste fino: {passos} passos em {texto}, perda de "
+          f"{historia.history['loss'][0]:.2f} para {historia.history['loss'][-1]:.2f}")
+    return copia
+
+
+def baixar_para_o_computador(arquivo):
+    """No Colab, baixa o arquivo para o seu computador."""
+    try:
+        from google.colab import files
+        files.download(arquivo)
+        print("Download iniciado: confira a pasta de downloads.")
+    except ImportError:
+        print(f"Fora do Colab: o arquivo {arquivo} está na pasta deste notebook.")
 
 
 def contar_pesos(modelo):
