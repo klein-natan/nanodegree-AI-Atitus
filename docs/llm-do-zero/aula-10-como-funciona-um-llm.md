@@ -448,13 +448,13 @@ escrever. Na Aula 11, você treina os seus.
 - Slides desta aula: entregues em sala.
 - Modelo treinado do professor: [`mini_llm.weights.h5`](https://github.com/klein-natan/nanodegree-AI-Atitus/blob/main/data/mini_llm.weights.h5)
 
-Os três exercícios do notebook:
+Os três exercícios do notebook são experimentos com o modelo treinado:
 
-| Exercício | O que você constrói |
+| Exercício | O que você testa |
 |---|---|
-| 10.1 | entrada e alvo, o lote passando pelo embedding, e os vizinhos de cada token no modelo treinado, em 3D |
-| 10.2 | a atenção do Keras com quatro cabeças e a máscara, e para onde o modelo treinado olha |
-| 10.3 | o bloco, o modelo inteiro com 809.728 pesos, o passo zero e os pesos do professor no seu modelo |
+| 10.1 | os exemplos de treino que uma frase sua vira, um palpite sobre os vizinhos de uma palavra, e um grupo seu no mapa 3D |
+| 10.2 | para onde um substantivo olha, a máscara (trocar a última palavra não muda o começo) e a posição (a frase embaralhada fica estranha) |
+| 10.3 | o modelo inteiro em Keras, um modelo do tamanho do GPT-2, e o mesmo modelo antes e depois do treino |
 
 ## Para ir além
 

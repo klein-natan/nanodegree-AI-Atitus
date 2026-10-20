@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-<!-- fonte-docs: dc52834d7486fac2 -->
+<!-- fonte-docs: 696ce7be269d1d5e -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Nanodegree de IA &amp; ML</title>
@@ -8791,25 +8791,25 @@ escrever. Na Aula 11, você treina os seus.</p>
 <li>Slides desta aula: entregues em sala.</li>
 <li>Modelo treinado do professor: <a href="https://github.com/klein-natan/nanodegree-AI-Atitus/blob/main/data/mini_llm.weights.h5"><code>mini_llm.weights.h5</code></a></li>
 </ul>
-<p>Os três exercícios do notebook:</p>
+<p>Os três exercícios do notebook são experimentos com o modelo treinado:</p>
 <div class="tabela-rolavel"><table><thead>
 <tr>
   <th>Exercício</th>
-  <th>O que você constrói</th>
+  <th>O que você testa</th>
 </tr>
 </thead>
 <tbody>
 <tr>
   <td>10.1</td>
-  <td>entrada e alvo, o lote passando pelo embedding, e os vizinhos de cada token no modelo treinado, em 3D</td>
+  <td>os exemplos de treino que uma frase sua vira, um palpite sobre os vizinhos de uma palavra, e um grupo seu no mapa 3D</td>
 </tr>
 <tr>
   <td>10.2</td>
-  <td>a atenção do Keras com quatro cabeças e a máscara, e para onde o modelo treinado olha</td>
+  <td>para onde um substantivo olha, a máscara (trocar a última palavra não muda o começo) e a posição (a frase embaralhada fica estranha)</td>
 </tr>
 <tr>
   <td>10.3</td>
-  <td>o bloco, o modelo inteiro com 809.728 pesos, o passo zero e os pesos do professor no seu modelo</td>
+  <td>o modelo inteiro em Keras, um modelo do tamanho do GPT-2, e o mesmo modelo antes e depois do treino</td>
 </tr>
 </tbody>
 </table></div>
@@ -9560,91 +9560,77 @@ tokens. A lista de tokens do corpus se chama <code>ids_corpus</code>.</p>
 </code></pre></div>
 </details>
 <h2 id="aula-10-como-funciona-um-llm">Aula 10 — Como Funciona um LLM<a class="ancora" href="#aula-10-como-funciona-um-llm" aria-label="Link para esta secao">#</a></h2>
-<p>As células 🧰 trazem código pronto: o tokenizador, o lote e o modelo
-treinado do professor (<code>professor</code>). As lacunas são uma palavra ou um
-número.</p>
+<p>Os exercícios desta aula são experimentos com o modelo treinado do
+professor. Quase nenhum tem resposta única: onde aparece <code>____</code>, você
+escreve uma frase, um palpite ou uma palavra sua. As funções prontas
+(<code>vizinhos</code>, <code>mapa_3d</code>, <code>para_onde_olha</code>, <code>apostas</code>, <code>estranheza</code>,
+<code>chances</code>, <code>gerar</code>) vêm da célula de preparação.</p>
 <h3 id="exercicio-10-1">Exercício 10.1<a class="ancora" href="#exercicio-10-1" aria-label="Link para esta secao">#</a></h3>
-<p>Entrada e alvo, o lote passando pelo embedding, e os vizinhos de cada
-token.</p>
-<p><strong>1.a Entrada e alvo</strong></p>
-<details class="expansivel"><summary>Dica 1: a ideia</summary><p>O alvo é a mesma frase, andada uma casa: o primeiro alvo é o segundo
-token.</p>
+<p>Uma frase sua vira exemplos de treino, e o sentido das palavras vira
+geometria.</p>
+<p><strong>1.a Uma frase sua vira exemplos de treino</strong></p>
+<details class="expansivel"><summary>Dica 1: a ideia</summary><p>Qualquer frase serve: escreva entre as aspas, no lugar do <code>____</code>. Repare
+na tabela: em cada linha, o modelo lê um pedaço maior do começo e tem que
+prever o token seguinte.</p>
 </details>
-<details class="expansivel"><summary>Dica 2: no código</summary><p><code>ids[:-1]</code> é tudo menos o último. O alvo é tudo menos o <strong>primeiro</strong>:
-começa no índice 1.</p>
+<details class="expansivel"><summary>Exemplo</summary><div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">frase</span> <span class="o">=</span> <span class="s2">"Hoje eu vou ao cinema com meus amigos."</span>
+</code></pre></div>
+<p>Se aparecer <code>�</code>, é uma letra acentuada que o BPE guardou em dois bytes
+separados: cada byte sozinho não é uma letra.</p>
 </details>
-<details class="expansivel"><summary>Resposta</summary><div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">alvo</span> <span class="o">=</span> <span class="n">ids</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+<p><strong>1.b Palpite: quem fica perto de quem?</strong></p>
+<details class="expansivel"><summary>Dica 1: a ideia</summary><p>Não existe palpite errado aqui: o ponto é comparar o que você achou com o
+que o modelo achou. Pense em que palavra aparece nos mesmos lugares que
+&quot;elle&quot; nos livros de Machado.</p>
+</details>
+<details class="expansivel"><summary>Se a palavra &quot;vira mais de um token&quot;</summary><p>Só palavras comuns ganharam um token próprio no BPE. Escolha uma mais
+comum (artigos, pronomes, verbos como &quot;era&quot; e &quot;foi&quot;, nomes dos
+personagens).</p>
+</details>
+<p><strong>1.c Um grupo seu no mapa 3D</strong></p>
+<details class="expansivel"><summary>Dica 1: a ideia</summary><p>Quatro palavras do mesmo tipo, cada uma entre aspas: tempo (&quot;dia&quot;,
+&quot;noite&quot;), lugares (&quot;casa&quot;, &quot;rua&quot;, &quot;porta&quot;), família (&quot;mãe&quot;, &quot;pae&quot;,
+&quot;filha&quot;, &quot;marido&quot;).</p>
+</details>
+<details class="expansivel"><summary>Exemplo</summary><div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">meu_grupo</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"dia"</span><span class="p">,</span> <span class="s2">"noite"</span><span class="p">,</span> <span class="s2">"dias"</span><span class="p">,</span> <span class="s2">"annos"</span><span class="p">]</span>
 </code></pre></div>
 </details>
-<p><strong>1.b O lote passa pelo embedding</strong></p>
-<details class="expansivel"><summary>Dica 1: a ideia</summary><p>A tabela tem uma linha para cada token que pode aparecer. Quantos tokens
-tem o vocabulário da Aula 9?</p>
-</details>
-<details class="expansivel"><summary>Resposta</summary><div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">embedding</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Embedding</span><span class="p">(</span><span class="n">input_dim</span><span class="o">=</span><span class="n">TAMANHO_VOCABULARIO</span><span class="p">,</span> <span class="n">output_dim</span><span class="o">=</span><span class="mi">128</span><span class="p">)</span>
-</code></pre></div>
-<p><code>TAMANHO_VOCABULARIO</code> vale 1024. Escrever <code>1024</code> direto também dá certo.</p>
-</details>
-<p><strong>1.c e 1.d Os vizinhos e o espaço em 3D</strong></p>
-<p>Não há lacuna. Se <code>vizinhos</code> avisar que a palavra vira mais de um token,
-escolha outra: só palavras comuns ganharam um token próprio no BPE. E
-lembre do espaço no começo (<code>&quot; casa&quot;</code>, e não <code>&quot;casa&quot;</code>): é assim que a
-palavra aparece no meio do texto.</p>
 <h3 id="exercicio-10-2">Exercício 10.2<a class="ancora" href="#exercicio-10-2" aria-label="Link para esta secao">#</a></h3>
-<p>A atenção do Keras, a máscara, e para onde o modelo treinado olha.</p>
-<p><strong>2.a Quatro cabeças</strong></p>
-<details class="expansivel"><summary>Dica 1: a ideia</summary><p>Cada vetor tem 128 números, e cada cabeça trabalha com 32 (<code>key_dim=32</code>).
-Quantas cabeças de 32 cabem em 128?</p>
+<p>Para onde o modelo olha, e a máscara e a posição postas à prova.</p>
+<p><strong>2.a Para onde um substantivo olha</strong></p>
+<details class="expansivel"><summary>Dica 1: a ideia</summary><p>Escreva uma frase com &quot;um&quot; ou &quot;uma&quot; antes de um substantivo, e repita o
+substantivo, sozinho, na segunda linha. Olhe a camada 4.</p>
 </details>
-<details class="expansivel"><summary>Resposta</summary><div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">atencao</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">MultiHeadAttention</span><span class="p">(</span><span class="n">num_heads</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">key_dim</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
+<details class="expansivel"><summary>Exemplo</summary><div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">frase</span> <span class="o">=</span> <span class="s2">"Ella trazia uma carta na mão."</span>
+<span class="n">palavra</span> <span class="o">=</span> <span class="s2">"carta"</span>
+</code></pre></div>
+<p>Se aparecer &quot;Não achei a palavra na frase&quot;, confira se ela está escrita
+igualzinho nas duas linhas.</p>
+</details>
+<p><strong>2.b A máscara: o futuro não muda o passado</strong></p>
+<details class="expansivel"><summary>Dica 1: a ideia</summary><p>Troque só o <code>____</code> por uma palavra qualquer (&quot;cachorro&quot;, &quot;rei&quot;, &quot;outro&quot;).
+Depois compare as duas tabelas linha por linha até o &quot;do&quot;.</p>
+</details>
+<p><strong>2.c A ordem importa</strong></p>
+<details class="expansivel"><summary>Dica 1: a ideia</summary><p>Use as mesmas palavras da frase certa, com a mesma grafia e a mesma
+pontuação grudada nelas (&quot;hontem.&quot; com o ponto), só em outra ordem.</p>
+</details>
+<details class="expansivel"><summary>Exemplo</summary><div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">embaralhada</span> <span class="o">=</span> <span class="s2">"senhora sabe Não hontem. que se a não elle veio sei"</span>
 </code></pre></div>
 </details>
-<p><strong>2.b A máscara causal</strong></p>
-<details class="expansivel"><summary>Dica 1: a ideia</summary><p>O argumento liga ou desliga a máscara. Ele recebe um valor de verdadeiro
-ou falso do Python.</p>
-</details>
-<details class="expansivel"><summary>Resposta</summary><div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">saida</span><span class="p">,</span> <span class="n">pesos</span> <span class="o">=</span> <span class="n">atencao</span><span class="p">(</span><span class="n">frase</span><span class="p">,</span> <span class="n">frase</span><span class="p">,</span> <span class="n">use_causal_mask</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_attention_scores</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</code></pre></div>
-</details>
-<p><strong>2.c Para onde o modelo treinado olha</strong></p>
-<p>Não há lacuna. Mude o <code>camada=0</code> para 1, 2 ou 3 e compare os mapas. Se der
-erro dizendo que <code>professor</code> não existe, rode a célula de preparação de
-novo: é ela que carrega o modelo do professor.</p>
 <h3 id="exercicio-10-3">Exercício 10.3<a class="ancora" href="#exercicio-10-3" aria-label="Link para esta secao">#</a></h3>
-<p>O bloco, o modelo inteiro, o passo zero e os pesos do professor.</p>
-<p><strong>3.a O bloco</strong></p>
-<details class="expansivel"><summary>Dica 1: a ideia</summary><p>Duas lacunas. A camada densa abre de 128 para 256 números e precisa
-<strong>voltar</strong> para 128, senão não dá para somar com o <code>x</code>. E o bloco
-devolve a entrada mais o que a segunda metade calculou: o atalho.</p>
-</details>
-<details class="expansivel"><summary>Dica 2: no código</summary><p>A primeira metade do bloco já mostra o atalho: <code>x = x + h</code>. A segunda
-metade faz o mesmo, só que no <code>return</code>.</p>
-</details>
-<details class="expansivel"><summary>Resposta</summary><div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">h</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">DIMENSAO</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">"volta</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">"</span><span class="p">)(</span><span class="n">h</span><span class="p">)</span>
-<span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="n">h</span>
+<p>O modelo inteiro em Keras, e a diferença que o treino faz.</p>
+<p><strong>3.b Do tamanho de um GPT-2</strong></p>
+<details class="expansivel"><summary>Resposta</summary><div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">grande</span> <span class="o">=</span> <span class="n">montar_modelo</span><span class="p">(</span><span class="n">camadas</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">dimensao</span><span class="o">=</span><span class="mi">768</span><span class="p">,</span> <span class="n">cabecas</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
 </code></pre></div>
 </details>
-<p><strong>3.b O modelo</strong></p>
-<details class="expansivel"><summary>Dica 1: a ideia</summary><p>Quantos blocos o modelo tem? E quantas pontuações a saída precisa dar,
-uma para cada o quê?</p>
+<p><strong>3.d Complete a frase</strong></p>
+<details class="expansivel"><summary>Dica 1: a ideia</summary><p>Para o favorito passar de 50%, comece um nome conhecido pela metade
+(&quot;Quincas Bor&quot;, &quot;Dom Cas&quot;). Para ninguém passar de 10%, termine o começo
+num lugar em que muita coisa cabe (&quot;Não sei se a senhora&quot;).</p>
 </details>
-<details class="expansivel"><summary>Resposta</summary><div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">CAMADAS</span><span class="p">):</span>
-<span class="o">...</span>
-<span class="n">saida</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">TAMANHO_VOCABULARIO</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"saida"</span><span class="p">)(</span><span class="n">x</span><span class="p">)</span>
-</code></pre></div>
-</details>
-<p>Se o total de pesos saiu diferente de 809.728, confira as duas lacunas do
-passo 3.a: um <code>Dense</code> com tamanho trocado muda a conta inteira.</p>
-<p><strong>3.c O passo zero</strong></p>
-<details class="expansivel"><summary>Dica 1: a ideia</summary><p>O modelo devolve pontuações cruas, sem softmax. A perda precisa saber
-disso para fazer a softmax ela mesma.</p>
-</details>
-<details class="expansivel"><summary>Resposta</summary><div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">modelo</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="n">keras</span><span class="o">.</span><span class="n">losses</span><span class="o">.</span><span class="n">SparseCategoricalCrossentropy</span><span class="p">(</span><span class="n">from_logits</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
-</code></pre></div>
-</details>
-<p><strong>3.d Os pesos do professor no seu modelo</strong></p>
-<p>Não há lacuna. Se a célula der erro ao carregar os pesos, o seu modelo
-ficou diferente do modelo do professor: confira os nomes e os tamanhos das
-camadas nos passos 3.a e 3.b, e rode as duas células de novo.</p>
+<p>Se a célula 3.c ou a 3.d der erro ao carregar os pesos, rode a célula
+3.a de novo: o <code>montar_modelo</code> precisa existir antes.</p>
 <h2 id="aula-11-treinar-e-usar-um-llm">Aula 11 — Treinar e Usar um LLM<a class="ancora" href="#aula-11-treinar-e-usar-um-llm" aria-label="Link para esta secao">#</a></h2>
 <p>A célula de preparação traz o tokenizador, o lote, o <code>montar_modelo</code> da
 Aula 10 e o modelo treinado do professor (<code>professor</code>). Hoje tem um treino

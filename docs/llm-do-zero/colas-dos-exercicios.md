@@ -239,183 +239,151 @@ caracteres_por_token = len(corpus) / len(ids_corpus)
 
 ## Aula 10 — Como Funciona um LLM
 
-As células 🧰 trazem código pronto: o tokenizador, o lote e o modelo
-treinado do professor (`professor`). As lacunas são uma palavra ou um
-número.
+Os exercícios desta aula são experimentos com o modelo treinado do
+professor. Quase nenhum tem resposta única: onde aparece `____`, você
+escreve uma frase, um palpite ou uma palavra sua. As funções prontas
+(`vizinhos`, `mapa_3d`, `para_onde_olha`, `apostas`, `estranheza`,
+`chances`, `gerar`) vêm da célula de preparação.
 
 ### Exercício 10.1
 
-Entrada e alvo, o lote passando pelo embedding, e os vizinhos de cada
-token.
+Uma frase sua vira exemplos de treino, e o sentido das palavras vira
+geometria.
 
-**1.a Entrada e alvo**
-
-<details><summary>Dica 1: a ideia</summary>
-
-O alvo é a mesma frase, andada uma casa: o primeiro alvo é o segundo
-token.
-
-</details>
-
-<details><summary>Dica 2: no código</summary>
-
-`ids[:-1]` é tudo menos o último. O alvo é tudo menos o **primeiro**:
-começa no índice 1.
-
-</details>
-
-<details><summary>Resposta</summary>
-
-```python
-alvo = ids[1:]
-```
-
-</details>
-
-**1.b O lote passa pelo embedding**
+**1.a Uma frase sua vira exemplos de treino**
 
 <details><summary>Dica 1: a ideia</summary>
 
-A tabela tem uma linha para cada token que pode aparecer. Quantos tokens
-tem o vocabulário da Aula 9?
+Qualquer frase serve: escreva entre as aspas, no lugar do `____`. Repare
+na tabela: em cada linha, o modelo lê um pedaço maior do começo e tem que
+prever o token seguinte.
 
 </details>
 
-<details><summary>Resposta</summary>
+<details><summary>Exemplo</summary>
 
 ```python
-embedding = keras.layers.Embedding(input_dim=TAMANHO_VOCABULARIO, output_dim=128)
+frase = "Hoje eu vou ao cinema com meus amigos."
 ```
 
-`TAMANHO_VOCABULARIO` vale 1024. Escrever `1024` direto também dá certo.
+Se aparecer `�`, é uma letra acentuada que o BPE guardou em dois bytes
+separados: cada byte sozinho não é uma letra.
 
 </details>
 
-**1.c e 1.d Os vizinhos e o espaço em 3D**
+**1.b Palpite: quem fica perto de quem?**
 
-Não há lacuna. Se `vizinhos` avisar que a palavra vira mais de um token,
-escolha outra: só palavras comuns ganharam um token próprio no BPE. E
-lembre do espaço no começo (`" casa"`, e não `"casa"`): é assim que a
-palavra aparece no meio do texto.
+<details><summary>Dica 1: a ideia</summary>
+
+Não existe palpite errado aqui: o ponto é comparar o que você achou com o
+que o modelo achou. Pense em que palavra aparece nos mesmos lugares que
+"elle" nos livros de Machado.
+
+</details>
+
+<details><summary>Se a palavra "vira mais de um token"</summary>
+
+Só palavras comuns ganharam um token próprio no BPE. Escolha uma mais
+comum (artigos, pronomes, verbos como "era" e "foi", nomes dos
+personagens).
+
+</details>
+
+**1.c Um grupo seu no mapa 3D**
+
+<details><summary>Dica 1: a ideia</summary>
+
+Quatro palavras do mesmo tipo, cada uma entre aspas: tempo ("dia",
+"noite"), lugares ("casa", "rua", "porta"), família ("mãe", "pae",
+"filha", "marido").
+
+</details>
+
+<details><summary>Exemplo</summary>
+
+```python
+meu_grupo = ["dia", "noite", "dias", "annos"]
+```
+
+</details>
 
 ### Exercício 10.2
 
-A atenção do Keras, a máscara, e para onde o modelo treinado olha.
+Para onde o modelo olha, e a máscara e a posição postas à prova.
 
-**2.a Quatro cabeças**
-
-<details><summary>Dica 1: a ideia</summary>
-
-Cada vetor tem 128 números, e cada cabeça trabalha com 32 (`key_dim=32`).
-Quantas cabeças de 32 cabem em 128?
-
-</details>
-
-<details><summary>Resposta</summary>
-
-```python
-atencao = keras.layers.MultiHeadAttention(num_heads=4, key_dim=32)
-```
-
-</details>
-
-**2.b A máscara causal**
+**2.a Para onde um substantivo olha**
 
 <details><summary>Dica 1: a ideia</summary>
 
-O argumento liga ou desliga a máscara. Ele recebe um valor de verdadeiro
-ou falso do Python.
+Escreva uma frase com "um" ou "uma" antes de um substantivo, e repita o
+substantivo, sozinho, na segunda linha. Olhe a camada 4.
 
 </details>
 
-<details><summary>Resposta</summary>
+<details><summary>Exemplo</summary>
 
 ```python
-saida, pesos = atencao(frase, frase, use_causal_mask=True, return_attention_scores=True)
+frase = "Ella trazia uma carta na mão."
+palavra = "carta"
+```
+
+Se aparecer "Não achei a palavra na frase", confira se ela está escrita
+igualzinho nas duas linhas.
+
+</details>
+
+**2.b A máscara: o futuro não muda o passado**
+
+<details><summary>Dica 1: a ideia</summary>
+
+Troque só o `____` por uma palavra qualquer ("cachorro", "rei", "outro").
+Depois compare as duas tabelas linha por linha até o "do".
+
+</details>
+
+**2.c A ordem importa**
+
+<details><summary>Dica 1: a ideia</summary>
+
+Use as mesmas palavras da frase certa, com a mesma grafia e a mesma
+pontuação grudada nelas ("hontem." com o ponto), só em outra ordem.
+
+</details>
+
+<details><summary>Exemplo</summary>
+
+```python
+embaralhada = "senhora sabe Não hontem. que se a não elle veio sei"
 ```
 
 </details>
-
-**2.c Para onde o modelo treinado olha**
-
-Não há lacuna. Mude o `camada=0` para 1, 2 ou 3 e compare os mapas. Se der
-erro dizendo que `professor` não existe, rode a célula de preparação de
-novo: é ela que carrega o modelo do professor.
 
 ### Exercício 10.3
 
-O bloco, o modelo inteiro, o passo zero e os pesos do professor.
+O modelo inteiro em Keras, e a diferença que o treino faz.
 
-**3.a O bloco**
-
-<details><summary>Dica 1: a ideia</summary>
-
-Duas lacunas. A camada densa abre de 128 para 256 números e precisa
-**voltar** para 128, senão não dá para somar com o `x`. E o bloco
-devolve a entrada mais o que a segunda metade calculou: o atalho.
-
-</details>
-
-<details><summary>Dica 2: no código</summary>
-
-A primeira metade do bloco já mostra o atalho: `x = x + h`. A segunda
-metade faz o mesmo, só que no `return`.
-
-</details>
+**3.b Do tamanho de um GPT-2**
 
 <details><summary>Resposta</summary>
 
 ```python
-h = keras.layers.Dense(DIMENSAO, name=f"volta{i}")(h)
-return x + h
+grande = montar_modelo(camadas=12, dimensao=768, cabecas=12)
 ```
 
 </details>
 
-**3.b O modelo**
+**3.d Complete a frase**
 
 <details><summary>Dica 1: a ideia</summary>
 
-Quantos blocos o modelo tem? E quantas pontuações a saída precisa dar,
-uma para cada o quê?
+Para o favorito passar de 50%, comece um nome conhecido pela metade
+("Quincas Bor", "Dom Cas"). Para ninguém passar de 10%, termine o começo
+num lugar em que muita coisa cabe ("Não sei se a senhora").
 
 </details>
 
-<details><summary>Resposta</summary>
-
-```python
-for i in range(CAMADAS):
-...
-saida = keras.layers.Dense(TAMANHO_VOCABULARIO, name="saida")(x)
-```
-
-</details>
-
-Se o total de pesos saiu diferente de 809.728, confira as duas lacunas do
-passo 3.a: um `Dense` com tamanho trocado muda a conta inteira.
-
-**3.c O passo zero**
-
-<details><summary>Dica 1: a ideia</summary>
-
-O modelo devolve pontuações cruas, sem softmax. A perda precisa saber
-disso para fazer a softmax ela mesma.
-
-</details>
-
-<details><summary>Resposta</summary>
-
-```python
-modelo.compile(loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True))
-```
-
-</details>
-
-**3.d Os pesos do professor no seu modelo**
-
-Não há lacuna. Se a célula der erro ao carregar os pesos, o seu modelo
-ficou diferente do modelo do professor: confira os nomes e os tamanhos das
-camadas nos passos 3.a e 3.b, e rode as duas células de novo.
+Se a célula 3.c ou a 3.d der erro ao carregar os pesos, rode a célula
+3.a de novo: o `montar_modelo` precisa existir antes.
 
 ## Aula 11 — Treinar e Usar um LLM
 
