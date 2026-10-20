@@ -17,7 +17,7 @@ que as próximas três aulas usam.
 <figure><img src="../assets/aula-09/mapa.png" alt="Quatro quadros lado a lado, um por aula: do texto para números, para onde olhar, montar e treinar, gerar e duvidar. O primeiro está aceso"><figcaption>Quatro aulas para construir a máquina inteira. Esta é a primeira peça.</figcaption></figure>
 
 Nestas quatro aulas você constrói um modelo de linguagem do zero, em
-PyTorch, e treina no processador do Colab. Cada aula alterna explicações
+Keras, e treina no processador do Colab. Cada aula alterna explicações
 curtas e exercícios, e cada exercício acrescenta uma peça ao mesmo modelo.
 No fim da Aula 12, o modelo é seu: você escreveu cada parte e apertou o
 botão do treino.
@@ -335,8 +335,7 @@ que o BPE criou cada peça.
 
 O número é um **endereço**. O modelo guarda uma tabela com uma linha por
 token (1.024 linhas) e 128 colunas. Cada token é trocado pela sua linha,
-uma lista de 128 números chamada **embutimento** do token (em inglês,
-*embedding*). É esse vetor que entra no modelo.
+uma lista de 128 números chamada **embedding** do token. É esse vetor que entra no modelo.
 
 <figure><img src="../assets/aula-09/texto_ao_vetor.png" alt="Fluxo de cima para baixo: a frase O menino era pai do homem, os tokens O, men, in, o, era, os números 79, 600, 281, 111 e 354, e embaixo de cada número uma coluna de valores como menos 0,09 e mais 0,17, coloridos de azul a vermelho, com uma seta para o modelo"><figcaption>Texto, tokens, ids e vetores. Os valores são do modelo treinado: as 6 primeiras das 128 colunas de cada linha.</figcaption></figure>
 
@@ -347,12 +346,12 @@ parecidos. No modelo treinado da disciplina, o vetor mais parecido com o
 de `·elle` é o de `·ella`; o de `·dous` é o de `·tres`; o de `·era` é o
 de `·foi`. Ninguém ensinou gramática ao modelo: ele achou sozinho que
 essas palavras fazem o mesmo papel. Você monta essa tabela na Aula 10,
-com uma linha de PyTorch.
+com uma linha de Keras.
 
 O caminho inteiro, então, é este:
 
 ```
-texto  →  tokens  →  ids  →  vetores (embutimentos)  →  modelo
+texto  →  tokens  →  ids  →  vetores (embeddings)  →  modelo
 ```
 
 Esta aula cuida das três primeiras setas.
@@ -381,7 +380,7 @@ mesmo da Aula 9 à Aula 12.
 | Separar antes de fundir | as fusões ficam dentro das palavras |
 | Codificar | aplica as fusões na ordem em que o treino aprendeu |
 | Tabela de fusões | a mesma no treino e no uso, sempre |
-| Embutimento (*embedding*) | a linha da tabela que o id escolhe: o vetor que entra no modelo |
+| Embedding | a linha da tabela que o id escolhe: o vetor que entra no modelo |
 
 ## Materiais
 
@@ -531,7 +530,7 @@ Por que o BPE começa dos bytes, e não das letras?
 ```quiz
 Dentro do modelo, o que acontece com o número de cada token, como o 600 de "·men"?
 - Ele entra no modelo como está, e 600 vale mais que 79.
-+ Ele é um endereço: escolhe uma linha de uma tabela, o embutimento, e é essa lista de números que entra no modelo.
++ Ele é um endereço: escolhe uma linha de uma tabela, o embedding, e é essa lista de números que entra no modelo.
 - Ele é dividido por 1.024, para virar uma chance.
 - Ele é trocado de volta pelas letras antes de entrar no modelo.
 ? O número é só a ordem em que o BPE criou a peça. Cada token vira uma linha de 128 números, que o treino ajusta. No fim, tokens que aparecem em lugares parecidos ganham linhas parecidas, como "·elle" e "·ella".

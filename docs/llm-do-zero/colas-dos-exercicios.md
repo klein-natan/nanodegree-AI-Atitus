@@ -37,15 +37,17 @@ Procure a última linha do erro nesta lista:
   nome está escrito diferente.
 - `NameError: name '____' is not defined`: sobrou uma lacuna sem
   preencher.
-- `mat1 and mat2 shapes cannot be multiplied`: um `nn.Linear` recebeu um
-  vetor do tamanho errado. Confira os dois números da camada.
-- `The size of tensor a must match the size of tensor b`: você somou ou
-  multiplicou dois tensores de formatos diferentes.
-- `index out of range`: o índice passou do fim da lista ou do tensor.
-- `'Tensor' object is not callable`: faltou o `self.` antes do nome da
-  camada, ou você usou parênteses onde iam colchetes.
+- `... is incompatible with the layer: expected axis -1 ...`: uma camada
+  `Dense` recebeu um vetor do tamanho errado. Confira os números das
+  camadas.
+- `Incompatible shapes` ou `operands could not be broadcast together`:
+  você somou ou multiplicou dois arrays de formatos diferentes.
+- `index ... is out of bounds`: o índice passou do fim da lista ou do
+  array.
+- `object is not callable`: faltou o `self.` antes do nome da camada, ou
+  você usou parênteses onde iam colchetes.
 - **A célula roda para sempre**: se é treino, espere. Se não for, aperte o
-  ■ e confira o laço.
+  ■ e confira o loop.
 - **"Your session crashed after using all available RAM"**: rode de novo a
   partir da preparação, sem carregar o corpus duas vezes.
 
@@ -116,7 +118,7 @@ O BPE no computador: contar pares, fundir o mais comum, repetir.
 
 <details><summary>Dica 1: a ideia</summary>
 
-Cada vez que o laço encontra um par, a contagem desse par aumenta em uma
+Cada vez que o loop encontra um par, a contagem desse par aumenta em uma
 unidade.
 
 </details>
@@ -186,7 +188,7 @@ numeros = codificar(frase)
 
 <details><summary>Resposta</summary>
 
-O laço entrega cada número na variável `numero`:
+O loop entrega cada número na variável `numero`:
 
 ```python
 print(numero, "->", mostrar(numero))
@@ -307,7 +309,7 @@ perda = (-math.log(0.50) - math.log(0.25) - math.log(0.10)) / 3
 
 ### Exercício 10.2
 
-O primeiro modelo em PyTorch, e o laço de treino.
+O primeiro modelo em Keras, e o treino com `fit`.
 
 **2.a Montar o modelo**
 
@@ -321,7 +323,7 @@ tokens existem no vocabulário?
 <details><summary>Resposta</summary>
 
 ```python
-self.cabeca = nn.Linear(DIMENSAO, TAMANHO_VOCABULARIO)
+keras.layers.Dense(TAMANHO_VOCABULARIO),
 ```
 
 </details>
@@ -338,29 +340,19 @@ perda_esperada = math.log(1024)
 
 </details>
 
-**2.c O laço de treino**
+**2.c O treino**
 
 <details><summary>Dica 1: a ideia</summary>
 
-O modelo só calcula a perda se souber a resposta certa, então ele recebe a
-entrada e o alvo. O gradiente sai da perda, andando "para trás".
-
-</details>
-
-<details><summary>Dica 2: no código</summary>
-
-"Para trás", em inglês, é *backward*. É um método da perda, então leva
-parênteses.
+O modelo só mede a perda se souber a resposta certa. Por isso o gerador
+entrega um par a cada passo: a entrada e o que o modelo devia prever.
 
 </details>
 
 <details><summary>Resposta</summary>
 
 ```python
-logits, perda = bigrama(entrada, alvo)
-otimizador.zero_grad()
-perda.backward()
-otimizador.step()
+yield entrada, alvo
 ```
 
 </details>
@@ -369,7 +361,7 @@ otimizador.step()
 
 A conta da atenção à mão, e uma cabeça de atenção com máscara.
 
-**3.a Parecença**
+**3.a Similaridade**
 
 <details><summary>Dica 1: a ideia</summary>
 
@@ -427,7 +419,7 @@ todos é menos infinito.
 <details><summary>Resposta</summary>
 
 ```python
-pontos_teste = pontos_teste.masked_fill(futuro, float("-inf"))
+pontos_teste = np.where(futuro, -np.inf, pontos_teste)
 ```
 
 </details>
@@ -451,9 +443,9 @@ A tabela da máscara se chama `futuro`. O conteúdo se chama `v`.
 <details><summary>Resposta</summary>
 
 ```python
-pontos = pontos.masked_fill(futuro, float("-inf"))
-pesos = F.softmax(pontos, dim=-1)
-return pesos @ v
+pontos = ops.where(futuro, -np.inf, pontos)
+pesos = ops.softmax(pontos, axis=-1)
+return ops.matmul(pesos, v)
 ```
 
 </details>
@@ -461,9 +453,8 @@ return pesos @ v
 **O teste da cola, no fim do 3.e**
 
 Se apareceu "as posições anteriores mudaram", a máscara não está agindo.
-Confira se a linha do `masked_fill` guarda o resultado de volta em
-`pontos` (o `masked_fill` não altera o tensor original: ele devolve um
-novo).
+Confira se a linha do `ops.where` guarda o resultado de volta em `pontos`
+(o `ops.where` não altera o tensor original: ele devolve um novo).
 
 ## Aula 11 — O Transformer e o Treino
 
@@ -539,7 +530,7 @@ x = x + self.mlp(self.norma2(x))
 
 ### Exercício 11.2
 
-O modelo inteiro, o laço de treino e o treino de 35 minutos.
+O modelo inteiro, o loop de treino e o treino de 35 minutos.
 
 **2.a Montar o MiniLLM**
 
@@ -575,11 +566,11 @@ Rode a preparação de novo.
 
 <details><summary>Resposta</summary>
 
-A perplexidade é a exponencial da perda. O `.item()` tira o número de
-dentro do tensor:
+A perplexidade é a exponencial da perda, que o `evaluate` já devolve como
+um número:
 
 ```python
-perplexidade = math.exp(perda.item())
+perplexidade = math.exp(perda)
 ```
 
 </details>
@@ -588,19 +579,19 @@ perplexidade = math.exp(perda.item())
 
 <details><summary>Dica 1: a ideia</summary>
 
-São as três linhas do laço da Aula 10: o modelo recebe a entrada e o
-alvo, a perda calcula o gradiente, o otimizador dá o passo.
+Duas lacunas. A validação é medida em lotes do texto guardado para isso,
+que o modelo nunca vê no treino. E o "melhor" modelo é o de menor perda
+na validação, que o Keras chama de `val_loss`.
 
 </details>
 
 <details><summary>Resposta</summary>
 
 ```python
-logits, perda = modelo(entrada, alvo)
-otimizador.zero_grad()
-perda.backward()
-torch.nn.utils.clip_grad_norm_(modelo.parameters(), 1.0)
-otimizador.step()
+salvar_o_melhor = keras.callbacks.ModelCheckpoint(
+    "meu_llm.weights.h5", monitor="val_loss", save_best_only=True, save_weights_only=True)
+...
+validation_data=lotes(dados_validacao), validation_steps=10,
 ```
 
 </details>
@@ -608,10 +599,10 @@ otimizador.step()
 **2.d O treino de verdade**
 
 Não há lacuna. Se a célula terminou em menos de 35 minutos sem você
-apertar nada, olhe a última linha: um erro ali quer dizer que o laço tem um
+apertar nada, olhe a última linha: um erro ali quer dizer que o loop tem um
 problema, e o teste de 1 minuto do passo 2.c devia ter mostrado. Se o
-Colab desconectou no meio, o `meu_llm.pt` guarda o melhor modelo até a
-última conferência.
+Colab desconectou no meio, o `meu_llm.weights.h5` guarda o melhor modelo
+até a última conferência.
 
 ### Exercício 11.3
 
@@ -621,10 +612,10 @@ O modelo treinado, escrevendo.
 
 <details><summary>Resposta</summary>
 
-O treino salvou o arquivo com o nome `meu_llm.pt`:
+O treino salvou o arquivo com o nome `meu_llm.weights.h5`:
 
 ```python
-modelo.load_state_dict(torch.load("meu_llm.pt"))
+modelo.load_weights("meu_llm.weights.h5")
 ```
 
 </details>
@@ -663,7 +654,7 @@ indices.append(proximo)
 <details><summary>Resposta</summary>
 
 ```python
-proximo = torch.multinomial(probabilidades, 1).item()
+proximo = int(np.random.choice(TAMANHO_VOCABULARIO, p=probabilidades))
 ```
 
 </details>
@@ -672,7 +663,7 @@ proximo = torch.multinomial(probabilidades, 1).item()
 
 Se o download não começou, o navegador pode ter bloqueado: procure um
 aviso na barra de endereço e permita. Outro caminho: no menu da esquerda
-do Colab, clique no ícone de pasta, ache o `meu_llm.pt`, clique nos três
+do Colab, clique no ícone de pasta, ache o `meu_llm.weights.h5`, clique nos três
 pontos e escolha **Fazer download**.
 
 ## Aula 12 — Geração e Limites
@@ -684,17 +675,17 @@ Temperatura e top-k.
 **Preparação: carregar o modelo**
 
 Se a janela de envio não abriu, rode a célula de novo. Se você não tem o
-`meu_llm.pt`, clique em Cancelar: o notebook carrega o modelo do
+`meu_llm.weights.h5`, clique em Cancelar: o notebook carrega o modelo do
 professor, que tem o mesmo formato, e todos os exercícios funcionam igual.
 
 **1.a A temperatura**
 
 <details><summary>Resposta</summary>
 
-O laço já entrega cada temperatura na variável `temperatura`:
+O loop já entrega cada temperatura na variável `temperatura`:
 
 ```python
-p = F.softmax(ultimos / temperatura, dim=-1)
+p = softmax(ultimos / temperatura)
 ```
 
 </details>
@@ -711,7 +702,7 @@ sai do sorteio.
 <details><summary>Resposta</summary>
 
 ```python
-return pontuacoes.masked_fill(pontuacoes < corte, float("-inf"))
+return np.where(pontuacoes < corte, -np.inf, pontuacoes)
 ```
 
 </details>
@@ -737,7 +728,7 @@ Conta quantos tokens ficam abaixo de `p` na soma acumulada, mais o que faz
 a soma passar:
 
 ```python
-return (acumulada < p).sum().item() + 1
+return int((acumulada < p).sum()) + 1
 ```
 
 </details>
@@ -751,7 +742,7 @@ O modelo é o corpus.
 <details><summary>Resposta</summary>
 
 ```python
-dados_curso = torch.tensor(codificar(texto_curso))
+dados_curso = np.array(codificar(texto_curso))
 ```
 
 </details>
@@ -760,7 +751,7 @@ dados_curso = torch.tensor(codificar(texto_curso))
 
 <details><summary>Dica 1: a ideia</summary>
 
-É o laço da Aula 11. A única diferença é de onde vêm os lotes: do texto
+É o loop da Aula 11. A única diferença é de onde vêm os lotes: do texto
 novo, e não de Machado.
 
 </details>
@@ -768,7 +759,7 @@ novo, e não de Machado.
 <details><summary>Resposta</summary>
 
 ```python
-entrada, alvo = sortear_lote(dados_curso)
+ajuste = modelo_curso.fit(lotes(dados_curso), steps_per_epoch=50, epochs=4, shuffle=False, verbose=2)
 ```
 
 </details>
@@ -789,7 +780,7 @@ Gastar tempo em vez de peso.
 <details><summary>Resposta</summary>
 
 ```python
-alvo = ids[:, 1:]
+alvo = ids[1:]
 ```
 
 </details>

@@ -86,7 +86,7 @@ flowchart LR
 | [Sistemas de ML](sistemas-de-ml/README.md) | Ajustar um classificador com validação cruzada e Optuna e usá-lo num painel |
 | [Séries Temporais](series-temporais/README.md) | Prever o futuro de algo que muda com o tempo |
 | [Redes Neurais](redes-neurais/README.md) | Como uma rede neural aprende, do neurônio à imagem |
-| [LLM do Zero](llm-do-zero/README.md) | Construir um modelo de linguagem, peça por peça, em PyTorch |
+| [LLM do Zero](llm-do-zero/README.md) | Construir um modelo de linguagem, peça por peça, em Keras |
 | [IA Generativa](ia-generativa/README.md) | Usar um modelo pronto, e construir uma aplicação em cima dele |
 
 Todo termo técnico novo entra no [Glossário](glossario.md), que cresce ao

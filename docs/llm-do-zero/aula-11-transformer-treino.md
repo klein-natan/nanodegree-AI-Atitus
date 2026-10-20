@@ -8,7 +8,7 @@ description: A posição, o modelo inteiro, o treino no processador, e o primeir
 **O que você leva desta aula**
 
 Você vai dar à atenção a noção de posição e quatro cabeças, montar o
-modelo inteiro (787.584 pesos), escrever o laço de treino e treinar por
+modelo inteiro (787.584 pesos), escrever o loop de treino e treinar por
 35 minutos no processador do Colab. No fim, escreve a função que
 transforma a saída do modelo em texto, e sai com um arquivo com o seu
 modelo de linguagem, que escreve português com sotaque de 1899.
@@ -28,7 +28,7 @@ não tem quase nada de novo:
 | Tokenizador | Aula 9 |
 | Lote de treino e perda | Aula 10 |
 | Atenção com máscara | Aula 10 |
-| Laço de treino em PyTorch | Aula 10 |
+| Treino com `fit` | Aula 10 |
 | Camada densa com ativação | Aula 7 |
 | Normalização | Aula 7 |
 | Gradiente descendente | Aula 1 |
@@ -51,7 +51,7 @@ ser 128, e uma última tabela (`saida`) mistura o que as quatro acharam:
 resultados = []
 for cabeca in self.cabecas:
     resultados.append(cabeca(x))
-juntos = torch.cat(resultados, dim=-1)    # 4 × 32 = 128
+juntos = ops.concatenate(resultados, axis=-1)    # 4 × 32 = 128
 return self.saida(juntos)
 ```
 
@@ -98,10 +98,10 @@ delas sabe *onde* cada palavra está.
 
 A correção precisa entrar antes dos produtos escalares, mexendo nos
 vetores. A solução moderna se chama **RoPE** (*rotary position embedding*,
-embutimento rotativo de posição): gire a pergunta e a etiqueta de cada
+embedding rotativo de posição): gire a pergunta e a etiqueta de cada
 palavra por um ângulo proporcional à posição dela.
 
-<figure><img src="../assets/aula-10/rope.png" alt="À esquerda quatro setas saindo da origem, a mesma palavra nas posições 0 a 3, cada uma girada um pouco mais; à direita uma curva da parecença média entre duas posições, que começa em 1 e cai com a distância"><figcaption>Duas palavras próximas giram ângulos parecidos, e continuam parecidas. Longe, a parecença cai.</figcaption></figure>
+<figure><img src="../assets/aula-10/rope.png" alt="À esquerda quatro setas saindo da origem, a mesma palavra nas posições 0 a 3, cada uma girada um pouco mais; à direita uma curva da similaridade média entre duas posições, que começa em 1 e cai com a distância"><figcaption>Duas palavras próximas giram ângulos parecidos, e continuam parecidas. Longe, a similaridade cai.</figcaption></figure>
 
 O giro trabalha em pares de números. Cada par `(a, b)` do vetor gira por
 um ângulo `θ`, que é a posição vezes uma velocidade:
@@ -146,7 +146,7 @@ Hora de medir se tudo isso vale a pena. Pegue o modelo bigrama da Aula 10,
 que só olha o token atual, e acrescente **uma** camada de atenção:
 
 ```python
-x = self.embutir(indices)
+x = self.embedding(indices)
 x = x + self.atencao(x)        # a palavra, mais o que ela viu para trás
 logits = self.cabeca(x)
 ```
@@ -187,7 +187,7 @@ soma de volta.
 <figure><img src="../assets/aula-11/bloco.png" alt="Diagrama do bloco: entra, RMSNorm, atenção, soma; depois RMSNorm, MLP, soma, e sai. Dois arcos vermelhos marcam os atalhos que levam a entrada até as somas"><figcaption>Um bloco. A primeira metade mistura posições, a segunda pensa sobre cada posição isolada.</figcaption></figure>
 
 ```python
-def forward(self, x):
+def call(self, x):
     x = x + self.atencao(self.norma1(x))    # junta informação dos vizinhos
     x = x + self.mlp(self.norma2(x))        # pensa sobre a mistura
     return x
@@ -237,7 +237,7 @@ os cinco recebem exatamente o mesmo.
 
 Esse é o **gradiente que desaparece**, e foi ele que travou as redes
 profundas por anos. A ideia do atalho, de 2015, é o que permitiu empilhar
-dezenas de camadas. O primeiro bloco e o embutimento, que ficam embaixo de
+dezenas de camadas. O primeiro bloco e o embedding, que ficam embaixo de
 tudo, são justamente os que mais precisam do gradiente para aprender.
 
 Uma segunda leitura, mais intuitiva: cada bloco não reescreve o vetor da
@@ -276,8 +276,8 @@ decide, número a número, quanto do conteúdo passa adiante. No fim, uma
 terceira tabela (`descida`) volta para 128 números:
 
 ```python
-def forward(self, x):
-    porta = F.silu(self.porta(x))       # quanto deixar passar
+def call(self, x):
+    porta = ops.silu(self.porta(x))     # quanto deixar passar
     conteudo = self.subida(x)           # o que vai passar
     return self.descida(porta * conteudo)
 ```
@@ -292,44 +292,42 @@ português, só que um pouco pior.
 ## O modelo inteiro
 
 Com o bloco pronto, o modelo é uma lista de quatro blocos entre o
-embutimento e a cabeça de saída:
+embedding e a cabeça de saída:
 
 ```python
-class MiniLLM(nn.Module):
+class MiniLLM(keras.Model):
     def __init__(self):
         super().__init__()
-        self.embutir = nn.Embedding(1024, 128)
-        lista = []
+        self.embedding = keras.layers.Embedding(1024, 128)
+        self.blocos = []
         for _ in range(4):
-            lista.append(Bloco())
-        self.blocos = nn.ModuleList(lista)
-        self.norma = nn.RMSNorm(128)
-        self.cabeca = nn.Linear(128, 1024, bias=False)
-        self.cabeca.weight = self.embutir.weight   # pesos amarrados
+            self.blocos.append(Bloco())
+        self.norma = keras.layers.RMSNormalization()
 
-    def forward(self, indices, alvos):
-        x = self.embutir(indices)
+    def call(self, indices):
+        x = self.embedding(indices)
         for bloco in self.blocos:
             x = bloco(x)
-        logits = self.cabeca(self.norma(x))
-        ...
+        x = self.norma(x)
+        # a saída reusa a tabela do embedding: pesos amarrados
+        return ops.matmul(x, ops.transpose(self.embedding.embeddings))
 ```
 
-A linha dos pesos amarrados merece explicação. A tabela de entrada troca
-token por vetor; a cabeça de saída faz o contrário, troca vetor por uma
-pontuação para cada token. Usar a **mesma** tabela nos dois sentidos
+A última linha, a dos pesos amarrados, merece explicação. A tabela de
+entrada troca token por vetor; a saída faz o contrário, troca vetor por
+uma pontuação para cada token, multiplicando pela mesma tabela deitada. Usar a **mesma** tabela nos dois sentidos
 economiza 131.072 pesos e costuma melhorar o resultado, porque a tabela
 recebe gradiente das duas pontas.
 
 ### Onde moram os pesos
 
-<figure><img src="../assets/aula-11/onde_estao_os_pesos.png" alt="Gráfico de barras com os pesos por grupo: embutimento 131.072, atenção 262.144, MLP 393.216 e normalização 1.152"><figcaption>Metade dos pesos está no MLP. A atenção é a peça famosa, mas não é a maior.</figcaption></figure>
+<figure><img src="../assets/aula-11/onde_estao_os_pesos.png" alt="Gráfico de barras com os pesos por grupo: embedding 131.072, atenção 262.144, MLP 393.216 e normalização 1.152"><figcaption>Metade dos pesos está no MLP. A atenção é a peça famosa, mas não é a maior.</figcaption></figure>
 
 A conta inteira cabe numa tabela:
 
 | Peça | Conta | Pesos |
 |---|---|---|
-| Embutimento (e cabeça, amarrada) | 1.024 × 128 | 131.072 |
+| Embedding (e cabeça, amarrada) | 1.024 × 128 | 131.072 |
 | Atenção, por bloco | 4 cabeças × 3 × 128 × 32 + 128 × 128 | 65.536 |
 | MLP, por bloco | 3 × 128 × 256 | 98.304 |
 | Normalizações | 2 × 128 por bloco, mais 128 no fim | 1.152 |
@@ -390,22 +388,27 @@ Perplexidade é "entre quantos tokens o modelo está efetivamente na
 dúvida". Sair de 1.024 para 30 quer dizer que o modelo eliminou 97% dos
 candidatos antes de escolher.
 
-## O laço de treino
+## O loop de treino
 
-É o laço da Aula 10, com quatro proteções a mais:
+É o `fit` da Aula 10, com quatro proteções a mais:
 
 ```python
-while tempo_que_passou < tempo_de_treino:
-    ajustar_taxa(fracao_do_tempo)                    # 1. o passo muda com o relógio
-    if passo % 200 == 0:
-        conferir_e_salvar_o_melhor()                 # 2. validação e arquivo
-    entrada, alvo = sortear_lote(dados_treino)
-    logits, perda = modelo(entrada, alvo)
-    otimizador.zero_grad()
-    perda.backward()
-    torch.nn.utils.clip_grad_norm_(modelo.parameters(), 1.0)   # 3. corte
-    otimizador.step()                                # 4. AdamW
+modelo.compile(
+    optimizer=keras.optimizers.AdamW(learning_rate=1e-3, weight_decay=0.1,
+                                     beta_2=0.95, clipnorm=1.0),      # 1. AdamW e 2. corte
+    loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True))
+salvar_o_melhor = keras.callbacks.ModelCheckpoint(
+    "meu_llm.weights.h5", monitor="val_loss", save_best_only=True,
+    save_weights_only=True)                                            # 4. salvar o melhor
+modelo.fit(lotes(dados_treino), steps_per_epoch=200, epochs=100_000,
+           validation_data=lotes(dados_validacao), validation_steps=10,
+           callbacks=[Relogio(minutos=35), salvar_o_melhor])           # 3. o relógio
 ```
+
+Um *callback* é uma função que o `fit` chama no meio do treino. O
+`Relogio` é escrito no notebook: a cada passo ele ajusta a taxa de
+aprendizado pela fração do tempo que já passou, e para o treino quando o
+tempo acaba. O `ModelCheckpoint` vem pronto no Keras.
 
 ### AdamW
 
@@ -419,7 +422,7 @@ constante. O "W" é um empurrão leve de todos os pesos em direção ao zero
 
 De vez em quando um lote sai muito fora do normal, e o gradiente fica
 enorme. Um passo desses joga os pesos para longe e estraga o que já foi
-aprendido. O **corte de gradiente** (`clip_grad_norm_`) limita o tamanho
+aprendido. O **corte de gradiente** (`clipnorm`) limita o tamanho
 total do gradiente. Se ele passar de 1, o corte divide todos os números
 pelo mesmo fator até o tamanho dar 1. A direção do passo não muda; só o
 tamanho.
@@ -445,23 +448,23 @@ máquina mais rápida simplesmente dá mais passos.
 
 ### Conferir e salvar o melhor
 
-A cada 200 passos, o laço mede a perda em lotes de treino e de validação,
-anota as duas no histórico, e salva o modelo no arquivo `meu_llm.pt` **se
-a validação for a melhor até ali**. Duas consequências práticas: se o
+A cada 200 passos, o `fit` mede a perda em lotes de validação (o
+`val_loss`), e o `ModelCheckpoint` salva o modelo no arquivo
+`meu_llm.weights.h5` **se a validação for a melhor até ali**. Duas consequências práticas: se o
 Colab cair no meio, o melhor modelo já está salvo; e o arquivo guarda o
 modelo que melhor generaliza, e não o último.
 
-O laço inteiro, e o que ele faz com a perda e com o texto:
+O loop inteiro, e o que ele faz com a perda e com o texto:
 
-<figure><video src="../assets/aula-11/treino.mp4" poster="../assets/aula-11/treino.jpg" controls preload="none" playsinline aria-label="Animação do laço de treino com a curva da perda caindo"></video><figcaption>Cinco passos por volta, milhares de voltas. A curva e as amostras são do treino de referência.</figcaption></figure>
+<figure><video src="../assets/aula-11/treino.mp4" poster="../assets/aula-11/treino.jpg" controls preload="none" playsinline aria-label="Animação do loop de treino com a curva da perda caindo"></video><figcaption>Cinco passos por volta, milhares de voltas. A curva e as amostras são do treino de referência.</figcaption></figure>
 
 ## O treino de verdade
 
 Quantos passos cabem em 35 minutos depende da máquina. No teste deste
 curso, com duas linhas de execução (as mesmas do Colab gratuito), foram
-5.600 passos e perda de validação 3,28 com o processador livre, e 2.100
-passos e perda 3,39 com o processador dividido com outro programa. O seu
-Colab deve cair nessa faixa: perplexidade perto de 30, bem abaixo dos 88
+uns 6.300 passos e perda de validação 3,30. Com o processador dividido com
+outro programa, os passos caem para menos da metade e a perda fica perto
+de 3,4. O seu Colab deve cair nessa faixa: perplexidade perto de 30, bem abaixo dos 88
 do contador de pares da Aula 10. O modelo de referência, treinado por mais
 tempo num processador maior, mostra a curva inteira:
 
@@ -511,16 +514,16 @@ que nada tem a ver com o treino. Ele tem nome: **amostragem**
 
 O modelo devolve uma previsão para cada posição do texto. Para gerar,
 só interessa a da **última** posição: é ela que viu o texto inteiro. O
-resto do mecanismo é um laço:
+resto do mecanismo é um loop:
 
 ```python
 indices = codificar("A casa de")
 for _ in range(100):
-    logits, _ = modelo(torch.tensor([indices[-128:]]))  # 1. passa o texto
-    pontuacoes = logits[0, -1]                          # 2. só a última posição
-    probabilidades = F.softmax(pontuacoes, dim=-1)      # 3. vira chance
-    proximo = torch.multinomial(probabilidades, 1)      # 4. sorteia um token
-    indices.append(proximo.item())                      # 5. cola no fim
+    logits = np.asarray(modelo(np.array([indices[-128:]])))    # 1. passa o texto
+    pontuacoes = logits[0, -1]                                 # 2. só a última posição
+    probabilidades = softmax(pontuacoes)                       # 3. vira chance
+    proximo = np.random.choice(1024, p=probabilidades)         # 4. sorteia um token
+    indices.append(int(proximo))                               # 5. cola no fim
 ```
 
 O `[-128:]` corta o texto nos últimos 128 tokens, o tamanho da janela de
@@ -535,7 +538,7 @@ precisa continuar coerentemente a partir do erro.
 
 **Sempre o mais provável.** Troque o sorteio por `argmax`. Chama-se
 decodificação gulosa (*greedy*). É determinística e parece segura, e o
-resultado é ruim: o texto entra em laço, repetindo a mesma frase. Um texto
+resultado é ruim: o texto entra em loop, repetindo a mesma frase. Um texto
 que só escolhe o topo acaba num lugar de onde o topo aponta de volta para
 si.
 
@@ -559,8 +562,8 @@ A saída é ficar no meio, com três controles, que são o assunto da Aula 12.
 | Atalho | soma a entrada à saída; deixa o gradiente chegar ao primeiro bloco |
 | RMSNorm | divide o vetor pela raiz da média dos quadrados |
 | SwiGLU | camada densa com porta, que decide quanto de cada número passa |
-| Pesos amarrados | a mesma tabela no embutimento e na cabeça de saída |
-| 787.584 pesos | metade no MLP, um terço na atenção, um sexto no embutimento |
+| Pesos amarrados | a mesma tabela no embedding e na cabeça de saída |
+| 787.584 pesos | metade no MLP, um terço na atenção, um sexto no embedding |
 | Passo zero | a perda do modelo novo tem que dar perto de `ln(1024) = 6,93` |
 | Perplexidade | `e` elevado à perda: entre quantos tokens o modelo tem dúvida |
 | AdamW | gradiente descendente com memória e um empurrão para o zero |
@@ -569,7 +572,7 @@ A saída é ficar no meio, com três controles, que são o assunto da Aula 12.
 | Validação | o número que vale; o treino salva o melhor por ela |
 | Amostragem | escolher um dos 1.024 tokens a partir das chances do modelo |
 | Autorregressão | cada token escolhido vira entrada do passo seguinte |
-| Guloso | sempre o mais provável; entra em laço |
+| Guloso | sempre o mais provável; entra em loop |
 
 ## Materiais
 
@@ -577,7 +580,7 @@ A saída é ficar no meio, com três controles, que são o assunto da Aula 12.
 - **Quiz de cada microaula:** [no fim desta página](#quizzes-das-microaulas), 5 perguntas depois de cada explicação, antes do exercício.
 - **Travou num exercício?** [Colas dos exercícios](colas-dos-exercicios.md#aula-11-o-transformer-e-o-treino), com dicas que você abre uma de cada vez.
 - Slides desta aula: entregues em sala.
-- Modelo de referência, treinado: [`mini_llm.pt`](https://github.com/klein-natan/nanodegree-AI-Atitus/blob/main/data/mini_llm.pt)
+- Modelo de referência, treinado: [`mini_llm.weights.h5`](https://github.com/klein-natan/nanodegree-AI-Atitus/blob/main/data/mini_llm.weights.h5)
 
 Os três exercícios do notebook:
 
@@ -585,12 +588,12 @@ Os três exercícios do notebook:
 |---|---|
 | 11.1 | o giro, quatro cabeças, o MLP, o bloco, e a medida do atalho |
 | 11.2 | o MiniLLM inteiro, a perplexidade, a função de treino e o treino de 35 minutos |
-| 11.3 | a curva do treino, a geração gulosa e por sorteio, e o arquivo `meu_llm.pt` |
+| 11.3 | a curva do treino, a geração gulosa e por sorteio, e o arquivo `meu_llm.weights.h5` |
 
 {% hint style="danger" %}
 **Leve o seu modelo para casa**
 
-No fim do Exercício 3, baixe o arquivo `meu_llm.pt`. O Colab apaga tudo
+No fim do Exercício 3, baixe o arquivo `meu_llm.weights.h5`. O Colab apaga tudo
 quando a aba fecha, e a Aula 12 começa carregando esse arquivo. Se você
 perder, a Aula 12 oferece o modelo do professor, que tem o mesmo formato.
 {% endhint %}
@@ -599,7 +602,7 @@ perder, a Aula 12 oferece o modelo do professor, que tem o mesmo formato.
 
 - [Let's build GPT, from scratch (Andrej Karpathy)](https://www.youtube.com/watch?v=kCc8FmEb1nY): duas horas de vídeo montando a mesma coisa, linha por linha. Em inglês.
 - [Transformers, the tech behind LLMs (3Blue1Brown)](https://www.youtube.com/watch?v=wjZofJX0v4M): o modelo inteiro, do token à previsão, em animação. Em inglês, com legendas.
-- [nanoGPT, de Andrej Karpathy](https://github.com/karpathy/nanoGPT): o repositório que inspirou o modelo desta aula, com 300 linhas de PyTorch.
+- [nanoGPT, de Andrej Karpathy](https://github.com/karpathy/nanoGPT): o repositório que inspirou o modelo desta aula, com 300 linhas de PyTorch (a outra grande biblioteca de redes neurais, que faz o mesmo que o Keras).
 
 ## Quizzes das microaulas
 
@@ -635,7 +638,7 @@ Qual é o desenho das duas metades de um bloco transformer?
 - Atenção, depois soma, depois normaliza.
 - Só atenção, repetida duas vezes.
 + Normaliza, faz alguma coisa (atenção ou MLP), soma de volta à entrada.
-- Embutimento, atenção, cabeça de saída.
+- Embedding, atenção, cabeça de saída.
 ? Em código: x = x + atencao(norma1(x)) e x = x + mlp(norma2(x)). O "x +" das duas linhas é o atalho.
 ```
 
@@ -665,11 +668,11 @@ No SwiGLU, o que a "porta" faz?
 
 ```quiz
 Onde está a maior parte dos 787.584 pesos do modelo?
-- No embutimento.
+- No embedding.
 - Na atenção.
 + No MLP, a camada densa de cada bloco.
 - Na normalização.
-? O MLP tem 393.216 pesos (50%), a atenção 262.144 (33%), o embutimento 131.072 (17%) e a normalização só 1.152.
+? O MLP tem 393.216 pesos (50%), a atenção 262.144 (33%), o embedding 131.072 (17%) e a normalização só 1.152.
 ```
 
 ```quiz
@@ -700,7 +703,7 @@ Um lote estranho gerou um gradiente de tamanho 5. Com o corte em 1, o que aconte
 ```
 
 ```quiz
-A cada 200 passos, o treino salva o modelo em meu_llm.pt. Quando?
+A cada 200 passos, o treino salva o modelo em meu_llm.weights.h5. Quando?
 - Sempre, sobrescrevendo o anterior.
 + Só quando a perda na validação é a melhor até ali.
 - Só quando a perda de treino sobe.
@@ -746,7 +749,7 @@ O que acontece quando o modelo escolhe sempre o token mais provável (decodifica
 - O texto fica criativo e variado.
 - O texto fica cheio de palavras inventadas.
 - O modelo para de gerar.
-+ Sai sempre o mesmo texto, e ele costuma entrar em laço, repetindo um pedaço.
++ Sai sempre o mesmo texto, e ele costuma entrar em loop, repetindo um pedaço.
 ? Um texto que só escolhe o topo acaba num lugar de onde o topo aponta de volta para si. No exemplo da aula: "--Não, senhor. --Não, senhor."
 ```
 

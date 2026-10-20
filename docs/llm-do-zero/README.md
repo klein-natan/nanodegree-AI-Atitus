@@ -6,7 +6,7 @@ description: Visão geral do módulo de LLM do Zero
 
 Todo mundo usa um modelo de linguagem grande (LLM). Poucos sabem como um
 funciona por dentro. Ao longo destas quatro aulas, você constrói um do
-zero em PyTorch, peça por peça, e treina no processador do Google Colab,
+zero em Keras, peça por peça, e treina no processador do Google Colab,
 sem placa de vídeo. São 787.584 pesos, contra centenas de bilhões dos
 modelos comerciais, e a arquitetura é a mesma.
 
@@ -23,7 +23,7 @@ ao **mesmo** modelo:
 | Aula | Os três exercícios |
 |---|---|
 | 9 | o modelo de contagem, o BPE, codificar e decodificar |
-| 10 | o lote de treino, o primeiro modelo em PyTorch, a atenção com máscara |
+| 10 | o lote de treino, o primeiro modelo em Keras, a atenção com máscara |
 | 11 | posição e o bloco, o modelo inteiro e o treino de 35 minutos, gerar texto |
 | 12 | temperatura e top-k, o ajuste fino, a melhor de cinco |
 
@@ -56,7 +56,7 @@ para muito além de LLM:
 | Aula | Conteúdo | Status |
 |---|---|---|
 | [Aula 9 — Do Texto aos Números](aula-09-tokenizacao.md) | O que um LLM faz, o modelo de contagem e o tokenizador BPE | Disponível |
-| [Aula 10 — Atenção](aula-10-atencao.md) | O lote de treino, o primeiro modelo em PyTorch, e como ele decide para onde olhar | Disponível |
+| [Aula 10 — Atenção](aula-10-atencao.md) | O lote de treino, o primeiro modelo em Keras, e como ele decide para onde olhar | Disponível |
 | [Aula 11 — O Transformer e o Treino](aula-11-transformer-treino.md) | A posição, o modelo inteiro, o treino no processador, e o primeiro texto | Disponível |
 | [Aula 12 — Geração e Limites](aula-12-geracao-limites.md) | Os botões da geração, o ajuste fino, e o que o modelo não sabe fazer | Disponível |
 | [Colas dos Exercícios](colas-dos-exercicios.md) | Dicas para cada passo dos 12 exercícios | Disponível |

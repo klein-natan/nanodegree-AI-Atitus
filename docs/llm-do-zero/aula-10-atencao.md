@@ -9,7 +9,7 @@ description: O lote de treino, o primeiro modelo, e como ele decide para onde ol
 
 Você vai transformar a fila de números da Aula 9 em lotes de treino e
 medir o número que o seu modelo vai ter que bater. Depois vai escrever o
-seu primeiro modelo em PyTorch, calcular à mão o peso de atenção de uma
+seu primeiro modelo em Keras, calcular à mão o peso de atenção de uma
 palavra, e montar uma cabeça de atenção com máscara, a única peça
 realmente nova de um transformer.
 {% endhint %}
@@ -29,9 +29,10 @@ O primeiro passo é transformar a fila de números em exemplos de treino.
 
 ### Tensores
 
-Daqui até a Aula 12 os números moram em **tensores**, a lista do
-PyTorch. Um tensor faz conta rápido, calcula gradientes sozinho e sabe o
-próprio formato, o `shape`. O corpus inteiro é um tensor de formato
+Daqui até a Aula 12 os números moram em **arrays** do NumPy e, dentro
+do modelo, em **tensores**, que é como o Keras chama os arrays dele. Os
+dois são listas que fazem conta rápido e sabem o próprio formato, o
+`shape`. O corpus inteiro é um tensor de formato
 `[1484827]`. Um lote de 32 janelas de 128 tokens é um tensor de formato
 `[32, 128]`. Ler o formato é metade de entender o código.
 
@@ -129,24 +130,24 @@ vez de letras, conte os pares no treino e meça na validação. A perda dele
 é **4,48**. Sem rede neural nenhuma, só contando, o modelo já sai de 6,93.
 O transformer da Aula 11 vai ter que fazer melhor que isso.
 
-## O primeiro modelo em PyTorch
+## O primeiro modelo em Keras
 
-### O embutimento: o token vira vetor
+### O embedding: o token vira vetor
 
 Cada token da Aula 9 é um número inteiro, e número inteiro não serve para
-fazer conta de parecença. Como a Aula 9 terminou mostrando, o número é só
-um endereço. O primeiro passo do modelo é trocar cada token pela linha
+fazer conta de similaridade. Como a Aula 9 terminou mostrando, o número é
+só um endereço. O primeiro passo do modelo é trocar cada token pela linha
 dele numa tabela:
 
 ```python
-embutir = nn.Embedding(1024, 128)   # 1.024 tokens, 128 números cada
+keras.layers.Embedding(1024, 128)   # 1.024 tokens, 128 números cada
 ```
 
-Essa tabela se chama **embutimento** (*embedding*). São 131.072 pesos, que
-o treino ajusta como quaisquer outros. Depois dela, o token 600 deixou de
-ser "o número 600" e virou um ponto num espaço de 128 dimensões. Tokens
-que aparecem em contextos parecidos acabam com linhas parecidas, sem
-ninguém mandar, do mesmo jeito que os filtros da Aula 8 apareceram sozinhos.
+Essa tabela se chama **embedding**. São 131.072 pesos, que o treino ajusta
+como quaisquer outros. Depois dela, o token 600 deixou de ser "o número
+600" e virou um ponto num espaço de 128 dimensões. Tokens que aparecem em
+contextos parecidos acabam com linhas parecidas, sem ninguém mandar, do
+mesmo jeito que os filtros da Aula 8 apareceram sozinhos.
 
 ### Uma camada que dá uma pontuação para cada token
 
@@ -155,51 +156,44 @@ em 1.024 pontuações, uma para cada token que pode vir em seguida. A
 softmax transforma as pontuações em probabilidades. As pontuações cruas
 têm nome: **logits**.
 
-No Keras você empilhava camadas numa lista. No PyTorch você escreve uma
-classe com duas partes: o `__init__` cria as camadas, e o `forward` diz o
-caminho dos números.
+No Keras, como nas Aulas 7 e 8, as camadas se empilham numa lista:
 
 ```python
-class ModeloBigrama(nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.embutir = nn.Embedding(1024, 128)
-        self.cabeca = nn.Linear(128, 1024)
-
-    def forward(self, indices, alvos):
-        logits = self.cabeca(self.embutir(indices))
-        perda = F.cross_entropy(logits.view(-1, 1024), alvos.view(-1))
-        return logits, perda
+bigrama = keras.Sequential([
+    keras.layers.Embedding(1024, 128),   # cada token vira um vetor
+    keras.layers.Dense(1024),            # cada vetor vira 1.024 pontuações
+])
 ```
 
-Esse modelo faz o mesmo que o contador da Aula 9: prevê o próximo token
+Esse modelo faz o mesmo que o contador de pares: prevê o próximo token
 olhando só o atual. A diferença é que ele **aprende** a tabela por
 gradiente, em vez de contar.
 
-### O laço de treino
+### O loop de treino
 
-O `model.fit` do Keras fazia cinco coisas escondido. No PyTorch você vê
-todas:
+Treinar é repetir um ciclo de cinco passos: sortear um lote, passar pelo
+modelo, medir a perda, calcular o gradiente (para que lado mexer cada peso
+para a perda cair) e dar um passo pequeno nessa direção. É o gradiente
+descendente da Aula 1. No Keras, o `fit` repete esse ciclo por você:
 
 ```python
-for passo in range(500):
-    entrada, alvo = sortear_lote(dados_treino)   # 1. um lote
-    logits, perda = modelo(entrada, alvo)        # 2. a perda
-    otimizador.zero_grad()                       # 3. apaga o gradiente anterior
-    perda.backward()                             # 4. calcula o gradiente
-    otimizador.step()                            # 5. dá o passo
+bigrama.compile(optimizer=keras.optimizers.AdamW(learning_rate=3e-3),
+                loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True))
+bigrama.fit(lotes(dados_treino), steps_per_epoch=100, epochs=5)
 ```
 
-É o gradiente descendente da Aula 1. O `zero_grad` existe porque o PyTorch
-soma os gradientes de uma chamada para outra. Sem ele, cada passo carrega
-a soma de todos os anteriores, e o treino desanda.
+O `lotes` é um gerador: a cada passo ele entrega um par, a entrada e o
+alvo. A perda é a entropia cruzada da Aula 8; o `from_logits=True` avisa
+que o modelo devolve pontuações cruas, e a softmax fica por conta da
+perda.
 
 Antes de treinar, confira o **passo zero**. Um modelo recém-criado não
 sabe nada e chuta igual entre 1.024 tokens, então a perda dele tem que
 dar perto de `ln(1024) = 6,93`. No exercício da aula, o modelo novo dá
-7,1. Em 500 passos, a perda cai para 4,2, que já está abaixo dos 4,48 do
-contador de pares. O texto que ele gera tem palavras de verdade e frases
-sem sentido, porque o modelo escolhe cada token olhando só o anterior.
+exatamente 6,93. Em 500 passos, a perda cai para 4,1, que já está abaixo
+dos 4,48 do contador de pares. O texto que ele gera tem palavras de
+verdade e frases sem sentido, porque o modelo escolhe cada token olhando
+só o anterior.
 
 ## O problema
 
@@ -239,7 +233,7 @@ Tome três palavras e quatro números por palavra, para caber na página:
 A palavra `dorme` quer saber para onde olhar. São quatro passos, e você
 pode fazer os quatro à mão.
 
-**Passo 1: medir parecença com cada palavra.** Multiplique casa com casa e
+**Passo 1: medir similaridade com cada palavra.** Multiplique casa com casa e
 some. Isso se chama **produto escalar**, e é a mesma conta da convolução da
 Aula 8:
 
@@ -288,12 +282,12 @@ praticamente (0%, 100%, 0%), enquanto a de (0, 2, 1) é (9%, 67%, 24%).
 Com os pesos colados no zero e no um, o gradiente some. A divisão mantém
 a distribuição espalhada, e com isso o modelo continua aprendendo.
 
-No PyTorch, os quatro passos cabem em quatro linhas:
+Em NumPy, os quatro passos cabem em quatro linhas:
 
 ```python
 pontos = frase @ dorme                   # 1. produto com cada palavra
 pontos = pontos / math.sqrt(4)           # 2. divide pela raiz de d
-pesos = F.softmax(pontos, dim=0)         # 3. vira peso
+pesos = softmax(pontos)                  # 3. vira peso
 saida = pesos @ frase                    # 4. mistura
 ```
 
@@ -316,7 +310,7 @@ Em duas das três linhas, a palavra olha principalmente para si mesma. Não é
 azar: o produto escalar de um vetor com ele mesmo é o comprimento dele ao
 quadrado, o maior valor que ele costuma tirar de qualquer comparação.
 
-E tem um problema mais fundo por trás. Parecença de embutimento é **uma**
+E tem um problema mais fundo por trás. Similaridade de embedding é **uma**
 relação: palavras de sentido próximo ficam perto. Mas `dorme` não precisa
 procurar sinônimos de `dorme`. Precisa procurar o **sujeito** dela, que é
 `gato`, e sujeito não é sinônimo de nada. Uma relação só, fixa, não cobre
@@ -348,7 +342,7 @@ $$q = x\,W_Q \qquad k = x\,W_K \qquad v = x\,W_V$$
 
 | Símbolo | Significado |
 |---|---|
-| `x` | o vetor da palavra, que sai do embutimento |
+| `x` | o vetor da palavra, que sai do embedding |
 | `W_Q`, `W_K`, `W_V` | as três tabelas de pesos que o treino ajusta |
 | `q`, `k`, `v` | a pergunta, a etiqueta e o conteúdo da palavra |
 
@@ -360,12 +354,12 @@ diferentes, o produto de uma palavra com ela mesma deixa de ser
 automaticamente o maior. **É isso que tapa o buraco 1**: o treino decide
 quem olha para quem.
 
-No código, cada tabela é um `nn.Linear` sem viés:
+No código, cada tabela é uma camada `Dense` sem viés:
 
 ```python
-self.pergunta = nn.Linear(128, 32, bias=False)
-self.etiqueta = nn.Linear(128, 32, bias=False)
-self.conteudo = nn.Linear(128, 32, bias=False)
+self.pergunta = keras.layers.Dense(32, use_bias=False)
+self.etiqueta = keras.layers.Dense(32, use_bias=False)
+self.conteudo = keras.layers.Dense(32, use_bias=False)
 ```
 
 ## A fórmula inteira
@@ -410,8 +404,8 @@ duas dividem os 100% entre si.
 <figure><video src="../assets/aula-10/mascara.mp4" poster="../assets/aula-10/mascara.jpg" controls preload="none" playsinline aria-label="Animação da máscara causal numa matriz de atenção"></video><figcaption>O futuro vira −∞, a softmax transforma em 0%, e cada linha só olha para trás.</figcaption></figure>
 
 ```python
-futuro = torch.triu(torch.ones(n, n), diagonal=1).bool()
-pontos = pontos.masked_fill(futuro, float("-inf"))
+futuro = np.triu(np.ones((n, n)), k=1) == 1    # True acima da diagonal
+pontos = np.where(futuro, -np.inf, pontos)
 ```
 
 O nome "causal" vem daí: a informação só corre do passado para o futuro,
@@ -436,18 +430,18 @@ erro na hora.
 
 | Conceito | Em uma frase |
 |---|---|
-| Tensor | a lista do PyTorch, com formato (`shape`) |
+| Tensor | a lista que faz conta rápido e sabe o próprio formato (`shape`) |
 | Janela | o alvo é a entrada andada uma casa |
 | Lote | 32 janelas de 128: 4.096 previsões por passo |
 | Perda | média de `-log P(token certo)`; chute ao acaso = 6,93 |
 | Por que o log | castiga o erro confiante e troca produto por soma |
 | O número a bater | 4,48, a perda do contador de pares de tokens |
-| Embutimento | troca cada token por uma linha de 128 números de uma tabela treinável |
+| Embedding | troca cada token por uma linha de 128 números de uma tabela treinável |
 | Logits | as pontuações cruas, uma por token, antes da softmax |
-| `nn.Module` | `__init__` cria as camadas, `forward` diz o caminho |
-| Laço de treino | lote, perda, `zero_grad`, `backward`, `step` |
+| `keras.Sequential` | empilha as camadas, como nas Aulas 7 e 8 |
+| Loop de treino | lote, previsão, perda, gradiente, passo; o `fit` repete o ciclo |
 | Passo zero | um modelo novo tem perda perto de `ln(1024) = 6,93` |
-| Produto escalar | mede a parecença entre dois vetores |
+| Produto escalar | mede a similaridade entre dois vetores |
 | `√d` | segura o tamanho dos produtos para a softmax não saturar |
 | Q, K, V | pergunta, etiqueta e conteúdo, de três tabelas de pesos |
 | Máscara causal | o futuro vira `−∞` antes da softmax, e some |
@@ -465,7 +459,7 @@ Os três exercícios do notebook:
 | Exercício | O que você constrói |
 |---|---|
 | 10.1 | treino e validação, entrada e alvo, o lote, a perda e o número a bater |
-| 10.2 | o primeiro modelo em PyTorch e o laço de treino |
+| 10.2 | o primeiro modelo em Keras e o treino com `fit` |
 | 10.3 | a conta da atenção à mão, e uma cabeça de atenção com máscara |
 
 ## Para ir além
@@ -532,44 +526,44 @@ Um modelo que chuta igual entre os 1.024 tokens tem perda 6,93. O contador de pa
 
 {% endpilha %}
 
-### Microaula 2: o primeiro modelo em PyTorch
+### Microaula 2: o primeiro modelo em Keras
 
-{% pilha titulo="Microaula 2 · O primeiro modelo em PyTorch" %}
+{% pilha titulo="Microaula 2 · O primeiro modelo em Keras" %}
 
 ```quiz
-O que faz a camada nn.Embedding(1024, 128)?
-- Transforma cada palavra em uma letra.
-+ Troca cada token por uma linha de 128 números de uma tabela que o treino ajusta.
-- Divide o texto em 128 pedaços.
-- Calcula a perda do modelo.
-? É o embutimento: 1.024 linhas, uma por token, com 128 números cada. São 131.072 pesos, ajustados como quaisquer outros.
+O que faz a camada keras.layers.Embedding(1024, 128)?
+- Divide o texto em 1.024 pedaços de 128 letras.
++ Troca cada um dos 1.024 tokens por uma linha de 128 números, que o treino ajusta.
+- Conta quantas vezes cada token aparece no corpus.
+- Junta 128 tokens numa palavra só.
+? É o embedding: 1.024 linhas, uma por token, com 128 números cada. São 131.072 pesos, ajustados como quaisquer outros.
 ```
 
 ```quiz
-Numa classe do PyTorch, para que servem o __init__ e o forward?
-- O __init__ treina o modelo, e o forward mede a perda.
-- Os dois fazem a mesma coisa.
-- O __init__ desenha o gráfico, e o forward imprime o resultado.
-+ O __init__ cria as camadas, e o forward diz o caminho que os números percorrem.
-? É a troca do Keras para o PyTorch: em vez de uma lista de camadas, uma classe em que você escreve o caminho.
+No bigrama, para que serve a camada Dense(1024) depois do Embedding?
+- Para escolher o token mais provável.
+- Para juntar os vetores de todas as posições.
++ Para trocar o vetor do token atual por 1.024 pontuações, uma para cada token que pode vir depois.
+- Para dividir o vocabulário em 1.024 grupos.
+? São os logits: uma pontuação por token do vocabulário. A softmax transforma essas pontuações em chances.
 ```
 
 ```quiz
-No laço de treino, para que serve o zero_grad()?
-- Para zerar os pesos do modelo.
-- Para zerar a perda.
-+ Para apagar o gradiente do passo anterior, que senão se soma ao novo.
-- Para sortear um lote novo.
-? O PyTorch acumula os gradientes de uma chamada para outra. Sem o zero_grad, cada passo carregaria a soma de todos os anteriores.
+O que o fit repete a cada passo de treino?
+- Só sorteia lotes novos, sem mexer nos pesos.
++ Sorteia um lote, mede a perda, calcula o gradiente e dá um passo pequeno nos pesos.
+- Apaga os pesos e começa de novo.
+- Mede a perda na validação e para.
+? É o gradiente descendente da Aula 1, em ciclo. O fit esconde as contas, mas o ciclo é sempre o mesmo.
 ```
 
 ```quiz
-Qual é a ordem certa das linhas do laço de treino?
-- step, backward, perda, zero_grad
-+ lote, perda, zero_grad, backward, step
-- backward, lote, step, perda, zero_grad
-- perda, step, lote, backward, zero_grad
-? Sorteia o lote, calcula a perda, apaga o gradiente antigo, calcula o novo (backward) e dá o passo (step). É o que o model.fit do Keras fazia escondido.
+O gerador de lotes que vai para o fit entrega, a cada passo, o quê?
+- Só a entrada; o modelo descobre o alvo sozinho.
+- Uma janela de texto já traduzida em palavras.
++ Um par: a entrada e o alvo, que é a entrada andada uma casa.
+- A perda do passo anterior.
+? O modelo só mede a perda se souber a resposta certa. Por isso o gerador entrega o par: yield entrada, alvo.
 ```
 
 ```quiz

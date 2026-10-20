@@ -89,14 +89,14 @@ $$v = \frac{1}{n}\sum_{i=1}^{n} h_i$$
 | `n` | quantos tokens o texto tem |
 | `v` | o vetor da frase inteira |
 
-O resultado é o **embutimento de frase** (*sentence embedding*). Aqui ele
+O resultado é o **embedding de frase** (*sentence embedding*). Aqui ele
 tem 384 números, e o modelo que o produz é o `multilingual-e5-small`, com
 118 milhões de pesos, treinado para que frases parecidas caiam perto.
 
 Depois de normalizar os vetores para tamanho 1, comparar dois textos é o
 produto escalar da Aula 10:
 
-<figure><img src="../assets/aula-14/parecenca.png" alt="Matriz 6 por 6 com a parecença entre seis frases: os pares que falam do mesmo assunto têm valores altos, mesmo sem palavras em comum"><figcaption>"O gato dormiu no sofá" e "o cachorro cochilou no tapete" não têm palavra em comum, e ficam perto.</figcaption></figure>
+<figure><img src="../assets/aula-14/parecenca.png" alt="Matriz 6 por 6 com a similaridade entre seis frases: os pares que falam do mesmo assunto têm valores altos, mesmo sem palavras em comum"><figcaption>"O gato dormiu no sofá" e "o cachorro cochilou no tapete" não têm palavra em comum, e ficam perto.</figcaption></figure>
 
 Esse número tem nome: **similaridade do cosseno**. Com vetores de tamanho
 1, ela é exatamente o produto escalar, e vai de −1 (opostos) a 1
@@ -105,12 +105,12 @@ Esse número tem nome: **similaridade do cosseno**. Com vetores de tamanho
 ## A busca
 
 Com todos os 187 pedaços virados em vetor, buscar é uma multiplicação de
-matriz e um `topk`:
+matriz e uma ordenação:
 
 ```python
-vetor_pergunta = embutir(["query: O que é a máscara causal?"])[0]
+vetor_pergunta = calcular_embeddings(["O que é a máscara causal?"], "query: ")[0]
 notas = vetores @ vetor_pergunta
-melhores = torch.topk(notas, 3)
+melhores = np.argsort(notas)[::-1][:3]     # os três maiores
 ```
 
 <figure><img src="../assets/aula-14/busca.png" alt="Gráfico de barras com os quatro pedaços mais parecidos com a pergunta sobre a máscara causal, com o primeiro sendo a seção certa da Aula 10"><figcaption>O primeiro é a seção certa. Os três melhores entram no prompt: os dois de apoio ajudam quando o primeiro erra.</figcaption></figure>
@@ -229,6 +229,6 @@ Nenhuma dessas coisas é mágica, e você sabe disso porque montou todas.
 ## Para ir além
 
 - [multilingual-e5-small no Hugging Face](https://huggingface.co/intfloat/multilingual-e5-small): o modelo de busca desta aula, com os prefixos `query:` e `passage:` explicados.
-- [MTEB](https://huggingface.co/spaces/mteb/leaderboard): o placar público de modelos de embutimento, com uma aba para português.
+- [MTEB](https://huggingface.co/spaces/mteb/leaderboard): o placar público de modelos de embedding, com uma aba para português.
 - [Retrieval-Augmented Generation (Lewis et al., 2020)](https://arxiv.org/abs/2005.11401): o artigo que deu nome à técnica. A introdução é legível; o resto é para quem quiser ir fundo.
 - [Glossário](../glossario.md): para revisar qualquer termo novo desta aula.

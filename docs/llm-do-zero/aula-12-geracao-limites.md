@@ -16,13 +16,13 @@ explicar por que um modelo de linguagem inventa fatos.
 
 <figure><img src="../assets/aula-12/mapa.png" alt="Quatro quadros lado a lado, um por aula: do texto para números, o lote e a atenção, montar, treinar e escrever, ajustar e duvidar. O quarto está aceso"><figcaption>O modelo já escreve. Falta controlar como ele escolhe as palavras, e saber do que ele não é capaz.</figcaption></figure>
 
-A aula começa carregando o arquivo `meu_llm.pt`, o modelo que você treinou
+A aula começa carregando o arquivo `meu_llm.weights.h5`, o modelo que você treinou
 na Aula 11. Se você perdeu o arquivo, o notebook carrega o modelo do
 professor, que tem exatamente as mesmas classes e os mesmos nomes de
 pesos. Tudo o que vem a seguir funciona com qualquer um dos dois.
 
 No fim da Aula 11 apareceram as duas escolhas ruins. Sempre o mais
-provável entra em laço. Sortear direto da distribuição pega a cauda:
+provável entra em loop. Sortear direto da distribuição pega a cauda:
 depois de "Não sei se a senhora", o favorito tem só 7,6%, e os tokens fora
 dos 40 melhores somam 32% da chance. Esta aula começa no meio do caminho,
 com três controles.
@@ -77,8 +77,8 @@ terço de risco. Simples, e sempre corta o mesmo tanto, mesmo quando o
 modelo está muito seguro.
 
 ```python
-corte = torch.topk(pontuacoes, 40).values[-1]          # a 40ª maior
-pontuacoes = pontuacoes.masked_fill(pontuacoes < corte, float("-inf"))
+corte = np.sort(pontuacoes)[-40]                        # a 40ª maior
+pontuacoes = np.where(pontuacoes < corte, -np.inf, pontuacoes)
 ```
 
 **Top-p** (ou núcleo, *nucleus*): pegue os mais prováveis até que a soma
@@ -100,7 +100,7 @@ Mesmo modelo, mesmo início, quatro jeitos de escolher:
 
 <figure><img src="../assets/aula-12/textos.png" alt="Quatro caixas com texto gerado: a escolha gulosa repetindo Não, senhor; a temperatura 0,3 também repetindo; a 0,8 com frases variadas; a 1,5 com palavras que não existem"><figcaption>Nenhum peso mudou entre as quatro caixas. Só a regra de escolha.</figcaption></figure>
 
-Leia com atenção. A escolha gulosa entra em laço logo: "--Não, senhor.
+Leia com atenção. A escolha gulosa entra em loop logo: "--Não, senhor.
 --Não, senhor. --Não, senhor." A temperatura 0,3 vai pelo mesmo caminho.
 Na 1,5 aparecem palavras que não existem ("todajoloder"). A 0,8 é a que
 lê melhor, e é por isso que ela é o padrão em quase toda ferramenta.
@@ -168,7 +168,7 @@ Não existe modelo neutro. Existe corpus, e o modelo é o que ele diz.
 ## Ajuste fino: o mesmo treino, outro texto
 
 Dá para provar essa frase em três minutos. Pegue o modelo pronto e
-continue o treino dele por 200 passos, com o mesmo laço da Aula 11, só que
+continue o treino dele por 200 passos, com o mesmo loop da Aula 11, só que
 com outro texto: as páginas deste curso, em português de hoje, sobre
 regressão, redes e modelos de linguagem. Isso se chama **ajuste fino**
 (*fine-tuning*).
@@ -177,7 +177,7 @@ regressão, redes e modelos de linguagem. Isso se chama **ajuste fino**
 modelo_curso = copy.deepcopy(modelo)          # uma cópia, para comparar
 for passo in range(201):
     entrada, alvo = sortear_lote(dados_curso)  # a única linha diferente
-    ...                                        # o resto é o laço da Aula 11
+    ...                                        # o resto é o loop da Aula 11
 ```
 
 O mesmo começo, nos dois modelos:
@@ -221,9 +221,9 @@ $$\text{operações} \approx 6 \cdot N \cdot T$$
 | `N` | quantos pesos o modelo tem |
 | `T` | quantos tokens ele leu no treino |
 
-Exemplo com o seu modelo. São 787.584 pesos e uns 2.100 passos de
-4.096 tokens, ou 8,6 milhões de tokens. A conta dá
-6 × 787.584 × 8,6 milhões ≈ 4 × 10¹³ operações. O GPT-3, de 2020, tem 175 bilhões de pesos e leu
+Exemplo com o seu modelo. São 787.584 pesos e uns 6.300 passos de
+4.096 tokens, ou 26 milhões de tokens. A conta dá
+6 × 787.584 × 26 milhões ≈ 1 × 10¹⁴ operações. O GPT-3, de 2020, tem 175 bilhões de pesos e leu
 300 bilhões de tokens: 6 × 175 bilhões × 300 bilhões ≈ 3 × 10²³. Bilhões
 de vezes mais.
 
@@ -359,7 +359,7 @@ que qualquer ajuste de temperatura, e é de graça.
 - **Quiz de cada microaula:** [no fim desta página](#quizzes-das-microaulas), 5 perguntas depois de cada explicação, antes do exercício.
 - **Travou num exercício?** [Colas dos exercícios](colas-dos-exercicios.md#aula-12-geracao-e-limites), com dicas que você abre uma de cada vez.
 - Slides desta aula: entregues em sala.
-- O seu modelo: o `meu_llm.pt` que você baixou na Aula 11. O do professor: [`mini_llm.pt`](https://github.com/klein-natan/nanodegree-AI-Atitus/blob/main/data/mini_llm.pt)
+- O seu modelo: o `meu_llm.weights.h5` que você baixou na Aula 11. O do professor: [`mini_llm.weights.h5`](https://github.com/klein-natan/nanodegree-AI-Atitus/blob/main/data/mini_llm.weights.h5)
 - O texto do ajuste fino: [`curso.txt`](https://github.com/klein-natan/nanodegree-AI-Atitus/blob/main/data/curso.txt)
 
 Os três exercícios do notebook:

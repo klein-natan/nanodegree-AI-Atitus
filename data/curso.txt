@@ -487,7 +487,7 @@ Um programa comum você escreve uma vez, e ele executa a tarefa fixa. Um
 sistema de ML se parece mais com uma planta: precisa de cuidado contínuo,
 adaptação ao ambiente e alimentação constante com dados novos.
 
-O ciclo não é uma linha reta que acaba na entrega. É um laço, e uma
+O ciclo não é uma linha reta que acaba na entrega. É um loop, e uma
 descoberta na etapa 3 costuma mandar você de volta para a etapa 2.
 
 **1. Escopo e objetivo.** Traduzir um desejo de negócio em um objetivo
@@ -555,7 +555,7 @@ de fazer, ele já está quebrado. Intervenção manual é lenta e erra.
 | Entrega contínua (CD) | publica sozinho os modelos aprovados |
 | Treinamento contínuo (CT) | retreina quando chegam dados novos ou o desempenho cai |
 
-O terceiro é o que não existe em software comum, e é o que fecha o laço do
+O terceiro é o que não existe em software comum, e é o que fecha o loop do
 ciclo de vida.
 
 **A regra dos 25%**
@@ -775,7 +775,7 @@ Os notebooks abrem direto no Google Colab pelos links de cada aula.
 
 ### Aula 9 — Do Texto aos Números > Onde estamos
 Nestas quatro aulas você constrói um modelo de linguagem do zero, em
-PyTorch, e treina no processador do Colab. Cada aula alterna explicações
+Keras, e treina no processador do Colab. Cada aula alterna explicações
 curtas e exercícios, e cada exercício acrescenta uma peça ao mesmo modelo.
 No fim da Aula 12, o modelo é seu: você escreveu cada parte e apertou o
 botão do treino.
@@ -1048,8 +1048,7 @@ que o BPE criou cada peça.
 
 O número é um **endereço**. O modelo guarda uma tabela com uma linha por
 token (1.024 linhas) e 128 colunas. Cada token é trocado pela sua linha,
-uma lista de 128 números chamada **embutimento** do token (em inglês,
-*embedding*). É esse vetor que entra no modelo.
+uma lista de 128 números chamada **embedding** do token. É esse vetor que entra no modelo.
 
 No começo do treino a tabela é sorteada, e os vetores não significam
 nada. O treino ajusta cada número dela, como ajusta qualquer outro peso.
@@ -1058,7 +1057,7 @@ parecidos. No modelo treinado da disciplina, o vetor mais parecido com o
 de `·elle` é o de `·ella`; o de `·dous` é o de `·tres`; o de `·era` é o
 de `·foi`. Ninguém ensinou gramática ao modelo: ele achou sozinho que
 essas palavras fazem o mesmo papel. Você monta essa tabela na Aula 10,
-com uma linha de PyTorch.
+com uma linha de Keras.
 
 O caminho inteiro, então, é este:
 
@@ -1085,7 +1084,7 @@ mesmo da Aula 9 à Aula 12.
 | Separar antes de fundir | as fusões ficam dentro das palavras |
 | Codificar | aplica as fusões na ordem em que o treino aprendeu |
 | Tabela de fusões | a mesma no treino e no uso, sempre |
-| Embutimento (*embedding*) | a linha da tabela que o id escolhe: o vetor que entra no modelo |
+| Embedding | a linha da tabela que o id escolhe: o vetor que entra no modelo |
 
 ### Aula 9 — Do Texto aos Números > Materiais
 - **Notebook desta aula, no Google Colab:** [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-09-do-texto-aos-numeros.ipynb)
@@ -1131,9 +1130,10 @@ O primeiro passo é transformar a fila de números em exemplos de treino.
 
 Tensores
 
-Daqui até a Aula 12 os números moram em **tensores**, a lista do
-PyTorch. Um tensor faz conta rápido, calcula gradientes sozinho e sabe o
-próprio formato, o `shape`. O corpus inteiro é um tensor de formato
+Daqui até a Aula 12 os números moram em **arrays** do NumPy e, dentro
+do modelo, em **tensores**, que é como o Keras chama os arrays dele. Os
+dois são listas que fazem conta rápido e sabem o próprio formato, o
+`shape`. O corpus inteiro é um tensor de formato
 `[1484827]`. Um lote de 32 janelas de 128 tokens é um tensor de formato
 `[32, 128]`. Ler o formato é metade de entender o código.
 
@@ -1220,19 +1220,19 @@ vez de letras, conte os pares no treino e meça na validação. A perda dele
 é **4,48**. Sem rede neural nenhuma, só contando, o modelo já sai de 6,93.
 O transformer da Aula 11 vai ter que fazer melhor que isso.
 
-### Aula 10 — Atenção > O primeiro modelo em PyTorch
-O embutimento: o token vira vetor
+### Aula 10 — Atenção > O primeiro modelo em Keras
+O embedding: o token vira vetor
 
 Cada token da Aula 9 é um número inteiro, e número inteiro não serve para
-fazer conta de parecença. Como a Aula 9 terminou mostrando, o número é só
-um endereço. O primeiro passo do modelo é trocar cada token pela linha
+fazer conta de similaridade. Como a Aula 9 terminou mostrando, o número é
+só um endereço. O primeiro passo do modelo é trocar cada token pela linha
 dele numa tabela:
 
-Essa tabela se chama **embutimento** (*embedding*). São 131.072 pesos, que
-o treino ajusta como quaisquer outros. Depois dela, o token 600 deixou de
-ser "o número 600" e virou um ponto num espaço de 128 dimensões. Tokens
-que aparecem em contextos parecidos acabam com linhas parecidas, sem
-ninguém mandar, do mesmo jeito que os filtros da Aula 8 apareceram sozinhos.
+Essa tabela se chama **embedding**. São 131.072 pesos, que o treino ajusta
+como quaisquer outros. Depois dela, o token 600 deixou de ser "o número
+600" e virou um ponto num espaço de 128 dimensões. Tokens que aparecem em
+contextos parecidos acabam com linhas parecidas, sem ninguém mandar, do
+mesmo jeito que os filtros da Aula 8 apareceram sozinhos.
 
 Uma camada que dá uma pontuação para cada token
 
@@ -1241,29 +1241,31 @@ em 1.024 pontuações, uma para cada token que pode vir em seguida. A
 softmax transforma as pontuações em probabilidades. As pontuações cruas
 têm nome: **logits**.
 
-No Keras você empilhava camadas numa lista. No PyTorch você escreve uma
-classe com duas partes: o `__init__` cria as camadas, e o `forward` diz o
-caminho dos números.
+No Keras, como nas Aulas 7 e 8, as camadas se empilham numa lista:
 
-Esse modelo faz o mesmo que o contador da Aula 9: prevê o próximo token
+Esse modelo faz o mesmo que o contador de pares: prevê o próximo token
 olhando só o atual. A diferença é que ele **aprende** a tabela por
 gradiente, em vez de contar.
 
-O laço de treino
+O loop de treino
 
-O `model.fit` do Keras fazia cinco coisas escondido. No PyTorch você vê
-todas:
+Treinar é repetir um ciclo de cinco passos: sortear um lote, passar pelo
+modelo, medir a perda, calcular o gradiente (para que lado mexer cada peso
+para a perda cair) e dar um passo pequeno nessa direção. É o gradiente
+descendente da Aula 1. No Keras, o `fit` repete esse ciclo por você:
 
-É o gradiente descendente da Aula 1. O `zero_grad` existe porque o PyTorch
-soma os gradientes de uma chamada para outra. Sem ele, cada passo carrega
-a soma de todos os anteriores, e o treino desanda.
+O `lotes` é um gerador: a cada passo ele entrega um par, a entrada e o
+alvo. A perda é a entropia cruzada da Aula 8; o `from_logits=True` avisa
+que o modelo devolve pontuações cruas, e a softmax fica por conta da
+perda.
 
 Antes de treinar, confira o **passo zero**. Um modelo recém-criado não
 sabe nada e chuta igual entre 1.024 tokens, então a perda dele tem que
 dar perto de `ln(1024) = 6,93`. No exercício da aula, o modelo novo dá
-7,1. Em 500 passos, a perda cai para 4,2, que já está abaixo dos 4,48 do
-contador de pares. O texto que ele gera tem palavras de verdade e frases
-sem sentido, porque o modelo escolhe cada token olhando só o anterior.
+exatamente 6,93. Em 500 passos, a perda cai para 4,1, que já está abaixo
+dos 4,48 do contador de pares. O texto que ele gera tem palavras de
+verdade e frases sem sentido, porque o modelo escolhe cada token olhando
+só o anterior.
 
 ### Aula 10 — Atenção > O problema
 Leia esta frase e complete a última palavra:
@@ -1299,7 +1301,7 @@ Tome três palavras e quatro números por palavra, para caber na página:
 A palavra `dorme` quer saber para onde olhar. São quatro passos, e você
 pode fazer os quatro à mão.
 
-**Passo 1: medir parecença com cada palavra.** Multiplique casa com casa e
+**Passo 1: medir similaridade com cada palavra.** Multiplique casa com casa e
 some. Isso se chama **produto escalar**, e é a mesma conta da convolução da
 Aula 8:
 
@@ -1344,7 +1346,7 @@ praticamente (0%, 100%, 0%), enquanto a de (0, 2, 1) é (9%, 67%, 24%).
 Com os pesos colados no zero e no um, o gradiente some. A divisão mantém
 a distribuição espalhada, e com isso o modelo continua aprendendo.
 
-No PyTorch, os quatro passos cabem em quatro linhas:
+Em NumPy, os quatro passos cabem em quatro linhas:
 
 ### Aula 10 — Atenção > Os dois buracos da versão sem pesos
 A versão de cima funciona, e tem dois defeitos. Os dois dá para medir. O resto
@@ -1362,7 +1364,7 @@ Em duas das três linhas, a palavra olha principalmente para si mesma. Não é
 azar: o produto escalar de um vetor com ele mesmo é o comprimento dele ao
 quadrado, o maior valor que ele costuma tirar de qualquer comparação.
 
-E tem um problema mais fundo por trás. Parecença de embutimento é **uma**
+E tem um problema mais fundo por trás. Similaridade de embedding é **uma**
 relação: palavras de sentido próximo ficam perto. Mas `dorme` não precisa
 procurar sinônimos de `dorme`. Precisa procurar o **sujeito** dela, que é
 `gato`, e sujeito não é sinônimo de nada. Uma relação só, fixa, não cobre
@@ -1391,7 +1393,7 @@ $$q = x\,W_Q \qquad k = x\,W_K \qquad v = x\,W_V$$
 
 | Símbolo | Significado |
 |---|---|
-| `x` | o vetor da palavra, que sai do embutimento |
+| `x` | o vetor da palavra, que sai do embedding |
 | `W_Q`, `W_K`, `W_V` | as três tabelas de pesos que o treino ajusta |
 | `q`, `k`, `v` | a pergunta, a etiqueta e o conteúdo da palavra |
 
@@ -1403,7 +1405,7 @@ diferentes, o produto de uma palavra com ela mesma deixa de ser
 automaticamente o maior. **É isso que tapa o buraco 1**: o treino decide
 quem olha para quem.
 
-No código, cada tabela é um `nn.Linear` sem viés:
+No código, cada tabela é uma camada `Dense` sem viés:
 
 ### Aula 10 — Atenção > A fórmula inteira
 $$\text{Atenção}(Q, K, V) = \text{softmax}\!\left(\frac{Q K^{\top}}{\sqrt{d}}\right) V$$
@@ -1459,18 +1461,18 @@ erro na hora.
 ### Aula 10 — Atenção > Cola da aula
 | Conceito | Em uma frase |
 |---|---|
-| Tensor | a lista do PyTorch, com formato (`shape`) |
+| Tensor | a lista que faz conta rápido e sabe o próprio formato (`shape`) |
 | Janela | o alvo é a entrada andada uma casa |
 | Lote | 32 janelas de 128: 4.096 previsões por passo |
 | Perda | média de `-log P(token certo)`; chute ao acaso = 6,93 |
 | Por que o log | castiga o erro confiante e troca produto por soma |
 | O número a bater | 4,48, a perda do contador de pares de tokens |
-| Embutimento | troca cada token por uma linha de 128 números de uma tabela treinável |
+| Embedding | troca cada token por uma linha de 128 números de uma tabela treinável |
 | Logits | as pontuações cruas, uma por token, antes da softmax |
-| `nn.Module` | `__init__` cria as camadas, `forward` diz o caminho |
-| Laço de treino | lote, perda, `zero_grad`, `backward`, `step` |
+| `keras.Sequential` | empilha as camadas, como nas Aulas 7 e 8 |
+| Loop de treino | lote, previsão, perda, gradiente, passo; o `fit` repete o ciclo |
 | Passo zero | um modelo novo tem perda perto de `ln(1024) = 6,93` |
-| Produto escalar | mede a parecença entre dois vetores |
+| Produto escalar | mede a similaridade entre dois vetores |
 | `√d` | segura o tamanho dos produtos para a softmax não saturar |
 | Q, K, V | pergunta, etiqueta e conteúdo, de três tabelas de pesos |
 | Máscara causal | o futuro vira `−∞` antes da softmax, e some |
@@ -1487,7 +1489,7 @@ Os três exercícios do notebook:
 | Exercício | O que você constrói |
 |---|---|
 | 10.1 | treino e validação, entrada e alvo, o lote, a perda e o número a bater |
-| 10.2 | o primeiro modelo em PyTorch e o laço de treino |
+| 10.2 | o primeiro modelo em Keras e o treino com `fit` |
 | 10.3 | a conta da atenção à mão, e uma cabeça de atenção com máscara |
 
 ### Aula 10 — Atenção > Para ir além
@@ -1503,7 +1505,7 @@ você acertou. Nada fica gravado: dá para refazer quantas vezes quiser.
 
 Microaula 1: do texto ao lote de treino
 
-Microaula 2: o primeiro modelo em PyTorch
+Microaula 2: o primeiro modelo em Keras
 
 Microaula 3: a atenção
 
@@ -1516,7 +1518,7 @@ não tem quase nada de novo:
 | Tokenizador | Aula 9 |
 | Lote de treino e perda | Aula 10 |
 | Atenção com máscara | Aula 10 |
-| Laço de treino em PyTorch | Aula 10 |
+| Treino com `fit` | Aula 10 |
 | Camada densa com ativação | Aula 7 |
 | Normalização | Aula 7 |
 | Gradiente descendente | Aula 1 |
@@ -1572,7 +1574,7 @@ delas sabe *onde* cada palavra está.
 
 A correção precisa entrar antes dos produtos escalares, mexendo nos
 vetores. A solução moderna se chama **RoPE** (*rotary position embedding*,
-embutimento rotativo de posição): gire a pergunta e a etiqueta de cada
+embedding rotativo de posição): gire a pergunta e a etiqueta de cada
 palavra por um ângulo proporcional à posição dela.
 
 O giro trabalha em pares de números. Cada par `(a, b)` do vetor gira por
@@ -1684,7 +1686,7 @@ os cinco recebem exatamente o mesmo.
 
 Esse é o **gradiente que desaparece**, e foi ele que travou as redes
 profundas por anos. A ideia do atalho, de 2015, é o que permitiu empilhar
-dezenas de camadas. O primeiro bloco e o embutimento, que ficam embaixo de
+dezenas de camadas. O primeiro bloco e o embedding, que ficam embaixo de
 tudo, são justamente os que mais precisam do gradiente para aprender.
 
 Uma segunda leitura, mais intuitiva: cada bloco não reescreve o vetor da
@@ -1729,11 +1731,11 @@ português, só que um pouco pior.
 
 ### Aula 11 — O Transformer e o Treino > O modelo inteiro
 Com o bloco pronto, o modelo é uma lista de quatro blocos entre o
-embutimento e a cabeça de saída:
+embedding e a cabeça de saída:
 
-A linha dos pesos amarrados merece explicação. A tabela de entrada troca
-token por vetor; a cabeça de saída faz o contrário, troca vetor por uma
-pontuação para cada token. Usar a **mesma** tabela nos dois sentidos
+A última linha, a dos pesos amarrados, merece explicação. A tabela de
+entrada troca token por vetor; a saída faz o contrário, troca vetor por
+uma pontuação para cada token, multiplicando pela mesma tabela deitada. Usar a **mesma** tabela nos dois sentidos
 economiza 131.072 pesos e costuma melhorar o resultado, porque a tabela
 recebe gradiente das duas pontas.
 
@@ -1743,7 +1745,7 @@ A conta inteira cabe numa tabela:
 
 | Peça | Conta | Pesos |
 |---|---|---|
-| Embutimento (e cabeça, amarrada) | 1.024 × 128 | 131.072 |
+| Embedding (e cabeça, amarrada) | 1.024 × 128 | 131.072 |
 | Atenção, por bloco | 4 cabeças × 3 × 128 × 32 + 128 × 128 | 65.536 |
 | MLP, por bloco | 3 × 128 × 256 | 98.304 |
 | Normalizações | 2 × 128 por bloco, mais 128 no fim | 1.152 |
@@ -1800,8 +1802,13 @@ Perplexidade é "entre quantos tokens o modelo está efetivamente na
 dúvida". Sair de 1.024 para 30 quer dizer que o modelo eliminou 97% dos
 candidatos antes de escolher.
 
-### Aula 11 — O Transformer e o Treino > O laço de treino
-É o laço da Aula 10, com quatro proteções a mais:
+### Aula 11 — O Transformer e o Treino > O loop de treino
+É o `fit` da Aula 10, com quatro proteções a mais:
+
+Um *callback* é uma função que o `fit` chama no meio do treino. O
+`Relogio` é escrito no notebook: a cada passo ele ajusta a taxa de
+aprendizado pela fração do tempo que já passou, e para o treino quando o
+tempo acaba. O `ModelCheckpoint` vem pronto no Keras.
 
 AdamW
 
@@ -1815,7 +1822,7 @@ O corte do gradiente
 
 De vez em quando um lote sai muito fora do normal, e o gradiente fica
 enorme. Um passo desses joga os pesos para longe e estraga o que já foi
-aprendido. O **corte de gradiente** (`clip_grad_norm_`) limita o tamanho
+aprendido. O **corte de gradiente** (`clipnorm`) limita o tamanho
 total do gradiente. Se ele passar de 1, o corte divide todos os números
 pelo mesmo fator até o tamanho dar 1. A direção do passo não muda; só o
 tamanho.
@@ -1839,20 +1846,20 @@ máquina mais rápida simplesmente dá mais passos.
 
 Conferir e salvar o melhor
 
-A cada 200 passos, o laço mede a perda em lotes de treino e de validação,
-anota as duas no histórico, e salva o modelo no arquivo `meu_llm.pt` **se
-a validação for a melhor até ali**. Duas consequências práticas: se o
+A cada 200 passos, o `fit` mede a perda em lotes de validação (o
+`val_loss`), e o `ModelCheckpoint` salva o modelo no arquivo
+`meu_llm.weights.h5` **se a validação for a melhor até ali**. Duas consequências práticas: se o
 Colab cair no meio, o melhor modelo já está salvo; e o arquivo guarda o
 modelo que melhor generaliza, e não o último.
 
-O laço inteiro, e o que ele faz com a perda e com o texto:
+O loop inteiro, e o que ele faz com a perda e com o texto:
 
 ### Aula 11 — O Transformer e o Treino > O treino de verdade
 Quantos passos cabem em 35 minutos depende da máquina. No teste deste
 curso, com duas linhas de execução (as mesmas do Colab gratuito), foram
-5.600 passos e perda de validação 3,28 com o processador livre, e 2.100
-passos e perda 3,39 com o processador dividido com outro programa. O seu
-Colab deve cair nessa faixa: perplexidade perto de 30, bem abaixo dos 88
+uns 6.300 passos e perda de validação 3,30. Com o processador dividido com
+outro programa, os passos caem para menos da metade e a perda fica perto
+de 3,4. O seu Colab deve cair nessa faixa: perplexidade perto de 30, bem abaixo dos 88
 do contador de pares da Aula 10. O modelo de referência, treinado por mais
 tempo num processador maior, mostra a curva inteira:
 
@@ -1892,7 +1899,7 @@ que nada tem a ver com o treino. Ele tem nome: **amostragem**
 ### Aula 11 — O Transformer e o Treino > Gerar é repetir um passo
 O modelo devolve uma previsão para cada posição do texto. Para gerar,
 só interessa a da **última** posição: é ela que viu o texto inteiro. O
-resto do mecanismo é um laço:
+resto do mecanismo é um loop:
 
 O `[-128:]` corta o texto nos últimos 128 tokens, o tamanho da janela de
 contexto. Isso se chama **geração autorregressiva**, e tem uma consequência
@@ -1903,7 +1910,7 @@ precisa continuar coerentemente a partir do erro.
 ### Aula 11 — O Transformer e o Treino > Duas escolhas ruins
 **Sempre o mais provável.** Troque o sorteio por `argmax`. Chama-se
 decodificação gulosa (*greedy*). É determinística e parece segura, e o
-resultado é ruim: o texto entra em laço, repetindo a mesma frase. Um texto
+resultado é ruim: o texto entra em loop, repetindo a mesma frase. Um texto
 que só escolhe o topo acaba num lugar de onde o topo aponta de volta para
 si.
 
@@ -1926,8 +1933,8 @@ A saída é ficar no meio, com três controles, que são o assunto da Aula 12.
 | Atalho | soma a entrada à saída; deixa o gradiente chegar ao primeiro bloco |
 | RMSNorm | divide o vetor pela raiz da média dos quadrados |
 | SwiGLU | camada densa com porta, que decide quanto de cada número passa |
-| Pesos amarrados | a mesma tabela no embutimento e na cabeça de saída |
-| 787.584 pesos | metade no MLP, um terço na atenção, um sexto no embutimento |
+| Pesos amarrados | a mesma tabela no embedding e na cabeça de saída |
+| 787.584 pesos | metade no MLP, um terço na atenção, um sexto no embedding |
 | Passo zero | a perda do modelo novo tem que dar perto de `ln(1024) = 6,93` |
 | Perplexidade | `e` elevado à perda: entre quantos tokens o modelo tem dúvida |
 | AdamW | gradiente descendente com memória e um empurrão para o zero |
@@ -1936,14 +1943,14 @@ A saída é ficar no meio, com três controles, que são o assunto da Aula 12.
 | Validação | o número que vale; o treino salva o melhor por ela |
 | Amostragem | escolher um dos 1.024 tokens a partir das chances do modelo |
 | Autorregressão | cada token escolhido vira entrada do passo seguinte |
-| Guloso | sempre o mais provável; entra em laço |
+| Guloso | sempre o mais provável; entra em loop |
 
 ### Aula 11 — O Transformer e o Treino > Materiais
 - **Notebook desta aula, no Google Colab:** [](https://colab.research.google.com/github/klein-natan/nanodegree-AI-Atitus/blob/main/notebooks/aula-11-transformer-e-treino.ipynb)
 - **Quiz de cada microaula:** no fim desta página, 5 perguntas depois de cada explicação, antes do exercício.
 - **Travou num exercício?** Colas dos exercícios, com dicas que você abre uma de cada vez.
 - Slides desta aula: entregues em sala.
-- Modelo de referência, treinado: `mini_llm.pt`
+- Modelo de referência, treinado: `mini_llm.weights.h5`
 
 Os três exercícios do notebook:
 
@@ -1951,18 +1958,18 @@ Os três exercícios do notebook:
 |---|---|
 | 11.1 | o giro, quatro cabeças, o MLP, o bloco, e a medida do atalho |
 | 11.2 | o MiniLLM inteiro, a perplexidade, a função de treino e o treino de 35 minutos |
-| 11.3 | a curva do treino, a geração gulosa e por sorteio, e o arquivo `meu_llm.pt` |
+| 11.3 | a curva do treino, a geração gulosa e por sorteio, e o arquivo `meu_llm.weights.h5` |
 
 **Leve o seu modelo para casa**
 
-No fim do Exercício 3, baixe o arquivo `meu_llm.pt`. O Colab apaga tudo
+No fim do Exercício 3, baixe o arquivo `meu_llm.weights.h5`. O Colab apaga tudo
 quando a aba fecha, e a Aula 12 começa carregando esse arquivo. Se você
 perder, a Aula 12 oferece o modelo do professor, que tem o mesmo formato.
 
 ### Aula 11 — O Transformer e o Treino > Para ir além
 - Let's build GPT, from scratch (Andrej Karpathy): duas horas de vídeo montando a mesma coisa, linha por linha. Em inglês.
 - Transformers, the tech behind LLMs (3Blue1Brown): o modelo inteiro, do token à previsão, em animação. Em inglês, com legendas.
-- nanoGPT, de Andrej Karpathy: o repositório que inspirou o modelo desta aula, com 300 linhas de PyTorch.
+- nanoGPT, de Andrej Karpathy: o repositório que inspirou o modelo desta aula, com 300 linhas de PyTorch (a outra grande biblioteca de redes neurais, que faz o mesmo que o Keras).
 
 ### Aula 11 — O Transformer e o Treino > Quizzes das microaulas
 Depois de cada microaula, e antes do exercício no Colab, responda o quiz
@@ -1977,13 +1984,13 @@ Microaula 2: o modelo inteiro e o treino
 Microaula 3: do número à palavra
 
 ### Aula 12 — Geração e Limites > Onde estamos
-A aula começa carregando o arquivo `meu_llm.pt`, o modelo que você treinou
+A aula começa carregando o arquivo `meu_llm.weights.h5`, o modelo que você treinou
 na Aula 11. Se você perdeu o arquivo, o notebook carrega o modelo do
 professor, que tem exatamente as mesmas classes e os mesmos nomes de
 pesos. Tudo o que vem a seguir funciona com qualquer um dos dois.
 
 No fim da Aula 11 apareceram as duas escolhas ruins. Sempre o mais
-provável entra em laço. Sortear direto da distribuição pega a cauda:
+provável entra em loop. Sortear direto da distribuição pega a cauda:
 depois de "Não sei se a senhora", o favorito tem só 7,6%, e os tokens fora
 dos 40 melhores somam 32% da chance. Esta aula começa no meio do caminho,
 com três controles.
@@ -2047,7 +2054,7 @@ deixa só ela.
 ### Aula 12 — Geração e Limites > Os quatro textos
 Mesmo modelo, mesmo início, quatro jeitos de escolher:
 
-Leia com atenção. A escolha gulosa entra em laço logo: "--Não, senhor.
+Leia com atenção. A escolha gulosa entra em loop logo: "--Não, senhor.
 --Não, senhor. --Não, senhor." A temperatura 0,3 vai pelo mesmo caminho.
 Na 1,5 aparecem palavras que não existem ("todajoloder"). A 0,8 é a que
 lê melhor, e é por isso que ela é o padrão em quase toda ferramenta.
@@ -2107,7 +2114,7 @@ Não existe modelo neutro. Existe corpus, e o modelo é o que ele diz.
 
 ### Aula 12 — Geração e Limites > Ajuste fino: o mesmo treino, outro texto
 Dá para provar essa frase em três minutos. Pegue o modelo pronto e
-continue o treino dele por 200 passos, com o mesmo laço da Aula 11, só que
+continue o treino dele por 200 passos, com o mesmo loop da Aula 11, só que
 com outro texto: as páginas deste curso, em português de hoje, sobre
 regressão, redes e modelos de linguagem. Isso se chama **ajuste fino**
 (*fine-tuning*).
@@ -2150,9 +2157,9 @@ $$\text{operações} \approx 6 \cdot N \cdot T$$
 | `N` | quantos pesos o modelo tem |
 | `T` | quantos tokens ele leu no treino |
 
-Exemplo com o seu modelo. São 787.584 pesos e uns 2.100 passos de
-4.096 tokens, ou 8,6 milhões de tokens. A conta dá
-6 × 787.584 × 8,6 milhões ≈ 4 × 10¹³ operações. O GPT-3, de 2020, tem 175 bilhões de pesos e leu
+Exemplo com o seu modelo. São 787.584 pesos e uns 6.300 passos de
+4.096 tokens, ou 26 milhões de tokens. A conta dá
+6 × 787.584 × 26 milhões ≈ 1 × 10¹⁴ operações. O GPT-3, de 2020, tem 175 bilhões de pesos e leu
 300 bilhões de tokens: 6 × 175 bilhões × 300 bilhões ≈ 3 × 10²³. Bilhões
 de vezes mais.
 
@@ -2273,7 +2280,7 @@ que qualquer ajuste de temperatura, e é de graça.
 - **Quiz de cada microaula:** no fim desta página, 5 perguntas depois de cada explicação, antes do exercício.
 - **Travou num exercício?** Colas dos exercícios, com dicas que você abre uma de cada vez.
 - Slides desta aula: entregues em sala.
-- O seu modelo: o `meu_llm.pt` que você baixou na Aula 11. O do professor: `mini_llm.pt`
+- O seu modelo: o `meu_llm.weights.h5` que você baixou na Aula 11. O do professor: `mini_llm.weights.h5`
 - O texto do ajuste fino: `curso.txt`
 
 Os três exercícios do notebook:
@@ -2321,15 +2328,17 @@ Procure a última linha do erro nesta lista:
   nome está escrito diferente.
 - `NameError: name '____' is not defined`: sobrou uma lacuna sem
   preencher.
-- `mat1 and mat2 shapes cannot be multiplied`: um `nn.Linear` recebeu um
-  vetor do tamanho errado. Confira os dois números da camada.
-- `The size of tensor a must match the size of tensor b`: você somou ou
-  multiplicou dois tensores de formatos diferentes.
-- `index out of range`: o índice passou do fim da lista ou do tensor.
-- `'Tensor' object is not callable`: faltou o `self.` antes do nome da
-  camada, ou você usou parênteses onde iam colchetes.
+- `... is incompatible with the layer: expected axis -1 ...`: uma camada
+  `Dense` recebeu um vetor do tamanho errado. Confira os números das
+  camadas.
+- `Incompatible shapes` ou `operands could not be broadcast together`:
+  você somou ou multiplicou dois arrays de formatos diferentes.
+- `index ... is out of bounds`: o índice passou do fim da lista ou do
+  array.
+- `object is not callable`: faltou o `self.` antes do nome da camada, ou
+  você usou parênteses onde iam colchetes.
 - **A célula roda para sempre**: se é treino, espere. Se não for, aperte o
-  ■ e confira o laço.
+  ■ e confira o loop.
 - **"Your session crashed after using all available RAM"**: rode de novo a
   partir da preparação, sem carregar o corpus duas vezes.
 
@@ -2377,7 +2386,7 @@ O BPE no computador: contar pares, fundir o mais comum, repetir.
 
 Dica 1: a ideia
 
-Cada vez que o laço encontra um par, a contagem desse par aumenta em uma
+Cada vez que o loop encontra um par, a contagem desse par aumenta em uma
 unidade.
 
 Resposta
@@ -2417,7 +2426,7 @@ A frase já está guardada na variável `frase`:
 
 Resposta
 
-O laço entrega cada número na variável `numero`:
+O loop entrega cada número na variável `numero`:
 
 **3.c E de volta**
 
@@ -2480,7 +2489,7 @@ Resposta
 
 Exercício 10.2
 
-O primeiro modelo em PyTorch, e o laço de treino.
+O primeiro modelo em Keras, e o treino com `fit`.
 
 **2.a Montar o modelo**
 
@@ -2497,17 +2506,12 @@ Resposta
 
 O chute ao acaso entre 1.024 tokens tem perda `ln(1024)`:
 
-**2.c O laço de treino**
+**2.c O treino**
 
 Dica 1: a ideia
 
-O modelo só calcula a perda se souber a resposta certa, então ele recebe a
-entrada e o alvo. O gradiente sai da perda, andando "para trás".
-
-Dica 2: no código
-
-"Para trás", em inglês, é *backward*. É um método da perda, então leva
-parênteses.
+O modelo só mede a perda se souber a resposta certa. Por isso o gerador
+entrega um par a cada passo: a entrada e o que o modelo devia prever.
 
 Resposta
 
@@ -2515,7 +2519,7 @@ Exercício 10.3
 
 A conta da atenção à mão, e uma cabeça de atenção com máscara.
 
-**3.a Parecença**
+**3.a Similaridade**
 
 Dica 1: a ideia
 
@@ -2565,9 +2569,8 @@ Resposta
 **O teste da cola, no fim do 3.e**
 
 Se apareceu "as posições anteriores mudaram", a máscara não está agindo.
-Confira se a linha do `masked_fill` guarda o resultado de volta em
-`pontos` (o `masked_fill` não altera o tensor original: ele devolve um
-novo).
+Confira se a linha do `ops.where` guarda o resultado de volta em `pontos`
+(o `ops.where` não altera o tensor original: ele devolve um novo).
 
 ### Colas dos Exercícios > Aula 11 — O Transformer e o Treino
 Exercício 11.1
@@ -2610,7 +2613,7 @@ Resposta
 
 Exercício 11.2
 
-O modelo inteiro, o laço de treino e o treino de 35 minutos.
+O modelo inteiro, o loop de treino e o treino de 35 minutos.
 
 **2.a Montar o MiniLLM**
 
@@ -2634,25 +2637,26 @@ Rode a preparação de novo.
 
 Resposta
 
-A perplexidade é a exponencial da perda. O `.item()` tira o número de
-dentro do tensor:
+A perplexidade é a exponencial da perda, que o `evaluate` já devolve como
+um número:
 
 **2.c A função de treino**
 
 Dica 1: a ideia
 
-São as três linhas do laço da Aula 10: o modelo recebe a entrada e o
-alvo, a perda calcula o gradiente, o otimizador dá o passo.
+Duas lacunas. A validação é medida em lotes do texto guardado para isso,
+que o modelo nunca vê no treino. E o "melhor" modelo é o de menor perda
+na validação, que o Keras chama de `val_loss`.
 
 Resposta
 
 **2.d O treino de verdade**
 
 Não há lacuna. Se a célula terminou em menos de 35 minutos sem você
-apertar nada, olhe a última linha: um erro ali quer dizer que o laço tem um
+apertar nada, olhe a última linha: um erro ali quer dizer que o loop tem um
 problema, e o teste de 1 minuto do passo 2.c devia ter mostrado. Se o
-Colab desconectou no meio, o `meu_llm.pt` guarda o melhor modelo até a
-última conferência.
+Colab desconectou no meio, o `meu_llm.weights.h5` guarda o melhor modelo
+até a última conferência.
 
 Exercício 11.3
 
@@ -2662,7 +2666,7 @@ O modelo treinado, escrevendo.
 
 Resposta
 
-O treino salvou o arquivo com o nome `meu_llm.pt`:
+O treino salvou o arquivo com o nome `meu_llm.weights.h5`:
 
 **3.c O que o modelo devolve**
 
@@ -2687,7 +2691,7 @@ Resposta
 
 Se o download não começou, o navegador pode ter bloqueado: procure um
 aviso na barra de endereço e permita. Outro caminho: no menu da esquerda
-do Colab, clique no ícone de pasta, ache o `meu_llm.pt`, clique nos três
+do Colab, clique no ícone de pasta, ache o `meu_llm.weights.h5`, clique nos três
 pontos e escolha **Fazer download**.
 
 ### Colas dos Exercícios > Aula 12 — Geração e Limites
@@ -2698,14 +2702,14 @@ Temperatura e top-k.
 **Preparação: carregar o modelo**
 
 Se a janela de envio não abriu, rode a célula de novo. Se você não tem o
-`meu_llm.pt`, clique em Cancelar: o notebook carrega o modelo do
+`meu_llm.weights.h5`, clique em Cancelar: o notebook carrega o modelo do
 professor, que tem o mesmo formato, e todos os exercícios funcionam igual.
 
 **1.a A temperatura**
 
 Resposta
 
-O laço já entrega cada temperatura na variável `temperatura`:
+O loop já entrega cada temperatura na variável `temperatura`:
 
 **1.b O top-k**
 
@@ -2741,7 +2745,7 @@ Resposta
 
 Dica 1: a ideia
 
-É o laço da Aula 11. A única diferença é de onde vêm os lotes: do texto
+É o loop da Aula 11. A única diferença é de onde vêm os lotes: do texto
 novo, e não de Machado.
 
 Resposta
@@ -2776,7 +2780,7 @@ ao **mesmo** modelo:
 | Aula | Os três exercícios |
 |---|---|
 | 9 | o modelo de contagem, o BPE, codificar e decodificar |
-| 10 | o lote de treino, o primeiro modelo em PyTorch, a atenção com máscara |
+| 10 | o lote de treino, o primeiro modelo em Keras, a atenção com máscara |
 | 11 | posição e o bloco, o modelo inteiro e o treino de 35 minutos, gerar texto |
 | 12 | temperatura e top-k, o ajuste fino, a melhor de cinco |
 
@@ -2808,7 +2812,7 @@ para muito além de LLM:
 | Aula | Conteúdo | Status |
 |---|---|---|
 | Aula 9 — Do Texto aos Números | O que um LLM faz, o modelo de contagem e o tokenizador BPE | Disponível |
-| Aula 10 — Atenção | O lote de treino, o primeiro modelo em PyTorch, e como ele decide para onde olhar | Disponível |
+| Aula 10 — Atenção | O lote de treino, o primeiro modelo em Keras, e como ele decide para onde olhar | Disponível |
 | Aula 11 — O Transformer e o Treino | A posição, o modelo inteiro, o treino no processador, e o primeiro texto | Disponível |
 | Aula 12 — Geração e Limites | Os botões da geração, o ajuste fino, e o que o modelo não sabe fazer | Disponível |
 | Colas dos Exercícios | Dicas para cada passo dos 12 exercícios | Disponível |
@@ -4348,7 +4352,7 @@ vez de slides.
 | Sistemas de ML | Ajustar um classificador com validação cruzada e Optuna e usá-lo num painel |
 | Séries Temporais | Prever o futuro de algo que muda com o tempo |
 | Redes Neurais | Como uma rede neural aprende, do neurônio à imagem |
-| LLM do Zero | Construir um modelo de linguagem, peça por peça, em PyTorch |
+| LLM do Zero | Construir um modelo de linguagem, peça por peça, em Keras |
 | IA Generativa | Usar um modelo pronto, e construir uma aplicação em cima dele |
 
 Todo termo técnico novo entra no Glossário, que cresce ao

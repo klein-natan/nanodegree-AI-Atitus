@@ -272,7 +272,7 @@ uv run python data/scripts/treinar_tokenizador.py
 | | |
 |---|---|
 | **Origem** | Gerado por [`scripts/treinar_mini_llm.py`](scripts/treinar_mini_llm.py) |
-| **Usado em** | Módulo LLM do Zero: figuras das Aulas 10 a 12, e a Aula 12 de quem perdeu o próprio modelo |
+| **Usado em** | Módulo LLM do Zero: figuras e animações das Aulas 9 a 12, e a origem do `mini_llm.weights.h5` |
 | **Conteúdo** | Os 787.584 pesos do modelo (só o `state_dict`), no melhor ponto da validação |
 
 O modelo de referência das aulas de LLM: 6.000 passos, taxa 1e-3, melhor
@@ -280,12 +280,14 @@ validação 3,325 no passo 5.250 (perplexidade 27,8). Uns 50 minutos em 6
 linhas de execução.
 
 Na Aula 11 cada aluno treina o próprio modelo por 35 minutos e baixa o
-`meu_llm.pt`. Este arquivo tem **exatamente o mesmo formato**: as classes
-de [`scripts/mini_llm.py`](scripts/mini_llm.py) têm os mesmos nomes de
-atributos que os alunos escrevem nos notebooks (`pergunta`, `etiqueta`,
-`conteudo`, `cabecas`, `blocos`...). Por isso a Aula 12 carrega um ou outro
-na mesma classe. Se mudar um nome em `mini_llm.py`, mude nos notebooks e
-retreine.
+`meu_llm.weights.h5`, em Keras. Este arquivo, em PyTorch, é a referência
+das figuras e das animações; a versão em Keras que a Aula 12 carrega é o
+`mini_llm.weights.h5`, logo abaixo. As classes de
+[`scripts/mini_llm.py`](scripts/mini_llm.py) e de
+[`scripts/mini_llm_keras.py`](scripts/mini_llm_keras.py) têm os mesmos
+nomes de atributos que os alunos escrevem nos notebooks (`pergunta`,
+`etiqueta`, `conteudo`, `cabecas`, `blocos`...). Se mudar um nome, mude
+nos notebooks e converta de novo.
 
 O histórico do treino (perda de treino e de validação a cada 250 passos, e
 o melhor passo) fica em `mini_llm_historico.json`, que a figura da curva
@@ -293,6 +295,25 @@ de treino da Aula 11 usa.
 
 ```bash
 uv run python data/scripts/treinar_mini_llm.py
+```
+
+## mini_llm.weights.h5
+
+| | |
+|---|---|
+| **Origem** | Gerado por [`scripts/mini_llm_keras.py`](scripts/mini_llm_keras.py), a partir do `mini_llm.pt` |
+| **Usado em** | Aula 12, para quem não tem o próprio `meu_llm.weights.h5` |
+| **Conteúdo** | Os mesmos 787.584 pesos do `mini_llm.pt`, no formato do Keras |
+
+Os notebooks das Aulas 9 a 12 são em Keras. Este arquivo é o modelo de
+referência em PyTorch com os pesos copiados para a classe em Keras de
+`mini_llm_keras.py`, que tem a mesma conta e os mesmos nomes de atributos
+dos notebooks. Os logits dos dois batem (diferença máxima de 0,0002 nas
+chances), então os números das figuras e das animações, feitas com o
+`mini_llm.pt`, valem para ele. O script converte e confere:
+
+```bash
+uv run python data/scripts/mini_llm_keras.py
 ```
 
 ## curso.txt

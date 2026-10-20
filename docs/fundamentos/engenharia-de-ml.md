@@ -96,7 +96,7 @@ Um programa comum você escreve uma vez, e ele executa a tarefa fixa. Um
 sistema de ML se parece mais com uma planta: precisa de cuidado contínuo,
 adaptação ao ambiente e alimentação constante com dados novos.
 
-O ciclo não é uma linha reta que acaba na entrega. É um laço, e uma
+O ciclo não é uma linha reta que acaba na entrega. É um loop, e uma
 descoberta na etapa 3 costuma mandar você de volta para a etapa 2.
 
 <figure><img src="../assets/fundamentos/Gemini_Generated_Image_opoetpopoetpopoe (2).png" alt="Diagrama circular das quatro etapas do ciclo de vida de um projeto de machine learning"><figcaption>Quatro etapas, e uma seta que volta. O monitoramento reinicia o ciclo.</figcaption></figure>
@@ -169,7 +169,7 @@ de fazer, ele já está quebrado. Intervenção manual é lenta e erra.
 | Entrega contínua (CD) | publica sozinho os modelos aprovados |
 | Treinamento contínuo (CT) | retreina quando chegam dados novos ou o desempenho cai |
 
-O terceiro é o que não existe em software comum, e é o que fecha o laço do
+O terceiro é o que não existe em software comum, e é o que fecha o loop do
 ciclo de vida.
 
 {% hint style="info" %}

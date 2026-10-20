@@ -118,9 +118,9 @@ nesta página do que voltar a reler uma aula inteira.
 | BPE (*byte pair encoding*) | Treinar o tokenizador juntando repetidas vezes o par de peças mais comum |
 | Vocabulário | Quantos tokens diferentes existem na tabela do tokenizador |
 | Janela de contexto | Quantos tokens o modelo consegue enxergar de uma vez |
-| Embutimento (*embedding*) | A tabela que troca cada token por um vetor de números: o id do token é só o endereço da linha |
+| Embedding | A tabela que troca cada token por um vetor de números: o id do token é só o endereço da linha |
 | Atenção | O mecanismo em que cada posição escolhe para onde olhar, com pesos aprendidos |
-| Produto escalar | Multiplicar casa com casa e somar: a medida de parecença entre dois vetores |
+| Produto escalar | Multiplicar casa com casa e somar: a medida de similaridade entre dois vetores |
 | Máscara causal | Zera, antes da softmax, tudo o que aponta para o futuro |
 | Cabeça de atenção | Uma atenção independente; o modelo roda várias em paralelo |
 | RoPE | Codifica a posição girando o vetor por um ângulo proporcional a ela |
@@ -146,7 +146,7 @@ nesta página do que voltar a reler uma aula inteira.
 | Few-shot | Colocar dois ou três exemplos resolvidos dentro do próprio prompt |
 | RAG | Buscar trechos do seu documento e colá-los no prompt antes de perguntar |
 | Pedaço (*chunk*) | Um trecho do documento, do tamanho de uma seção |
-| Embutimento de frase | O vetor de um texto inteiro: a média dos vetores dos tokens |
+| Embedding de frase | O vetor de um texto inteiro: a média dos vetores dos tokens |
 | Similaridade do cosseno | O produto escalar de dois vetores de tamanho 1 |
 | Base vetorial | Banco de dados que acha vizinhos rápido, para milhões de pedaços |
 | Prompt aumentado | O prompt com os trechos buscados colados dentro |
@@ -157,8 +157,8 @@ nesta página do que voltar a reler uma aula inteira.
 | Gradiente que desaparece | O encolhimento do gradiente conforme ele volta pelas camadas. Sem atalho, a primeira camada quase não aprende |
 | Escalar no momento de responder | Melhorar a resposta gastando mais tokens na hora de responder (raciocínio, votação, revisão), sem treinar nada |
 | Modelo de contagem (bigramas) | O modelo de linguagem mais simples: conta, no corpus, o que veio depois de cada símbolo, e sorteia com essas chances |
-| Tensor | A lista de números do PyTorch: faz conta rápido, calcula gradientes e sabe o próprio formato (`shape`) |
+| Tensor | A lista de números do Keras (e do TensorFlow, por baixo): faz conta rápido, calcula gradientes e sabe o próprio formato (`shape`) |
 | Conjunto de validação | O pedaço do corpus que o modelo nunca vê no treino; a perda nele diz se o modelo aprendeu ou decorou |
-| Pesos amarrados | Usar a mesma tabela no embutimento da entrada e na cabeça da saída |
+| Pesos amarrados | Usar a mesma tabela no embedding da entrada e na cabeça da saída |
 | Aquecimento e resfriamento | Começar o treino com passos pequenos, crescer, e diminuir de novo até o fim |
 | Ajuste fino (*fine-tuning*) | Continuar o treino de um modelo pronto com outro texto, para mudar o que ele escreve |
