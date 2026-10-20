@@ -57,7 +57,7 @@ O primeiro passo é prático. Você não coloca o documento inteiro no prompt:
 não cabe na janela de contexto, e mesmo se coubesse, encheria de texto
 irrelevante.
 
-<figure><img src="../assets/aula-13/pedacos.png" alt="Histograma dos 187 pedaços do curso, com mediana de 763 caracteres, ao lado de um exemplo de trecho"><figcaption>Uma seção por pedaço; o título acompanha o texto na busca.</figcaption></figure>
+<figure><img src="../assets/aula-13/pedacos.png" alt="Histograma dos 244 pedaços do curso, com mediana de 737 caracteres, ao lado de um exemplo de trecho"><figcaption>Uma seção por pedaço; o título acompanha o texto na busca.</figcaption></figure>
 
 O tamanho do pedaço é a primeira decisão do projeto, e ela tem um
 compromisso claro:
@@ -68,8 +68,8 @@ compromisso claro:
 | Pequeno demais | a frase perde o contexto e vira ambígua |
 | Do tamanho de uma seção | costuma funcionar, e é o que usamos aqui |
 
-Aqui foram 187 pedaços, um por seção das páginas do curso, com mediana de
-763 caracteres.
+Aqui foram 244 pedaços, um por seção das páginas do curso, com mediana de
+737 caracteres.
 
 ## Transformar texto em vetor
 
@@ -104,7 +104,7 @@ Esse número tem nome: **similaridade do cosseno**. Com vetores de tamanho
 
 ## A busca
 
-Com todos os 187 pedaços virados em vetor, buscar é uma multiplicação de
+Com todos os 244 pedaços virados em vetor, buscar é uma multiplicação de
 matriz e uma ordenação:
 
 ```python
@@ -117,7 +117,7 @@ melhores = np.argsort(notas)[::-1][:3]     # os três maiores
 
 Num projeto grande, com milhões de pedaços, essa multiplicação vira lenta
 e você guarda os vetores numa **base vetorial**, que é um banco de dados
-especializado em achar vizinhos rápido. Com 187 pedaços, uma matriz
+especializado em achar vizinhos rápido. Com 244 pedaços, uma matriz
 resolve.
 
 {% hint style="info" %}
@@ -147,7 +147,7 @@ Três detalhes que fazem diferença, e todos vieram de tentar:
 | Cortar em 900 caracteres | prompt curto é mais rápido e o modelo se perde menos |
 | "Responda em uma frase curta" | sem isso, um modelo pequeno divaga |
 
-<figure><img src="../assets/aula-13/antes_depois.png" alt="Duas caixas com a resposta à pergunta sobre a máscara causal: sem RAG ele fala de manipulação digital, com RAG ele dá a definição certa"><figcaption>Mesmo modelo, mesmos pesos. A diferença inteira está no texto que entrou antes.</figcaption></figure>
+<figure><img src="../assets/aula-13/antes_depois.png" alt="Duas caixas com a resposta à pergunta sobre a máscara causal: sem RAG ele fala de manipulação digital, com RAG ele fala do menos infinito que vira zero"><figcaption>Mesmo modelo, mesmos pesos. A diferença inteira está no texto que entrou antes.</figcaption></figure>
 
 ## Medir, que é a parte que ninguém faz
 
@@ -157,23 +157,27 @@ Aqui são seis, todas sobre aulas que você já assistiu:
 
 <figure><img src="../assets/aula-13/avaliacao.png" alt="Seis perguntas sobre o curso, cada uma com a resposta sem RAG em cinza e com RAG em vermelho"><figcaption>Seis perguntas, dois modos. Em cinza o modelo sozinho, em vermelho o mesmo modelo com os trechos.</figcaption></figure>
 
-O placar honesto: **quatro certas, uma parcial, uma errada**.
+O placar honesto: **duas certas, duas parciais, duas erradas**.
 
 | Pergunta | Sem RAG | Com RAG |
 |---|---|---|
-| Máscara causal | "manipulação digital" | certo |
-| BPE | "Bilingual Processing Engine" | certo |
-| Perplexidade da Aula 11 | divagou | **errado**: pegou o 1.024 do chute ao acaso, e não a perplexidade do treino |
+| Máscara causal | "manipulação digital" | **parcial**: falou do menos infinito que vira zero, a ideia certa, numa frase torta |
+| BPE | "Bilingual Processing Engine" | **errado**: "Bottleneck Processing Engine" |
+| Perplexidade do modelo do professor | divagou | **errado**: pegou o 1.024 do chute ao acaso, e não os 29,5 do modelo treinado |
 | Categorias do Fashion-MNIST | certo | certo |
-| Pooling | genérico | quase: inventou "ajudando a prever melhor as categorias" |
+| Pooling | genérico | **parcial**: "reduzir a quantidade de dados", sem dizer que guarda o maior de cada quadrado |
 | Pesos do modelo do curso | "Alibaba Cloud Language Model" | certo |
 
 Duas leituras importam.
 
-**A primeira**: onde ele errou a perplexidade, a busca tinha trazido o
-trecho certo. O trecho tem uma tabela com várias linhas, e o modelo pegou
-a linha errada. **O problema não foi buscar, foi ler.** Um modelo maior
-resolveria; um prompt melhor talvez.
+**A primeira**: as duas erradas erraram por motivos diferentes, e isso
+muda o conserto. Na sigla BPE, **o problema foi buscar**: os três trechos
+que vieram citam o BPE de passagem, e nenhum é a seção que diz o que a
+sigla quer dizer. Pedaços menores ou uma busca que também olha a palavra
+exata resolveriam. Na perplexidade, a busca trouxe a seção certa, que fala
+do chute ao acaso (1.024) antes de dar o número do modelo (29,5), e o
+modelo pegou o primeiro número. **O problema não foi buscar, foi ler.** Um
+modelo maior resolveria; um prompt melhor talvez.
 
 **A segunda**: na pergunta do Fashion-MNIST, ele já sabia. RAG não é
 sempre necessário. Ele é necessário quando o assunto é seu, e não do

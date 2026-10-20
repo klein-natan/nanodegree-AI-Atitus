@@ -23,9 +23,7 @@ perplexidade 1.024. Com os pesos do professor, o mesmo modelo escrevia
 português. Esta aula faz a ponte entre os dois: o treino. Depois, usa o
 modelo treinado para gerar texto e mostra o que ele não sabe fazer.
 
-## O treino
-
-### O ciclo
+## O ciclo de treino
 
 Treinar é repetir um ciclo de cinco passos: sortear um lote, passar pelo
 modelo, medir a perda, calcular o gradiente (para que lado mexer cada peso
@@ -54,7 +52,7 @@ O `from_logits=True` avisa que o modelo devolve pontuações cruas; a
 softmax fica por conta da perda. O resto são quatro escolhas que todo
 treino de modelo de linguagem faz.
 
-### 1. O otimizador: AdamW
+## Escolha 1: o otimizador AdamW
 
 O **AdamW** é o gradiente descendente com duas melhorias. Ele guarda uma
 média dos gradientes recentes, o que suaviza o caminho, e dá passos
@@ -62,7 +60,7 @@ maiores nas direções em que o gradiente é pequeno mas constante. O "W" é
 um empurrão leve de todos os pesos em direção ao zero (*weight decay*),
 que ajuda o modelo a não decorar.
 
-### 2. O corte do gradiente
+## Escolha 2: cortar o gradiente
 
 De vez em quando um lote sai muito fora do normal, e o gradiente fica
 enorme. Um passo desses joga os pesos para longe e estraga o que já foi
@@ -71,7 +69,7 @@ se ele passar de 1, todos os números são divididos pelo mesmo fator. A
 direção do passo não muda, só o tamanho. Exemplo: um gradiente de tamanho
 5 é dividido por 5, e o passo sai cinco vezes menor, na mesma direção.
 
-### 3. O tamanho do passo segue o relógio
+## Escolha 3: o tamanho do passo segue o relógio
 
 <figure><img src="../assets/aula-11/taxa.png" alt="Curva do tamanho do passo ao longo de 35 minutos: sobe em linha reta no primeiro minuto e depois desce suavemente como um cosseno até um décimo do máximo"><figcaption>Aquecimento e resfriamento. É o padrão em qualquer treino de modelo de linguagem.</figcaption></figure>
 
@@ -87,7 +85,7 @@ o `fit` chama a cada passo. Ele ajusta a taxa pela fração do tempo que já
 passou e para o treino quando o tempo acaba. Assim o treino termina na
 hora certa em qualquer Colab, rápido ou lento.
 
-### 4. Conferir e salvar o melhor
+## Escolha 4: conferir e salvar o melhor
 
 A cada 200 passos, o `fit` mede a perda em lotes de validação (o
 `val_loss`), e o `ModelCheckpoint` salva o modelo em
@@ -95,12 +93,14 @@ A cada 200 passos, o `fit` mede a perda em lotes de validação (o
 cair no meio, o melhor modelo já está salvo; e o arquivo guarda o modelo
 que melhor generaliza, e não o último.
 
-### O treino de verdade
+## O treino de verdade
 
 Quantos passos cabem em 35 minutos depende da máquina: um Colab rápido dá
-mais passos, um lento dá menos, e os dois terminam na hora. O modelo de
-referência, treinado por 60 minutos num processador maior (9.695 passos),
-mostra a curva inteira:
+mais passos, um lento dá menos, e os dois terminam na hora. No teste deste
+curso, com duas linhas de execução (as mesmas do Colab gratuito) e o
+processador dividido com outro programa, foram uns 4.400 passos e perda
+de validação 3,52, perplexidade 34. O modelo de referência, treinado por
+60 minutos num processador maior (9.695 passos), mostra a curva inteira:
 
 <figure><img src="../assets/aula-11/curva_treino.png" alt="Dois gráficos: à esquerda a perda de treino e validação caindo de 6,9 até perto de 3, à direita a mesma curva em perplexidade, com uma linha marcando os 1.024 do chute ao acaso"><figcaption>A queda grande acontece nos primeiros mil passos. Depois, cada ponto a menos custa mais.</figcaption></figure>
 
@@ -118,7 +118,7 @@ gramaticais. No fim, ele escreve com a grafia de 1899, porque foi isso que
 leu. A ordem é sempre a mesma: primeiro a forma, depois as palavras, e o
 sentido por último.
 
-### Quanto custa treinar
+## Quanto custa treinar
 
 Existe uma regra de bolso que bate bem com a realidade. Cada token que o
 modelo lê no treino custa umas seis contas por peso: duas para ir e
@@ -147,9 +147,7 @@ juntas, tudo bem. Quando a de validação para ou sobe, o que vem depois é
 decoreba. É por isso que o treino salva pela validação.
 {% endhint %}
 
-## Do número à palavra
-
-### O modelo não devolve uma palavra
+## O modelo não devolve uma palavra
 
 Dê ao modelo treinado o começo "Não sei se a senhora" e olhe o que ele
 produz para a última posição:
@@ -163,7 +161,7 @@ Escolher **qual** desses 1.024 vai para a tela é um problema separado,
 que nada tem a ver com o treino. Ele tem nome: **amostragem**
 (*sampling*).
 
-### Gerar é repetir um passo
+## Gerar é repetir um passo
 
 O modelo devolve uma previsão para cada posição do texto. Para gerar, só
 interessa a da **última** posição: é ela que viu o texto inteiro. O resto
@@ -185,7 +183,7 @@ continuar, com coerência, a partir do erro.
 
 <figure><video src="../assets/aula-11/geracao.mp4" poster="../assets/aula-11/geracao.jpg" controls preload="none" playsinline aria-label="Animação da geração de texto, um token sorteado de cada vez"></video><figcaption>Oito passos reais do modelo, sorteando com temperatura 0,8 e top-k 40.</figcaption></figure>
 
-### Duas escolhas ruins
+## Duas escolhas ruins
 
 **Sempre o mais provável.** Chama-se decodificação gulosa (*greedy*). É
 determinística e parece segura, e o texto entra em loop, repetindo a
@@ -200,7 +198,7 @@ ele mesmo considera ruim.
 
 A saída é ficar no meio, com dois botões.
 
-### Botão 1: a temperatura
+## Botão 1: a temperatura
 
 Antes do sorteio, divida todas as pontuações por `T`:
 
@@ -232,7 +230,7 @@ A temperatura não muda a ordem dos candidatos, só a distância entre eles.
 | 0,7 a 0,9 | o padrão da maioria das ferramentas |
 | acima de 1,2 | o modelo passa a considerar tokens que ele mesmo acha improváveis |
 
-### Botão 2: cortar a cauda
+## Botão 2: cortar a cauda
 
 A temperatura reescala tudo, inclusive o lixo. O **top-k** elimina
 candidatos antes do sorteio: fique com os `k` mais prováveis e esqueça o
@@ -258,7 +256,7 @@ No primeiro caso o modelo está em dúvida, e o top-p deixa muita opção. No
 segundo, só existe uma continuação razoável ("Quincas Borba"), e o top-p
 deixa só ela.
 
-### Os quatro textos
+## Os quatro textos
 
 Mesmo modelo, mesmo início, quatro jeitos de escolher:
 
@@ -279,9 +277,7 @@ improvável, e a partir dali o texto tem que se justificar sozinho. Se você
 quer outra resposta, mude o começo, não a temperatura.
 {% endhint %}
 
-## Ajuste fino e limites
-
-### Ele copia ou inventa?
+## Ele copia ou inventa?
 
 É a pergunta que a turma sempre faz, e dá para medir. Gere um texto com o
 modelo e procure, para cada palavra, o maior trecho a partir dela que
@@ -294,7 +290,7 @@ em 809.728 números. Reconstruir uma frase inteira de Machado a partir
 disso é impossível, e produzir uma frase nova que soa como Machado é
 exatamente o que ele faz.
 
-### Por que o modelo alucina
+## Por que o modelo alucina
 
 O nosso modelo escreve frases confiantes sobre coisas que nunca
 existiram, e não há nada de errado com ele. Ele está fazendo exatamente o
@@ -313,7 +309,7 @@ para o modelo: as duas são sequências prováveis. A Aula 13 mostra o
 remédio mais usado: dar ao modelo um lugar para consultar, colando trechos
 de um documento no começo do texto.
 
-### O modelo é o corpus
+## O modelo é o corpus
 
 O nosso escreve "elle", "cousa", "mettia", "pharmacia". Ele escreve a
 grafia de 1899 porque leu 3,7 milhões de caracteres de 1899, e nada mais.
@@ -322,7 +318,7 @@ textos que carregam um preconceito reproduz esse preconceito, com a mesma
 fluência com que reproduz a gramática. Não existe modelo neutro. Existe
 corpus.
 
-### Ajuste fino: o mesmo treino, outro texto
+## Ajuste fino: o mesmo treino, outro texto
 
 Dá para provar isso em dois minutos. Pegue uma cópia do modelo pronto e
 continue o treino por 200 passos, com outro texto: as páginas deste
@@ -356,7 +352,7 @@ um modelo de uso geral vira um modelo de uma área: jurídico, médico, de
 atendimento. E é assim, também, que um modelo que continua texto vira um
 assistente.
 
-### O que muda quando o modelo é grande
+## O que muda quando o modelo é grande
 
 <figure><img src="../assets/aula-11/escala.png" alt="Dois gráficos de barras em escala logarítmica, para o nosso modelo, o GPT-3, o Llama 3 8B e o Llama 3 405B: à esquerda os pesos, à direita os tokens de treino"><figcaption>Os números são os publicados pelos autores de cada modelo.</figcaption></figure>
 
@@ -373,7 +369,7 @@ dinheiro. Repare também no Llama 3 8B, de 2024: vinte vezes menor que o
 GPT-3 e com cinquenta vezes mais texto. Nos últimos anos, a alavanca
 principal passou a ser o texto, e não o tamanho.
 
-### Do modelo ao assistente
+## Do modelo ao assistente
 
 O nosso modelo continua texto. Ele não responde perguntas, e isso não é
 questão de tamanho: é questão de treino. Entre ele e um assistente existem

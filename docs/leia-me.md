@@ -37,9 +37,9 @@ clientes e confere. Se um número aparece aqui, existe um script no
 repositório que o produz.
 
 **Toda afirmação do tipo "isto ajuda" vem com a medida.** É fácil escrever
-que a máscara causal impede o modelo de olhar o futuro. O notebook da
-Aula 10 troca a última palavra da frase e confere que nada antes dela
-mudou.
+que um modelo de linguagem aprende sozinho quais palavras fazem o mesmo
+papel. A Aula 10 abre o modelo treinado e mostra: o vizinho mais próximo
+de "elle" é "ella", com similaridade 0,71.
 
 **O que não funcionou continua escrito.** A Aula 3 termina mostrando que,
 naquele problema, ligar para todos os clientes custa quase o mesmo que usar

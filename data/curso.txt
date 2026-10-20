@@ -757,9 +757,9 @@ clientes e confere. Se um número aparece aqui, existe um script no
 repositório que o produz.
 
 **Toda afirmação do tipo "isto ajuda" vem com a medida.** É fácil escrever
-que a máscara causal impede o modelo de olhar o futuro. O notebook da
-Aula 10 troca a última palavra da frase e confere que nada antes dela
-mudou.
+que um modelo de linguagem aprende sozinho quais palavras fazem o mesmo
+papel. A Aula 10 abre o modelo treinado e mostra: o vizinho mais próximo
+de "elle" é "ella", com similaridade 0,71.
 
 **O que não funcionou continua escrito.** A Aula 3 termina mostrando que,
 naquele problema, ligar para todos os clientes custa quase o mesmo que usar
@@ -1139,21 +1139,19 @@ São 131.072 pesos, que o treino ajusta como quaisquer outros. Um lote de
 32 janelas de 128 tokens entra com formato `[32, 128]` e sai com formato
 `[32, 128, 128]`: cada token virou um vetor.
 
-O que esses números querem dizer
-
+### Aula 10 — Como Funciona um LLM > O que esses números querem dizer
 No começo do treino, a tabela é sorteada, e os vetores não significam
 nada. O treino mexe em cada número dela para a previsão melhorar. No fim,
 tokens que aparecem em lugares parecidos do texto acabam com vetores
 parecidos. Ninguém ensina gramática ao modelo: ele descobre sozinho que
 `·dous` e `·tres` fazem o mesmo papel, porque aparecem nos mesmos lugares.
 
-Os 128 números não cabem num desenho, então a figura espreme os 128 em
+Os 128 números não cabem num desenho, então a animação espreme os 128 em
 3, com a mesma PCA da Aula 3. Alguma coisa se perde no aperto, e mesmo
 assim os grupos aparecem: números com números, pessoas com pessoas,
 verbos com verbos, partes do corpo com partes do corpo.
 
-Parecido quer dizer apontar para o mesmo lado
-
+### Aula 10 — Como Funciona um LLM > Parecido quer dizer apontar para o mesmo lado
 Para medir se dois vetores são parecidos, o modelo olha se eles apontam
 para o mesmo lado. A medida se chama **similaridade do cosseno**:
 
@@ -1204,8 +1202,7 @@ Os primeiros 90% dos tokens são para treinar. Os últimos 10% ficam
 guardados, e o modelo nunca treina neles: é o conjunto de validação, que
 diz se o modelo aprendeu português ou decorou o livro.
 
-A perda
-
+### Aula 10 — Como Funciona um LLM > A perda
 Para cada previsão, a perda olha a chance que o modelo deu ao token que de
 fato veio. É a mesma entropia cruzada das Aulas 3 e 8, e o Keras calcula
 por você:
@@ -1225,9 +1222,7 @@ Os logaritmos, com o sinal trocado, são 0,69, 1,39 e 2,30. A média é
 Um modelo que chuta igual entre 1.024 tokens dá 1/1024 a cada um, e a
 perda dele é `ln(1024) = 6,93`. É dali que todo treino começa.
 
-### Aula 10 — Como Funciona um LLM > A atenção
-O problema
-
+### Aula 10 — Como Funciona um LLM > A atenção: o problema
 Leia esta frase e complete a última palavra:
 
 Você completou sem esforço, porque leu a frase inteira e reteve as quatro
@@ -1239,8 +1234,7 @@ A resposta é deixar cada posição **escolher** para onde olhar, com pesos
 que o treino ajusta. Isso se chama **atenção** (*attention*), e é a única
 peça de um transformer em que uma posição vê as outras.
 
-Os três papéis
-
+### Aula 10 — Como Funciona um LLM > Os três papéis
 Cada token ganha três vetores, obtidos multiplicando o embedding dele por
 três tabelas de pesos:
 
@@ -1264,8 +1258,7 @@ embedding quer dizer "faz o mesmo papel". Um verbo não precisa procurar
 outros verbos: precisa procurar o **sujeito** dele. As tabelas deixam o
 treino decidir que tipo de relação cada pergunta procura.
 
-A conta
-
+### Aula 10 — Como Funciona um LLM > A conta
 $$\text{Atenção}(Q, K, V) = \text{softmax}\!\left(\frac{Q K^{\top}}{\sqrt{d}}\right) V$$
 
 | Símbolo | Significado |
@@ -1287,8 +1280,7 @@ maiores, e números grandes fazem a softmax virar tudo ou nada: a softmax
 de (0, 20, 10) é praticamente (0%, 100%, 0%). Com os pesos colados no zero
 e no um, o treino para de aprender.
 
-A máscara: não vale olhar a resposta
-
+### Aula 10 — Como Funciona um LLM > A máscara: não vale olhar a resposta
 Se cada posição olha todas as outras, a posição 3 olha a posição 4, que é
 justamente o token que ela deveria prever.
 
@@ -1306,8 +1298,7 @@ $$\text{softmax}(1,\; 2,\; -\infty) = (27\%,\; 73\%,\; 0\%)$$
 Exemplo: `e¹ = 2,72`, `e² = 7,39` e `e^(−∞) = 0`. A soma é 10,11.
 Divididos por ela: 27%, 73% e 0%. O futuro some da mistura.
 
-Quatro cabeças, quatro olhares
-
+### Aula 10 — Como Funciona um LLM > Quatro cabeças, quatro olhares
 Uma atenção só tem um jeito de perguntar. O modelo roda quatro em
 paralelo, cada uma com as suas três tabelas, e junta os resultados. Cada
 uma se chama **cabeça** (*head*). Como o vetor tem 128 números, cada
@@ -1328,8 +1319,7 @@ BPE com o artigo dela.
 
 Ninguém programou essa divisão de trabalho: ela sai do treino.
 
-A posição
-
+### Aula 10 — Como Funciona um LLM > A posição
 Falta uma coisa. Nada na conta da atenção diz **onde** cada token está:
 embaralhe a frase e cada token recebe a mesma mistura. "O gato mordeu o
 cachorro" e "o cachorro mordeu o gato" seriam a mesma coisa.
@@ -1342,8 +1332,7 @@ A tabela das posições também é aprendida no treino. Depois dela, `gato`
 na posição 2 e `gato` na posição 5 são vetores diferentes, e a atenção
 consegue saber quem veio antes de quem.
 
-O preço da janela
-
+### Aula 10 — Como Funciona um LLM > O preço da janela
 Para uma janela de `n` tokens, cada cabeça calcula `n × n` produtos.
 Dobrar a janela quadruplica a conta: são 16.384 produtos para os nossos
 128 tokens, 1 milhão para 1.000 tokens e 10 bilhões para 100.000. É por
@@ -1362,8 +1351,7 @@ Um **transformer** é um bloco repetido várias vezes. Cada bloco tem duas
 metades, e as duas seguem o mesmo desenho: normaliza, faz alguma coisa,
 soma de volta.
 
-As duas metades
-
+### Aula 10 — Como Funciona um LLM > As duas metades
 A **primeira metade é a atenção**: é onde as posições conversam entre si.
 
 A **segunda metade é uma camada densa**, como as da Aula 7, aplicada a cada
@@ -1378,8 +1366,7 @@ A ativação é a **GELU**, uma ReLU com a dobra arredondada: perto de zero,
 em vez de cortar seco, ela deixa passar um pouco. É a de quase todo
 modelo de linguagem desde o GPT-2.
 
-O atalho
-
+### Aula 10 — Como Funciona um LLM > O atalho
 Repare no `x +` das duas metades: é o **atalho** (conexão residual). A
 entrada atravessa o bloco por fora, e o bloco soma a ela o que calculou.
 Cada bloco não reescreve o vetor do token: ele **acrescenta** alguma coisa
@@ -1390,8 +1377,7 @@ o gradiente precisa atravessar todos os blocos para chegar ao primeiro, e
 vai encolhendo no caminho. Foi esse problema que travou as redes
 profundas por anos, até a ideia do atalho, em 2015.
 
-A normalização
-
+### Aula 10 — Como Funciona um LLM > A normalização
 A `LayerNormalization` faz o de sempre desde a Aula 7: mantém os números
 de cada vetor num tamanho parecido, para o treino não desandar. Ela
 subtrai a média dos números do vetor e divide pelo desvio padrão:
@@ -1417,8 +1403,7 @@ vocabulário. São pontuações cruas, os **logits**; a softmax transforma
 em chances. O formato de entrada `(None,)` quer dizer que o texto pode
 ter qualquer tamanho até 128 tokens.
 
-Onde moram os pesos
-
+### Aula 10 — Como Funciona um LLM > Onde moram os pesos
 | Peça | Conta | Pesos |
 |---|---|---|
 | Embedding do token | 1.024 × 128 | 131.072 |
@@ -1429,8 +1414,7 @@ Onde moram os pesos
 | Saída | 128 × 1.024 + 1.024 | 132.096 |
 | **Total**, com 4 blocos | | **809.728** |
 
-O passo zero e a perplexidade
-
+### Aula 10 — Como Funciona um LLM > O passo zero e a perplexidade
 Antes de qualquer treino, o modelo recém-montado chuta igual entre os
 1.024 tokens, e a perda dele tem que dar perto de `ln(1024) = 6,93`. Se
 der muito diferente, tem erro de montagem. É o primeiro teste de qualquer
@@ -1514,9 +1498,7 @@ perplexidade 1.024. Com os pesos do professor, o mesmo modelo escrevia
 português. Esta aula faz a ponte entre os dois: o treino. Depois, usa o
 modelo treinado para gerar texto e mostra o que ele não sabe fazer.
 
-### Aula 11 — Treinar e Usar um LLM > O treino
-O ciclo
-
+### Aula 11 — Treinar e Usar um LLM > O ciclo de treino
 Treinar é repetir um ciclo de cinco passos: sortear um lote, passar pelo
 modelo, medir a perda, calcular o gradiente (para que lado mexer cada peso
 para a perda cair) e dar um passo pequeno nessa direção. É o gradiente
@@ -1529,16 +1511,14 @@ O `from_logits=True` avisa que o modelo devolve pontuações cruas; a
 softmax fica por conta da perda. O resto são quatro escolhas que todo
 treino de modelo de linguagem faz.
 
-1. O otimizador: AdamW
-
+### Aula 11 — Treinar e Usar um LLM > Escolha 1: o otimizador AdamW
 O **AdamW** é o gradiente descendente com duas melhorias. Ele guarda uma
 média dos gradientes recentes, o que suaviza o caminho, e dá passos
 maiores nas direções em que o gradiente é pequeno mas constante. O "W" é
 um empurrão leve de todos os pesos em direção ao zero (*weight decay*),
 que ajuda o modelo a não decorar.
 
-2. O corte do gradiente
-
+### Aula 11 — Treinar e Usar um LLM > Escolha 2: cortar o gradiente
 De vez em quando um lote sai muito fora do normal, e o gradiente fica
 enorme. Um passo desses joga os pesos para longe e estraga o que já foi
 aprendido. O `global_clipnorm=1.0` limita o tamanho do gradiente inteiro:
@@ -1546,8 +1526,7 @@ se ele passar de 1, todos os números são divididos pelo mesmo fator. A
 direção do passo não muda, só o tamanho. Exemplo: um gradiente de tamanho
 5 é dividido por 5, e o passo sai cinco vezes menor, na mesma direção.
 
-3. O tamanho do passo segue o relógio
-
+### Aula 11 — Treinar e Usar um LLM > Escolha 3: o tamanho do passo segue o relógio
 No começo os pesos são aleatórios, e passo grande na direção errada só faz
 estrago: por isso o **aquecimento**, com a taxa subindo do zero no
 primeiro minuto. No fim, o modelo está perto de um bom lugar e passo
@@ -1560,20 +1539,20 @@ o `fit` chama a cada passo. Ele ajusta a taxa pela fração do tempo que já
 passou e para o treino quando o tempo acaba. Assim o treino termina na
 hora certa em qualquer Colab, rápido ou lento.
 
-4. Conferir e salvar o melhor
-
+### Aula 11 — Treinar e Usar um LLM > Escolha 4: conferir e salvar o melhor
 A cada 200 passos, o `fit` mede a perda em lotes de validação (o
 `val_loss`), e o `ModelCheckpoint` salva o modelo em
 `meu_llm.weights.h5` **se a validação for a melhor até ali**. Se o Colab
 cair no meio, o melhor modelo já está salvo; e o arquivo guarda o modelo
 que melhor generaliza, e não o último.
 
-O treino de verdade
-
+### Aula 11 — Treinar e Usar um LLM > O treino de verdade
 Quantos passos cabem em 35 minutos depende da máquina: um Colab rápido dá
-mais passos, um lento dá menos, e os dois terminam na hora. O modelo de
-referência, treinado por 60 minutos num processador maior (9.695 passos),
-mostra a curva inteira:
+mais passos, um lento dá menos, e os dois terminam na hora. No teste deste
+curso, com duas linhas de execução (as mesmas do Colab gratuito) e o
+processador dividido com outro programa, foram uns 4.400 passos e perda
+de validação 3,52, perplexidade 34. O modelo de referência, treinado por
+60 minutos num processador maior (9.695 passos), mostra a curva inteira:
 
 A perda despenca no começo e depois vai ficando cada vez mais difícil
 melhorar. Essa curva explica por que treinar modelos grandes é caro: cada
@@ -1587,8 +1566,7 @@ gramaticais. No fim, ele escreve com a grafia de 1899, porque foi isso que
 leu. A ordem é sempre a mesma: primeiro a forma, depois as palavras, e o
 sentido por último.
 
-Quanto custa treinar
-
+### Aula 11 — Treinar e Usar um LLM > Quanto custa treinar
 Existe uma regra de bolso que bate bem com a realidade. Cada token que o
 modelo lê no treino custa umas seis contas por peso: duas para ir e
 quatro para voltar com o gradiente.
@@ -1614,9 +1592,7 @@ diferença é o modelo decorando trechos do corpus. Enquanto as duas caem
 juntas, tudo bem. Quando a de validação para ou sobe, o que vem depois é
 decoreba. É por isso que o treino salva pela validação.
 
-### Aula 11 — Treinar e Usar um LLM > Do número à palavra
-O modelo não devolve uma palavra
-
+### Aula 11 — Treinar e Usar um LLM > O modelo não devolve uma palavra
 Dê ao modelo treinado o começo "Não sei se a senhora" e olhe o que ele
 produz para a última posição:
 
@@ -1627,8 +1603,7 @@ Escolher **qual** desses 1.024 vai para a tela é um problema separado,
 que nada tem a ver com o treino. Ele tem nome: **amostragem**
 (*sampling*).
 
-Gerar é repetir um passo
-
+### Aula 11 — Treinar e Usar um LLM > Gerar é repetir um passo
 O modelo devolve uma previsão para cada posição do texto. Para gerar, só
 interessa a da **última** posição: é ela que viu o texto inteiro. O resto
 é um loop:
@@ -1638,8 +1613,7 @@ O `[-128:]` corta o texto no tamanho da janela de contexto. Isso se chama
 seguinte. Se ele foi ruim, o modelo não tem como voltar atrás, e passa a
 continuar, com coerência, a partir do erro.
 
-Duas escolhas ruins
-
+### Aula 11 — Treinar e Usar um LLM > Duas escolhas ruins
 **Sempre o mais provável.** Chama-se decodificação gulosa (*greedy*). É
 determinística e parece segura, e o texto entra em loop, repetindo a
 mesma frase: um texto que só escolhe o topo acaba num lugar de onde o
@@ -1653,8 +1627,7 @@ ele mesmo considera ruim.
 
 A saída é ficar no meio, com dois botões.
 
-Botão 1: a temperatura
-
+### Aula 11 — Treinar e Usar um LLM > Botão 1: a temperatura
 Antes do sorteio, divida todas as pontuações por `T`:
 
 $$P_j = \frac{e^{z_j / T}}{\sum_{k} e^{z_k / T}}$$
@@ -1681,8 +1654,7 @@ A temperatura não muda a ordem dos candidatos, só a distância entre eles.
 | 0,7 a 0,9 | o padrão da maioria das ferramentas |
 | acima de 1,2 | o modelo passa a considerar tokens que ele mesmo acha improváveis |
 
-Botão 2: cortar a cauda
-
+### Aula 11 — Treinar e Usar um LLM > Botão 2: cortar a cauda
 A temperatura reescala tudo, inclusive o lixo. O **top-k** elimina
 candidatos antes do sorteio: fique com os `k` mais prováveis e esqueça o
 resto. No Keras, `ops.top_k` devolve as `k` maiores pontuações e de quais
@@ -1701,8 +1673,7 @@ No primeiro caso o modelo está em dúvida, e o top-p deixa muita opção. No
 segundo, só existe uma continuação razoável ("Quincas Borba"), e o top-p
 deixa só ela.
 
-Os quatro textos
-
+### Aula 11 — Treinar e Usar um LLM > Os quatro textos
 Mesmo modelo, mesmo início, quatro jeitos de escolher:
 
 Leia com atenção. A escolha gulosa entra em loop logo: "a principio, a
@@ -1718,9 +1689,7 @@ sobe é a chance de ele escolher um token que ele mesmo considera
 improvável, e a partir dali o texto tem que se justificar sozinho. Se você
 quer outra resposta, mude o começo, não a temperatura.
 
-### Aula 11 — Treinar e Usar um LLM > Ajuste fino e limites
-Ele copia ou inventa?
-
+### Aula 11 — Treinar e Usar um LLM > Ele copia ou inventa?
 É a pergunta que a turma sempre faz, e dá para medir. Gere um texto com o
 modelo e procure, para cada palavra, o maior trecho a partir dela que
 aparece **literalmente** no corpus de Machado:
@@ -1730,8 +1699,7 @@ em 809.728 números. Reconstruir uma frase inteira de Machado a partir
 disso é impossível, e produzir uma frase nova que soa como Machado é
 exatamente o que ele faz.
 
-Por que o modelo alucina
-
+### Aula 11 — Treinar e Usar um LLM > Por que o modelo alucina
 O nosso modelo escreve frases confiantes sobre coisas que nunca
 existiram, e não há nada de errado com ele. Ele está fazendo exatamente o
 que o treino pediu.
@@ -1749,8 +1717,7 @@ para o modelo: as duas são sequências prováveis. A Aula 13 mostra o
 remédio mais usado: dar ao modelo um lugar para consultar, colando trechos
 de um documento no começo do texto.
 
-O modelo é o corpus
-
+### Aula 11 — Treinar e Usar um LLM > O modelo é o corpus
 O nosso escreve "elle", "cousa", "mettia", "pharmacia". Ele escreve a
 grafia de 1899 porque leu 3,7 milhões de caracteres de 1899, e nada mais.
 Um modelo treinado em fóruns escreve como fórum. Um modelo treinado em
@@ -1758,8 +1725,7 @@ textos que carregam um preconceito reproduz esse preconceito, com a mesma
 fluência com que reproduz a gramática. Não existe modelo neutro. Existe
 corpus.
 
-Ajuste fino: o mesmo treino, outro texto
-
+### Aula 11 — Treinar e Usar um LLM > Ajuste fino: o mesmo treino, outro texto
 Dá para provar isso em dois minutos. Pegue uma cópia do modelo pronto e
 continue o treino por 200 passos, com outro texto: as páginas deste
 curso, em português de hoje. Isso se chama **ajuste fino**
@@ -1782,8 +1748,7 @@ um modelo de uso geral vira um modelo de uma área: jurídico, médico, de
 atendimento. E é assim, também, que um modelo que continua texto vira um
 assistente.
 
-O que muda quando o modelo é grande
-
+### Aula 11 — Treinar e Usar um LLM > O que muda quando o modelo é grande
 | Peça | O nosso | Um comercial |
 |---|---|---|
 | Camadas | 4 | 60 a 120 |
@@ -1797,8 +1762,7 @@ dinheiro. Repare também no Llama 3 8B, de 2024: vinte vezes menor que o
 GPT-3 e com cinquenta vezes mais texto. Nos últimos anos, a alavanca
 principal passou a ser o texto, e não o tamanho.
 
-Do modelo ao assistente
-
+### Aula 11 — Treinar e Usar um LLM > Do modelo ao assistente
 O nosso modelo continua texto. Ele não responde perguntas, e isso não é
 questão de tamanho: é questão de treino. Entre ele e um assistente existem
 duas etapas a mais, e as duas são ajuste fino:

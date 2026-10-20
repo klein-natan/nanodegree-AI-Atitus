@@ -41,7 +41,7 @@ São 131.072 pesos, que o treino ajusta como quaisquer outros. Um lote de
 32 janelas de 128 tokens entra com formato `[32, 128]` e sai com formato
 `[32, 128, 128]`: cada token virou um vetor.
 
-### O que esses números querem dizer
+## O que esses números querem dizer
 
 No começo do treino, a tabela é sorteada, e os vetores não significam
 nada. O treino mexe em cada número dela para a previsão melhorar. No fim,
@@ -49,14 +49,16 @@ tokens que aparecem em lugares parecidos do texto acabam com vetores
 parecidos. Ninguém ensina gramática ao modelo: ele descobre sozinho que
 `·dous` e `·tres` fazem o mesmo papel, porque aparecem nos mesmos lugares.
 
-Os 128 números não cabem num desenho, então a figura espreme os 128 em
+<figure><video src="../assets/aula-10/embeddings.mp4" poster="../assets/aula-10/embeddings.jpg" controls preload="none" playsinline aria-label="Animação em 3D dos embeddings: os pontos começam misturados e, depois do treino, as palavras de cada grupo se juntam"></video><figcaption>Os embeddings do modelo treinado, espremidos de 128 para 3 números. No começo as cores se misturam; depois do treino, cada grupo se junta.</figcaption></figure>
+
+Os 128 números não cabem num desenho, então a animação espreme os 128 em
 3, com a mesma PCA da Aula 3. Alguma coisa se perde no aperto, e mesmo
 assim os grupos aparecem: números com números, pessoas com pessoas,
 verbos com verbos, partes do corpo com partes do corpo.
 
 <figure><img src="../assets/aula-10/embedding_3d.png" alt="Dois gráficos 3D do mesmo espaço, vistos de ângulos diferentes, com cinco grupos de palavras coloridos: números, pessoas, verbos, corpo e conectivos, cada grupo formando uma nuvem própria"><figcaption>O mesmo espaço, de dois lados. As palavras de cada cor ficam juntas.</figcaption></figure>
 
-### Parecido quer dizer apontar para o mesmo lado
+## Parecido quer dizer apontar para o mesmo lado
 
 Para medir se dois vetores são parecidos, o modelo olha se eles apontam
 para o mesmo lado. A medida se chama **similaridade do cosseno**:
@@ -113,7 +115,7 @@ Os primeiros 90% dos tokens são para treinar. Os últimos 10% ficam
 guardados, e o modelo nunca treina neles: é o conjunto de validação, que
 diz se o modelo aprendeu português ou decorou o livro.
 
-### A perda
+## A perda
 
 Para cada previsão, a perda olha a chance que o modelo deu ao token que de
 fato veio. É a mesma entropia cruzada das Aulas 3 e 8, e o Keras calcula
@@ -136,9 +138,7 @@ Os logaritmos, com o sinal trocado, são 0,69, 1,39 e 2,30. A média é
 Um modelo que chuta igual entre 1.024 tokens dá 1/1024 a cada um, e a
 perda dele é `ln(1024) = 6,93`. É dali que todo treino começa.
 
-## A atenção
-
-### O problema
+## A atenção: o problema
 
 Leia esta frase e complete a última palavra:
 
@@ -153,7 +153,7 @@ A resposta é deixar cada posição **escolher** para onde olhar, com pesos
 que o treino ajusta. Isso se chama **atenção** (*attention*), e é a única
 peça de um transformer em que uma posição vê as outras.
 
-### Os três papéis
+## Os três papéis
 
 Cada token ganha três vetores, obtidos multiplicando o embedding dele por
 três tabelas de pesos:
@@ -180,7 +180,7 @@ embedding quer dizer "faz o mesmo papel". Um verbo não precisa procurar
 outros verbos: precisa procurar o **sujeito** dele. As tabelas deixam o
 treino decidir que tipo de relação cada pergunta procura.
 
-### A conta
+## A conta
 
 $$\text{Atenção}(Q, K, V) = \text{softmax}\!\left(\frac{Q K^{\top}}{\sqrt{d}}\right) V$$
 
@@ -203,7 +203,7 @@ maiores, e números grandes fazem a softmax virar tudo ou nada: a softmax
 de (0, 20, 10) é praticamente (0%, 100%, 0%). Com os pesos colados no zero
 e no um, o treino para de aprender.
 
-### A máscara: não vale olhar a resposta
+## A máscara: não vale olhar a resposta
 
 Se cada posição olha todas as outras, a posição 3 olha a posição 4, que é
 justamente o token que ela deveria prever.
@@ -226,7 +226,7 @@ Divididos por ela: 27%, 73% e 0%. O futuro some da mistura.
 
 <figure><video src="../assets/aula-10/mascara.mp4" poster="../assets/aula-10/mascara.jpg" controls preload="none" playsinline aria-label="Animação da máscara causal numa matriz de atenção"></video><figcaption>O futuro vira −∞, a softmax transforma em 0%, e cada linha só olha para trás.</figcaption></figure>
 
-### Quatro cabeças, quatro olhares
+## Quatro cabeças, quatro olhares
 
 Uma atenção só tem um jeito de perguntar. O modelo roda quatro em
 paralelo, cada uma com as suas três tabelas, e junta os resultados. Cada
@@ -257,7 +257,7 @@ BPE com o artigo dela.
 
 Ninguém programou essa divisão de trabalho: ela sai do treino.
 
-### A posição
+## A posição
 
 Falta uma coisa. Nada na conta da atenção diz **onde** cada token está:
 embaralhe a frase e cada token recebe a mesma mistura. "O gato mordeu o
@@ -275,7 +275,7 @@ A tabela das posições também é aprendida no treino. Depois dela, `gato`
 na posição 2 e `gato` na posição 5 são vetores diferentes, e a atenção
 consegue saber quem veio antes de quem.
 
-### O preço da janela
+## O preço da janela
 
 Para uma janela de `n` tokens, cada cabeça calcula `n × n` produtos.
 Dobrar a janela quadruplica a conta: são 16.384 produtos para os nossos
@@ -313,7 +313,7 @@ def bloco(x, i):
     return x + h                                     # atalho
 ```
 
-### As duas metades
+## As duas metades
 
 A **primeira metade é a atenção**: é onde as posições conversam entre si.
 
@@ -329,7 +329,7 @@ A ativação é a **GELU**, uma ReLU com a dobra arredondada: perto de zero,
 em vez de cortar seco, ela deixa passar um pouco. É a de quase todo
 modelo de linguagem desde o GPT-2.
 
-### O atalho
+## O atalho
 
 Repare no `x +` das duas metades: é o **atalho** (conexão residual). A
 entrada atravessa o bloco por fora, e o bloco soma a ela o que calculou.
@@ -341,7 +341,7 @@ o gradiente precisa atravessar todos os blocos para chegar ao primeiro, e
 vai encolhendo no caminho. Foi esse problema que travou as redes
 profundas por anos, até a ideia do atalho, em 2015.
 
-### A normalização
+## A normalização
 
 A `LayerNormalization` faz o de sempre desde a Aula 7: mantém os números
 de cada vetor num tamanho parecido, para o treino não desandar. Ela
@@ -379,7 +379,7 @@ vocabulário. São pontuações cruas, os **logits**; a softmax transforma
 em chances. O formato de entrada `(None,)` quer dizer que o texto pode
 ter qualquer tamanho até 128 tokens.
 
-### Onde moram os pesos
+## Onde moram os pesos
 
 <figure><img src="../assets/aula-10/onde_estao_os_pesos.png" alt="Gráfico de barras com os pesos por grupo: embedding 147.456, atenção 264.192, camada densa 263.680, saída 132.096 e normalização 2.304"><figcaption>A atenção é a peça famosa, mas a camada densa tem o mesmo tanto de pesos.</figcaption></figure>
 
@@ -393,7 +393,7 @@ ter qualquer tamanho até 128 tokens.
 | Saída | 128 × 1.024 + 1.024 | 132.096 |
 | **Total**, com 4 blocos | | **809.728** |
 
-### O passo zero e a perplexidade
+## O passo zero e a perplexidade
 
 Antes de qualquer treino, o modelo recém-montado chuta igual entre os
 1.024 tokens, e a perda dele tem que dar perto de `ln(1024) = 6,93`. Se
