@@ -1,11 +1,11 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-<!-- fonte-docs: f747f5124954e30a -->
+<!-- fonte-docs: e317f04a34e74759 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Nanodegree de IA &amp; ML</title>
-<meta name="description" content="Material de leitura do Nanodegree de IA &amp; ML: teoria completa das catorze aulas.">
+<meta name="description" content="Material de leitura do Nanodegree de IA &amp; ML: teoria completa das treze aulas.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>&#128218;</text></svg>">
 <style>
 /* ---------------------------------------------------------------- tokens */
@@ -445,6 +445,85 @@ td code { white-space: nowrap; }
 .expansivel > :not(summary) { margin-left: 1rem; margin-right: 1rem; }
 .expansivel > :last-child { margin-bottom: 1rem; }
 .expansivel .bloco-codigo { margin: .6rem 1rem 1rem; }
+
+/* ---------------------------------------------------------- explorador */
+.explorador {
+  margin: 1.6rem 0 2.4rem; padding: 1.1rem 1.2rem;
+  border: 1px solid var(--borda); border-radius: 14px;
+  background: var(--superficie); box-shadow: var(--sombra);
+}
+.explorador p { margin: 0; }
+.exp-carregando { color: var(--tinta-suave); }
+.exp-rotulo { font-weight: 650; font-size: .9rem; }
+.explorador textarea {
+  display: block; width: 100%; margin: .35rem 0 .5rem; padding: .55rem .7rem;
+  font: inherit; font-size: 1rem; color: var(--tinta); background: var(--fundo);
+  border: 1px solid var(--borda-forte); border-radius: 8px; resize: vertical;
+}
+.explorador textarea:focus { outline: 2px solid var(--destaque); outline-offset: 1px; }
+.exp-exemplos, .exp-escolhas { display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; font-size: .85rem; color: var(--tinta-suave); }
+.exp-escolhas { margin: .2rem 0 .6rem; }
+.explorador button {
+  font: inherit; font-size: .85rem; color: var(--tinta); background: var(--superficie-2);
+  border: 1px solid var(--borda-forte); border-radius: 999px; padding: .2rem .7rem; cursor: pointer;
+}
+.explorador button:hover { border-color: var(--destaque); color: var(--destaque); }
+.explorador button:focus-visible { outline: 2px solid var(--destaque); outline-offset: 2px; }
+.explorador button.sel { background: var(--destaque); border-color: var(--destaque); color: var(--superficie); }
+.explorador button.exp-acao { background: var(--destaque); border-color: var(--destaque); color: var(--superficie); font-weight: 600; }
+.explorador button.exp-acao:hover { filter: brightness(1.08); color: var(--superficie); }
+.exp-controles { display: flex; flex-wrap: wrap; gap: .7rem 1.2rem; align-items: center; margin-top: .7rem; font-size: .9rem; }
+.exp-controles input[type=range] { vertical-align: middle; width: 8.5rem; accent-color: var(--destaque); }
+.exp-controles select { font: inherit; color: var(--tinta); background: var(--fundo); border: 1px solid var(--borda-forte); border-radius: 6px; }
+.exp-controles output { font-family: var(--mono); display: inline-block; min-width: 2.2rem; }
+.exp-caminho { display: flex; flex-wrap: wrap; gap: .3rem; align-items: center; margin: 1rem 0 0; font-size: .78rem; color: var(--tinta-suave); }
+.exp-caminho span { padding: .15rem .5rem; border-radius: 6px; background: var(--superficie-2); border: 1px solid var(--borda); }
+.exp-etapa { border-top: 1px solid var(--borda); margin-top: 1.1rem; padding-top: .9rem; }
+.exp-etapa > header { display: flex; flex-wrap: wrap; align-items: baseline; gap: .6rem; margin-bottom: .3rem; }
+.exp-num {
+  display: inline-grid; place-items: center; width: 1.6rem; height: 1.6rem; border-radius: 50%;
+  background: var(--destaque); color: var(--superficie); font-weight: 700; font-size: .85rem; flex: none;
+}
+.exp-etapa h3 { margin: 0; font-size: 1.05rem; }
+.exp-forma { margin-left: auto; font-family: var(--mono); font-size: .78rem; color: var(--tinta-fraca); }
+.exp-explica { font-size: .9rem; color: var(--tinta-suave); margin: .2rem 0 .7rem !important; }
+.exp-tokens { display: flex; flex-wrap: wrap; gap: .3rem; }
+.explorador button.exp-token {
+  display: inline-flex; flex-direction: column; align-items: center; line-height: 1.2;
+  border-radius: 8px; padding: .25rem .45rem; font-family: var(--mono);
+}
+.exp-token small { font-size: .66rem; color: var(--tinta-fraca); }
+.explorador button.exp-token.sel { background: var(--destaque-suave); color: var(--destaque); border-color: var(--destaque); }
+.exp-vetor { display: grid; grid-template-columns: minmax(7rem, 11rem) 1fr; gap: .3rem .7rem; align-items: center; font-size: .8rem; }
+.exp-vetor .nome { color: var(--tinta-suave); text-align: right; }
+.exp-faixa { display: flex; height: 20px; border-radius: 4px; overflow: hidden; border: 1px solid var(--borda); }
+.exp-faixa span { flex: 1; }
+.exp-legenda { font-size: .75rem; color: var(--tinta-fraca); margin-top: .35rem !important; }
+.exp-vizinhos { font-size: .88rem; margin-top: .7rem !important; }
+.exp-vizinhos code { font-size: .82rem; }
+.exp-olhar { display: flex; gap: 3px; align-items: flex-end; overflow-x: auto; padding: .2rem 0 .4rem; }
+.exp-coluna { display: flex; flex-direction: column; align-items: center; min-width: 2.4rem; font-family: var(--mono); font-size: .72rem; }
+.exp-coluna .alto { height: 96px; width: 100%; display: flex; align-items: flex-end; justify-content: center; }
+.exp-coluna .barra { width: 68%; min-height: 1px; background: var(--destaque); border-radius: 3px 3px 0 0; }
+.exp-coluna .pct { color: var(--tinta-fraca); font-size: .64rem; }
+.exp-coluna .rot { white-space: nowrap; }
+.exp-coluna.eu .rot { color: var(--destaque); font-weight: 700; }
+.exp-mapa { display: grid; gap: 1px; margin-top: .8rem; font-family: var(--mono); font-size: .62rem; overflow-x: auto; justify-content: start; }
+.exp-mapa .c { width: 15px; height: 15px; border-radius: 2px; }
+.exp-mapa .c.eu { outline: 1.5px solid var(--destaque); }
+.exp-mapa .r { padding-right: 5px; text-align: right; white-space: nowrap; color: var(--tinta-suave); line-height: 15px; }
+.exp-mapa .r.eu { color: var(--destaque); font-weight: 700; }
+.exp-barras { display: grid; gap: 3px; }
+.exp-barras .linha { display: grid; grid-template-columns: 7.5rem 1fr 3.6rem; gap: .6rem; align-items: center; font-size: .85rem; cursor: pointer; border-radius: 4px; }
+.exp-barras .linha:hover { background: var(--superficie-2); }
+.exp-barras .tok { font-family: var(--mono); text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.exp-barras .b { height: 14px; border-radius: 3px; background: var(--destaque); min-width: 1px; }
+.exp-barras .linha.fora { cursor: default; }
+.exp-barras .linha.fora .b { background: var(--borda-forte); }
+.exp-barras .linha.fora .tok, .exp-barras .linha.fora .num { color: var(--tinta-fraca); }
+.exp-barras .num { font-family: var(--mono); font-size: .8rem; text-align: right; }
+.exp-resumo { font-size: .85rem; color: var(--tinta-suave); margin-top: .6rem !important; }
+.exp-novo { background: var(--destaque-suave); color: var(--destaque); border-radius: 3px; padding: 0 .15rem; }
 
 /* ---------------------------------------------------------------- pilha */
 .pilha { margin: 1.6rem 0 2.4rem; }
@@ -7686,6 +7765,11 @@ de estranhar.</li>
   <td>Disponível</td>
 </tr>
 <tr>
+  <td><a href="#/llm-do-zero/explorador">Explorador do LLM</a></td>
+  <td>O modelo do curso rodando no navegador: tokens, vetores, atenção e chances, com qualquer frase</td>
+  <td>Disponível</td>
+</tr>
+<tr>
   <td><a href="#/llm-do-zero/colas-dos-exercicios">Colas dos Exercícios</a></td>
   <td>Dicas para cada passo dos 9 exercícios</td>
   <td>Disponível</td>
@@ -8817,6 +8901,7 @@ escrever. Na Aula 11, você treina os seus.</p>
 <ul>
 <li><a href="https://jalammar.github.io/illustrated-transformer/">The Illustrated Transformer</a>: a explicação visual mais conhecida, com animações de cada passo.</li>
 <li><a href="https://www.youtube.com/watch?v=eMlx5fFNoYc">Attention in transformers, step-by-step (3Blue1Brown)</a>: a conta da atenção, animada. Em inglês, com legendas.</li>
+<li><a href="#/llm-do-zero/explorador">Explorador do LLM</a>: o modelo desta aula rodando no navegador, com qualquer frase sua: os tokens, os vetores, a atenção de cada cabeça e as chances do próximo token.</li>
 <li><a href="https://poloclub.github.io/transformer-explainer/">Transformer Explainer</a>: um GPT-2 de verdade rodando no navegador, com cada peça desta aula clicável.</li>
 <li><a href="https://arxiv.org/abs/1706.03762">Attention Is All You Need</a>: o artigo de 2017 que apresentou o transformer. Difícil, mas vale ver o desenho da página 3.</li>
 </ul>
@@ -9436,6 +9521,146 @@ você acertou. Nada fica gravado: dá para refazer quantas vezes quiser.</p>
 <div class="quiz" data-numero="5"><p class="quiz-numero">Questão 5</p><p class="quiz-enunciado">O que transforma um modelo que continua texto, como o nosso, num assistente que responde perguntas?</p><ol class="quiz-opcoes"><li><button class="quiz-opcao" type="button" data-certa="0"><span class="quiz-letra">A</span><span class="quiz-texto">Só deixar o modelo maior.</span></button></li><li><button class="quiz-opcao" type="button" data-certa="0"><span class="quiz-letra">B</span><span class="quiz-texto">Trocar a arquitetura por outra.</span></button></li><li><button class="quiz-opcao" type="button" data-certa="1"><span class="quiz-letra">C</span><span class="quiz-texto">Mais duas etapas de ajuste fino: em conversas com boas respostas, e com pessoas escolhendo a melhor de duas.</span></button></li><li><button class="quiz-opcao" type="button" data-certa="0"><span class="quiz-letra">D</span><span class="quiz-texto">Desligar a máscara causal.</span></button></li></ol><div class="quiz-retorno" hidden><p class="quiz-veredito"></p><p class="quiz-explicacao">Depois de ler milhares de conversas com marcadores de quem fala, o modelo aprende que depois do marcador do assistente vem uma resposta.</p></div></div>
 </div><div class="pilha-fim" hidden><p class="pilha-nota"></p><p class="pilha-dica"></p><button class="pilha-refazer" type="button">Refazer o quiz</button></div></div>
 </template>
+<template class="pagina" data-id="llm-do-zero/explorador" data-titulo="Explorador do LLM" data-descricao="O modelo do curso rodando aqui na página, etapa por etapa">
+<div class="destaque destaque-info" role="note"><div class="destaque-icone" aria-hidden="true">i</div><div class="destaque-corpo"><p class="destaque-rotulo">Nota</p><p><strong>O que esta página faz</strong></p>
+<p>Ela roda o modelo de linguagem do curso aqui mesmo, no seu navegador: os
+809.728 pesos que o professor treinou por uma hora em Machado de Assis.
+Escreva qualquer frase e acompanhe o caminho inteiro, do texto até as
+chances da próxima palavra. Nada é enviado para lugar nenhum.</p>
+</div></div>
+<p>A ideia é a mesma do <a href="https://poloclub.github.io/transformer-explainer/">Transformer Explainer</a>,
+que mostra o GPT-2 por dentro, só que com o modelo das Aulas 10 e 11: quatro
+blocos em vez de doze, 128 números por token em vez de 768, e um
+vocabulário de 1.024 tokens tirado de Machado. Por ser pequeno, ele cabe
+inteiro na página, e você vê cada número de verdade.</p>
+<div class="explorador"></div>
+<h2 id="o-caminho-em-quatro-etapas">O caminho, em quatro etapas<a class="ancora" href="#o-caminho-em-quatro-etapas" aria-label="Link para esta secao">#</a></h2>
+<p>O modelo faz sempre o mesmo caminho, da esquerda para a direita:</p>
+<div class="tabela-rolavel"><table><thead>
+<tr>
+  <th>Etapa</th>
+  <th>O que entra</th>
+  <th>O que sai</th>
+  <th>Pesos</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>1. Tokens</td>
+  <td>o texto</td>
+  <td>uma fila de números, um por peça</td>
+  <td>nenhum: é o tokenizador da Aula 9</td>
+</tr>
+<tr>
+  <td>2. Vetores</td>
+  <td>os números</td>
+  <td>128 números por token</td>
+  <td>147.456</td>
+</tr>
+<tr>
+  <td>3. Quatro blocos</td>
+  <td>128 números por token</td>
+  <td>128 números por token, agora com contexto</td>
+  <td>529.920</td>
+</tr>
+<tr>
+  <td>4. Saída</td>
+  <td>os 128 números da última posição</td>
+  <td>1.024 chances, uma por token</td>
+  <td>132.352</td>
+</tr>
+</tbody>
+</table></div>
+<p>Quase todo o trabalho está na etapa 3. As outras só traduzem: texto em
+números na entrada, números em chances na saída.</p>
+<h2 id="etapa-1-tokens">Etapa 1: tokens<a class="ancora" href="#etapa-1-tokens" aria-label="Link para esta secao">#</a></h2>
+<p>O tokenizador BPE da <a href="#/llm-do-zero/aula-09-tokenizacao">Aula 9</a> corta o texto em
+peças e troca cada peça pelo seu número. Palavras comuns em Machado viram
+um token só (<code>·casa</code>, <code>·elle</code>); nomes e palavras raras viram vários
+(<code>·C</code>, <code>ap</code>, <code>it</code>, <code>ú</code>). O ponto no começo de uma peça é o espaço que vem
+antes dela.</p>
+<p>O modelo olha no máximo 128 tokens para trás: é a janela de contexto. Se
+o texto passar disso, só os últimos 128 entram.</p>
+<h2 id="etapa-2-o-token-vira-vetor">Etapa 2: o token vira vetor<a class="ancora" href="#etapa-2-o-token-vira-vetor" aria-label="Link para esta secao">#</a></h2>
+<p>Cada número escolhe uma linha da tabela de embedding: 128 números. A essa
+linha se soma a linha da posição, que diz onde o token está na frase. É o
+que a <a href="#/llm-do-zero/aula-10-como-funciona-um-llm#o-token-vira-vetor">Aula 10</a>
+explica, e o explorador mostra as três faixas: a do token, a da posição e
+a soma, que é o que entra no primeiro bloco.</p>
+<p>Embaixo aparecem os tokens com o vetor mais parecido, pela similaridade
+do cosseno. Clique em <code>·elle</code> e veja <code>·ella</code> no topo: palavras que fazem o
+mesmo papel na frase ficaram com vetores parecidos durante o treino.</p>
+<h2 id="etapa-3-a-atencao-nos-quatro-blocos">Etapa 3: a atenção, nos quatro blocos<a class="ancora" href="#etapa-3-a-atencao-nos-quatro-blocos" aria-label="Link para esta secao">#</a></h2>
+<p>Cada bloco tem duas metades. A atenção deixa cada token olhar para os
+anteriores e misturar o que viu; a camada densa pensa sobre cada posição
+sozinha. O explorador mostra a primeira metade, que é onde dá para ver
+alguma coisa: para onde cada token olha.</p>
+<p>Escolha uma camada e uma cabeça (ou a média das quatro) e clique num
+token. As barras mostram quanto ele olha para cada token anterior. O mapa
+embaixo mostra todos os tokens de uma vez: cada linha é um token, cada
+coluna é para onde ele olha, e o triângulo de cima fica vazio, porque a
+<a href="#/llm-do-zero/aula-10-como-funciona-um-llm#a-mascara-nao-vale-olhar-a-resposta">máscara causal</a>
+não deixa ninguém olhar o futuro.</p>
+<h2 id="etapa-4-as-chances-do-proximo-token">Etapa 4: as chances do próximo token<a class="ancora" href="#etapa-4-as-chances-do-proximo-token" aria-label="Link para esta secao">#</a></h2>
+<p>Depois dos quatro blocos, a última posição vira 1.024 pontuações, uma
+para cada token do vocabulário, e a softmax transforma as pontuações em
+chances. Os dois botões da <a href="#/llm-do-zero/aula-11-treinar-e-usar">Aula 11</a> estão
+acima do texto:</p>
+<ul>
+<li>a <strong>temperatura</strong> divide as pontuações antes da softmax: baixa
+concentra a chance no favorito, alta espalha;</li>
+<li>o <strong>top-k</strong> deixa no sorteio só os <code>k</code> tokens mais prováveis.</li>
+</ul>
+<p>&quot;Gerar 1 token&quot; sorteia um token com essas chances e cola no fim do
+texto. Tudo roda de novo, com o texto um token mais longo: é a geração
+autorregressiva.</p>
+<h2 id="experimentos-para-fazer">Experimentos para fazer<a class="ancora" href="#experimentos-para-fazer" aria-label="Link para esta secao">#</a></h2>
+<div class="tabela-rolavel"><table><thead>
+<tr>
+  <th>Faça</th>
+  <th>E repare</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Escreva &quot;Quincas Bor&quot;</td>
+  <td>o favorito passa de 90%: só existe uma continuação razoável</td>
+</tr>
+<tr>
+  <td>Escreva &quot;Não sei se a senhora&quot;</td>
+  <td>o favorito mal passa de 8%: o modelo está em dúvida</td>
+</tr>
+<tr>
+  <td>Gere 10 tokens com temperatura 0,2</td>
+  <td>o texto entra em loop</td>
+</tr>
+<tr>
+  <td>Gere 10 tokens com temperatura 2 e sem corte, depois com top-k 10</td>
+  <td>o corte salva a temperatura alta</td>
+</tr>
+<tr>
+  <td>Clique em &quot;janela&quot;, em &quot;A casa de Capitú tinha uma janela&quot;, camada 4</td>
+  <td>os pedaços de &quot;janela&quot; olham para &quot;uma&quot;</td>
+</tr>
+<tr>
+  <td>Clique em <code>·dous</code>, <code>·era</code> ou <code>·olhos</code> na etapa 2</td>
+  <td>os vizinhos fazem o mesmo papel na frase</td>
+</tr>
+<tr>
+  <td>Troque a última palavra de uma frase</td>
+  <td>o mapa de atenção das posições anteriores não muda</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="o-que-o-explorador-nao-mostra">O que o explorador não mostra<a class="ancora" href="#o-que-o-explorador-nao-mostra" aria-label="Link para esta secao">#</a></h2>
+<p>Ele mostra o modelo pronto, não o treino: os pesos são os do professor, e
+não mudam enquanto você mexe. Para ver o treino acontecer, use o notebook
+da <a href="#/llm-do-zero/aula-11-treinar-e-usar">Aula 11</a>. A camada densa de cada bloco e as
+normalizações também estão lá, rodando, só que sem desenho: 128 números
+virando 256 e voltando a 128 não dizem nada a olho nu.</p>
+<p>E ele escreve como Machado, com a grafia de 1899, porque foi só isso que
+leu. Escreva sobre celulares e ele vai continuar falando de viscondes.</p>
+</template>
 <template class="pagina" data-id="llm-do-zero/colas-dos-exercicios" data-titulo="Colas dos Exercícios" data-descricao="Dicas para destravar cada exercício das Aulas 9 a 11, uma de cada vez">
 <div class="destaque destaque-info" role="note"><div class="destaque-icone" aria-hidden="true">i</div><div class="destaque-corpo"><p class="destaque-rotulo">Nota</p><p><strong>Como usar esta página</strong></p>
 <p>Cada passo de exercício tem até três dicas, e você abre uma de cada vez.
@@ -10020,7 +10245,7 @@ pergunta.</p>
 <p>O primeiro passo é prático. Você não coloca o documento inteiro no prompt:
 não cabe na janela de contexto, e mesmo se coubesse, encheria de texto
 irrelevante.</p>
-<figure><img src="docs/assets/aula-13/pedacos.png" alt="Histograma dos 244 pedaços do curso, com mediana de 737 caracteres, ao lado de um exemplo de trecho"><figcaption>Uma seção por pedaço; o título acompanha o texto na busca.</figcaption></figure>
+<figure><img src="docs/assets/aula-13/pedacos.png" alt="Histograma dos 251 pedaços do curso, com mediana de 729 caracteres, ao lado de um exemplo de trecho"><figcaption>Uma seção por pedaço; o título acompanha o texto na busca.</figcaption></figure>
 
 <p>O tamanho do pedaço é a primeira decisão do projeto, e ela tem um
 compromisso claro:</p>
@@ -10045,8 +10270,8 @@ compromisso claro:</p>
 </tr>
 </tbody>
 </table></div>
-<p>Aqui foram 244 pedaços, um por seção das páginas do curso, com mediana de
-737 caracteres.</p>
+<p>Aqui foram 251 pedaços, um por seção das páginas do curso, com mediana de
+729 caracteres.</p>
 <h2 id="transformar-texto-em-vetor">Transformar texto em vetor<a class="ancora" href="#transformar-texto-em-vetor" aria-label="Link para esta secao">#</a></h2>
 <p>Agora a parte interessante. Para achar os pedaços que falam de um assunto,
 você precisa comparar significado, e não palavras. A pergunta &quot;o que é a
@@ -10087,7 +10312,7 @@ produto escalar da Aula 10:</p>
 1, ela é exatamente o produto escalar, e vai de −1 (opostos) a 1
 (idênticos).</p>
 <h2 id="a-busca">A busca<a class="ancora" href="#a-busca" aria-label="Link para esta secao">#</a></h2>
-<p>Com todos os 244 pedaços virados em vetor, buscar é uma multiplicação de
+<p>Com todos os 251 pedaços virados em vetor, buscar é uma multiplicação de
 matriz e uma ordenação:</p>
 <div class="bloco-codigo" data-lingua="python"><button class="copiar" type="button">copiar</button><pre class="realce"><code><span class="n">vetor_pergunta</span> <span class="o">=</span> <span class="n">calcular_embeddings</span><span class="p">([</span><span class="s2">"O que é a máscara causal?"</span><span class="p">],</span> <span class="s2">"query: "</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 <span class="n">notas</span> <span class="o">=</span> <span class="n">vetores</span> <span class="o">@</span> <span class="n">vetor_pergunta</span>
@@ -10097,7 +10322,7 @@ matriz e uma ordenação:</p>
 
 <p>Num projeto grande, com milhões de pedaços, essa multiplicação vira lenta
 e você guarda os vetores numa <strong>base vetorial</strong>, que é um banco de dados
-especializado em achar vizinhos rápido. Com 244 pedaços, uma matriz
+especializado em achar vizinhos rápido. Com 251 pedaços, uma matriz
 resolve.</p>
 <div class="destaque destaque-info" role="note"><div class="destaque-icone" aria-hidden="true">i</div><div class="destaque-corpo"><p class="destaque-rotulo">Nota</p><p><strong>Por que não buscar por palavra</strong></p>
 <p>Buscar por palavra funciona, é barato, e falha exatamente onde dói: quando
@@ -10290,7 +10515,7 @@ quando buscar, quando calcular e quando responder).</p>
 (function () {
   "use strict";
 
-  var NAV = [{"tipo": "parte", "titulo": ""}, {"tipo": "pagina", "id": "index", "titulo": "Roadmap", "descricao": "Roadmap do Nanodegree de IA & ML", "sumario": [{"nivel": 2, "ancora": "como-este-curso-funciona", "texto": "Como este curso funciona"}, {"nivel": 2, "ancora": "o-caminho-do-curso", "texto": "O caminho do curso"}]}, {"tipo": "pagina", "id": "leia-me", "titulo": "LEIA-ME", "descricao": "Como este material foi feito, e por quê", "sumario": [{"nivel": 2, "ancora": "o-que-quot-bem-feito-quot-quer-dizer-aqui", "texto": "O que &quot;bem feito&quot; quer dizer aqui"}, {"nivel": 2, "ancora": "onde-esta-o-codigo", "texto": "Onde está o código"}]}, {"tipo": "pagina", "id": "antes-de-comecar", "titulo": "Antes de começar", "descricao": "Como abrir e rodar os notebooks do curso no Google Colab", "sumario": [{"nivel": 2, "ancora": "passo-a-passo", "texto": "Passo a passo"}, {"nivel": 2, "ancora": "se-algo-der-errado", "texto": "Se algo der errado"}, {"nivel": 2, "ancora": "onde-ficam-seus-arquivos", "texto": "Onde ficam seus arquivos"}]}, {"tipo": "pagina", "id": "glossario", "titulo": "Glossário", "descricao": "Termos técnicos do curso, explicados em uma frase cada", "sumario": []}, {"tipo": "parte", "titulo": "Fundamentos"}, {"tipo": "pagina", "id": "fundamentos/contexto-historico", "titulo": "0. Contexto Histórico", "descricao": "Setenta anos de entusiasmo, decepção e recomeço", "sumario": [{"nivel": 2, "ancora": "a-pergunta-que-comecou-tudo", "texto": "A pergunta que começou tudo"}, {"nivel": 2, "ancora": "o-perceptron-a-semente", "texto": "O perceptron: a semente"}, {"nivel": 2, "ancora": "a-ia-simbolica-e-por-que-ela-travou", "texto": "A IA simbólica, e por que ela travou"}, {"nivel": 2, "ancora": "dois-invernos", "texto": "Dois invernos"}, {"nivel": 2, "ancora": "a-virada-parar-de-escrever-regras", "texto": "A virada: parar de escrever regras"}, {"nivel": 2, "ancora": "o-que-fez-a-coisa-funcionar", "texto": "O que fez a coisa funcionar"}, {"nivel": 2, "ancora": "o-que-veio-junto-e-nao-e-bonito", "texto": "O que veio junto, e não é bonito"}, {"nivel": 2, "ancora": "a-leitura-que-interessa", "texto": "A leitura que interessa"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}, {"nivel": 2, "ancora": "bibliografia", "texto": "Bibliografia"}]}, {"tipo": "pagina", "id": "fundamentos/engenharia-de-ml", "titulo": "1. Engenharia de Machine Learning", "descricao": "Por que o modelo é a parte fácil", "sumario": [{"nivel": 2, "ancora": "aprendizado-de-maquina-em-uma-frase", "texto": "Aprendizado de máquina, em uma frase"}, {"nivel": 2, "ancora": "a-diferenca-que-muda-tudo-probabilidade", "texto": "A diferença que muda tudo: probabilidade"}, {"nivel": 2, "ancora": "programacao-tradicional-contra-ml", "texto": "Programação tradicional contra ML"}, {"nivel": 2, "ancora": "cientista-de-dados-e-engenheiro-de-ml", "texto": "Cientista de dados e engenheiro de ML"}, {"nivel": 2, "ancora": "o-ciclo-de-vida-e-por-que-ele-nao-termina", "texto": "O ciclo de vida, e por que ele não termina"}, {"nivel": 2, "ancora": "por-que-os-modelos-apodrecem", "texto": "Por que os modelos apodrecem"}, {"nivel": 2, "ancora": "producao-nao-e-competicao", "texto": "Produção não é competição"}, {"nivel": 2, "ancora": "mlops-se-nao-esta-automatizado-esta-quebrado", "texto": "MLOps: se não está automatizado, está quebrado"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}, {"nivel": 2, "ancora": "bibliografia", "texto": "Bibliografia"}]}, {"tipo": "pagina", "id": "fundamentos/engenharia-de-ia", "titulo": "2. Engenharia de IA", "descricao": "Construir com modelos que outra pessoa treinou", "sumario": [{"nivel": 2, "ancora": "a-fronteira-mudou-de-lugar", "texto": "A fronteira mudou de lugar"}, {"nivel": 2, "ancora": "a-unidade-de-tudo-o-token", "texto": "A unidade de tudo: o token"}, {"nivel": 2, "ancora": "como-o-modelo-preve-autorregressao", "texto": "Como o modelo prevê: autorregressão"}, {"nivel": 2, "ancora": "o-truque-que-permitiu-a-escala-auto-supervisao", "texto": "O truque que permitiu a escala: auto-supervisão"}, {"nivel": 2, "ancora": "modelos-de-fundacao-e-multimodalidade", "texto": "Modelos de fundação e multimodalidade"}, {"nivel": 2, "ancora": "as-tres-formas-de-adaptar-da-mais-barata-para-a-mais-cara", "texto": "As três formas de adaptar, da mais barata para a mais cara"}, {"nivel": 2, "ancora": "o-ciclo-de-uma-aplicacao-de-ia", "texto": "O ciclo de uma aplicação de IA"}, {"nivel": 2, "ancora": "avaliar-e-testar-o-que-da-errado", "texto": "Avaliar é testar o que dá errado"}, {"nivel": 2, "ancora": "onde-isso-rende-de-verdade", "texto": "Onde isso rende de verdade"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}, {"nivel": 2, "ancora": "bibliografia", "texto": "Bibliografia"}]}, {"tipo": "parte", "titulo": "Modelos Lineares"}, {"tipo": "pagina", "id": "modelos-lineares", "titulo": "Visão geral", "descricao": "Visão geral do módulo de Modelos Lineares", "sumario": []}, {"tipo": "pagina", "id": "modelos-lineares/aula-01-regressao-linear-simples", "titulo": "Aula 1 — Regressão Linear Simples", "descricao": "Reta de previsão, gradiente descendente e métricas de regressão", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "a-reta-que-preve-o-preco", "texto": "A reta que prevê o preço"}, {"nivel": 2, "ancora": "o-erro-de-cada-previsao", "texto": "O erro de cada previsão"}, {"nivel": 2, "ancora": "encontrando-a-melhor-reta-o-erro-quadratico-medio", "texto": "Encontrando a melhor reta: o erro quadrático médio"}, {"nivel": 2, "ancora": "existe-um-atalho-minimos-quadrados", "texto": "Existe um atalho: mínimos quadrados"}, {"nivel": 2, "ancora": "gradiente-descendente-descendo-a-serra-na-neblina", "texto": "Gradiente descendente: descendo a serra na neblina"}, {"nivel": 3, "ancora": "por-que-nao-usar-sempre-o-atalho", "texto": "Por que não usar sempre o atalho"}, {"nivel": 3, "ancora": "o-terreno-existe-e-da-para-desenha-lo", "texto": "O terreno existe, e dá para desenhá-lo"}, {"nivel": 3, "ancora": "a-inclinacao-tem-nome-derivada", "texto": "A inclinação tem nome: derivada"}, {"nivel": 3, "ancora": "o-gradiente-uma-inclinacao-para-cada-peso", "texto": "O gradiente: uma inclinação para cada peso"}, {"nivel": 3, "ancora": "a-regra-de-atualizacao", "texto": "A regra de atualização"}, {"nivel": 3, "ancora": "o-algoritmo-do-comeco-ao-fim", "texto": "O algoritmo, do começo ao fim"}, {"nivel": 3, "ancora": "com-os-dois-pesos-ao-mesmo-tempo", "texto": "Com os dois pesos ao mesmo tempo"}, {"nivel": 3, "ancora": "a-taxa-de-aprendizado", "texto": "A taxa de aprendizado"}, {"nivel": 2, "ancora": "metricas-de-regressao", "texto": "Métricas de regressão"}, {"nivel": 3, "ancora": "mae-o-erro-medio-em-reais", "texto": "MAE: o erro médio, em reais"}, {"nivel": 3, "ancora": "mse-e-rmse-penalizando-os-erros-grandes", "texto": "MSE e RMSE: penalizando os erros grandes"}, {"nivel": 3, "ancora": "mape-o-erro-em-porcentagem", "texto": "MAPE: o erro em porcentagem"}, {"nivel": 3, "ancora": "r-quanto-da-bagunca-a-reta-explica", "texto": "R²: quanto da bagunça a reta explica"}, {"nivel": 3, "ancora": "quando-uma-metrica-engana", "texto": "Quando uma métrica engana"}, {"nivel": 2, "ancora": "o-intervalo-de-predicao", "texto": "O intervalo de predição"}, {"nivel": 3, "ancora": "quanto-uma-corrida-se-afasta-da-reta", "texto": "Quanto uma corrida se afasta da reta"}, {"nivel": 3, "ancora": "a-regra-pratica-dois-desvios-para-cada-lado", "texto": "A regra prática: dois desvios para cada lado"}, {"nivel": 3, "ancora": "ela-funciona-da-para-conferir", "texto": "Ela funciona? Dá para conferir"}, {"nivel": 3, "ancora": "as-duas-faixas-do-painel-da-direita", "texto": "As duas faixas do painel da direita"}, {"nivel": 3, "ancora": "a-formula-completa-para-constar", "texto": "A fórmula completa, para constar"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "modelos-lineares/aula-02-regressao-multipla", "titulo": "Aula 2 — Regressão Múltipla", "descricao": "Várias variáveis ao mesmo tempo, preditores categóricos e interpretação dos coeficientes", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "uma-variavel-nao-basta", "texto": "Uma variável não basta"}, {"nivel": 2, "ancora": "a-formula-com-varias-variaveis", "texto": "A fórmula com várias variáveis"}, {"nivel": 2, "ancora": "nada-muda-no-treino", "texto": "Nada muda no treino"}, {"nivel": 2, "ancora": "o-bairro-nao-e-um-numero", "texto": "O bairro não é um número"}, {"nivel": 2, "ancora": "lendo-os-coeficientes", "texto": "Lendo os coeficientes"}, {"nivel": 2, "ancora": "por-que-um-coeficiente-muda-quando-outro-entra", "texto": "Por que um coeficiente muda quando outro entra"}, {"nivel": 2, "ancora": "quanto-mais-variaveis-melhor", "texto": "Quanto mais variáveis, melhor?"}, {"nivel": 2, "ancora": "separe-treino-e-teste", "texto": "Separe treino e teste"}, {"nivel": 2, "ancora": "regularizacao-um-freio-nos-coeficientes", "texto": "Regularização: um freio nos coeficientes"}, {"nivel": 3, "ancora": "ridge-encolhe-tudo", "texto": "Ridge: encolhe tudo"}, {"nivel": 3, "ancora": "lasso-corta", "texto": "Lasso: corta"}, {"nivel": 3, "ancora": "elasticnet-os-dois-juntos", "texto": "ElasticNet: os dois juntos"}, {"nivel": 2, "ancora": "o-resultado-nos-90-apartamentos-de-teste", "texto": "O resultado, nos 90 apartamentos de teste"}, {"nivel": 2, "ancora": "padronizar-antes-de-regularizar", "texto": "Padronizar antes de regularizar"}, {"nivel": 2, "ancora": "qual-dos-tres-usar", "texto": "Qual dos três usar"}, {"nivel": 2, "ancora": "o-grafico-que-voce-olha-antes-de-confiar", "texto": "O gráfico que você olha antes de confiar"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "modelos-lineares/aula-03-regressao-logistica", "titulo": "Aula 3 — Regressão Logística", "descricao": "Função sigmoide, interpretação dos coeficientes e métricas de classificação", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "por-que-a-reta-nao-serve", "texto": "Por que a reta não serve"}, {"nivel": 2, "ancora": "a-funcao-sigmoide", "texto": "A função sigmoide"}, {"nivel": 2, "ancora": "o-modelo-logistico", "texto": "O modelo logístico"}, {"nivel": 2, "ancora": "interpretando-os-coeficientes", "texto": "Interpretando os coeficientes"}, {"nivel": 2, "ancora": "da-probabilidade-a-decisao", "texto": "Da probabilidade à decisão"}, {"nivel": 2, "ancora": "a-matriz-de-confusao", "texto": "A matriz de confusão"}, {"nivel": 2, "ancora": "as-quatro-metricas", "texto": "As quatro métricas"}, {"nivel": 3, "ancora": "acuracia-a-fracao-de-acertos", "texto": "Acurácia: a fração de acertos"}, {"nivel": 3, "ancora": "precisao-e-recall", "texto": "Precisão e recall"}, {"nivel": 3, "ancora": "f1-as-duas-num-numero-so", "texto": "F1: as duas num número só"}, {"nivel": 2, "ancora": "validacao-cruzada-medir-antes-de-escolher", "texto": "Validação cruzada: medir antes de escolher"}, {"nivel": 2, "ancora": "escolhendo-o-limiar", "texto": "Escolhendo o limiar"}, {"nivel": 2, "ancora": "a-curva-roc-todos-os-limiares-de-uma-vez", "texto": "A curva ROC: todos os limiares de uma vez"}, {"nivel": 3, "ancora": "auc-a-area-embaixo-da-curva", "texto": "AUC: a área embaixo da curva"}, {"nivel": 2, "ancora": "calibracao-a-probabilidade-e-um-numero-honesto", "texto": "Calibração: a probabilidade é um número honesto?"}, {"nivel": 3, "ancora": "o-brier-calibracao-num-numero", "texto": "O Brier: calibração num número"}, {"nivel": 3, "ancora": "o-que-quebra-a-calibracao", "texto": "O que quebra a calibração"}, {"nivel": 2, "ancora": "o-limiar-e-a-razao-entre-dois-custos", "texto": "O limiar é a razão entre dois custos"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "modelos-lineares/quiz-modelos-lineares", "titulo": "Quiz — Modelos Lineares", "descricao": "Quinze perguntas para conferir se você sabe ler e interpretar um modelo linear", "sumario": [{"nivel": 2, "ancora": "regressao-linear-simples", "texto": "Regressão linear simples"}, {"nivel": 2, "ancora": "regressao-multipla", "texto": "Regressão múltipla"}, {"nivel": 2, "ancora": "regressao-logistica", "texto": "Regressão logística"}, {"nivel": 2, "ancora": "treino-teste-e-ajuste", "texto": "Treino, teste e ajuste"}, {"nivel": 2, "ancora": "onde-revisar", "texto": "Onde revisar"}]}, {"tipo": "parte", "titulo": "Sistemas de ML"}, {"tipo": "pagina", "id": "sistemas-de-ml", "titulo": "Visão geral", "descricao": "Visão geral do módulo de Sistemas de ML", "sumario": []}, {"tipo": "pagina", "id": "sistemas-de-ml/aula-04-sistema-ponta-a-ponta", "titulo": "Aula 4 — Um Sistema de Ponta a Ponta", "descricao": "Um sistema de risco de cancelamento, do dado bruto à decisão", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "os-dados", "texto": "Os dados"}, {"nivel": 2, "ancora": "a-prova-final-fica-trancada", "texto": "A prova final fica trancada"}, {"nivel": 2, "ancora": "o-baseline-a-regua", "texto": "O baseline: a régua"}, {"nivel": 2, "ancora": "o-preparo-uma-receita-para-cada-coluna", "texto": "O preparo: uma receita para cada coluna"}, {"nivel": 2, "ancora": "o-modelo-aprende-um-cliente-de-cada-vez", "texto": "O modelo aprende um cliente de cada vez"}, {"nivel": 2, "ancora": "o-ajuste-fino-com-optuna", "texto": "O ajuste fino com Optuna"}, {"nivel": 2, "ancora": "a-prova-final", "texto": "A prova final"}, {"nivel": 2, "ancora": "em-que-o-modelo-presta-atencao", "texto": "Em que o modelo presta atenção"}, {"nivel": 2, "ancora": "a-decisao-para-quem-ligar", "texto": "A decisão: para quem ligar"}, {"nivel": 2, "ancora": "e-se", "texto": "E se?"}, {"nivel": 2, "ancora": "o-projeto", "texto": "O projeto"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "sistemas-de-ml/desafio-titanic", "titulo": "Desafio Titanic", "descricao": "Um desafio de 45 minutos em equipe, com placar ao vivo da turma", "sumario": [{"nivel": 2, "ancora": "o-desafio", "texto": "O desafio"}, {"nivel": 2, "ancora": "como-participar", "texto": "Como participar"}, {"nivel": 2, "ancora": "os-dados", "texto": "Os dados"}, {"nivel": 2, "ancora": "o-arquivo-de-envio", "texto": "O arquivo de envio"}, {"nivel": 2, "ancora": "como-o-placar-ordena", "texto": "Como o placar ordena"}, {"nivel": 2, "ancora": "as-regras", "texto": "As regras"}, {"nivel": 2, "ancora": "dicas", "texto": "Dicas"}, {"nivel": 2, "ancora": "o-placar", "texto": "O placar"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}]}, {"tipo": "parte", "titulo": "Séries Temporais"}, {"tipo": "pagina", "id": "series-temporais", "titulo": "Visão geral", "descricao": "Visão geral do módulo de Séries Temporais", "sumario": []}, {"tipo": "pagina", "id": "series-temporais/aula-05-conceitos-series-temporais", "titulo": "Aula 5 — Conceitos de Séries Temporais", "descricao": "Tendência, sazonalidade e ruído, as previsões simples que todo modelo precisa vencer, e os dois primeiros modelos: regressão com calendário e ARIMA", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "as-tres-pecas-de-qualquer-serie", "texto": "As três peças de qualquer série"}, {"nivel": 2, "ancora": "a-media-movel", "texto": "A média móvel"}, {"nivel": 2, "ancora": "o-padrao-semanal", "texto": "O padrão semanal"}, {"nivel": 2, "ancora": "a-regra-de-ouro-o-corte-e-no-tempo", "texto": "A regra de ouro: o corte é no tempo"}, {"nivel": 2, "ancora": "tres-previsoes-sem-modelo-nenhum", "texto": "Três previsões sem modelo nenhum"}, {"nivel": 2, "ancora": "mape-o-erro-em-porcentagem", "texto": "MAPE: o erro em porcentagem"}, {"nivel": 2, "ancora": "o-primeiro-modelo-uma-regressao-com-o-calendario", "texto": "O primeiro modelo: uma regressão com o calendário"}, {"nivel": 3, "ancora": "uma-peca-de-cada-vez", "texto": "Uma peça de cada vez"}, {"nivel": 2, "ancora": "o-passado-como-variavel-a-ideia-do-arima", "texto": "O passado como variável: a ideia do ARIMA"}, {"nivel": 3, "ancora": "p-quantos-dias-do-passado-entram", "texto": "p: quantos dias do passado entram"}, {"nivel": 3, "ancora": "d-prever-o-valor-ou-a-mudanca", "texto": "d: prever o valor ou a mudança?"}, {"nivel": 3, "ancora": "q-corrigir-com-o-erro-de-ontem", "texto": "q: corrigir com o erro de ontem"}, {"nivel": 3, "ancora": "os-tres-numeros-juntos", "texto": "Os três números juntos"}, {"nivel": 3, "ancora": "a-versao-sazonal", "texto": "A versão sazonal"}, {"nivel": 3, "ancora": "como-escolher-os-numeros", "texto": "Como escolher os números"}, {"nivel": 2, "ancora": "o-placar", "texto": "O placar"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "series-temporais/aula-06-prophet", "titulo": "Aula 6 — Séries Temporais com Prophet e TimesFM", "descricao": "O Prophet estima tendência, sazonalidades e feriados; o TimesFM prevê sem treino nenhum; e o calendário continua sendo seu", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "o-que-o-prophet-faz", "texto": "O que o Prophet faz"}, {"nivel": 2, "ancora": "o-formato-que-ele-exige", "texto": "O formato que ele exige"}, {"nivel": 2, "ancora": "tres-linhas-para-treinar-e-prever", "texto": "Três linhas para treinar e prever"}, {"nivel": 2, "ancora": "as-pecas-que-ele-estimou-sozinho", "texto": "As peças que ele estimou sozinho"}, {"nivel": 2, "ancora": "feriados-o-que-o-modelo-nao-adivinha", "texto": "Feriados: o que o modelo não adivinha"}, {"nivel": 2, "ancora": "o-prophet-contra-a-regua", "texto": "O Prophet contra a régua"}, {"nivel": 2, "ancora": "um-modelo-que-nunca-viu-esta-cafeteria-o-timesfm", "texto": "Um modelo que nunca viu esta cafeteria: o TimesFM"}, {"nivel": 3, "ancora": "o-contexto-quanto-passado-voce-entrega", "texto": "O contexto: quanto passado você entrega"}, {"nivel": 3, "ancora": "juntando-os-dois-mundos", "texto": "Juntando os dois mundos"}, {"nivel": 2, "ancora": "o-intervalo-de-incerteza", "texto": "O intervalo de incerteza"}, {"nivel": 2, "ancora": "quando-a-tendencia-dobra", "texto": "Quando a tendência dobra"}, {"nivel": 2, "ancora": "o-placar-do-modulo", "texto": "O placar do módulo"}, {"nivel": 2, "ancora": "qual-ferramenta-usar", "texto": "Qual ferramenta usar"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "series-temporais/quiz-series-temporais", "titulo": "Quiz — Séries Temporais", "descricao": "Dez perguntas para conferir se você sabe ler uma série temporal e avaliar uma previsão", "sumario": [{"nivel": 2, "ancora": "ler-uma-serie", "texto": "Ler uma série"}, {"nivel": 2, "ancora": "a-regua-e-os-primeiros-modelos", "texto": "A régua e os primeiros modelos"}, {"nivel": 2, "ancora": "prophet-e-timesfm", "texto": "Prophet e TimesFM"}, {"nivel": 2, "ancora": "onde-revisar", "texto": "Onde revisar"}]}, {"tipo": "parte", "titulo": "Redes Neurais"}, {"tipo": "pagina", "id": "redes-neurais", "titulo": "Visão geral", "descricao": "Visão geral do módulo de Redes Neurais", "sumario": []}, {"tipo": "pagina", "id": "redes-neurais/aula-07-redes-neurais-densas", "titulo": "Aula 7 — Fundamentos de Redes Neurais", "descricao": "Neurônio, ativação, camadas, treino, regularização e callbacks, com Keras", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "por-que-a-reta-nao-basta", "texto": "Por que a reta não basta"}, {"nivel": 2, "ancora": "o-que-e-um-neuronio", "texto": "O que é um neurônio"}, {"nivel": 2, "ancora": "a-dobra-funcoes-de-ativacao", "texto": "A dobra: funções de ativação"}, {"nivel": 2, "ancora": "a-rede-inteira-em-cinco-linhas", "texto": "A rede inteira, em cinco linhas"}, {"nivel": 2, "ancora": "como-ela-aprende-e-a-aula-1-de-novo", "texto": "Como ela aprende (é a Aula 1 de novo)"}, {"nivel": 2, "ancora": "epoca-lote-e-a-curva-de-treino", "texto": "Época, lote e a curva de treino"}, {"nivel": 2, "ancora": "quando-a-rede-decora", "texto": "Quando a rede decora"}, {"nivel": 3, "ancora": "l2-pesos-pequenos", "texto": "L2: pesos pequenos"}, {"nivel": 3, "ancora": "dropout-neuronios-sorteados", "texto": "Dropout: neurônios sorteados"}, {"nivel": 2, "ancora": "callbacks-o-piloto-automatico-do-treino", "texto": "Callbacks: o piloto automático do treino"}, {"nivel": 3, "ancora": "earlystopping-parar-quando-nao-melhora-mais", "texto": "EarlyStopping: parar quando não melhora mais"}, {"nivel": 3, "ancora": "reducelronplateau-encolher-o-passo-quando-trava", "texto": "ReduceLROnPlateau: encolher o passo quando trava"}, {"nivel": 3, "ancora": "modelcheckpoint-guardar-o-melhor-modelo", "texto": "ModelCheckpoint: guardar o melhor modelo"}, {"nivel": 3, "ancora": "os-tres-juntos", "texto": "Os três juntos"}, {"nivel": 2, "ancora": "quando-a-rede-nao-e-a-resposta", "texto": "Quando a rede não é a resposta"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "redes-neurais/desafio-mnist", "titulo": "Desafio MNIST", "descricao": "Um desafio em dupla: treinar uma rede densa que lê dígitos escritos à mão", "sumario": [{"nivel": 2, "ancora": "o-desafio", "texto": "O desafio"}, {"nivel": 2, "ancora": "como-participar", "texto": "Como participar"}, {"nivel": 2, "ancora": "o-que-voce-vai-ver", "texto": "O que você vai ver"}, {"nivel": 2, "ancora": "depois-do-desafio", "texto": "Depois do desafio"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}]}, {"tipo": "pagina", "id": "redes-neurais/aula-08-redes-convolucionais", "titulo": "Aula 8 — Redes Convolucionais", "descricao": "Convolução, filtros e pooling, com Keras", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "a-foto-por-dentro", "texto": "A foto por dentro"}, {"nivel": 3, "ancora": "preto-e-branco-um-numero-por-pixel", "texto": "Preto e branco: um número por pixel"}, {"nivel": 3, "ancora": "em-cor-tres-numeros-por-pixel", "texto": "Em cor: três números por pixel"}, {"nivel": 3, "ancora": "as-fotos-desta-aula", "texto": "As fotos desta aula"}, {"nivel": 2, "ancora": "por-que-a-rede-da-aula-7-e-ruim-nisso", "texto": "Por que a rede da Aula 7 é ruim nisso"}, {"nivel": 2, "ancora": "a-janela-que-passeia", "texto": "A janela que passeia"}, {"nivel": 2, "ancora": "tres-ideias-em-uma", "texto": "Três ideias em uma"}, {"nivel": 2, "ancora": "pooling-encolher-sem-perder-o-que-importa", "texto": "Pooling: encolher sem perder o que importa"}, {"nivel": 2, "ancora": "os-filtros-que-ela-aprende-sozinha", "texto": "Os filtros que ela aprende sozinha"}, {"nivel": 2, "ancora": "a-rede-convolucional-inteira", "texto": "A rede convolucional inteira"}, {"nivel": 2, "ancora": "a-saida-dez-probabilidades", "texto": "A saída: dez probabilidades"}, {"nivel": 3, "ancora": "um-exemplo-de-verdade", "texto": "Um exemplo de verdade"}, {"nivel": 3, "ancora": "quando-a-rede-hesita", "texto": "Quando a rede hesita"}, {"nivel": 2, "ancora": "o-resultado", "texto": "O resultado"}, {"nivel": 2, "ancora": "por-que-ela-ganha-o-teste-do-deslocamento", "texto": "Por que ela ganha: o teste do deslocamento"}, {"nivel": 2, "ancora": "onde-ela-erra", "texto": "Onde ela erra"}, {"nivel": 2, "ancora": "quando-a-convolucao-nao-serve", "texto": "Quando a convolução não serve"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "redes-neurais/quiz-redes-neurais", "titulo": "Quiz — Redes Neurais", "descricao": "Dez perguntas para conferir se você sabe ler uma rede neural, uma curva de treino e uma convolução", "sumario": [{"nivel": 2, "ancora": "redes-densas", "texto": "Redes densas"}, {"nivel": 2, "ancora": "redes-convolucionais", "texto": "Redes convolucionais"}, {"nivel": 2, "ancora": "onde-revisar", "texto": "Onde revisar"}]}, {"tipo": "parte", "titulo": "LLM do Zero"}, {"tipo": "pagina", "id": "llm-do-zero", "titulo": "Visão geral", "descricao": "Visão geral do módulo de LLM do Zero", "sumario": [{"nivel": 2, "ancora": "como-as-aulas-funcionam", "texto": "Como as aulas funcionam"}, {"nivel": 2, "ancora": "os-tres-habitos-do-modulo", "texto": "Os três hábitos do módulo"}]}, {"tipo": "pagina", "id": "llm-do-zero/aula-09-tokenizacao", "titulo": "Aula 9 — Do Texto aos Números", "descricao": "O que um LLM faz, e como o texto vira número", "sumario": [{"nivel": 2, "ancora": "onde-estamos", "texto": "Onde estamos"}, {"nivel": 2, "ancora": "o-que-um-llm-faz", "texto": "O que um LLM faz"}, {"nivel": 2, "ancora": "o-modelo-mais-simples-contar", "texto": "O modelo mais simples: contar"}, {"nivel": 2, "ancora": "por-que-contar-nao-escala", "texto": "Por que contar não escala"}, {"nivel": 2, "ancora": "o-material-da-obra", "texto": "O material da obra"}, {"nivel": 2, "ancora": "limpar-o-texto-sem-estragar-o-texto", "texto": "Limpar o texto, sem estragar o texto"}, {"nivel": 2, "ancora": "a-unidade-errada-duas-vezes", "texto": "A unidade errada, duas vezes"}, {"nivel": 2, "ancora": "o-meio-termo-bpe", "texto": "O meio-termo: BPE"}, {"nivel": 2, "ancora": "bytes-para-nada-ficar-de-fora", "texto": "Bytes, para nada ficar de fora"}, {"nivel": 2, "ancora": "antes-de-juntar-separar-as-palavras", "texto": "Antes de juntar, separar as palavras"}, {"nivel": 2, "ancora": "codificar-e-decodificar", "texto": "Codificar e decodificar"}, {"nivel": 2, "ancora": "o-tokenizador-tambem-tem-sotaque", "texto": "O tokenizador também tem sotaque"}, {"nivel": 2, "ancora": "depois-do-numero-um-vetor", "texto": "Depois do número, um vetor"}, {"nivel": 2, "ancora": "cola-da-aula", "texto": "Cola da aula"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}, {"nivel": 2, "ancora": "quizzes-das-microaulas", "texto": "Quizzes das microaulas"}, {"nivel": 3, "ancora": "microaula-1-o-que-um-llm-faz", "texto": "Microaula 1: o que um LLM faz"}, {"nivel": 3, "ancora": "microaula-2-a-unidade-certa", "texto": "Microaula 2: a unidade certa"}, {"nivel": 3, "ancora": "microaula-3-do-texto-aos-numeros-e-de-volta", "texto": "Microaula 3: do texto aos números, e de volta"}]}, {"tipo": "pagina", "id": "llm-do-zero/aula-10-como-funciona-um-llm", "titulo": "Aula 10 — Como Funciona um LLM", "descricao": "O embedding, a atenção, o bloco transformer e o modelo inteiro", "sumario": [{"nivel": 2, "ancora": "onde-estamos", "texto": "Onde estamos"}, {"nivel": 2, "ancora": "o-token-vira-vetor", "texto": "O token vira vetor"}, {"nivel": 2, "ancora": "o-que-esses-numeros-querem-dizer", "texto": "O que esses números querem dizer"}, {"nivel": 2, "ancora": "parecido-quer-dizer-apontar-para-o-mesmo-lado", "texto": "Parecido quer dizer apontar para o mesmo lado"}, {"nivel": 2, "ancora": "o-exemplo-de-treino", "texto": "O exemplo de treino"}, {"nivel": 2, "ancora": "a-perda", "texto": "A perda"}, {"nivel": 2, "ancora": "a-atencao-o-problema", "texto": "A atenção: o problema"}, {"nivel": 2, "ancora": "os-tres-papeis", "texto": "Os três papéis"}, {"nivel": 2, "ancora": "a-conta", "texto": "A conta"}, {"nivel": 2, "ancora": "a-mascara-nao-vale-olhar-a-resposta", "texto": "A máscara: não vale olhar a resposta"}, {"nivel": 2, "ancora": "quatro-cabecas-quatro-olhares", "texto": "Quatro cabeças, quatro olhares"}, {"nivel": 2, "ancora": "a-posicao", "texto": "A posição"}, {"nivel": 2, "ancora": "o-preco-da-janela", "texto": "O preço da janela"}, {"nivel": 2, "ancora": "o-bloco-transformer", "texto": "O bloco transformer"}, {"nivel": 2, "ancora": "as-duas-metades", "texto": "As duas metades"}, {"nivel": 2, "ancora": "o-atalho", "texto": "O atalho"}, {"nivel": 2, "ancora": "a-normalizacao", "texto": "A normalização"}, {"nivel": 2, "ancora": "o-modelo-inteiro", "texto": "O modelo inteiro"}, {"nivel": 2, "ancora": "onde-moram-os-pesos", "texto": "Onde moram os pesos"}, {"nivel": 2, "ancora": "o-passo-zero-e-a-perplexidade", "texto": "O passo zero e a perplexidade"}, {"nivel": 2, "ancora": "cola-da-aula", "texto": "Cola da aula"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}, {"nivel": 2, "ancora": "quizzes-das-microaulas", "texto": "Quizzes das microaulas"}, {"nivel": 3, "ancora": "microaula-1-o-token-vira-vetor", "texto": "Microaula 1: o token vira vetor"}, {"nivel": 3, "ancora": "microaula-2-a-atencao", "texto": "Microaula 2: a atenção"}, {"nivel": 3, "ancora": "microaula-3-o-bloco-e-o-modelo-inteiro", "texto": "Microaula 3: o bloco e o modelo inteiro"}]}, {"tipo": "pagina", "id": "llm-do-zero/aula-11-treinar-e-usar", "titulo": "Aula 11 — Treinar e Usar um LLM", "descricao": "O treino no processador, a geração de texto, o ajuste fino e o que o modelo não sabe fazer", "sumario": [{"nivel": 2, "ancora": "onde-estamos", "texto": "Onde estamos"}, {"nivel": 2, "ancora": "o-ciclo-de-treino", "texto": "O ciclo de treino"}, {"nivel": 2, "ancora": "escolha-1-o-otimizador-adamw", "texto": "Escolha 1: o otimizador AdamW"}, {"nivel": 2, "ancora": "escolha-2-cortar-o-gradiente", "texto": "Escolha 2: cortar o gradiente"}, {"nivel": 2, "ancora": "escolha-3-o-tamanho-do-passo-segue-o-relogio", "texto": "Escolha 3: o tamanho do passo segue o relógio"}, {"nivel": 2, "ancora": "escolha-4-conferir-e-salvar-o-melhor", "texto": "Escolha 4: conferir e salvar o melhor"}, {"nivel": 2, "ancora": "o-treino-de-verdade", "texto": "O treino de verdade"}, {"nivel": 2, "ancora": "quanto-custa-treinar", "texto": "Quanto custa treinar"}, {"nivel": 2, "ancora": "o-modelo-nao-devolve-uma-palavra", "texto": "O modelo não devolve uma palavra"}, {"nivel": 2, "ancora": "gerar-e-repetir-um-passo", "texto": "Gerar é repetir um passo"}, {"nivel": 2, "ancora": "duas-escolhas-ruins", "texto": "Duas escolhas ruins"}, {"nivel": 2, "ancora": "botao-1-a-temperatura", "texto": "Botão 1: a temperatura"}, {"nivel": 2, "ancora": "botao-2-cortar-a-cauda", "texto": "Botão 2: cortar a cauda"}, {"nivel": 2, "ancora": "os-quatro-textos", "texto": "Os quatro textos"}, {"nivel": 2, "ancora": "ele-copia-ou-inventa", "texto": "Ele copia ou inventa?"}, {"nivel": 2, "ancora": "por-que-o-modelo-alucina", "texto": "Por que o modelo alucina"}, {"nivel": 2, "ancora": "o-modelo-e-o-corpus", "texto": "O modelo é o corpus"}, {"nivel": 2, "ancora": "ajuste-fino-o-mesmo-treino-outro-texto", "texto": "Ajuste fino: o mesmo treino, outro texto"}, {"nivel": 2, "ancora": "o-que-muda-quando-o-modelo-e-grande", "texto": "O que muda quando o modelo é grande"}, {"nivel": 2, "ancora": "do-modelo-ao-assistente", "texto": "Do modelo ao assistente"}, {"nivel": 2, "ancora": "cola-da-aula", "texto": "Cola da aula"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}, {"nivel": 2, "ancora": "quizzes-das-microaulas", "texto": "Quizzes das microaulas"}, {"nivel": 3, "ancora": "microaula-1-o-treino", "texto": "Microaula 1: o treino"}, {"nivel": 3, "ancora": "microaula-2-do-numero-a-palavra", "texto": "Microaula 2: do número à palavra"}, {"nivel": 3, "ancora": "microaula-3-ajuste-fino-e-limites", "texto": "Microaula 3: ajuste fino e limites"}]}, {"tipo": "pagina", "id": "llm-do-zero/colas-dos-exercicios", "titulo": "Colas dos Exercícios", "descricao": "Dicas para destravar cada exercício das Aulas 9 a 11, uma de cada vez", "sumario": [{"nivel": 2, "ancora": "antes-de-abrir-qualquer-dica", "texto": "Antes de abrir qualquer dica"}, {"nivel": 2, "ancora": "os-erros-mais-comuns-no-colab", "texto": "Os erros mais comuns no Colab"}, {"nivel": 2, "ancora": "aula-9-do-texto-aos-numeros", "texto": "Aula 9 — Do Texto aos Números"}, {"nivel": 3, "ancora": "exercicio-9-1", "texto": "Exercício 9.1"}, {"nivel": 3, "ancora": "exercicio-9-2", "texto": "Exercício 9.2"}, {"nivel": 3, "ancora": "exercicio-9-3", "texto": "Exercício 9.3"}, {"nivel": 2, "ancora": "aula-10-como-funciona-um-llm", "texto": "Aula 10 — Como Funciona um LLM"}, {"nivel": 3, "ancora": "exercicio-10-1", "texto": "Exercício 10.1"}, {"nivel": 3, "ancora": "exercicio-10-2", "texto": "Exercício 10.2"}, {"nivel": 3, "ancora": "exercicio-10-3", "texto": "Exercício 10.3"}, {"nivel": 2, "ancora": "aula-11-treinar-e-usar-um-llm", "texto": "Aula 11 — Treinar e Usar um LLM"}, {"nivel": 3, "ancora": "exercicio-11-1", "texto": "Exercício 11.1"}, {"nivel": 3, "ancora": "exercicio-11-2", "texto": "Exercício 11.2"}, {"nivel": 3, "ancora": "exercicio-11-3", "texto": "Exercício 11.3"}]}, {"tipo": "parte", "titulo": "IA Generativa"}, {"tipo": "pagina", "id": "ia-generativa", "titulo": "Visão geral", "descricao": "Visão geral do módulo de IA Generativa", "sumario": []}, {"tipo": "pagina", "id": "ia-generativa/aula-12-modelos-de-fundacao", "titulo": "Aula 12 — Modelos de Fundação", "descricao": "Rodar um modelo pronto, e aprender a falar com ele", "sumario": [{"nivel": 2, "ancora": "de-810-mil-para-494-milhoes", "texto": "De 810 mil para 494 milhões"}, {"nivel": 2, "ancora": "as-tres-etapas", "texto": "As três etapas"}, {"nivel": 2, "ancora": "rodar-tres-linhas", "texto": "Rodar: três linhas"}, {"nivel": 2, "ancora": "nao-existe-conversa", "texto": "Não existe conversa"}, {"nivel": 2, "ancora": "o-prompt-e-o-unico-controle-que-voce-tem", "texto": "O prompt é o único controle que você tem"}, {"nivel": 2, "ancora": "poucos-exemplos-valem-mais-que-muita-explicacao", "texto": "Poucos exemplos valem mais que muita explicação"}, {"nivel": 2, "ancora": "os-parametros-ja-conhecidos", "texto": "Os parâmetros: já conhecidos"}, {"nivel": 2, "ancora": "ele-nao-sabe-dizer-quot-nao-sei-quot", "texto": "Ele não sabe dizer &quot;não sei&quot;"}, {"nivel": 2, "ancora": "aberto-ou-por-api", "texto": "Aberto ou por API"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "ia-generativa/aula-13-aplicacao-rag", "titulo": "Aula 13 — Uma Aplicação de Verdade", "descricao": "Buscar antes de responder, e medir se melhorou", "sumario": [{"nivel": 2, "ancora": "o-problema", "texto": "O problema"}, {"nivel": 2, "ancora": "rag-buscar-antes-de-responder", "texto": "RAG: buscar antes de responder"}, {"nivel": 2, "ancora": "dividir-o-documento-em-pedacos", "texto": "Dividir o documento em pedaços"}, {"nivel": 2, "ancora": "transformar-texto-em-vetor", "texto": "Transformar texto em vetor"}, {"nivel": 2, "ancora": "a-busca", "texto": "A busca"}, {"nivel": 2, "ancora": "montar-o-prompt", "texto": "Montar o prompt"}, {"nivel": 2, "ancora": "medir-que-e-a-parte-que-ninguem-faz", "texto": "Medir, que é a parte que ninguém faz"}, {"nivel": 2, "ancora": "o-que-fazer-quando-nao-esta-bom", "texto": "O que fazer quando não está bom"}, {"nivel": 2, "ancora": "o-caminho-inteiro", "texto": "O caminho inteiro"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}];
+  var NAV = [{"tipo": "parte", "titulo": ""}, {"tipo": "pagina", "id": "index", "titulo": "Roadmap", "descricao": "Roadmap do Nanodegree de IA & ML", "sumario": [{"nivel": 2, "ancora": "como-este-curso-funciona", "texto": "Como este curso funciona"}, {"nivel": 2, "ancora": "o-caminho-do-curso", "texto": "O caminho do curso"}]}, {"tipo": "pagina", "id": "leia-me", "titulo": "LEIA-ME", "descricao": "Como este material foi feito, e por quê", "sumario": [{"nivel": 2, "ancora": "o-que-quot-bem-feito-quot-quer-dizer-aqui", "texto": "O que &quot;bem feito&quot; quer dizer aqui"}, {"nivel": 2, "ancora": "onde-esta-o-codigo", "texto": "Onde está o código"}]}, {"tipo": "pagina", "id": "antes-de-comecar", "titulo": "Antes de começar", "descricao": "Como abrir e rodar os notebooks do curso no Google Colab", "sumario": [{"nivel": 2, "ancora": "passo-a-passo", "texto": "Passo a passo"}, {"nivel": 2, "ancora": "se-algo-der-errado", "texto": "Se algo der errado"}, {"nivel": 2, "ancora": "onde-ficam-seus-arquivos", "texto": "Onde ficam seus arquivos"}]}, {"tipo": "pagina", "id": "glossario", "titulo": "Glossário", "descricao": "Termos técnicos do curso, explicados em uma frase cada", "sumario": []}, {"tipo": "parte", "titulo": "Fundamentos"}, {"tipo": "pagina", "id": "fundamentos/contexto-historico", "titulo": "0. Contexto Histórico", "descricao": "Setenta anos de entusiasmo, decepção e recomeço", "sumario": [{"nivel": 2, "ancora": "a-pergunta-que-comecou-tudo", "texto": "A pergunta que começou tudo"}, {"nivel": 2, "ancora": "o-perceptron-a-semente", "texto": "O perceptron: a semente"}, {"nivel": 2, "ancora": "a-ia-simbolica-e-por-que-ela-travou", "texto": "A IA simbólica, e por que ela travou"}, {"nivel": 2, "ancora": "dois-invernos", "texto": "Dois invernos"}, {"nivel": 2, "ancora": "a-virada-parar-de-escrever-regras", "texto": "A virada: parar de escrever regras"}, {"nivel": 2, "ancora": "o-que-fez-a-coisa-funcionar", "texto": "O que fez a coisa funcionar"}, {"nivel": 2, "ancora": "o-que-veio-junto-e-nao-e-bonito", "texto": "O que veio junto, e não é bonito"}, {"nivel": 2, "ancora": "a-leitura-que-interessa", "texto": "A leitura que interessa"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}, {"nivel": 2, "ancora": "bibliografia", "texto": "Bibliografia"}]}, {"tipo": "pagina", "id": "fundamentos/engenharia-de-ml", "titulo": "1. Engenharia de Machine Learning", "descricao": "Por que o modelo é a parte fácil", "sumario": [{"nivel": 2, "ancora": "aprendizado-de-maquina-em-uma-frase", "texto": "Aprendizado de máquina, em uma frase"}, {"nivel": 2, "ancora": "a-diferenca-que-muda-tudo-probabilidade", "texto": "A diferença que muda tudo: probabilidade"}, {"nivel": 2, "ancora": "programacao-tradicional-contra-ml", "texto": "Programação tradicional contra ML"}, {"nivel": 2, "ancora": "cientista-de-dados-e-engenheiro-de-ml", "texto": "Cientista de dados e engenheiro de ML"}, {"nivel": 2, "ancora": "o-ciclo-de-vida-e-por-que-ele-nao-termina", "texto": "O ciclo de vida, e por que ele não termina"}, {"nivel": 2, "ancora": "por-que-os-modelos-apodrecem", "texto": "Por que os modelos apodrecem"}, {"nivel": 2, "ancora": "producao-nao-e-competicao", "texto": "Produção não é competição"}, {"nivel": 2, "ancora": "mlops-se-nao-esta-automatizado-esta-quebrado", "texto": "MLOps: se não está automatizado, está quebrado"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}, {"nivel": 2, "ancora": "bibliografia", "texto": "Bibliografia"}]}, {"tipo": "pagina", "id": "fundamentos/engenharia-de-ia", "titulo": "2. Engenharia de IA", "descricao": "Construir com modelos que outra pessoa treinou", "sumario": [{"nivel": 2, "ancora": "a-fronteira-mudou-de-lugar", "texto": "A fronteira mudou de lugar"}, {"nivel": 2, "ancora": "a-unidade-de-tudo-o-token", "texto": "A unidade de tudo: o token"}, {"nivel": 2, "ancora": "como-o-modelo-preve-autorregressao", "texto": "Como o modelo prevê: autorregressão"}, {"nivel": 2, "ancora": "o-truque-que-permitiu-a-escala-auto-supervisao", "texto": "O truque que permitiu a escala: auto-supervisão"}, {"nivel": 2, "ancora": "modelos-de-fundacao-e-multimodalidade", "texto": "Modelos de fundação e multimodalidade"}, {"nivel": 2, "ancora": "as-tres-formas-de-adaptar-da-mais-barata-para-a-mais-cara", "texto": "As três formas de adaptar, da mais barata para a mais cara"}, {"nivel": 2, "ancora": "o-ciclo-de-uma-aplicacao-de-ia", "texto": "O ciclo de uma aplicação de IA"}, {"nivel": 2, "ancora": "avaliar-e-testar-o-que-da-errado", "texto": "Avaliar é testar o que dá errado"}, {"nivel": 2, "ancora": "onde-isso-rende-de-verdade", "texto": "Onde isso rende de verdade"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}, {"nivel": 2, "ancora": "bibliografia", "texto": "Bibliografia"}]}, {"tipo": "parte", "titulo": "Modelos Lineares"}, {"tipo": "pagina", "id": "modelos-lineares", "titulo": "Visão geral", "descricao": "Visão geral do módulo de Modelos Lineares", "sumario": []}, {"tipo": "pagina", "id": "modelos-lineares/aula-01-regressao-linear-simples", "titulo": "Aula 1 — Regressão Linear Simples", "descricao": "Reta de previsão, gradiente descendente e métricas de regressão", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "a-reta-que-preve-o-preco", "texto": "A reta que prevê o preço"}, {"nivel": 2, "ancora": "o-erro-de-cada-previsao", "texto": "O erro de cada previsão"}, {"nivel": 2, "ancora": "encontrando-a-melhor-reta-o-erro-quadratico-medio", "texto": "Encontrando a melhor reta: o erro quadrático médio"}, {"nivel": 2, "ancora": "existe-um-atalho-minimos-quadrados", "texto": "Existe um atalho: mínimos quadrados"}, {"nivel": 2, "ancora": "gradiente-descendente-descendo-a-serra-na-neblina", "texto": "Gradiente descendente: descendo a serra na neblina"}, {"nivel": 3, "ancora": "por-que-nao-usar-sempre-o-atalho", "texto": "Por que não usar sempre o atalho"}, {"nivel": 3, "ancora": "o-terreno-existe-e-da-para-desenha-lo", "texto": "O terreno existe, e dá para desenhá-lo"}, {"nivel": 3, "ancora": "a-inclinacao-tem-nome-derivada", "texto": "A inclinação tem nome: derivada"}, {"nivel": 3, "ancora": "o-gradiente-uma-inclinacao-para-cada-peso", "texto": "O gradiente: uma inclinação para cada peso"}, {"nivel": 3, "ancora": "a-regra-de-atualizacao", "texto": "A regra de atualização"}, {"nivel": 3, "ancora": "o-algoritmo-do-comeco-ao-fim", "texto": "O algoritmo, do começo ao fim"}, {"nivel": 3, "ancora": "com-os-dois-pesos-ao-mesmo-tempo", "texto": "Com os dois pesos ao mesmo tempo"}, {"nivel": 3, "ancora": "a-taxa-de-aprendizado", "texto": "A taxa de aprendizado"}, {"nivel": 2, "ancora": "metricas-de-regressao", "texto": "Métricas de regressão"}, {"nivel": 3, "ancora": "mae-o-erro-medio-em-reais", "texto": "MAE: o erro médio, em reais"}, {"nivel": 3, "ancora": "mse-e-rmse-penalizando-os-erros-grandes", "texto": "MSE e RMSE: penalizando os erros grandes"}, {"nivel": 3, "ancora": "mape-o-erro-em-porcentagem", "texto": "MAPE: o erro em porcentagem"}, {"nivel": 3, "ancora": "r-quanto-da-bagunca-a-reta-explica", "texto": "R²: quanto da bagunça a reta explica"}, {"nivel": 3, "ancora": "quando-uma-metrica-engana", "texto": "Quando uma métrica engana"}, {"nivel": 2, "ancora": "o-intervalo-de-predicao", "texto": "O intervalo de predição"}, {"nivel": 3, "ancora": "quanto-uma-corrida-se-afasta-da-reta", "texto": "Quanto uma corrida se afasta da reta"}, {"nivel": 3, "ancora": "a-regra-pratica-dois-desvios-para-cada-lado", "texto": "A regra prática: dois desvios para cada lado"}, {"nivel": 3, "ancora": "ela-funciona-da-para-conferir", "texto": "Ela funciona? Dá para conferir"}, {"nivel": 3, "ancora": "as-duas-faixas-do-painel-da-direita", "texto": "As duas faixas do painel da direita"}, {"nivel": 3, "ancora": "a-formula-completa-para-constar", "texto": "A fórmula completa, para constar"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "modelos-lineares/aula-02-regressao-multipla", "titulo": "Aula 2 — Regressão Múltipla", "descricao": "Várias variáveis ao mesmo tempo, preditores categóricos e interpretação dos coeficientes", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "uma-variavel-nao-basta", "texto": "Uma variável não basta"}, {"nivel": 2, "ancora": "a-formula-com-varias-variaveis", "texto": "A fórmula com várias variáveis"}, {"nivel": 2, "ancora": "nada-muda-no-treino", "texto": "Nada muda no treino"}, {"nivel": 2, "ancora": "o-bairro-nao-e-um-numero", "texto": "O bairro não é um número"}, {"nivel": 2, "ancora": "lendo-os-coeficientes", "texto": "Lendo os coeficientes"}, {"nivel": 2, "ancora": "por-que-um-coeficiente-muda-quando-outro-entra", "texto": "Por que um coeficiente muda quando outro entra"}, {"nivel": 2, "ancora": "quanto-mais-variaveis-melhor", "texto": "Quanto mais variáveis, melhor?"}, {"nivel": 2, "ancora": "separe-treino-e-teste", "texto": "Separe treino e teste"}, {"nivel": 2, "ancora": "regularizacao-um-freio-nos-coeficientes", "texto": "Regularização: um freio nos coeficientes"}, {"nivel": 3, "ancora": "ridge-encolhe-tudo", "texto": "Ridge: encolhe tudo"}, {"nivel": 3, "ancora": "lasso-corta", "texto": "Lasso: corta"}, {"nivel": 3, "ancora": "elasticnet-os-dois-juntos", "texto": "ElasticNet: os dois juntos"}, {"nivel": 2, "ancora": "o-resultado-nos-90-apartamentos-de-teste", "texto": "O resultado, nos 90 apartamentos de teste"}, {"nivel": 2, "ancora": "padronizar-antes-de-regularizar", "texto": "Padronizar antes de regularizar"}, {"nivel": 2, "ancora": "qual-dos-tres-usar", "texto": "Qual dos três usar"}, {"nivel": 2, "ancora": "o-grafico-que-voce-olha-antes-de-confiar", "texto": "O gráfico que você olha antes de confiar"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "modelos-lineares/aula-03-regressao-logistica", "titulo": "Aula 3 — Regressão Logística", "descricao": "Função sigmoide, interpretação dos coeficientes e métricas de classificação", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "por-que-a-reta-nao-serve", "texto": "Por que a reta não serve"}, {"nivel": 2, "ancora": "a-funcao-sigmoide", "texto": "A função sigmoide"}, {"nivel": 2, "ancora": "o-modelo-logistico", "texto": "O modelo logístico"}, {"nivel": 2, "ancora": "interpretando-os-coeficientes", "texto": "Interpretando os coeficientes"}, {"nivel": 2, "ancora": "da-probabilidade-a-decisao", "texto": "Da probabilidade à decisão"}, {"nivel": 2, "ancora": "a-matriz-de-confusao", "texto": "A matriz de confusão"}, {"nivel": 2, "ancora": "as-quatro-metricas", "texto": "As quatro métricas"}, {"nivel": 3, "ancora": "acuracia-a-fracao-de-acertos", "texto": "Acurácia: a fração de acertos"}, {"nivel": 3, "ancora": "precisao-e-recall", "texto": "Precisão e recall"}, {"nivel": 3, "ancora": "f1-as-duas-num-numero-so", "texto": "F1: as duas num número só"}, {"nivel": 2, "ancora": "validacao-cruzada-medir-antes-de-escolher", "texto": "Validação cruzada: medir antes de escolher"}, {"nivel": 2, "ancora": "escolhendo-o-limiar", "texto": "Escolhendo o limiar"}, {"nivel": 2, "ancora": "a-curva-roc-todos-os-limiares-de-uma-vez", "texto": "A curva ROC: todos os limiares de uma vez"}, {"nivel": 3, "ancora": "auc-a-area-embaixo-da-curva", "texto": "AUC: a área embaixo da curva"}, {"nivel": 2, "ancora": "calibracao-a-probabilidade-e-um-numero-honesto", "texto": "Calibração: a probabilidade é um número honesto?"}, {"nivel": 3, "ancora": "o-brier-calibracao-num-numero", "texto": "O Brier: calibração num número"}, {"nivel": 3, "ancora": "o-que-quebra-a-calibracao", "texto": "O que quebra a calibração"}, {"nivel": 2, "ancora": "o-limiar-e-a-razao-entre-dois-custos", "texto": "O limiar é a razão entre dois custos"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "modelos-lineares/quiz-modelos-lineares", "titulo": "Quiz — Modelos Lineares", "descricao": "Quinze perguntas para conferir se você sabe ler e interpretar um modelo linear", "sumario": [{"nivel": 2, "ancora": "regressao-linear-simples", "texto": "Regressão linear simples"}, {"nivel": 2, "ancora": "regressao-multipla", "texto": "Regressão múltipla"}, {"nivel": 2, "ancora": "regressao-logistica", "texto": "Regressão logística"}, {"nivel": 2, "ancora": "treino-teste-e-ajuste", "texto": "Treino, teste e ajuste"}, {"nivel": 2, "ancora": "onde-revisar", "texto": "Onde revisar"}]}, {"tipo": "parte", "titulo": "Sistemas de ML"}, {"tipo": "pagina", "id": "sistemas-de-ml", "titulo": "Visão geral", "descricao": "Visão geral do módulo de Sistemas de ML", "sumario": []}, {"tipo": "pagina", "id": "sistemas-de-ml/aula-04-sistema-ponta-a-ponta", "titulo": "Aula 4 — Um Sistema de Ponta a Ponta", "descricao": "Um sistema de risco de cancelamento, do dado bruto à decisão", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "os-dados", "texto": "Os dados"}, {"nivel": 2, "ancora": "a-prova-final-fica-trancada", "texto": "A prova final fica trancada"}, {"nivel": 2, "ancora": "o-baseline-a-regua", "texto": "O baseline: a régua"}, {"nivel": 2, "ancora": "o-preparo-uma-receita-para-cada-coluna", "texto": "O preparo: uma receita para cada coluna"}, {"nivel": 2, "ancora": "o-modelo-aprende-um-cliente-de-cada-vez", "texto": "O modelo aprende um cliente de cada vez"}, {"nivel": 2, "ancora": "o-ajuste-fino-com-optuna", "texto": "O ajuste fino com Optuna"}, {"nivel": 2, "ancora": "a-prova-final", "texto": "A prova final"}, {"nivel": 2, "ancora": "em-que-o-modelo-presta-atencao", "texto": "Em que o modelo presta atenção"}, {"nivel": 2, "ancora": "a-decisao-para-quem-ligar", "texto": "A decisão: para quem ligar"}, {"nivel": 2, "ancora": "e-se", "texto": "E se?"}, {"nivel": 2, "ancora": "o-projeto", "texto": "O projeto"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "sistemas-de-ml/desafio-titanic", "titulo": "Desafio Titanic", "descricao": "Um desafio de 45 minutos em equipe, com placar ao vivo da turma", "sumario": [{"nivel": 2, "ancora": "o-desafio", "texto": "O desafio"}, {"nivel": 2, "ancora": "como-participar", "texto": "Como participar"}, {"nivel": 2, "ancora": "os-dados", "texto": "Os dados"}, {"nivel": 2, "ancora": "o-arquivo-de-envio", "texto": "O arquivo de envio"}, {"nivel": 2, "ancora": "como-o-placar-ordena", "texto": "Como o placar ordena"}, {"nivel": 2, "ancora": "as-regras", "texto": "As regras"}, {"nivel": 2, "ancora": "dicas", "texto": "Dicas"}, {"nivel": 2, "ancora": "o-placar", "texto": "O placar"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}]}, {"tipo": "parte", "titulo": "Séries Temporais"}, {"tipo": "pagina", "id": "series-temporais", "titulo": "Visão geral", "descricao": "Visão geral do módulo de Séries Temporais", "sumario": []}, {"tipo": "pagina", "id": "series-temporais/aula-05-conceitos-series-temporais", "titulo": "Aula 5 — Conceitos de Séries Temporais", "descricao": "Tendência, sazonalidade e ruído, as previsões simples que todo modelo precisa vencer, e os dois primeiros modelos: regressão com calendário e ARIMA", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "as-tres-pecas-de-qualquer-serie", "texto": "As três peças de qualquer série"}, {"nivel": 2, "ancora": "a-media-movel", "texto": "A média móvel"}, {"nivel": 2, "ancora": "o-padrao-semanal", "texto": "O padrão semanal"}, {"nivel": 2, "ancora": "a-regra-de-ouro-o-corte-e-no-tempo", "texto": "A regra de ouro: o corte é no tempo"}, {"nivel": 2, "ancora": "tres-previsoes-sem-modelo-nenhum", "texto": "Três previsões sem modelo nenhum"}, {"nivel": 2, "ancora": "mape-o-erro-em-porcentagem", "texto": "MAPE: o erro em porcentagem"}, {"nivel": 2, "ancora": "o-primeiro-modelo-uma-regressao-com-o-calendario", "texto": "O primeiro modelo: uma regressão com o calendário"}, {"nivel": 3, "ancora": "uma-peca-de-cada-vez", "texto": "Uma peça de cada vez"}, {"nivel": 2, "ancora": "o-passado-como-variavel-a-ideia-do-arima", "texto": "O passado como variável: a ideia do ARIMA"}, {"nivel": 3, "ancora": "p-quantos-dias-do-passado-entram", "texto": "p: quantos dias do passado entram"}, {"nivel": 3, "ancora": "d-prever-o-valor-ou-a-mudanca", "texto": "d: prever o valor ou a mudança?"}, {"nivel": 3, "ancora": "q-corrigir-com-o-erro-de-ontem", "texto": "q: corrigir com o erro de ontem"}, {"nivel": 3, "ancora": "os-tres-numeros-juntos", "texto": "Os três números juntos"}, {"nivel": 3, "ancora": "a-versao-sazonal", "texto": "A versão sazonal"}, {"nivel": 3, "ancora": "como-escolher-os-numeros", "texto": "Como escolher os números"}, {"nivel": 2, "ancora": "o-placar", "texto": "O placar"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "series-temporais/aula-06-prophet", "titulo": "Aula 6 — Séries Temporais com Prophet e TimesFM", "descricao": "O Prophet estima tendência, sazonalidades e feriados; o TimesFM prevê sem treino nenhum; e o calendário continua sendo seu", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "o-que-o-prophet-faz", "texto": "O que o Prophet faz"}, {"nivel": 2, "ancora": "o-formato-que-ele-exige", "texto": "O formato que ele exige"}, {"nivel": 2, "ancora": "tres-linhas-para-treinar-e-prever", "texto": "Três linhas para treinar e prever"}, {"nivel": 2, "ancora": "as-pecas-que-ele-estimou-sozinho", "texto": "As peças que ele estimou sozinho"}, {"nivel": 2, "ancora": "feriados-o-que-o-modelo-nao-adivinha", "texto": "Feriados: o que o modelo não adivinha"}, {"nivel": 2, "ancora": "o-prophet-contra-a-regua", "texto": "O Prophet contra a régua"}, {"nivel": 2, "ancora": "um-modelo-que-nunca-viu-esta-cafeteria-o-timesfm", "texto": "Um modelo que nunca viu esta cafeteria: o TimesFM"}, {"nivel": 3, "ancora": "o-contexto-quanto-passado-voce-entrega", "texto": "O contexto: quanto passado você entrega"}, {"nivel": 3, "ancora": "juntando-os-dois-mundos", "texto": "Juntando os dois mundos"}, {"nivel": 2, "ancora": "o-intervalo-de-incerteza", "texto": "O intervalo de incerteza"}, {"nivel": 2, "ancora": "quando-a-tendencia-dobra", "texto": "Quando a tendência dobra"}, {"nivel": 2, "ancora": "o-placar-do-modulo", "texto": "O placar do módulo"}, {"nivel": 2, "ancora": "qual-ferramenta-usar", "texto": "Qual ferramenta usar"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "series-temporais/quiz-series-temporais", "titulo": "Quiz — Séries Temporais", "descricao": "Dez perguntas para conferir se você sabe ler uma série temporal e avaliar uma previsão", "sumario": [{"nivel": 2, "ancora": "ler-uma-serie", "texto": "Ler uma série"}, {"nivel": 2, "ancora": "a-regua-e-os-primeiros-modelos", "texto": "A régua e os primeiros modelos"}, {"nivel": 2, "ancora": "prophet-e-timesfm", "texto": "Prophet e TimesFM"}, {"nivel": 2, "ancora": "onde-revisar", "texto": "Onde revisar"}]}, {"tipo": "parte", "titulo": "Redes Neurais"}, {"tipo": "pagina", "id": "redes-neurais", "titulo": "Visão geral", "descricao": "Visão geral do módulo de Redes Neurais", "sumario": []}, {"tipo": "pagina", "id": "redes-neurais/aula-07-redes-neurais-densas", "titulo": "Aula 7 — Fundamentos de Redes Neurais", "descricao": "Neurônio, ativação, camadas, treino, regularização e callbacks, com Keras", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "por-que-a-reta-nao-basta", "texto": "Por que a reta não basta"}, {"nivel": 2, "ancora": "o-que-e-um-neuronio", "texto": "O que é um neurônio"}, {"nivel": 2, "ancora": "a-dobra-funcoes-de-ativacao", "texto": "A dobra: funções de ativação"}, {"nivel": 2, "ancora": "a-rede-inteira-em-cinco-linhas", "texto": "A rede inteira, em cinco linhas"}, {"nivel": 2, "ancora": "como-ela-aprende-e-a-aula-1-de-novo", "texto": "Como ela aprende (é a Aula 1 de novo)"}, {"nivel": 2, "ancora": "epoca-lote-e-a-curva-de-treino", "texto": "Época, lote e a curva de treino"}, {"nivel": 2, "ancora": "quando-a-rede-decora", "texto": "Quando a rede decora"}, {"nivel": 3, "ancora": "l2-pesos-pequenos", "texto": "L2: pesos pequenos"}, {"nivel": 3, "ancora": "dropout-neuronios-sorteados", "texto": "Dropout: neurônios sorteados"}, {"nivel": 2, "ancora": "callbacks-o-piloto-automatico-do-treino", "texto": "Callbacks: o piloto automático do treino"}, {"nivel": 3, "ancora": "earlystopping-parar-quando-nao-melhora-mais", "texto": "EarlyStopping: parar quando não melhora mais"}, {"nivel": 3, "ancora": "reducelronplateau-encolher-o-passo-quando-trava", "texto": "ReduceLROnPlateau: encolher o passo quando trava"}, {"nivel": 3, "ancora": "modelcheckpoint-guardar-o-melhor-modelo", "texto": "ModelCheckpoint: guardar o melhor modelo"}, {"nivel": 3, "ancora": "os-tres-juntos", "texto": "Os três juntos"}, {"nivel": 2, "ancora": "quando-a-rede-nao-e-a-resposta", "texto": "Quando a rede não é a resposta"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "redes-neurais/desafio-mnist", "titulo": "Desafio MNIST", "descricao": "Um desafio em dupla: treinar uma rede densa que lê dígitos escritos à mão", "sumario": [{"nivel": 2, "ancora": "o-desafio", "texto": "O desafio"}, {"nivel": 2, "ancora": "como-participar", "texto": "Como participar"}, {"nivel": 2, "ancora": "o-que-voce-vai-ver", "texto": "O que você vai ver"}, {"nivel": 2, "ancora": "depois-do-desafio", "texto": "Depois do desafio"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}]}, {"tipo": "pagina", "id": "redes-neurais/aula-08-redes-convolucionais", "titulo": "Aula 8 — Redes Convolucionais", "descricao": "Convolução, filtros e pooling, com Keras", "sumario": [{"nivel": 2, "ancora": "para-que-serve", "texto": "Para que serve"}, {"nivel": 2, "ancora": "a-foto-por-dentro", "texto": "A foto por dentro"}, {"nivel": 3, "ancora": "preto-e-branco-um-numero-por-pixel", "texto": "Preto e branco: um número por pixel"}, {"nivel": 3, "ancora": "em-cor-tres-numeros-por-pixel", "texto": "Em cor: três números por pixel"}, {"nivel": 3, "ancora": "as-fotos-desta-aula", "texto": "As fotos desta aula"}, {"nivel": 2, "ancora": "por-que-a-rede-da-aula-7-e-ruim-nisso", "texto": "Por que a rede da Aula 7 é ruim nisso"}, {"nivel": 2, "ancora": "a-janela-que-passeia", "texto": "A janela que passeia"}, {"nivel": 2, "ancora": "tres-ideias-em-uma", "texto": "Três ideias em uma"}, {"nivel": 2, "ancora": "pooling-encolher-sem-perder-o-que-importa", "texto": "Pooling: encolher sem perder o que importa"}, {"nivel": 2, "ancora": "os-filtros-que-ela-aprende-sozinha", "texto": "Os filtros que ela aprende sozinha"}, {"nivel": 2, "ancora": "a-rede-convolucional-inteira", "texto": "A rede convolucional inteira"}, {"nivel": 2, "ancora": "a-saida-dez-probabilidades", "texto": "A saída: dez probabilidades"}, {"nivel": 3, "ancora": "um-exemplo-de-verdade", "texto": "Um exemplo de verdade"}, {"nivel": 3, "ancora": "quando-a-rede-hesita", "texto": "Quando a rede hesita"}, {"nivel": 2, "ancora": "o-resultado", "texto": "O resultado"}, {"nivel": 2, "ancora": "por-que-ela-ganha-o-teste-do-deslocamento", "texto": "Por que ela ganha: o teste do deslocamento"}, {"nivel": 2, "ancora": "onde-ela-erra", "texto": "Onde ela erra"}, {"nivel": 2, "ancora": "quando-a-convolucao-nao-serve", "texto": "Quando a convolução não serve"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "redes-neurais/quiz-redes-neurais", "titulo": "Quiz — Redes Neurais", "descricao": "Dez perguntas para conferir se você sabe ler uma rede neural, uma curva de treino e uma convolução", "sumario": [{"nivel": 2, "ancora": "redes-densas", "texto": "Redes densas"}, {"nivel": 2, "ancora": "redes-convolucionais", "texto": "Redes convolucionais"}, {"nivel": 2, "ancora": "onde-revisar", "texto": "Onde revisar"}]}, {"tipo": "parte", "titulo": "LLM do Zero"}, {"tipo": "pagina", "id": "llm-do-zero", "titulo": "Visão geral", "descricao": "Visão geral do módulo de LLM do Zero", "sumario": [{"nivel": 2, "ancora": "como-as-aulas-funcionam", "texto": "Como as aulas funcionam"}, {"nivel": 2, "ancora": "os-tres-habitos-do-modulo", "texto": "Os três hábitos do módulo"}]}, {"tipo": "pagina", "id": "llm-do-zero/aula-09-tokenizacao", "titulo": "Aula 9 — Do Texto aos Números", "descricao": "O que um LLM faz, e como o texto vira número", "sumario": [{"nivel": 2, "ancora": "onde-estamos", "texto": "Onde estamos"}, {"nivel": 2, "ancora": "o-que-um-llm-faz", "texto": "O que um LLM faz"}, {"nivel": 2, "ancora": "o-modelo-mais-simples-contar", "texto": "O modelo mais simples: contar"}, {"nivel": 2, "ancora": "por-que-contar-nao-escala", "texto": "Por que contar não escala"}, {"nivel": 2, "ancora": "o-material-da-obra", "texto": "O material da obra"}, {"nivel": 2, "ancora": "limpar-o-texto-sem-estragar-o-texto", "texto": "Limpar o texto, sem estragar o texto"}, {"nivel": 2, "ancora": "a-unidade-errada-duas-vezes", "texto": "A unidade errada, duas vezes"}, {"nivel": 2, "ancora": "o-meio-termo-bpe", "texto": "O meio-termo: BPE"}, {"nivel": 2, "ancora": "bytes-para-nada-ficar-de-fora", "texto": "Bytes, para nada ficar de fora"}, {"nivel": 2, "ancora": "antes-de-juntar-separar-as-palavras", "texto": "Antes de juntar, separar as palavras"}, {"nivel": 2, "ancora": "codificar-e-decodificar", "texto": "Codificar e decodificar"}, {"nivel": 2, "ancora": "o-tokenizador-tambem-tem-sotaque", "texto": "O tokenizador também tem sotaque"}, {"nivel": 2, "ancora": "depois-do-numero-um-vetor", "texto": "Depois do número, um vetor"}, {"nivel": 2, "ancora": "cola-da-aula", "texto": "Cola da aula"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}, {"nivel": 2, "ancora": "quizzes-das-microaulas", "texto": "Quizzes das microaulas"}, {"nivel": 3, "ancora": "microaula-1-o-que-um-llm-faz", "texto": "Microaula 1: o que um LLM faz"}, {"nivel": 3, "ancora": "microaula-2-a-unidade-certa", "texto": "Microaula 2: a unidade certa"}, {"nivel": 3, "ancora": "microaula-3-do-texto-aos-numeros-e-de-volta", "texto": "Microaula 3: do texto aos números, e de volta"}]}, {"tipo": "pagina", "id": "llm-do-zero/aula-10-como-funciona-um-llm", "titulo": "Aula 10 — Como Funciona um LLM", "descricao": "O embedding, a atenção, o bloco transformer e o modelo inteiro", "sumario": [{"nivel": 2, "ancora": "onde-estamos", "texto": "Onde estamos"}, {"nivel": 2, "ancora": "o-token-vira-vetor", "texto": "O token vira vetor"}, {"nivel": 2, "ancora": "o-que-esses-numeros-querem-dizer", "texto": "O que esses números querem dizer"}, {"nivel": 2, "ancora": "parecido-quer-dizer-apontar-para-o-mesmo-lado", "texto": "Parecido quer dizer apontar para o mesmo lado"}, {"nivel": 2, "ancora": "o-exemplo-de-treino", "texto": "O exemplo de treino"}, {"nivel": 2, "ancora": "a-perda", "texto": "A perda"}, {"nivel": 2, "ancora": "a-atencao-o-problema", "texto": "A atenção: o problema"}, {"nivel": 2, "ancora": "os-tres-papeis", "texto": "Os três papéis"}, {"nivel": 2, "ancora": "a-conta", "texto": "A conta"}, {"nivel": 2, "ancora": "a-mascara-nao-vale-olhar-a-resposta", "texto": "A máscara: não vale olhar a resposta"}, {"nivel": 2, "ancora": "quatro-cabecas-quatro-olhares", "texto": "Quatro cabeças, quatro olhares"}, {"nivel": 2, "ancora": "a-posicao", "texto": "A posição"}, {"nivel": 2, "ancora": "o-preco-da-janela", "texto": "O preço da janela"}, {"nivel": 2, "ancora": "o-bloco-transformer", "texto": "O bloco transformer"}, {"nivel": 2, "ancora": "as-duas-metades", "texto": "As duas metades"}, {"nivel": 2, "ancora": "o-atalho", "texto": "O atalho"}, {"nivel": 2, "ancora": "a-normalizacao", "texto": "A normalização"}, {"nivel": 2, "ancora": "o-modelo-inteiro", "texto": "O modelo inteiro"}, {"nivel": 2, "ancora": "onde-moram-os-pesos", "texto": "Onde moram os pesos"}, {"nivel": 2, "ancora": "o-passo-zero-e-a-perplexidade", "texto": "O passo zero e a perplexidade"}, {"nivel": 2, "ancora": "cola-da-aula", "texto": "Cola da aula"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}, {"nivel": 2, "ancora": "quizzes-das-microaulas", "texto": "Quizzes das microaulas"}, {"nivel": 3, "ancora": "microaula-1-o-token-vira-vetor", "texto": "Microaula 1: o token vira vetor"}, {"nivel": 3, "ancora": "microaula-2-a-atencao", "texto": "Microaula 2: a atenção"}, {"nivel": 3, "ancora": "microaula-3-o-bloco-e-o-modelo-inteiro", "texto": "Microaula 3: o bloco e o modelo inteiro"}]}, {"tipo": "pagina", "id": "llm-do-zero/aula-11-treinar-e-usar", "titulo": "Aula 11 — Treinar e Usar um LLM", "descricao": "O treino no processador, a geração de texto, o ajuste fino e o que o modelo não sabe fazer", "sumario": [{"nivel": 2, "ancora": "onde-estamos", "texto": "Onde estamos"}, {"nivel": 2, "ancora": "o-ciclo-de-treino", "texto": "O ciclo de treino"}, {"nivel": 2, "ancora": "escolha-1-o-otimizador-adamw", "texto": "Escolha 1: o otimizador AdamW"}, {"nivel": 2, "ancora": "escolha-2-cortar-o-gradiente", "texto": "Escolha 2: cortar o gradiente"}, {"nivel": 2, "ancora": "escolha-3-o-tamanho-do-passo-segue-o-relogio", "texto": "Escolha 3: o tamanho do passo segue o relógio"}, {"nivel": 2, "ancora": "escolha-4-conferir-e-salvar-o-melhor", "texto": "Escolha 4: conferir e salvar o melhor"}, {"nivel": 2, "ancora": "o-treino-de-verdade", "texto": "O treino de verdade"}, {"nivel": 2, "ancora": "quanto-custa-treinar", "texto": "Quanto custa treinar"}, {"nivel": 2, "ancora": "o-modelo-nao-devolve-uma-palavra", "texto": "O modelo não devolve uma palavra"}, {"nivel": 2, "ancora": "gerar-e-repetir-um-passo", "texto": "Gerar é repetir um passo"}, {"nivel": 2, "ancora": "duas-escolhas-ruins", "texto": "Duas escolhas ruins"}, {"nivel": 2, "ancora": "botao-1-a-temperatura", "texto": "Botão 1: a temperatura"}, {"nivel": 2, "ancora": "botao-2-cortar-a-cauda", "texto": "Botão 2: cortar a cauda"}, {"nivel": 2, "ancora": "os-quatro-textos", "texto": "Os quatro textos"}, {"nivel": 2, "ancora": "ele-copia-ou-inventa", "texto": "Ele copia ou inventa?"}, {"nivel": 2, "ancora": "por-que-o-modelo-alucina", "texto": "Por que o modelo alucina"}, {"nivel": 2, "ancora": "o-modelo-e-o-corpus", "texto": "O modelo é o corpus"}, {"nivel": 2, "ancora": "ajuste-fino-o-mesmo-treino-outro-texto", "texto": "Ajuste fino: o mesmo treino, outro texto"}, {"nivel": 2, "ancora": "o-que-muda-quando-o-modelo-e-grande", "texto": "O que muda quando o modelo é grande"}, {"nivel": 2, "ancora": "do-modelo-ao-assistente", "texto": "Do modelo ao assistente"}, {"nivel": 2, "ancora": "cola-da-aula", "texto": "Cola da aula"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}, {"nivel": 2, "ancora": "quizzes-das-microaulas", "texto": "Quizzes das microaulas"}, {"nivel": 3, "ancora": "microaula-1-o-treino", "texto": "Microaula 1: o treino"}, {"nivel": 3, "ancora": "microaula-2-do-numero-a-palavra", "texto": "Microaula 2: do número à palavra"}, {"nivel": 3, "ancora": "microaula-3-ajuste-fino-e-limites", "texto": "Microaula 3: ajuste fino e limites"}]}, {"tipo": "pagina", "id": "llm-do-zero/explorador", "titulo": "Explorador do LLM", "descricao": "O modelo do curso rodando aqui na página, etapa por etapa", "sumario": [{"nivel": 2, "ancora": "o-caminho-em-quatro-etapas", "texto": "O caminho, em quatro etapas"}, {"nivel": 2, "ancora": "etapa-1-tokens", "texto": "Etapa 1: tokens"}, {"nivel": 2, "ancora": "etapa-2-o-token-vira-vetor", "texto": "Etapa 2: o token vira vetor"}, {"nivel": 2, "ancora": "etapa-3-a-atencao-nos-quatro-blocos", "texto": "Etapa 3: a atenção, nos quatro blocos"}, {"nivel": 2, "ancora": "etapa-4-as-chances-do-proximo-token", "texto": "Etapa 4: as chances do próximo token"}, {"nivel": 2, "ancora": "experimentos-para-fazer", "texto": "Experimentos para fazer"}, {"nivel": 2, "ancora": "o-que-o-explorador-nao-mostra", "texto": "O que o explorador não mostra"}]}, {"tipo": "pagina", "id": "llm-do-zero/colas-dos-exercicios", "titulo": "Colas dos Exercícios", "descricao": "Dicas para destravar cada exercício das Aulas 9 a 11, uma de cada vez", "sumario": [{"nivel": 2, "ancora": "antes-de-abrir-qualquer-dica", "texto": "Antes de abrir qualquer dica"}, {"nivel": 2, "ancora": "os-erros-mais-comuns-no-colab", "texto": "Os erros mais comuns no Colab"}, {"nivel": 2, "ancora": "aula-9-do-texto-aos-numeros", "texto": "Aula 9 — Do Texto aos Números"}, {"nivel": 3, "ancora": "exercicio-9-1", "texto": "Exercício 9.1"}, {"nivel": 3, "ancora": "exercicio-9-2", "texto": "Exercício 9.2"}, {"nivel": 3, "ancora": "exercicio-9-3", "texto": "Exercício 9.3"}, {"nivel": 2, "ancora": "aula-10-como-funciona-um-llm", "texto": "Aula 10 — Como Funciona um LLM"}, {"nivel": 3, "ancora": "exercicio-10-1", "texto": "Exercício 10.1"}, {"nivel": 3, "ancora": "exercicio-10-2", "texto": "Exercício 10.2"}, {"nivel": 3, "ancora": "exercicio-10-3", "texto": "Exercício 10.3"}, {"nivel": 2, "ancora": "aula-11-treinar-e-usar-um-llm", "texto": "Aula 11 — Treinar e Usar um LLM"}, {"nivel": 3, "ancora": "exercicio-11-1", "texto": "Exercício 11.1"}, {"nivel": 3, "ancora": "exercicio-11-2", "texto": "Exercício 11.2"}, {"nivel": 3, "ancora": "exercicio-11-3", "texto": "Exercício 11.3"}]}, {"tipo": "parte", "titulo": "IA Generativa"}, {"tipo": "pagina", "id": "ia-generativa", "titulo": "Visão geral", "descricao": "Visão geral do módulo de IA Generativa", "sumario": []}, {"tipo": "pagina", "id": "ia-generativa/aula-12-modelos-de-fundacao", "titulo": "Aula 12 — Modelos de Fundação", "descricao": "Rodar um modelo pronto, e aprender a falar com ele", "sumario": [{"nivel": 2, "ancora": "de-810-mil-para-494-milhoes", "texto": "De 810 mil para 494 milhões"}, {"nivel": 2, "ancora": "as-tres-etapas", "texto": "As três etapas"}, {"nivel": 2, "ancora": "rodar-tres-linhas", "texto": "Rodar: três linhas"}, {"nivel": 2, "ancora": "nao-existe-conversa", "texto": "Não existe conversa"}, {"nivel": 2, "ancora": "o-prompt-e-o-unico-controle-que-voce-tem", "texto": "O prompt é o único controle que você tem"}, {"nivel": 2, "ancora": "poucos-exemplos-valem-mais-que-muita-explicacao", "texto": "Poucos exemplos valem mais que muita explicação"}, {"nivel": 2, "ancora": "os-parametros-ja-conhecidos", "texto": "Os parâmetros: já conhecidos"}, {"nivel": 2, "ancora": "ele-nao-sabe-dizer-quot-nao-sei-quot", "texto": "Ele não sabe dizer &quot;não sei&quot;"}, {"nivel": 2, "ancora": "aberto-ou-por-api", "texto": "Aberto ou por API"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}, {"tipo": "pagina", "id": "ia-generativa/aula-13-aplicacao-rag", "titulo": "Aula 13 — Uma Aplicação de Verdade", "descricao": "Buscar antes de responder, e medir se melhorou", "sumario": [{"nivel": 2, "ancora": "o-problema", "texto": "O problema"}, {"nivel": 2, "ancora": "rag-buscar-antes-de-responder", "texto": "RAG: buscar antes de responder"}, {"nivel": 2, "ancora": "dividir-o-documento-em-pedacos", "texto": "Dividir o documento em pedaços"}, {"nivel": 2, "ancora": "transformar-texto-em-vetor", "texto": "Transformar texto em vetor"}, {"nivel": 2, "ancora": "a-busca", "texto": "A busca"}, {"nivel": 2, "ancora": "montar-o-prompt", "texto": "Montar o prompt"}, {"nivel": 2, "ancora": "medir-que-e-a-parte-que-ninguem-faz", "texto": "Medir, que é a parte que ninguém faz"}, {"nivel": 2, "ancora": "o-que-fazer-quando-nao-esta-bom", "texto": "O que fazer quando não está bom"}, {"nivel": 2, "ancora": "o-caminho-inteiro", "texto": "O caminho inteiro"}, {"nivel": 2, "ancora": "materiais", "texto": "Materiais"}, {"nivel": 2, "ancora": "para-ir-alem", "texto": "Para ir além"}]}];
   var SOL = '<circle cx="12" cy="12" r="4.2"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4"/>';
   var LUA = '<path d="M20 13.5A8 8 0 1 1 10.5 4a6.3 6.3 0 0 0 9.5 9.5Z"/>';
 
@@ -10409,6 +10634,7 @@ quando buscar, quando calcular e quando responder).</p>
     });
     artigo.appendChild(corpo);
     prepararQuiz(corpo);
+    prepararExplorador(corpo);
 
     montarPaginacao(id);
     montarSumario(p);
@@ -10862,6 +11088,272 @@ quando buscar, quando calcular e quando responder).</p>
       if (lupa.classList.contains("aberta")) { lupa.classList.remove("aberta"); lupaImg.src = ""; }
     }
   });
+
+  /* ---------------------------------------------------------- explorador */
+  // O Explorador do LLM roda o modelo do curso (809.728 pesos) aqui mesmo,
+  // no navegador. O motor e os pesos (uns 2 MB) só são baixados quando a
+  // página dele abre; ver data/scripts/exportar_explorador.py.
+  var motorDoLLM = null, esperandoMotor = [];
+  function carregarMotor(pronto) {
+    if (motorDoLLM) { pronto(motorDoLLM); return; }
+    esperandoMotor.push(pronto);
+    if (esperandoMotor.length > 1) return;
+    function avisar(motor) {
+      var fila = esperandoMotor; esperandoMotor = [];
+      fila.forEach(function (f) { f(motor); });
+    }
+    function script(src, depois) {
+      var s = document.createElement("script");
+      s.src = src;
+      s.onload = depois;
+      s.onerror = function () { avisar(null); };
+      document.head.appendChild(s);
+    }
+    script("docs/assets/explorador/motor.js", function () {
+      script("docs/assets/explorador/modelo.js", function () {
+        motorDoLLM = window.criarMotorDoLLM(window.MINI_GPT);
+        avisar(motorDoLLM);
+      });
+    });
+  }
+
+  function prepararExplorador(corpo) {
+    Array.prototype.forEach.call(corpo.querySelectorAll(".explorador"), function (caixa) {
+      caixa.innerHTML = '<p class="exp-carregando">Carregando o modelo do curso (uns 2 MB)…</p>';
+      carregarMotor(function (motor) {
+        if (!motor) {
+          caixa.innerHTML = '<p class="exp-carregando">Não deu para carregar o modelo. Recarregue a página.</p>';
+          return;
+        }
+        montarExplorador(caixa, motor);
+      });
+    });
+  }
+
+  function numeroBR(v, casas) { return v.toFixed(casas).replace(".", ","); }
+  function porcento(p) { return p >= 0.1 ? numeroBR(100 * p, 0) + "%" : numeroBR(100 * p, 1) + "%"; }
+
+  function montarExplorador(caixa, m) {
+    var C = m.config, D = C.dimensao;
+    var EXEMPLOS = [
+      "A casa de Capitú tinha uma janela para a",
+      "Não sei se a senhora",
+      "Quincas Bor",
+      "O menino era pai do",
+      "Ella trazia uma carta na"
+    ];
+    caixa.innerHTML =
+      '<label class="exp-rotulo" for="exp-texto">O texto que entra no modelo (escreva o que quiser)</label>' +
+      '<textarea id="exp-texto" rows="2" spellcheck="false"></textarea>' +
+      '<div class="exp-exemplos">Exemplos: ' + EXEMPLOS.map(function (e) {
+        return '<button type="button" data-texto="' + escapar(e) + '">' + escapar(e) + "</button>";
+      }).join("") + "</div>" +
+      '<div class="exp-controles">' +
+      '<label>Temperatura <input type="range" class="exp-temp" min="0.1" max="2" step="0.1" value="0.8"> <output class="exp-temp-valor">0,8</output></label>' +
+      '<label>Top-k <select class="exp-k"><option value="0">sem corte</option><option>1</option><option>5</option><option>10</option><option selected>40</option></select></label>' +
+      '<button type="button" class="exp-acao exp-gerar">Gerar 1 token</button>' +
+      '<button type="button" class="exp-gerar10">Gerar 10</button>' +
+      "</div>" +
+      '<p class="exp-caminho"><span>texto</span>→<span>tokens</span>→<span>vetores</span>→<span>4 blocos transformer</span>→<span>chances do próximo token</span></p>' +
+
+      '<section class="exp-etapa"><header><span class="exp-num">1</span><h3>Tokens</h3><span class="exp-forma exp-f1"></span></header>' +
+      '<p class="exp-explica">O tokenizador BPE da Aula 9 corta o texto em peças e troca cada peça pelo seu número. ' +
+      "Clique num token para segui-lo pelas próximas etapas.</p>" +
+      '<div class="exp-tokens"></div></section>' +
+
+      '<section class="exp-etapa"><header><span class="exp-num">2</span><h3>O token vira vetor</h3><span class="exp-forma">[n, 128] · 147.456 pesos</span></header>' +
+      '<p class="exp-explica">O número escolhe uma linha da tabela de embedding (128 números). Somada a ela, a linha da posição. ' +
+      "Vermelho é positivo, azul é negativo.</p>" +
+      '<div class="exp-vetor"></div>' +
+      '<p class="exp-vizinhos"></p></section>' +
+
+      '<section class="exp-etapa"><header><span class="exp-num">3</span><h3>Atenção, nos 4 blocos</h3><span class="exp-forma">[n, 128] → [n, 128] · 132.480 pesos por bloco</span></header>' +
+      '<p class="exp-explica">Em cada bloco, a atenção mistura cada token com os anteriores (a máscara apaga o futuro), ' +
+      "e uma camada densa pensa sobre cada posição sozinha. Escolha a camada e a cabeça.</p>" +
+      '<div class="exp-escolhas exp-camadas">Camada: </div>' +
+      '<div class="exp-escolhas exp-cabecas">Cabeça: </div>' +
+      '<p class="exp-olha-titulo exp-legenda"></p>' +
+      '<div class="exp-olhar"></div>' +
+      '<div class="exp-mapa"></div>' +
+      '<p class="exp-legenda">O mapa inteiro: cada linha é um token olhando para os anteriores (colunas). O triângulo de cima é vazio: é a máscara.</p></section>' +
+
+      '<section class="exp-etapa"><header><span class="exp-num">4</span><h3>As chances do próximo token</h3><span class="exp-forma">[1.024] · 132.352 pesos</span></header>' +
+      '<p class="exp-explica">A última posição vira 1.024 pontuações, uma por token do vocabulário, e a softmax (dividida pela temperatura) ' +
+      "vira chances. Clique numa barra para colar aquele token no texto.</p>" +
+      '<div class="exp-barras"></div>' +
+      '<p class="exp-resumo"></p></section>';
+
+    var texto = caixa.querySelector("textarea");
+    var temp = caixa.querySelector(".exp-temp"), tempValor = caixa.querySelector(".exp-temp-valor");
+    var seletorK = caixa.querySelector(".exp-k");
+    var estado = { ids: [], etapas: null, sel: 0, camada: C.camadas - 1, cabeca: -1 };
+
+    function botaoEscolha(lista, rotulo, valor, chave) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.textContent = rotulo;
+      b.addEventListener("click", function () { estado[chave] = valor; desenharAtencao(); });
+      lista.appendChild(b);
+      return b;
+    }
+    var botoesCamada = [], botoesCabeca = [];
+    for (var i = 0; i < C.camadas; i++) botoesCamada.push(botaoEscolha(caixa.querySelector(".exp-camadas"), String(i + 1), i, "camada"));
+    botoesCabeca.push(botaoEscolha(caixa.querySelector(".exp-cabecas"), "média das 4", -1, "cabeca"));
+    for (i = 0; i < C.cabecas; i++) botoesCabeca.push(botaoEscolha(caixa.querySelector(".exp-cabecas"), String(i + 1), i, "cabeca"));
+
+    function cor(v, maximo) {
+      var a = Math.min(1, Math.abs(v) / (maximo || 1));
+      return v >= 0 ? "rgba(192,57,43," + a.toFixed(3) + ")" : "rgba(47,91,208," + a.toFixed(3) + ")";
+    }
+    function faixa(valores) {
+      var maximo = 0;
+      for (var i = 0; i < valores.length; i++) maximo = Math.max(maximo, Math.abs(valores[i]));
+      var html = '<div class="exp-faixa">';
+      for (i = 0; i < valores.length; i++) html += '<span style="background:' + cor(valores[i], maximo) + '"></span>';
+      return html + "</div>";
+    }
+    function rotulo(id) { return escapar(m.mostrar(id)); }
+
+    function rodar() {
+      estado.ids = m.codificar(texto.value).slice(-C.bloco);
+      if (!estado.ids.length) {
+        estado.etapas = null;
+        caixa.querySelector(".exp-tokens").innerHTML = '<p class="exp-legenda">Escreva alguma coisa na caixa de texto.</p>';
+        return;
+      }
+      estado.etapas = m.rodar(estado.ids);
+      estado.sel = estado.ids.length - 1;
+      desenharTudo();
+    }
+
+    function desenharTudo() { desenharTokens(); desenharVetor(); desenharAtencao(); desenharSaida(); }
+
+    function desenharTokens() {
+      var n = estado.ids.length;
+      caixa.querySelector(".exp-f1").textContent = "[" + n + "] números" + (n >= C.bloco ? " (a janela é de 128)" : "");
+      var lista = caixa.querySelector(".exp-tokens");
+      lista.innerHTML = estado.ids.map(function (id, t) {
+        return '<button type="button" class="exp-token' + (t === estado.sel ? " sel" : "") + '" data-t="' + t + '">' +
+          rotulo(id) + "<small>" + id + "</small></button>";
+      }).join("");
+    }
+
+    function desenharVetor() {
+      var t = estado.sel, id = estado.ids[t];
+      var token = m.pesos.token.subarray(id * D, (id + 1) * D);
+      var posicao = m.pesos.posicao.subarray(t * D, (t + 1) * D);
+      var soma = estado.etapas.entrada.subarray(t * D, (t + 1) * D);
+      caixa.querySelector(".exp-vetor").innerHTML =
+        '<span class="nome">token «' + rotulo(id) + "» (linha " + id + ")</span>" + faixa(token) +
+        '<span class="nome">+ posição ' + t + "</span>" + faixa(posicao) +
+        '<span class="nome">= o que entra no bloco 1</span>' + faixa(soma);
+      var viz = m.vizinhos(id, 6);
+      caixa.querySelector(".exp-vizinhos").innerHTML =
+        "Os vetores de token mais parecidos com «" + rotulo(id) + "» (similaridade do cosseno): " +
+        viz.map(function (v) { return "<code>" + rotulo(v[0]) + "</code> " + numeroBR(v[1], 2); }).join(", ") + ".";
+    }
+
+    function pesosDaLinha(t) {
+      var camada = estado.etapas.atencao[estado.camada], linha = new Float64Array(t + 1);
+      if (estado.cabeca >= 0) { for (var s = 0; s <= t; s++) linha[s] = camada[estado.cabeca][t][s]; return linha; }
+      for (var c = 0; c < camada.length; c++) for (s = 0; s <= t; s++) linha[s] += camada[c][t][s] / camada.length;
+      return linha;
+    }
+
+    function desenharAtencao() {
+      if (!estado.etapas) return;
+      botoesCamada.forEach(function (b, i) { b.classList.toggle("sel", i === estado.camada); });
+      botoesCabeca.forEach(function (b, i) { b.classList.toggle("sel", i - 1 === estado.cabeca); });
+      var t = estado.sel, linha = pesosDaLinha(t), ids = estado.ids;
+      var inicio = Math.max(0, t - 23), maior = 0;
+      for (var s = 0; s <= t; s++) if (linha[s] > linha[maior]) maior = s;
+      caixa.querySelector(".exp-olha-titulo").innerHTML =
+        "Para onde «" + rotulo(ids[t]) + "» olha na camada " + (estado.camada + 1) +
+        (estado.cabeca >= 0 ? ", cabeça " + (estado.cabeca + 1) : " (média das cabeças)") +
+        ": mais para «" + rotulo(ids[maior]) + "», com " + porcento(linha[maior]) + ".";
+      var html = "";
+      for (s = inicio; s <= t; s++) {
+        html += '<div class="exp-coluna' + (s === t ? " eu" : "") + '"><span class="pct">' + porcento(linha[s]) + "</span>" +
+          '<div class="alto"><div class="barra" style="height:' + (100 * linha[s]).toFixed(1) + '%"></div></div>' +
+          '<span class="rot">' + rotulo(ids[s]) + "</span></div>";
+      }
+      var olhar = caixa.querySelector(".exp-olhar");
+      olhar.innerHTML = html;
+      olhar.scrollLeft = olhar.scrollWidth;      // o token escolhido fica no fim
+
+      var n = ids.length, de = Math.max(0, n - 24), lado = n - de;
+      var mapa = caixa.querySelector(".exp-mapa");
+      mapa.style.gridTemplateColumns = "auto repeat(" + lado + ", 15px)";
+      html = "";
+      for (var a = de; a < n; a++) {
+        var pesos = pesosDaLinha(a);
+        html += '<span class="r' + (a === t ? " eu" : "") + '">' + rotulo(ids[a]) + "</span>";
+        for (s = de; s < n; s++) {
+          var w = s <= a ? pesos[s] : 0;
+          html += '<span class="c' + (a === t ? " eu" : "") + '" title="' + escapar(m.mostrar(ids[a]) + " → " + m.mostrar(ids[s]) + ": " + porcento(w)) +
+            '" style="background:' + (s <= a ? "rgba(47,91,208," + Math.min(1, w * 1.6).toFixed(3) + ")" : "transparent") + '"></span>';
+        }
+      }
+      mapa.innerHTML = html;
+    }
+
+    function chancesAtuais() {
+      return m.chances(estado.etapas.logits, parseFloat(temp.value), parseInt(seletorK.value, 10));
+    }
+
+    function desenharSaida() {
+      var r = chancesAtuais(), k = parseInt(seletorK.value, 10), html = "", soma = 0;
+      for (var i = 0; i < 10; i++) {
+        var id = r.ordem[i], p = r.p[id], fora = k && i >= k;
+        soma += p;
+        html += '<div class="linha' + (fora ? " fora" : "") + '" data-id="' + id + '"><span class="tok">' + rotulo(id) + "</span>" +
+          '<div><div class="b" style="width:' + (100 * p).toFixed(1) + '%"></div></div><span class="num">' + porcento(p) + "</span></div>";
+      }
+      html += '<div class="linha fora"><span class="tok">os outros ' + (C.vocabulario - 10) + "</span>" +
+        '<div><div class="b" style="width:' + (100 * Math.max(0, 1 - soma)).toFixed(1) + '%"></div></div><span class="num">' + porcento(Math.max(0, 1 - soma)) + "</span></div>";
+      caixa.querySelector(".exp-barras").innerHTML = html;
+      var acumulado = 0, quantos = 0;
+      while (acumulado < 0.9 && quantos < r.ordem.length) { acumulado += r.p[r.ordem[quantos]]; quantos++; }
+      caixa.querySelector(".exp-resumo").textContent =
+        "O favorito tem " + porcento(r.p[r.ordem[0]]) + ". " +
+        (quantos === 1 ? "Ele sozinho já soma 90% da chance" : "São precisos " + quantos + " tokens para somar 90% da chance") +
+        (k ? ", e só os " + k + " primeiros entram no sorteio." : ", e todos os 1.024 entram no sorteio.");
+    }
+
+    function colar(id) {
+      texto.value = m.decodificar(estado.ids.concat([id]));
+      rodar();
+    }
+    function gerar(quantos) {
+      if (!estado.etapas || quantos <= 0) return;
+      colar(m.sortear(chancesAtuais().p));
+      setTimeout(function () { gerar(quantos - 1); }, 70);
+    }
+
+    var espera = null;
+    texto.addEventListener("input", function () { clearTimeout(espera); espera = setTimeout(rodar, 250); });
+    caixa.querySelector(".exp-exemplos").addEventListener("click", function (e) {
+      var b = e.target.closest("button");
+      if (b) { texto.value = b.dataset.texto; rodar(); }
+    });
+    caixa.querySelector(".exp-tokens").addEventListener("click", function (e) {
+      var b = e.target.closest(".exp-token");
+      if (!b) return;
+      estado.sel = parseInt(b.dataset.t, 10);
+      desenharTokens(); desenharVetor(); desenharAtencao();
+    });
+    caixa.querySelector(".exp-barras").addEventListener("click", function (e) {
+      var l = e.target.closest(".linha");
+      if (l && l.dataset.id && !l.classList.contains("fora")) colar(parseInt(l.dataset.id, 10));
+    });
+    temp.addEventListener("input", function () { tempValor.textContent = numeroBR(parseFloat(temp.value), 1); if (estado.etapas) desenharSaida(); });
+    seletorK.addEventListener("change", function () { if (estado.etapas) desenharSaida(); });
+    caixa.querySelector(".exp-gerar").addEventListener("click", function () { gerar(1); });
+    caixa.querySelector(".exp-gerar10").addEventListener("click", function () { gerar(10); });
+
+    texto.value = EXEMPLOS[0];
+    rodar();
+  }
 
   /* ------------------------------------------------------------- arranque */
   irPara();

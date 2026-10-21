@@ -46,6 +46,7 @@
 * [Aula 9 — Do Texto aos Números](llm-do-zero/aula-09-tokenizacao.md)
 * [Aula 10 — Como Funciona um LLM](llm-do-zero/aula-10-como-funciona-um-llm.md)
 * [Aula 11 — Treinar e Usar um LLM](llm-do-zero/aula-11-treinar-e-usar.md)
+* [Explorador do LLM](llm-do-zero/explorador.md)
 * [Colas dos Exercícios](llm-do-zero/colas-dos-exercicios.md)
 
 ## IA Generativa

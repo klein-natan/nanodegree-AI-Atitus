@@ -56,4 +56,5 @@ para muito além de LLM:
 | [Aula 9 — Do Texto aos Números](aula-09-tokenizacao.md) | O que um LLM faz, o modelo de contagem e o tokenizador BPE | Disponível |
 | [Aula 10 — Como Funciona um LLM](aula-10-como-funciona-um-llm.md) | O embedding, a atenção, o bloco transformer e o modelo inteiro | Disponível |
 | [Aula 11 — Treinar e Usar um LLM](aula-11-treinar-e-usar.md) | O treino no processador, a geração de texto, o ajuste fino e os limites | Disponível |
+| [Explorador do LLM](explorador.md) | O modelo do curso rodando no navegador: tokens, vetores, atenção e chances, com qualquer frase | Disponível |
 | [Colas dos Exercícios](colas-dos-exercicios.md) | Dicas para cada passo dos 9 exercícios | Disponível |

@@ -460,6 +460,7 @@ Os três exercícios do notebook são experimentos com o modelo treinado:
 
 - [The Illustrated Transformer](https://jalammar.github.io/illustrated-transformer/): a explicação visual mais conhecida, com animações de cada passo.
 - [Attention in transformers, step-by-step (3Blue1Brown)](https://www.youtube.com/watch?v=eMlx5fFNoYc): a conta da atenção, animada. Em inglês, com legendas.
+- [Explorador do LLM](explorador.md): o modelo desta aula rodando no navegador, com qualquer frase sua: os tokens, os vetores, a atenção de cada cabeça e as chances do próximo token.
 - [Transformer Explainer](https://poloclub.github.io/transformer-explainer/): um GPT-2 de verdade rodando no navegador, com cada peça desta aula clicável.
 - [Attention Is All You Need](https://arxiv.org/abs/1706.03762): o artigo de 2017 que apresentou o transformer. Difícil, mas vale ver o desenho da página 3.
 

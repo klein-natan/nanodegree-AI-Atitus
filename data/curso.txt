@@ -1477,6 +1477,7 @@ Os três exercícios do notebook são experimentos com o modelo treinado:
 ### Aula 10 — Como Funciona um LLM > Para ir além
 - The Illustrated Transformer: a explicação visual mais conhecida, com animações de cada passo.
 - Attention in transformers, step-by-step (3Blue1Brown): a conta da atenção, animada. Em inglês, com legendas.
+- Explorador do LLM: o modelo desta aula rodando no navegador, com qualquer frase sua: os tokens, os vetores, a atenção de cada cabeça e as chances do próximo token.
 - Transformer Explainer: um GPT-2 de verdade rodando no navegador, com cada peça desta aula clicável.
 - Attention Is All You Need: o artigo de 2017 que apresentou o transformer. Difícil, mas vale ver o desenho da página 3.
 
@@ -2160,6 +2161,88 @@ Se o Colab reiniciou e o `meu_modelo` sumiu, rode a preparação e
 antes do ajuste. Sem o arquivo, use o modelo do professor:
 `meu_modelo = professor`.
 
+### Explorador do LLM > O caminho, em quatro etapas
+O modelo faz sempre o mesmo caminho, da esquerda para a direita:
+
+| Etapa | O que entra | O que sai | Pesos |
+|---|---|---|---|
+| 1. Tokens | o texto | uma fila de números, um por peça | nenhum: é o tokenizador da Aula 9 |
+| 2. Vetores | os números | 128 números por token | 147.456 |
+| 3. Quatro blocos | 128 números por token | 128 números por token, agora com contexto | 529.920 |
+| 4. Saída | os 128 números da última posição | 1.024 chances, uma por token | 132.352 |
+
+Quase todo o trabalho está na etapa 3. As outras só traduzem: texto em
+números na entrada, números em chances na saída.
+
+### Explorador do LLM > Etapa 1: tokens
+O tokenizador BPE da Aula 9 corta o texto em
+peças e troca cada peça pelo seu número. Palavras comuns em Machado viram
+um token só (`·casa`, `·elle`); nomes e palavras raras viram vários
+(`·C`, `ap`, `it`, `ú`). O ponto no começo de uma peça é o espaço que vem
+antes dela.
+
+O modelo olha no máximo 128 tokens para trás: é a janela de contexto. Se
+o texto passar disso, só os últimos 128 entram.
+
+### Explorador do LLM > Etapa 2: o token vira vetor
+Cada número escolhe uma linha da tabela de embedding: 128 números. A essa
+linha se soma a linha da posição, que diz onde o token está na frase. É o
+que a Aula 10
+explica, e o explorador mostra as três faixas: a do token, a da posição e
+a soma, que é o que entra no primeiro bloco.
+
+Embaixo aparecem os tokens com o vetor mais parecido, pela similaridade
+do cosseno. Clique em `·elle` e veja `·ella` no topo: palavras que fazem o
+mesmo papel na frase ficaram com vetores parecidos durante o treino.
+
+### Explorador do LLM > Etapa 3: a atenção, nos quatro blocos
+Cada bloco tem duas metades. A atenção deixa cada token olhar para os
+anteriores e misturar o que viu; a camada densa pensa sobre cada posição
+sozinha. O explorador mostra a primeira metade, que é onde dá para ver
+alguma coisa: para onde cada token olha.
+
+Escolha uma camada e uma cabeça (ou a média das quatro) e clique num
+token. As barras mostram quanto ele olha para cada token anterior. O mapa
+embaixo mostra todos os tokens de uma vez: cada linha é um token, cada
+coluna é para onde ele olha, e o triângulo de cima fica vazio, porque a
+máscara causal
+não deixa ninguém olhar o futuro.
+
+### Explorador do LLM > Etapa 4: as chances do próximo token
+Depois dos quatro blocos, a última posição vira 1.024 pontuações, uma
+para cada token do vocabulário, e a softmax transforma as pontuações em
+chances. Os dois botões da Aula 11 estão
+acima do texto:
+
+- a **temperatura** divide as pontuações antes da softmax: baixa
+  concentra a chance no favorito, alta espalha;
+- o **top-k** deixa no sorteio só os `k` tokens mais prováveis.
+
+"Gerar 1 token" sorteia um token com essas chances e cola no fim do
+texto. Tudo roda de novo, com o texto um token mais longo: é a geração
+autorregressiva.
+
+### Explorador do LLM > Experimentos para fazer
+| Faça | E repare |
+|---|---|
+| Escreva "Quincas Bor" | o favorito passa de 90%: só existe uma continuação razoável |
+| Escreva "Não sei se a senhora" | o favorito mal passa de 8%: o modelo está em dúvida |
+| Gere 10 tokens com temperatura 0,2 | o texto entra em loop |
+| Gere 10 tokens com temperatura 2 e sem corte, depois com top-k 10 | o corte salva a temperatura alta |
+| Clique em "janela", em "A casa de Capitú tinha uma janela", camada 4 | os pedaços de "janela" olham para "uma" |
+| Clique em `·dous`, `·era` ou `·olhos` na etapa 2 | os vizinhos fazem o mesmo papel na frase |
+| Troque a última palavra de uma frase | o mapa de atenção das posições anteriores não muda |
+
+### Explorador do LLM > O que o explorador não mostra
+Ele mostra o modelo pronto, não o treino: os pesos são os do professor, e
+não mudam enquanto você mexe. Para ver o treino acontecer, use o notebook
+da Aula 11. A camada densa de cada bloco e as
+normalizações também estão lá, rodando, só que sem desenho: 128 números
+virando 256 e voltando a 128 não dizem nada a olho nu.
+
+E ele escreve como Machado, com a grafia de 1899, porque foi só isso que
+leu. Escreva sobre celulares e ele vai continuar falando de viscondes.
+
 ### LLM do Zero > Como as aulas funcionam
 Cada aula alterna uma explicação curta, de 20 a 30 minutos, e um exercício
 que você faz sozinho no notebook, de 20 a 25 minutos. Entre os dois, um
@@ -2202,6 +2285,7 @@ para muito além de LLM:
 | Aula 9 — Do Texto aos Números | O que um LLM faz, o modelo de contagem e o tokenizador BPE | Disponível |
 | Aula 10 — Como Funciona um LLM | O embedding, a atenção, o bloco transformer e o modelo inteiro | Disponível |
 | Aula 11 — Treinar e Usar um LLM | O treino no processador, a geração de texto, o ajuste fino e os limites | Disponível |
+| Explorador do LLM | O modelo do curso rodando no navegador: tokens, vetores, atenção e chances, com qualquer frase | Disponível |
 | Colas dos Exercícios | Dicas para cada passo dos 9 exercícios | Disponível |
 
 ### Aula 1 — Regressão Linear Simples > Para que serve
