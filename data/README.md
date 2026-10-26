@@ -332,7 +332,7 @@ Aulas 10 e 11 de novo.
 |---|---|
 | **Origem** | As páginas de `docs/`, reunidas por `data/scripts/juntar_curso.py` |
 | **Usado em** | Aula 13 (Uma Aplicação de Verdade), e o ajuste fino da Aula 11 |
-| **Tamanho** | 251 pedaços, mediana de 729 caracteres |
+| **Tamanho** | 256 pedaços, mediana de 734 caracteres |
 
 O material do curso num arquivo só, para o assistente da Aula 13 responder
 perguntas sobre ele. Cada pedaço é uma seção de uma página, começa com

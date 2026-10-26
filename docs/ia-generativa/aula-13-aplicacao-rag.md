@@ -57,7 +57,7 @@ O primeiro passo é prático. Você não coloca o documento inteiro no prompt:
 não cabe na janela de contexto, e mesmo se coubesse, encheria de texto
 irrelevante.
 
-<figure><img src="../assets/aula-13/pedacos.png" alt="Histograma dos 251 pedaços do curso, com mediana de 729 caracteres, ao lado de um exemplo de trecho"><figcaption>Uma seção por pedaço; o título acompanha o texto na busca.</figcaption></figure>
+<figure><img src="../assets/aula-13/pedacos.png" alt="Histograma dos 256 pedaços do curso, com mediana de 734 caracteres, ao lado de um exemplo de trecho"><figcaption>Uma seção por pedaço; o título acompanha o texto na busca.</figcaption></figure>
 
 O tamanho do pedaço é a primeira decisão do projeto, e ela tem um
 compromisso claro:
@@ -68,8 +68,8 @@ compromisso claro:
 | Pequeno demais | a frase perde o contexto e vira ambígua |
 | Do tamanho de uma seção | costuma funcionar, e é o que usamos aqui |
 
-Aqui foram 251 pedaços, um por seção das páginas do curso, com mediana de
-729 caracteres.
+Aqui foram 256 pedaços, um por seção das páginas do curso, com mediana de
+734 caracteres.
 
 ## Transformar texto em vetor
 
@@ -104,7 +104,7 @@ Esse número tem nome: **similaridade do cosseno**. Com vetores de tamanho
 
 ## A busca
 
-Com todos os 251 pedaços virados em vetor, buscar é uma multiplicação de
+Com todos os 256 pedaços virados em vetor, buscar é uma multiplicação de
 matriz e uma ordenação:
 
 ```python
@@ -117,7 +117,7 @@ melhores = np.argsort(notas)[::-1][:3]     # os três maiores
 
 Num projeto grande, com milhões de pedaços, essa multiplicação vira lenta
 e você guarda os vetores numa **base vetorial**, que é um banco de dados
-especializado em achar vizinhos rápido. Com 251 pedaços, uma matriz
+especializado em achar vizinhos rápido. Com 256 pedaços, uma matriz
 resolve.
 
 {% hint style="info" %}
